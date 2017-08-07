@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADClientMetrics.h"
 
-@interface ADClientMetricsTests : XCTestCase
+@interface ADClientMetricsTests : ADTestCase
 
 @end
 

@@ -24,8 +24,35 @@
 #import "ADTestURLResponse.h"
 #import "ADOAuth2Constants.h"
 #import "NSDictionary+ADExtensions.h"
+#import "NSURL+ADExtensions.h"
+#import "NSDictionary+ADTestUtil.h"
 
 @implementation ADTestURLResponse
+
++ (NSDictionary *)defaultHeaders
+{
+    static NSDictionary *s_defaultHeaders = nil;
+    static dispatch_once_t once;
+    
+    dispatch_once(&once, ^{
+        NSMutableDictionary* headers = [[ADLogger adalId] mutableCopy];
+        
+        headers[@"Accept"] = @"application/json";
+        headers[@"client-request-id"] = [ADTestRequireValueSentinel sentinel];
+        headers[@"return-client-request-id"] = @"true";
+        
+#if TARGET_OS_IPHONE
+        headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
+        
+        // TODO: This really shouldn't be a default header...
+        headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
+        
+        s_defaultHeaders = [headers copy];
+    });
+    
+    return s_defaultHeaders;
+}
 
 + (ADTestURLResponse *)request:(NSURL *)request
                requestJSONBody:(NSDictionary *)requestBody
@@ -37,6 +64,7 @@
     response->_requestJSONBody = requestBody;
     response->_response = urlResponse;
     response->_responseData = data;
+    [response setRequestHeaders:nil];
     
     return response;
 }
@@ -50,6 +78,7 @@
     [response setRequestURL:request];
     response->_response = urlResponse;
     response->_responseData = data;
+    [response setRequestHeaders:nil];
     
     return response;
 }
@@ -61,6 +90,7 @@
     
     [response setRequestURL:request];
     response->_response = urlResponse;
+    [response setRequestHeaders:nil];
     
     return response;
 }
@@ -71,6 +101,7 @@
     ADTestURLResponse * response = [ADTestURLResponse new];
     
     [response setRequestURL:request];
+    [response setRequestHeaders:[ADLogger adalId]];
     response->_error = error;
     
     return response;
@@ -94,6 +125,7 @@
                                                          responseCode:200
                                                      httpHeaderFields:@{}
                                                      dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     
     return response;
 }
@@ -107,6 +139,7 @@
                                                      httpHeaderFields:@{}
                                                      dictionaryAsJSON:@{OAUTH2_ERROR : @"I'm an OAUTH server error!",
                                                                         OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     
     return response;
 }
@@ -133,6 +166,8 @@
                                                                         @"IdentityProviderService" :
                                                                             @{@"PassiveAuthEndpoint" : passiveAuthEndpoint}
                                                                         }];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
     return response;
 }
 
@@ -148,6 +183,8 @@
                                                          responseCode:400
                                                      httpHeaderFields:@{}
                                                      dictionaryAsJSON:@{}];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
     return response;
 }
 
@@ -158,7 +195,10 @@
     NSString *drsURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
                         onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
     
-    return [self serverNotFoundResponseForURLString:drsURL];
+    ADTestURLResponse *response = [self serverNotFoundResponseForURLString:drsURL];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
+    return response;
 }
 
 
@@ -178,6 +218,8 @@
                                                                                          @"href" : authority
                                                                                          }]
                                                                         }];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
     return response;
 }
 
@@ -192,6 +234,8 @@
                                                          responseCode:400
                                                      httpHeaderFields:@{}
                                                      dictionaryAsJSON:@{}];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
     return response;
 }
 
@@ -211,6 +255,8 @@
                                                                                          @"href" : @"idontmatch.com"
                                                                                          }]
                                                                         }];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
     return response;
 }
 
@@ -222,9 +268,11 @@
     NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
     NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
     
-    return [self serverNotFoundResponseForURLString:url];
+    ADTestURLResponse *response = [self serverNotFoundResponseForURLString:url];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    
+    return response;
 }
-
 
 + (ADTestURLResponse *)requestURLString:(NSString*)requestUrlString
                       responseURLString:(NSString*)responseUrlString
@@ -235,6 +283,7 @@
     ADTestURLResponse *response = [ADTestURLResponse new];
     [response setRequestURL:[NSURL URLWithString:requestUrlString]];
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
+    [response setRequestHeaders:[ADLogger adalId]];
     [response setJSONResponse:data];
     
     return response;
@@ -267,8 +316,8 @@
     ADTestURLResponse *response = [ADTestURLResponse new];
     [response setRequestURL:[NSURL URLWithString:requestUrlString]];
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
-    response->_requestHeaders = requestHeaders;
-    response->_requestParamsBody = requestParams;
+    [response setRequestHeaders:requestHeaders];
+    [response setUrlFormEncodedBody:requestParams];
     [response setJSONResponse:data];
     
     return response;
@@ -321,7 +370,24 @@
 
 - (void)setRequestHeaders:(NSDictionary *)headers
 {
-    _requestHeaders = [headers copy];
+    if (headers)
+    {
+        _requestHeaders = [headers mutableCopy];
+    }
+    else
+    {
+        _requestHeaders = [NSMutableDictionary new];
+    }
+    
+    // These values come from ADClientMetrics and are dependent on a previous request, which breaks
+    // the isolation of the tests. For now the easiest path is to ignore them entirely.
+    if (!_requestHeaders[@"x-client-last-endpoint"])
+    {
+        _requestHeaders[@"x-client-last-error"] = [ADTestIgnoreSentinel sentinel];
+        _requestHeaders[@"x-client-last-endpoint"] = [ADTestIgnoreSentinel sentinel];
+        _requestHeaders[@"x-client-last-request"] = [ADTestIgnoreSentinel sentinel];
+        _requestHeaders[@"x-client-last-response-time"] = [ADTestIgnoreSentinel sentinel];
+    }
 }
 
 - (void)setRequestBody:(NSData *)body
@@ -329,9 +395,23 @@
     _requestBody = body;
 }
 
-- (void)setRequestJSONBody:(NSDictionary *)jsonBody
+- (void)setUrlFormEncodedBody:(NSDictionary *)formParameters
 {
-    _requestParamsBody = jsonBody;
+    _requestParamsBody = nil;
+    if (!formParameters)
+    {
+        return;
+    }
+    
+    _requestParamsBody = formParameters;
+    if (!_requestHeaders)
+    {
+        _requestHeaders = [NSMutableDictionary new];
+    }
+    
+    _requestHeaders[@"Content-Type"] = @"application/x-www-form-urlencoded";
+    NSString *urlEncoded = [formParameters adURLFormEncode];
+    _requestHeaders[@"Content-Length"] = [NSString stringWithFormat:@"%lu", (unsigned long)[urlEncoded lengthOfBytesUsingEncoding:NSUTF8StringEncoding]];
 }
 
 - (BOOL)matchesURL:(NSURL *)url
@@ -342,7 +422,7 @@
         return NO;
     }
     
-    if ([url.host caseInsensitiveCompare:_requestURL.host] != NSOrderedSame)
+    if ([[url adHostWithPortIfNecessary] caseInsensitiveCompare:[_requestURL adHostWithPortIfNecessary]] != NSOrderedSame)
     {
         return NO;
     }
@@ -359,7 +439,9 @@
     if (![NSString adIsStringNilOrBlank:query])
     {
         NSDictionary *QPs = [NSDictionary adURLFormDecode:query];
-        if (![QPs isEqualToDictionary:_QPs])
+        if (![_QPs compareToActual:QPs
+                             label:@"URL QPs"
+                           myLabel:@"Expected URL QPs"])
         {
             return NO;
         }
@@ -383,9 +465,11 @@
     
     if (_requestParamsBody)
     {
-        NSString* string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
-        id obj = [NSDictionary adURLFormDecode:string];
-        return [obj isEqual:_requestParamsBody];
+        NSString * string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
+        NSDictionary *obj = [NSDictionary adURLFormDecode:string];
+        return [_requestParamsBody compareToActual:obj
+                                             label:@"URL Encoded Body Parameter"
+                                           myLabel:@"Expected URL Encoded Body Parameter"];
     }
     
     if (_requestBody)
@@ -400,28 +484,21 @@
 {
     if (!_requestHeaders)
     {
-        return YES;
+        if (!headers || headers.count == 0)
+        {
+            return YES;
+        }
+        // This wiil spit out to console the extra stuff that we weren't expecting
+        [@{} compareToActual:headers label:@"Request Headers" myLabel:@"Expected Request Headers"];
+        return NO;
     }
     
-    BOOL matches = YES;
-    
-    for (id key in _requestHeaders)
-    {
-        id header = [_requestHeaders objectForKey:key];
-        id matchHeader = [headers objectForKey:key];
-        if (!matchHeader)
-        {
-            AD_LOG_ERROR_F(@"Request is missing header", AD_FAILED, nil, @"%@", key);
-            matches = NO;
-        }
-        else if (![header isEqual:matchHeader])
-        {
-            AD_LOG_ERROR_F(@"Request headers do not match", AD_FAILED, nil, @"expected: \"%@\" actual: \"%@\"", header, matchHeader);
-            matches = NO;
-        }
-    }
-    
-    return matches;
+    return [_requestHeaders compareToActual:headers label:@"Request Headers" myLabel:@"Expected Request Headers"];
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@: %@>", NSStringFromClass(self.class), _requestURL];
 }
 
 @end

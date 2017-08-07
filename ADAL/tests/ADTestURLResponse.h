@@ -29,7 +29,7 @@
     NSURL *_requestURL;
     id _requestJSONBody;
     id _requestParamsBody;
-    NSDictionary *_requestHeaders;
+    NSMutableDictionary *_requestHeaders;
     NSData *_requestBody;
     NSDictionary *_QPs;
     NSDictionary *_expectedRequestHeaders;
@@ -37,6 +37,8 @@
     NSURLResponse *_response;
     NSError *_error;
 }
+
++ (NSDictionary *)defaultHeaders;
 
 + (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
                      responseURLString:(NSString *)responseUrlString
@@ -90,11 +92,10 @@
 + (ADTestURLResponse*)responseUnreachableWebFinger:(NSString *)passiveEndpoint
                                          authority:(NSString *)authority;
 
-
 - (void)setRequestURL:(NSURL *)requestURL;
 - (void)setRequestHeaders:(NSDictionary *)headers;
 - (void)setRequestBody:(NSData *)body;
-- (void)setRequestJSONBody:(NSDictionary *)jsonBody;
+- (void)setUrlFormEncodedBody:(NSDictionary *)formParameters;
 
 - (void)setResponseURL:(NSString *)urlString
                   code:(NSInteger)code

@@ -25,8 +25,33 @@
 //
 //------------------------------------------------------------------------------
 
-#import <XCTest/XCTest.h>
+#import <Foundation/Foundation.h>
 
-@interface ADTestCase : XCTestCase
+@interface NSDictionary (ADTestUtil)
+
+- (BOOL)compareToActual:(NSDictionary *)dictionary;
+- (BOOL)compareToActual:(NSDictionary *)dictionary
+                  label:(NSString *)label
+                myLabel:(NSString *)myLabel;
+
+@end
+
+/*!
+ Sentinel class to use for values you want to make sure are present in a dictionary but don't
+ care about the actual value.
+ */
+@interface ADTestRequireValueSentinel : NSObject
+
++ (instancetype)sentinel;
+
+@end
+
+
+/*!
+ Sentinel class to use for values you don't care if it is present or not
+ */
+@interface ADTestIgnoreSentinel : NSObject
+
++ (instancetype)sentinel;
 
 @end

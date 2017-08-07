@@ -36,7 +36,7 @@
 
 static NSString* s_kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
-@interface ADBrokerMessageTests : XCTestCase
+@interface ADBrokerMessageTests : ADTestCase
 
 @end
 

@@ -25,7 +25,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
 
-@interface ADUserInformationTests : XCTestCase
+@interface ADUserInformationTests : ADTestCase
 
 @end
 

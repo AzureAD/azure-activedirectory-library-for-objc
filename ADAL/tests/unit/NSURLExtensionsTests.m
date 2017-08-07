@@ -24,7 +24,7 @@
 #import "NSURL+ADExtensions.h"
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface NSURLExtensionsTests : XCTestCase
+@interface NSURLExtensionsTests : ADTestCase
 
 @end
 

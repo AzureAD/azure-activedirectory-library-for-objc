@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADAuthenticationErrorTests : XCTestCase
+@interface ADAuthenticationErrorTests : ADTestCase
 
 @end
 

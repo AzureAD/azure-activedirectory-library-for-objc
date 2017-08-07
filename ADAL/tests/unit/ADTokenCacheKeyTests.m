@@ -25,7 +25,7 @@
 #import "ADTokenCacheKey.h"
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADTokenCacheKeyTests : XCTestCase
+@interface ADTokenCacheKeyTests : ADTestCase
 {
     NSString* mAuthority;
     NSString* mResource;

@@ -253,7 +253,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource)
 @end
 
 
-@interface ADTokenCacheTests : XCTestCase
+@interface ADTokenCacheTests : ADTestCase
 
 @end
 

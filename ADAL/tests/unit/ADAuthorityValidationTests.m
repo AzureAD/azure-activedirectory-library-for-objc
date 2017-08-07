@@ -35,7 +35,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-@interface ADAuthortyValidationTests : XCTestCase
+@interface ADAuthortyValidationTests : ADTestCase
 
 @end
 

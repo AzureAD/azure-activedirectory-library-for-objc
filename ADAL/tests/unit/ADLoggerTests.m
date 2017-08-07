@@ -30,7 +30,7 @@ const int sMaxLoggerTestThreads = 100;
 volatile int32_t sLoggerTestThreadsCompleted = 0;
 dispatch_semaphore_t sLoggerTestCompletedSignal;
 
-@interface ADLoggerTests : XCTestCase
+@interface ADLoggerTests : ADTestCase
 
 @end
 

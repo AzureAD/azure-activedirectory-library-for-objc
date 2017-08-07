@@ -27,8 +27,9 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTestURLSession.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "NSDictionary+ADTestUtil.h"
 
-@interface ADAcquireTokenPkeyAuthTests : XCTestCase
+@interface ADAcquireTokenPkeyAuthTests : ADTestCase
 {
     dispatch_semaphore_t _dsem;
 }
@@ -81,12 +82,12 @@
 
 - (ADTestURLResponse *)defaultPkeyAuthNoWPJResponse
 {
-    NSString* expectedAuthHeader = @"PKeyAuth  Context=\"pkeyauth_context\", Version=\"1.0\"";
+    NSDictionary *headers = @{ @"Authorization" : @"PKeyAuth  Context=\"pkeyauth_context\", Version=\"1.0\"" };
     return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                               authority:TEST_AUTHORITY
                                resource:TEST_RESOURCE
                                clientId:TEST_CLIENT_ID
-                         requestHeaders:@{ @"Authorization" : expectedAuthHeader }
+                         requestHeaders:headers
                           correlationId:TEST_CORRELATION_ID
                         newRefreshToken:@"new refresh token"
                          newAccessToken:@"new access token"

@@ -25,7 +25,7 @@
 #import "ADHelpers.h"
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADHelpersTests : XCTestCase
+@interface ADHelpersTests : ADTestCase
 
 @end
 

@@ -35,7 +35,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-@interface ADAuthortyValidationTests : XCTestCase
+@interface ADAuthortyValidationTests : ADTestCase
 {
     dispatch_semaphore_t _dsem;
 }
@@ -188,9 +188,12 @@
     requestURL = [NSURL URLWithString:requestURLString];
 
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
+    
+    ADTestURLResponse *response = [ADTestURLResponse request:requestURL
+                                            respondWithError:responseError];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
 
-    [ADTestURLSession addResponse:[ADTestURLResponse request:requestURL
-                                               respondWithError:responseError]];
+    [ADTestURLSession addResponse:response];
     
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)

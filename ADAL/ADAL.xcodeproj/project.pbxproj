@@ -326,6 +326,14 @@
 		D6669FB51F1D4F51002492C5 /* ADWebFingerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */; };
 		D6669FB61F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */; };
 		D6669FB71F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */; };
+		D67D3D351F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
+		D67D3D361F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
+		D67D3D371F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
+		D67D3D381F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
+		D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
+		D67D3D3C1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
+		D67D3D3D1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
+		D67D3D3E1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
 		D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */; };
 		D68040331D22F686007A61AC /* ADWebAuthResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = D68040311D22F686007A61AC /* ADWebAuthResponse.h */; };
 		D68040351D22F686007A61AC /* ADWebAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D68040321D22F686007A61AC /* ADWebAuthResponse.m */; };
@@ -712,6 +720,12 @@
 		D6669FAC1F1D4F51002492C5 /* ADDrsDiscoveryRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDrsDiscoveryRequest.m; sourceTree = "<group>"; };
 		D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebFingerRequest.h; sourceTree = "<group>"; };
 		D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebFingerRequest.m; sourceTree = "<group>"; };
+		D67D3D331F382F8B00660F32 /* NSDictionary+ADTestUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ADTestUtil.h"; sourceTree = "<group>"; };
+		D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ADTestUtil.m"; sourceTree = "<group>"; };
+		D67D3D391F38502900660F32 /* ADTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestCase.h; sourceTree = "<group>"; };
+		D67D3D3A1F38502900660F32 /* ADTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestCase.m; sourceTree = "<group>"; };
+		D67D3D3F1F38538100660F32 /* ADTest.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTest.pch; sourceTree = "<group>"; };
+		D67D3D401F38542700660F32 /* ADAL.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAL.pch; sourceTree = "<group>"; };
 		D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		D68040311D22F686007A61AC /* ADWebAuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthResponse.h; sourceTree = "<group>"; };
 		D68040321D22F686007A61AC /* ADWebAuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponse.m; sourceTree = "<group>"; };
@@ -933,6 +947,7 @@
 			children = (
 				9453C3A41C583AA8006B9E79 /* public */,
 				60C351B91DA0D588006C8435 /* ADAL.m */,
+				D67D3D401F38542700660F32 /* ADAL.pch */,
 				9453C3A31C583A9C006B9E79 /* ADAL_Internal.h */,
 				8BB8345B18074A58007F9F0D /* ADAuthenticationContext.m */,
 				D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */,
@@ -988,6 +1003,11 @@
 				96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */,
 				D6D4D4961F2FCD8600CC1859 /* ADTestURLResponse.h */,
 				D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */,
+				D67D3D331F382F8B00660F32 /* NSDictionary+ADTestUtil.h */,
+				D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */,
+				D67D3D391F38502900660F32 /* ADTestCase.h */,
+				D67D3D3A1F38502900660F32 /* ADTestCase.m */,
+				D67D3D3F1F38538100660F32 /* ADTest.pch */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -1922,6 +1942,7 @@
 				B20DC6031F0D998A00957806 /* ADTokenCacheTests.m in Sources */,
 				B20DC6051F0D998A00957806 /* ADUserInformationTests.m in Sources */,
 				96C75D241E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
+				D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */,
 				B20DC5FD1F0D998A00957806 /* ADTelemetryTests.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */,
@@ -1940,6 +1961,7 @@
 				B20DC6011F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5F71F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
 				B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
+				D67D3D351F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2047,6 +2069,8 @@
 				B20DC5F61F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
 				B20DC5F21F0D998A00957806 /* ADAuthenticationErrorTests.m in Sources */,
 				96C75D251E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
+				D67D3D3D1F38502900660F32 /* ADTestCase.m in Sources */,
+				D67D3D371F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 				94DD18F51C5ACFF900F80C62 /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */,
 				B20DC5F41F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
@@ -2060,6 +2084,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D67D3D3C1F38502900660F32 /* ADTestCase.m in Sources */,
 				B20DC60F1F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
 				B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
@@ -2067,6 +2092,7 @@
 				B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */,
 				D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC5961F0D96A100957806 /* XCTestCase+TestHelperMethods.m in Sources */,
+				D67D3D361F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 				B20DC5981F0D96A100957806 /* ADTestURLSession.m in Sources */,
 				B20DC59A1F0D96A100957806 /* ADTestAuthenticationViewController.m in Sources */,
 			);
@@ -2078,12 +2104,14 @@
 			files = (
 				B20DC5BE1F0D96A700957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC5BF1F0D96A700957806 /* ADTestURLSessionDataTask.m in Sources */,
+				D67D3D3E1F38502900660F32 /* ADTestCase.m in Sources */,
 				B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC6131F0D9A5500957806 /* ADAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */,
 				D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC6101F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
 				B20DC5C81F0D96A700957806 /* ADTestAuthenticationViewController.m in Sources */,
+				D67D3D381F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2491,7 +2519,7 @@
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -2524,7 +2552,7 @@
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				INFOPLIST_FILE = "tests/unit/ios/ADAL_iOS_UTs-Info.plist";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -2677,6 +2705,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = "tests/unit/mac/ADAL_Mac_UTs-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2699,6 +2728,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = "tests/unit/mac/ADAL_Mac_UTs-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2723,7 +2753,7 @@
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -2756,7 +2786,7 @@
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				INFOPLIST_FILE = "tests/integration/ios/ADAL_iOS_ITs-Info.plist";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -2783,6 +2813,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = "tests/integration/mac/ADAL_Mac_ITs-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -2805,6 +2836,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = tests/ADTest.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = "tests/integration/mac/ADAL_Mac_ITs-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";

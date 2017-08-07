@@ -57,7 +57,7 @@ const int sAsyncContextTimeout = 10;
 
 @end
 
-@interface ADAcquireTokenTests : XCTestCase
+@interface ADAcquireTokenTests : ADTestCase
 {
 @private
     dispatch_semaphore_t _dsem;
@@ -286,8 +286,11 @@ const int sAsyncContextTimeout = 10;
     NSString* assertion = @"some assertion";
     NSString* base64Assertion = [[assertion dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
     
+    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [correlationId UUIDString];
+    
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
-                                                       requestHeaders:@{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] }
+                                                       requestHeaders:headers
                                                     requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_SAML11_BEARER_VALUE,
                                                                          OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE,
                                                                          OAUTH2_RESOURCE : TEST_RESOURCE,
@@ -891,6 +894,11 @@ const int sAsyncContextTimeout = 10;
               respondWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                    code:NSURLErrorNotConnectedToInternet
                                                userInfo:nil]];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
+                                       @"client_id" : TEST_CLIENT_ID,
+                                       @"grant_type" : @"refresh_token",
+                                       @"refresh_token" : TEST_REFRESH_TOKEN }];
     [ADTestURLSession addResponse:response];
     
     // Web UI should not attempt to launch when we fail to refresh the RT because there is no internet
@@ -975,6 +983,11 @@ const int sAsyncContextTimeout = 10;
                                                      httpHeaderFields:@{ } // maybe shoehorn correlation ID here
                                                      dictionaryAsJSON:@{ OAUTH2_ERROR : @"server_error",
                                                                          OAUTH2_ERROR_DESCRIPTION : @"AADSTS90036: Non-retryable error has occurred." }];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
+                                       @"client_id" : TEST_CLIENT_ID,
+                                       @"grant_type" : @"refresh_token",
+                                       @"refresh_token" : TEST_REFRESH_TOKEN }];
     
     //It should hit network twice for trying and retrying the refresh token because it is an server error
     //Then hit network twice again for broad refresh token for the same reason
@@ -1552,6 +1565,12 @@ const int sAsyncContextTimeout = 10;
                                                          responseCode:504
                                                      httpHeaderFields:@{ }
                                                      dictionaryAsJSON:@{ }];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
+                                       @"client_id" : TEST_CLIENT_ID,
+                                       @"grant_type" : @"refresh_token",
+                                       @"refresh_token" : TEST_REFRESH_TOKEN }];
+    
     // Add the responsce twice because retry will happen
     [ADTestURLSession addResponse:response];
     [ADTestURLSession addResponse:response];
@@ -1688,11 +1707,15 @@ const int sAsyncContextTimeout = 10;
     
     
     // Following we add a mock response and specify the request url we expect (it must include login_hint)
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/authorize?client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&prompt=none&resource=resource&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&nux=1&response_type=code&login_hint=eric_cartman%40contoso.com&x-client-Ver=" ADAL_VERSION_STRING
-                                                    responseURLString:@"https://idontmatter.com"
-                                                         responseCode:401
-                                                     httpHeaderFields:@{}
-                                                     dictionaryAsJSON:@{}];
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&prompt=none&resource=resource&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&nux=1&response_type=code&login_hint=eric_cartman%40contoso.com&x-client-Ver=" ADAL_VERSION_STRING]];
+    
+    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    
+    // TODO: It doesn't make sense to be sending this content type, seeing how there is no body, but we're sending it anyways
+    headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
+    [response setRequestHeaders:headers];
+    [response setResponseURL:@"https://idontmatter.com" code:401 headerFields:@{}];
     [ADTestURLSession addResponse:response];
     
     // We send the actual silent network request
