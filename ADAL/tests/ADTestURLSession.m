@@ -28,6 +28,46 @@
 #import "NSDictionary+ADExtensions.h"
 #import "ADOAuth2Constants.h"
 
+#include <assert.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/sysctl.h>
+
+// From https://developer.apple.com/library/content/qa/qa1361/_index.html
+static bool AmIBeingDebugged(void)
+// Returns true if the current process is being debugged (either
+// running under the debugger or has a debugger attached post facto).
+{
+    int                 junk;
+    int                 mib[4];
+    struct kinfo_proc   info;
+    size_t              size;
+    
+    // Initialize the flags so that, if sysctl fails for some bizarre
+    // reason, we get a predictable result.
+    
+    info.kp_proc.p_flag = 0;
+    
+    // Initialize mib, which tells sysctl the info we want, in this case
+    // we're looking for information about a specific process ID.
+    
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PID;
+    mib[3] = getpid();
+    
+    // Call sysctl.
+    
+    size = sizeof(info);
+    junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
+    assert(junk == 0);
+    
+    // We're being debugged if the P_TRACED flag is set.
+    
+    return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 @implementation NSURLSession (TestSessionOverride)
@@ -107,8 +147,6 @@ static NSMutableArray* s_responses = nil;
     [s_responses removeAllObjects];
 }
 
-
-
 - (NSURLSessionDataTask *)dataTaskWithURL:(NSURL *)url
 {
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -141,9 +179,15 @@ static NSMutableArray* s_responses = nil;
         
         if ([obj isKindOfClass:[ADTestURLResponse class]])
         {
-            response = (ADTestURLResponse*)obj;
+            response = (ADTestURLResponse *)obj;
             
-            if ([response matchesURL:requestURL] && [response matchesHeaders:headers] && [response matchesBody:body])
+            // We don't want the compiler to short circuit this case as finding out in one go all
+            // of the data that doesn't match can speed up debugging & fixing tests
+            bool match = [response matchesURL:requestURL];
+            match &= [response matchesBody:body];
+            match &= [response matchesHeaders:headers];
+            
+            if (match)
             {
                 [s_responses removeObjectAtIndex:i];
                 return response;
@@ -155,16 +199,50 @@ static NSMutableArray* s_responses = nil;
             NSMutableArray *subResponses = [s_responses objectAtIndex:i];
             response = [subResponses objectAtIndex:0];
             
-            if ([response matchesURL:requestURL] && [response matchesHeaders:headers] && [response matchesBody:body])
+            bool match = [response matchesURL:requestURL];
+            match &= [response matchesBody:body];
+            match &= [response matchesHeaders:headers];
+            
+            if (match)
             {
                 [subResponses removeObjectAtIndex:0];
                 if ([subResponses count] == 0)
-                {                    [s_responses removeObjectAtIndex:i];
+                {
+                    [s_responses removeObjectAtIndex:i];
                 }
                 return response;
             }
         }
     }
+    
+    // This class is used in the test target only. If you're seeing this outside the test target that means you linked in the file wrong
+    // take it out!
+    //
+    // No unit tests are allowed to hit network. This is done to ensure reliability of the test code. Tests should run quickly and
+    // deterministically. If you're hitting this assert that means you need to add an expected request and response to ADTestURLConnection
+    // using the ADTestRequestReponse class and add it using -[ADTestURLConnection addExpectedRequestResponse:] if you have a single
+    // request/response or -[ADTestURLConnection addExpectedRequestsAndResponses:] if you have a series of network requests that you need
+    // to ensure happen in the proper order.
+    //
+    // Example:
+    //
+    // MSALTestRequestResponse *response = [MSALTestRequestResponse requestURLString:@"https://requestURL"
+    //                                                             responseURLString:@"https://idontknowwhatthisshouldbe.com"
+    //                                                                  responseCode:400
+    //                                                              httpHeaderFields:@{}
+    //                                                              dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+    //
+    //  [MSALTestURLSession addResponse:response];
+    
+    if (AmIBeingDebugged())
+    {
+        NSLog(@"Failed to find repsonse for %@\ncurrent responses: %@", requestURL, s_responses);
+        // This will cause the tests to immediately stop execution right here if we're in the debugger,
+        // hopefully making it a little easier to see why a test is failing. :)
+        __builtin_trap();
+    }
+    
+    NSAssert(nil, @"did not find a matching response for %@", requestURL.absoluteString);
     
     return nil;
 }

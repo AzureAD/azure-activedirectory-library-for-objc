@@ -113,4 +113,17 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     }
 }
 
+- (void)clearMetrics
+{
+    @synchronized (self)
+    {
+        _errorToReport = nil;
+        _endpoint = nil;
+        _correlationId = nil;
+        _responseTime = nil;
+        
+        _isPending = NO;
+    }
+}
+
 @end

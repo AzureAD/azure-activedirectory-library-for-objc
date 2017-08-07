@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,42 +17,16 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-@interface ADClientMetrics : NSObject
-{
-@private
-    NSString* _endpoint;
-    NSString* _responseTime;
-    NSString* _correlationId;
-    NSString* _errorToReport;
-    NSDate* _startTime;
-    bool _isPending;
-}
-
-@property (readonly) NSString* endpoint;
-@property (readonly) NSString* responseTime;
-@property (readonly) NSString* correlationId;
-@property (readonly) NSString* errorToReport;
-@property (readonly) NSDate* startTime;
-@property bool isPending;
-
-+ (ADClientMetrics *)getInstance;
-
-- (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
-                endpoint:(NSString *)endPoint;
-
-- (void)endClientMetricsRecord:(NSString *)endpoint
-                     startTime:(NSDate *)startTime
-                 correlationId:(NSUUID *)correlationId
-                  errorDetails:(NSString *)errorDetails;
-
-- (void)clearMetrics;
+@interface ADTestCase : XCTestCase
 
 @end

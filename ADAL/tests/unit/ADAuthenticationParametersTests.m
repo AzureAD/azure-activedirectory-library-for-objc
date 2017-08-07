@@ -29,7 +29,7 @@
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
 
-@interface ADAuthenticationParametersTests : XCTestCase
+@interface ADAuthenticationParametersTests : ADTestCase
 {
     @private
     ADAuthenticationParameters* mParameters;
@@ -150,7 +150,7 @@
 }
 
 
-- (void) testParametersFromResourceURLParametersPositiveCase
+- (void)testParametersFromResourceURLParametersPositiveCase
 {
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];

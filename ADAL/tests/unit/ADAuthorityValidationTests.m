@@ -37,7 +37,7 @@
 
 static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
-@interface ADAuthortyValidationTests : XCTestCase
+@interface ADAuthortyValidationTests : ADTestCase
 
 @end
 

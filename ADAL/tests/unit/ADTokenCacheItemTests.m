@@ -27,7 +27,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 
-@interface ADTokenCacheItemTests : XCTestCase
+@interface ADTokenCacheItemTests : ADTestCase
 
 @end
 

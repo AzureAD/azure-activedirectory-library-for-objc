@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADTestNSStringHelperMethods : XCTestCase
+@interface ADTestNSStringHelperMethods : ADTestCase
 
 @end
 

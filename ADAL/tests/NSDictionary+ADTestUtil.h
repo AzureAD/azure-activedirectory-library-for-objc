@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,42 +17,41 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
-@interface ADClientMetrics : NSObject
-{
-@private
-    NSString* _endpoint;
-    NSString* _responseTime;
-    NSString* _correlationId;
-    NSString* _errorToReport;
-    NSDate* _startTime;
-    bool _isPending;
-}
+@interface NSDictionary (ADTestUtil)
 
-@property (readonly) NSString* endpoint;
-@property (readonly) NSString* responseTime;
-@property (readonly) NSString* correlationId;
-@property (readonly) NSString* errorToReport;
-@property (readonly) NSDate* startTime;
-@property bool isPending;
+- (BOOL)compareToActual:(NSDictionary *)dictionary;
+- (BOOL)compareToActual:(NSDictionary *)dictionary
+                  label:(NSString *)label
+                myLabel:(NSString *)myLabel;
 
-+ (ADClientMetrics *)getInstance;
+@end
 
-- (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
-                endpoint:(NSString *)endPoint;
+/*!
+ Sentinel class to use for values you want to make sure are present in a dictionary but don't
+ care about the actual value.
+ */
+@interface ADTestRequireValueSentinel : NSObject
 
-- (void)endClientMetricsRecord:(NSString *)endpoint
-                     startTime:(NSDate *)startTime
-                 correlationId:(NSUUID *)correlationId
-                  errorDetails:(NSString *)errorDetails;
++ (instancetype)sentinel;
 
-- (void)clearMetrics;
+@end
+
+
+/*!
+ Sentinel class to use for values you don't care if it is present or not
+ */
+@interface ADTestIgnoreSentinel : NSObject
+
++ (instancetype)sentinel;
 
 @end

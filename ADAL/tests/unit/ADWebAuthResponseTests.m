@@ -25,7 +25,7 @@
 #import <XCTest/XCTest.h>
 #import "ADWebAuthResponse.h"
 
-@interface ADWebAuthResponseTests : XCTestCase
+@interface ADWebAuthResponseTests : ADTestCase
 
 @end
 

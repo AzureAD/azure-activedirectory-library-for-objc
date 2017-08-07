@@ -37,6 +37,7 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
+#import "NSDictionary+ADTestUtil.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -303,15 +304,21 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
     
-    NSDictionary* headers = nil;
+    NSDictionary *requestHeaders = nil;
     if (correlationId)
     {
-        headers = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
+        NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+        headers[@"client-request-id"] = [correlationId UUIDString];
+        requestHeaders = headers;
+    }
+    else
+    {
+        requestHeaders = [ADTestURLResponse defaultHeaders];
     }
     
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
-                         requestHeaders:headers
+                         requestHeaders:requestHeaders
                       requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
                                            OAUTH2_REFRESH_TOKEN : refreshToken,
                                            OAUTH2_RESOURCE : resource,
@@ -452,20 +459,16 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
     
-    if (requestHeaders && correlationId)
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [correlationId UUIDString];
+    if (requestHeaders)
     {
-        NSMutableDictionary* mutableHeaders = [requestHeaders mutableCopy];
-        [mutableHeaders setObject:[correlationId UUIDString] forKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-        requestHeaders = mutableHeaders;
+        [headers addEntriesFromDictionary:requestHeaders];
     }
-    else if (correlationId)
-    {
-        requestHeaders = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
-    }
-    
+
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
-                         requestHeaders:requestHeaders
+                         requestHeaders:headers
                       requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
                                            OAUTH2_REFRESH_TOKEN : oldRefreshToken,
                                            OAUTH2_RESOURCE : resource,
@@ -476,7 +479,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                        dictionaryAsJSON:responseJson];
     
     return response;
-
 }
 
 @end

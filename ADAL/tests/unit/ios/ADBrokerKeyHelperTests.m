@@ -36,7 +36,7 @@ enum {
     CSSM_ALGID_AES
 };
 
-@interface ADBrokerKeyHelperTests : XCTestCase
+@interface ADBrokerKeyHelperTests : ADTestCase
 
 @end
 
