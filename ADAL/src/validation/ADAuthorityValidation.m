@@ -24,6 +24,7 @@
 
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
+#import "ADAuthorityValidationResponse.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADHelpers.h"
 #import "ADOAuth2Constants.h"
@@ -36,23 +37,29 @@
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
 
 // Trusted authorities
-static NSString* const s_kTrustedAuthority             = @"https://login.windows.net";
-static NSString* const s_kTrustedAuthorityUs           = @"https://login.microsoftonline.us";
-static NSString* const s_kTrustedAuthorityChina        = @"https://login.chinacloudapi.cn";
-static NSString* const s_kTrustedAuthorityGermany      = @"https://login.microsoftonline.de";
-static NSString* const s_kTrustedAuthorityWorldWide    = @"https://login.microsoftonline.com";
-static NSString* const s_kTrustedAuthorityUSGovernment = @"https://login-us.microsoftonline.com";
+static NSString* const s_kTrustedAuthority             = @"login.windows.net";
+static NSString* const s_kTrustedAuthorityUS           = @"login.microsoftonline.us";
+static NSString* const s_kTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+static NSString* const s_kTrustedAuthorityGermany      = @"login.microsoftonline.de";
+static NSString* const s_kTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+static NSString* const s_kTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
 
 // AAD validation check constant
 static NSString* const s_kTenantDiscoveryEndpoint      = @"tenant_discovery_endpoint";
 
-// AAD authority validation error message constant
-static NSString* const s_kValidationServerError        = @"The authority validation server returned an error.";
 // DRS server error message constant
 static NSString* const s_kDrsDiscoveryError            = @"DRS discovery was invalid or failed to return PassiveAuthEndpoint";
 static NSString* const s_kWebFingerError               = @"WebFinger request was invalid or failed";
 
 @implementation ADAuthorityValidation
+{
+    NSMutableDictionary *_validatedAdfsAuthorities;
+    NSMutableDictionary<NSString *, ADAuthorityValidationResponse *> *_validatedAADAuthorities;
+    NSSet *_whitelistedAADHosts;
+    
+    dispatch_queue_t _aadValidationQueue;
+}
+
 
 + (ADAuthorityValidation *)sharedInstance
 {
@@ -75,16 +82,18 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
+    _validatedAADAuthorities = [NSMutableDictionary new];
     
-    _validatedADAuthorities = [NSMutableSet new];
-    //List of prevalidated authorities (Azure Active Directory cloud instances).
-    //Only the sThrustedAuthority is used for validation of new authorities.
-    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthority]];
-    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityUs]]; // Microsoft Azure US
-    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityChina]]; // Microsoft Azure China
-    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityGermany]]; // Microsoft Azure Germany
-    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityWorldWide]]; // Microsoft Azure Worldwide
-    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityUSGovernment]]; // Microsoft Azure US Government
+    _whitelistedAADHosts = [NSSet setWithObjects:s_kTrustedAuthority, s_kTrustedAuthorityUS,
+                            s_kTrustedAuthorityChina, s_kTrustedAuthorityGermany,
+                            s_kTrustedAuthorityWorldWide, s_kTrustedAuthorityUSGovernment, nil];
+    
+    // A serial dispatch queue for all authority validation operations. A very common pattern is for
+    // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
+    // of those acquireToken calls will be to the same authority. To avoid making the exact same
+    // authority validation network call multiple times we throw the requests in this validation
+    // queue.
+    _aadValidationQueue = dispatch_queue_create("adal.validation.queue", DISPATCH_QUEUE_SERIAL);
     
     return self;
 }
@@ -111,17 +120,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     return YES;
 }
 
-- (BOOL)addValidAuthority:(NSURL *)authority
-{
-    if (!authority)
-    {
-        return NO;
-    }
-    [_validatedADAuthorities addObject:authority];
-    return YES;
-}
-
-
 - (BOOL)isAuthorityValidated:(NSURL *)authority domain:(NSString *)domain
 {
     // Check for authority
@@ -144,14 +142,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     {
         return NO;
     }
-    for (NSURL *url in _validatedADAuthorities)
-    {
-        if([url isEquivalentAuthority:authority])
-        {
-            return YES;
-        }
-    }
-    return NO;
+    return _validatedAADAuthorities[authority.adHostWithPortIfNecessary].validated;
 }
 
 
@@ -171,7 +162,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     NSURL *authorityURL = [NSURL URLWithString:authority.lowercaseString];
-    
     if (!authorityURL)
     {
         error = [ADAuthenticationError errorFromArgument:authority
@@ -198,7 +188,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         // Validate ADFS authority
         [self validateADFSAuthority:authorityURL domain:upnSuffix requestParams:requestParams completionBlock:completionBlock];
     }
-    
     else
     {
         // Validate AAD authority
@@ -206,49 +195,89 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
 }
 
+- (NSURL *)networkUrlForAuthority:(NSURL *)authority
+{
+    return authority;
+}
+
+- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+{
+    return authority;
+}
 
 
 #pragma mark - AAD authority validation
-//Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
-//If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
-//The method should be executed on a thread that is guarranteed to exist upon completion, e.g. the UI thread.
+
+// Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
+// If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
+// The method should be executed on a thread that is guarranteed to exist upon completion, e.g. the UI thread.
 - (void)validateAADAuthority:(NSURL *)authority
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     // Check cache
-    if ([self isAuthorityValidated:authority])
+    ADAuthorityValidationResponse *response = _validatedAADAuthorities[authority.adHostWithPortIfNecessary];
+    if (response)
     {
-        completionBlock(YES, nil);
+        completionBlock(response.validated, nil);
         return;
     }
     
-    [ADAuthorityValidationRequest requestAuthorityValidationForAuthority:authority.absoluteString
-                                                        trustedAuthority:s_kTrustedAuthority
-                                                                 context:requestParams
-                                                         completionBlock:^(id response, ADAuthenticationError *error)
-    {
-        BOOL verified = ![NSString adIsStringNilOrBlank:[response objectForKey:s_kTenantDiscoveryEndpoint]];
-        if (!verified)
+    dispatch_async(_aadValidationQueue, ^{
+        // Now that we're awake on the validation queue, check once more to make sure that we don't
+        // have a validation response waiting for us.
+        ADAuthorityValidationResponse *response = _validatedAADAuthorities[authority.adHostWithPortIfNecessary];
+        if (response)
         {
-            //First check for explicit OAuth2 protocol error:
-            NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
-            NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
-            // Error response from the server
-            errorDetails = errorDetails ? errorDetails : [NSString stringWithFormat:@"%@ - %@", s_kValidationServerError, serverOAuth2Error];
-            
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                           protocolCode:serverOAuth2Error
-                                                           errorDetails:errorDetails
-                                                          correlationId:requestParams.correlationId];
-        }
-        else
-        {
-            [self addValidAuthority:authority];
+            completionBlock(response.validated, nil);
+            return;
         }
         
-        completionBlock(verified, error);
-    }];
+        
+        NSString *trustedHost = s_kTrustedAuthorityWorldWide;
+        NSString *authorityHost = authority.adHostWithPortIfNecessary;
+        if ([_whitelistedAADHosts containsObject:authorityHost])
+        {
+            trustedHost = authorityHost;
+        }
+        
+        __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
+        [ADAuthorityValidationRequest requestAuthorityValidationForAuthority:authority.absoluteString
+                                                                 trustedHost:trustedHost
+                                                                     context:requestParams
+                                                             completionBlock:^(ADAuthorityValidationResponse *response, ADAuthenticationError *error)
+         {
+             if (error)
+             {
+                 // Dispatch this off of the AAD Validation queue so we don't continue blocking any
+                 // other requests waiting validation results
+                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                     completionBlock(NO, error);
+                 });
+                 dispatch_semaphore_signal(dsem);
+                 return;
+             }
+             
+             [_validatedAADAuthorities setObject:response forKey:authority.adHostWithPortIfNecessary];
+             
+             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                 completionBlock(response.validated, response.error);
+             });
+             dispatch_semaphore_signal(dsem);
+         }];
+        
+        // We're blocking the AAD Validation queue here so that we only process one authority validation
+        // request at a time. As an application typically only uses a single AAD authority, this cuts
+        // down on the amount of simultaneous requests that go out on multi threaded app launch
+        // scenarios.
+        if (dispatch_semaphore_wait(dsem, DISPATCH_TIME_NOW) != 0)
+        {
+            // Only bother logging if we have to wait on the queue.
+            AD_LOG_INFO(@"Waiting on Authority Validation Queue", requestParams.correlationId, nil);
+            dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
+            AD_LOG_INFO(@"Returned from Authority Validation Queue", requestParams.correlationId, nil);
+        }
+    });
 }
 
 
@@ -260,7 +289,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
               completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     // Check cache first
-    if([self isAuthorityValidated:authority domain:domain])
+    if ([self isAuthorityValidated:authority domain:domain])
     {
         completionBlock(YES, nil);
         return;

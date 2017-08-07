@@ -35,8 +35,6 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
-
 @interface ADAuthortyValidationTests : XCTestCase
 
 @end
@@ -60,21 +58,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost]);
-    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
-}
-
-- (void)testAddAADValidAuthority
-{
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    XCTAssertFalse([authorityValidation addValidAuthority:nil]);
-    XCTAssertFalse([authorityValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
-    //Test that re-adding is ok. This can happen in multi-threaded scenarios:
-    XCTAssertTrue([authorityValidation addValidAuthority:[NSURL URLWithString:s_kTrustedAuthority]]);
-    
-    NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    [authorityValidation addValidAuthority:anotherHost];
-    XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost]);
 }
 
 - (void)testAdfsAuthorityValidated

@@ -80,9 +80,9 @@
         //  Consult the ADTestRequestResponse class for a list of helper methods for formulating requests and responses.
 
         NSString *requestURLString = self.request.URL.absoluteString;
-        NSAssert(response, @"did not find a matching response for %@", requestURLString);
-        
         AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, nil, @"request url = %@", self.request.URL);
+        
+        NSAssert(response, @"did not find a matching response for %@", requestURLString);
         
         [self.session dispatchIfNeed:^{
             NSError* error = [NSError errorWithDomain:NSURLErrorDomain

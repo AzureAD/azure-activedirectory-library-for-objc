@@ -21,43 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #import <Foundation/Foundation.h>
 
-@class ADAuthorityValidationResponse;
+@class ADAuthenticationError;
 
-/*! The completion block declaration. */
-typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
+@interface ADAuthorityValidationResponse : NSObject
 
-/*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
- The class is thread-safe. */
-@interface ADAuthorityValidation : NSObject
+@property (readonly) BOOL validated;
+@property (readonly) ADAuthenticationError *error;
+@property (readonly) NSString *preferredNetworkHost;
+@property (readonly) NSString *preferredCacheHost;
+@property (readonly) NSArray *aliases;
 
-+ (ADAuthorityValidation *)sharedInstance;
-
-/*!
- This is for caching of valid authorities.
- For ADFS, it will cache the authority and the domain. 
- For AAD, it will simply cache the authority
- */
-// Cache - ADFS
-- (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain;
-- (BOOL)isAuthorityValidated:(NSURL *)authority domain:(NSString *)domain;
-// Cache - AAD
-- (BOOL)isAuthorityValidated:(NSURL *)authorityHost;
-
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority;
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority;
-
-
-/*!
- Validates an authority.
- 
- @param requestParams        Request parameters
- @param completionBlock      The block to execute upon completion.
-
- */
-- (void)validateAuthority:(ADRequestParameters*)requestParams
-          completionBlock:(ADAuthorityValidationCallback)completionBlock;
++ (instancetype)responseWithJSON:(NSDictionary *)jsonResponse
+                         context:(id<ADRequestContext>)context;
++ (instancetype)invalidResponse;
 
 @end

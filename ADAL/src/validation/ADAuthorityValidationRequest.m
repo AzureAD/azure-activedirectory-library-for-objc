@@ -23,6 +23,7 @@
 
 
 #import "ADAuthorityValidationRequest.h"
+#import "ADAuthorityValidationResponse.h"
 #import "ADOAuth2Constants.h"
 #import "ADWebAuthRequest.h"
 #import "NSDictionary+ADExtensions.h"
@@ -34,11 +35,11 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 @implementation ADAuthorityValidationRequest
 
 + (void)requestAuthorityValidationForAuthority:(NSString *)authority
-                              trustedAuthority:(NSString *)trustedAuthority
+                                   trustedHost:(NSString *)trustedHost
                                        context:(id<ADRequestContext>)context
-                               completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock
+                               completionBlock:(void (^)(ADAuthorityValidationResponse *response, ADAuthenticationError *error))completionBlock
 {
-    NSURL *endpoint = [self urlForAuthorityValidation:authority trustedAuthority:trustedAuthority];
+    NSURL *endpoint = [self urlForAuthorityValidation:authority trustedHost:trustedHost];
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:endpoint
                                                                  context:context];
     
@@ -52,20 +53,20 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
         }
         else
         {
-            completionBlock(response, nil);
+            completionBlock([ADAuthorityValidationResponse responseWithJSON:response context:context], nil);
         }
         
         [webRequest invalidate];
     }];
 }
 
-+ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority
++ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost
 {
     NSString *authorizationEndpoint = [authority.lowercaseString stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};
-    NSString *endpoint = [NSString stringWithFormat:@"%@/%@?%@",
-                          trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
+    NSString *endpoint = [NSString stringWithFormat:@"https://%@/%@?%@",
+                          trustedHost, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
     
     return [NSURL URLWithString:endpoint];
 }

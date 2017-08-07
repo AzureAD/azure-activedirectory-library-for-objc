@@ -35,8 +35,6 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
-
 @interface ADAuthortyValidationTests : XCTestCase
 {
     dispatch_semaphore_t _dsem;
@@ -184,7 +182,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedAuthority:s_kTrustedAuthority];
+    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:@"login.microsoftonline.com"];
     NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
     
     requestURL = [NSURL URLWithString:requestURLString];
