@@ -40,7 +40,10 @@
         headers[@"Accept"] = @"application/json";
         headers[@"client-request-id"] = [ADTestRequireValueSentinel sentinel];
         headers[@"return-client-request-id"] = @"true";
+        
+#if TARGET_OS_IPHONE
         headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
         
         // TODO: This really shouldn't be a default header...
         headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
