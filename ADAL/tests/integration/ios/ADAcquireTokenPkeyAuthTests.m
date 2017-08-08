@@ -30,9 +30,6 @@
 #import "NSDictionary+ADTestUtil.h"
 
 @interface ADAcquireTokenPkeyAuthTests : ADTestCase
-{
-    dispatch_semaphore_t _dsem;
-}
 
 @end
 
@@ -41,58 +38,17 @@
 - (void)setUp
 {
     [super setUp];
-    _dsem = dispatch_semaphore_create(0);
 }
 
 - (void)tearDown
 {
-#if !__has_feature(objc_arc)
-    dispatch_release(_dsem);
-#endif
-    _dsem = nil;
-    
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
 
     [super tearDown];
 }
 
-- (ADAuthenticationContext *)getTestAuthenticationContext
-{
-    ADAuthenticationContext* context =
-    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
-                                     validateAuthority:NO
-                                                 error:nil];
-    
-    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    [context setTokenCacheStore:tokenCache];
-    [context setCorrelationId:TEST_CORRELATION_ID];
-    
-    return context;
-}
-
-
-- (ADTestURLResponse *)defaultTokenEndpointPkeyAuthChallenge
-{
-    return [self adDefaultRefreshReponseCode:401
-                             responseHeaders:@{ @"WWW-Authenticate" : @"PKeyAuth nonce=\"AAABAAEAiL9Kn2Z27UubvWFPbm0gLdtsn-PXocm89MSCN-jy-PyMb1txkhQMWoFNUDgLkmMs1OnKIexU4jwre7oqMSKjpKk3wjvHvJlE6ZFBdeEKVQtd_IXHzbR9wT-obZUI5kM779akwJHoPQ4aBnGlrbqUTCAA\", CertAuthorities=\"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net\", Version=\"1.0\", Context=\"pkeyauth_context\"" }
-                                responseJson:nil];
-}
-
-- (ADTestURLResponse *)defaultPkeyAuthNoWPJResponse
-{
-    NSDictionary *headers = @{ @"Authorization" : @"PKeyAuth  Context=\"pkeyauth_context\", Version=\"1.0\"" };
-    return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                              authority:TEST_AUTHORITY
-                               resource:TEST_RESOURCE
-                               clientId:TEST_CLIENT_ID
-                         requestHeaders:headers
-                          correlationId:TEST_CORRELATION_ID
-                        newRefreshToken:@"new refresh token"
-                         newAccessToken:@"new access token"
-                       additionalFields:nil];
-}
+#pragma mark - Tests
 
 - (void)testTokenEndpointPkeyAuthNoWPJ
 {
@@ -106,6 +62,8 @@
     [ADTestURLSession addResponses:@[[self defaultTokenEndpointPkeyAuthChallenge],
                                         [self defaultPkeyAuthNoWPJResponse]]];
     
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilent should return new token."];
+    
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -118,10 +76,10 @@
          XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
          XCTAssertEqualObjects(result.accessToken, @"new access token");
          
-         TEST_SIGNAL;
+         [expectation fulfill];
      }];
     
-    TEST_WAIT;
+    [self waitForExpectations:@[expectation] timeout:1];
     
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
     XCTAssertNil(error);
@@ -153,6 +111,45 @@
     // Make sure the tokens got updated
     XCTAssertEqualObjects(atItem.accessToken, @"new access token");
     XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
+}
+
+#pragma mark - Private
+
+- (ADAuthenticationContext *)getTestAuthenticationContext
+{
+    ADAuthenticationContext* context =
+    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
+                                     validateAuthority:NO
+                                                 error:nil];
+    
+    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    return context;
+}
+
+
+- (ADTestURLResponse *)defaultTokenEndpointPkeyAuthChallenge
+{
+    return [self adDefaultRefreshReponseCode:401
+                             responseHeaders:@{ @"WWW-Authenticate" : @"PKeyAuth nonce=\"AAABAAEAiL9Kn2Z27UubvWFPbm0gLdtsn-PXocm89MSCN-jy-PyMb1txkhQMWoFNUDgLkmMs1OnKIexU4jwre7oqMSKjpKk3wjvHvJlE6ZFBdeEKVQtd_IXHzbR9wT-obZUI5kM779akwJHoPQ4aBnGlrbqUTCAA\", CertAuthorities=\"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net\", Version=\"1.0\", Context=\"pkeyauth_context\"" }
+                                responseJson:nil];
+}
+
+- (ADTestURLResponse *)defaultPkeyAuthNoWPJResponse
+{
+    NSString* expectedAuthHeader = @"PKeyAuth  Context=\"pkeyauth_context\", Version=\"1.0\"";
+    return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                              authority:TEST_AUTHORITY
+                               resource:TEST_RESOURCE
+                               clientId:TEST_CLIENT_ID
+                         requestHeaders:@{ @"Authorization" : expectedAuthHeader }
+                          correlationId:TEST_CORRELATION_ID
+                        newRefreshToken:@"new refresh token"
+                         newAccessToken:@"new access token"
+                       additionalFields:nil];
 }
 
 @end

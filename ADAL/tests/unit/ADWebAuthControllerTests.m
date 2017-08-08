@@ -26,10 +26,6 @@
 #import "ADWebAuthController+Internal.h"
 
 @interface ADWebAuthControllerTests : ADTestCase
-{
-@private
-    dispatch_semaphore_t _dsem;
-}
 
 @end
 
@@ -38,16 +34,12 @@
 - (void)setUp
 {
     [super setUp];
-    _dsem = dispatch_semaphore_create(0);
 }
 
 - (void)tearDown
 {
-#if !__has_feature(objc_arc)
-    dispatch_release(_dsem);
-#endif
-    _dsem = nil;
     [ADTestAuthenticationViewController clearDelegateCalls];
+    
     [super tearDown];
 }
 
@@ -78,6 +70,8 @@
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID new]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Load a page that redirects to about:blank."];
+    
     [controller start:[NSURL URLWithString:TEST_AUTHORITY]
                   end:TEST_REDIRECT_URL
           refreshCred:nil
@@ -92,11 +86,10 @@
                XCTAssertNil(error);
                XCTAssertNotNil(url);
                XCTAssertEqual(url.absoluteString, TEST_REDIRECT_URL.absoluteString);
-               TEST_SIGNAL;
+               [expectation fulfill];
     }];
     
-    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
-    
+    [self waitForExpectationsWithTimeout:1 handler:nil];;
 }
 
 - (void)testNonHttpsRedirectInWebView
@@ -110,6 +103,8 @@
     
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID new]];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Load a page that redirects to not https url."];
     
     [controller start:[NSURL URLWithString:TEST_AUTHORITY]
                   end:TEST_REDIRECT_URL
@@ -127,11 +122,10 @@
                XCTAssertNotNil(error);
                XCTAssertEqual(error.code, AD_ERROR_SERVER_NON_HTTPS_REDIRECT);
                
-               TEST_SIGNAL;
+               [expectation fulfill];
            }];
-               
-    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
     
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end
