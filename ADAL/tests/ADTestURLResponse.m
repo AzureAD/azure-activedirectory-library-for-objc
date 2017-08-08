@@ -441,9 +441,7 @@
     if (![NSString adIsStringNilOrBlank:query])
     {
         NSDictionary *QPs = [NSDictionary adURLFormDecode:query];
-        if (![_QPs compareToActual:QPs
-                             label:@"URL QPs"
-                           myLabel:@"Expected URL QPs"])
+        if (![_QPs compareAndPrintDiff:QPs dictionaryDescription:@"URL QPs"])
         {
             return NO;
         }
@@ -469,9 +467,7 @@
     {
         NSString * string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
         NSDictionary *obj = [NSDictionary adURLFormDecode:string];
-        return [_requestParamsBody compareToActual:obj
-                                             label:@"URL Encoded Body Parameter"
-                                           myLabel:@"Expected URL Encoded Body Parameter"];
+        return [_requestParamsBody compareAndPrintDiff:obj dictionaryDescription:@"URL Encoded Body Parameters"];
     }
     
     if (_requestBody)
@@ -491,11 +487,11 @@
             return YES;
         }
         // This wiil spit out to console the extra stuff that we weren't expecting
-        [@{} compareToActual:headers label:@"Request Headers" myLabel:@"Expected Request Headers"];
+        [@{} compareAndPrintDiff:headers dictionaryDescription:@"Request Headers"];
         return NO;
     }
     
-    return [_requestHeaders compareToActual:headers label:@"Request Headers" myLabel:@"Expected Request Headers"];
+    return [_requestHeaders compareAndPrintDiff:headers dictionaryDescription:@"Request Headers"];
 }
 
 - (NSString *)description

@@ -29,14 +29,13 @@
 
 @implementation NSDictionary (ADTestUtil)
 
-- (BOOL)compareToActual:(NSDictionary *)dictionary
+- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
 {
-    return [self compareToActual:dictionary label:@"actual" myLabel:@"expected"];
+    return [self compareAndPrintDiff:dictionary dictionaryDescription:@"dictionary"];
 }
 
-- (BOOL)compareToActual:(NSDictionary *)dictionary
-                  label:(NSString *)label
-                myLabel:(NSString *)myLabel
+- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
+      dictionaryDescription:(NSString *)description
 {
     BOOL fSame = YES;
     
@@ -51,12 +50,12 @@
         
         if (!otherVal)
         {
-            NSLog(@"\"%@\" missing from %@.", key, label);
+            NSLog(@"\"%@\" : \"%@\" missing from %@.", key, myVal, description);
             fSame = NO;
         }
         else if (![myVal isKindOfClass:[ADTestRequireValueSentinel class]] && ![myVal isEqual:otherVal])
         {
-            NSLog(@"\"%@\" does not match. %@: \"%@\" %@: \"%@\"", key, myLabel, self[key], label, otherVal);
+            NSLog(@"\"%@\" in %@ does not match. actual: \"%@\" expected: \"%@\"", key, description, otherVal, myVal);
             fSame = NO;
         }
     }
@@ -70,7 +69,7 @@
         
         if (!self[key])
         {
-            NSLog(@"@\"%@\" : @\"%@\" in %@, not found in %@", key, dictionary[key], label, myLabel);
+            NSLog(@"@\"%@\" : @\"%@\" in %@, not found in expected", key, dictionary[key], description);
             fSame = NO;
         }
     }

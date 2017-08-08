@@ -32,11 +32,6 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheKey.h"
 
-dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
-volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
-const int sMaxThreads = 3;//The number of threads to spawn
-int sThreadsRunTime = 5;//How long the bacground threads would run
-
 //Some logging constant to help with testing the persistence:
 NSString* const sPersisted = @"successfully persisted";
 NSString* const sNoNeedForPersistence = @"No need for cache persistence.";

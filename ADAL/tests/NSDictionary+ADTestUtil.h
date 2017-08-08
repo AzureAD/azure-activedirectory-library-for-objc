@@ -29,10 +29,9 @@
 
 @interface NSDictionary (ADTestUtil)
 
-- (BOOL)compareToActual:(NSDictionary *)dictionary;
-- (BOOL)compareToActual:(NSDictionary *)dictionary
-                  label:(NSString *)label
-                myLabel:(NSString *)myLabel;
+- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary;
+- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
+      dictionaryDescription:(NSString *)description;
 
 @end
 
