@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,41 +17,40 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <XCTest/XCTest.h>
-#import "XCTestCase+TestHelperMethods.h"
-#import <libkern/OSAtomic.h>
+#import <Foundation/Foundation.h>
 
-@interface ADLoggerTests : ADTestCase
+@interface NSDictionary (ADTestUtil)
+
+- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary;
+- (BOOL)compareAndPrintDiff:(NSDictionary *)dictionary
+      dictionaryDescription:(NSString *)description;
 
 @end
 
-@implementation ADLoggerTests
+/*!
+ Sentinel class to use for values you want to make sure are present in a dictionary but don't
+ care about the actual value.
+ */
+@interface ADTestRequireValueSentinel : NSObject
 
-- (void)setUp
-{
-    [super setUp];
-    
-    [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
-    XCTAssertTrue([ADLogger getNSLogging]);
-}
++ (instancetype)sentinel;
 
-- (void)tearDown
-{
-    [super tearDown];
-}
+@end
 
-- (void)testMessageNoThrowing
-{
-    //Neither of these calls should throw. See the method body for details:
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil correlationId:nil userInfo:nil];
-}
+
+/*!
+ Sentinel class to use for values you don't care if it is present or not
+ */
+@interface ADTestIgnoreSentinel : NSObject
+
++ (instancetype)sentinel;
 
 @end

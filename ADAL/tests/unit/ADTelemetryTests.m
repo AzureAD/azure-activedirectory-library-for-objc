@@ -38,7 +38,7 @@
 #import "ADTelemetryTestDispatcher.h"
 #import "ADTelemetryEventStrings.h"
 
-@interface ADTelemetryTests : XCTestCase
+@interface ADTelemetryTests : ADTestCase
 
 @end
 

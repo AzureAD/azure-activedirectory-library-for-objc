@@ -25,7 +25,7 @@
 #import "ADTokenCache+Internal.h"
 #import "ADWebAuthController+Internal.h"
 
-@interface ADWebAuthControllerTests : XCTestCase
+@interface ADWebAuthControllerTests : ADTestCase
 
 @end
 

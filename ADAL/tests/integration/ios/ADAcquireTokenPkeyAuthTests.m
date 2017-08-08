@@ -27,8 +27,9 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTestURLSession.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "NSDictionary+ADTestUtil.h"
 
-@interface ADAcquireTokenPkeyAuthTests : XCTestCase
+@interface ADAcquireTokenPkeyAuthTests : ADTestCase
 
 @end
 

@@ -37,7 +37,7 @@
 
 static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
-@interface ADAuthortyValidationTests : XCTestCase
+@interface ADAuthortyValidationTests : ADTestCase
 
 @end
 
@@ -185,9 +185,12 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestURL = [NSURL URLWithString:requestURLString];
 
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
+    
+    ADTestURLResponse *response = [ADTestURLResponse request:requestURL
+                                            respondWithError:responseError];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
 
-    [ADTestURLSession addResponse:[ADTestURLResponse request:requestURL
-                                               respondWithError:responseError]];
+    [ADTestURLSession addResponse:response];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority when server is unreachable."];
     

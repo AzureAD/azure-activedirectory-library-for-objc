@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,41 +17,32 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <XCTest/XCTest.h>
-#import "XCTestCase+TestHelperMethods.h"
-#import <libkern/OSAtomic.h>
 
-@interface ADLoggerTests : ADTestCase
+#import "ADTestCase.h"
+#import "ADClientMetrics.h"
 
-@end
-
-@implementation ADLoggerTests
+@implementation ADTestCase
 
 - (void)setUp
 {
     [super setUp];
-    
-    [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
-    XCTAssertTrue([ADLogger getNSLogging]);
 }
+
 
 - (void)tearDown
 {
     [super tearDown];
+    [[ADClientMetrics getInstance] clearMetrics];
 }
 
-- (void)testMessageNoThrowing
-{
-    //Neither of these calls should throw. See the method body for details:
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil correlationId:nil userInfo:nil];
-}
+
 
 @end

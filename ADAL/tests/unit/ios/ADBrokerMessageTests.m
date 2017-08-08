@@ -34,7 +34,7 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheItem.h"
 
-@interface ADBrokerMessageTests : XCTestCase
+@interface ADBrokerMessageTests : ADTestCase
 
 @end
 

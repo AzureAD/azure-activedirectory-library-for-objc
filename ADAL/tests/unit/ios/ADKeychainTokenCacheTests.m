@@ -45,7 +45,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 @end
 
-@interface ADKeychainTokenCacheTests : XCTestCase
+@interface ADKeychainTokenCacheTests : ADTestCase
 {
     ADKeychainTokenCache* mStore;
 }
