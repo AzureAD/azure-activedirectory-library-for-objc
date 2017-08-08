@@ -46,20 +46,16 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 
 //Does not call the server, just passes invalid authority
 - (void)testValidateAuthorityError
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSArray* cases = @[@"http://invalidscheme.com",
                        @"https://Invalid URL 2305 8 -0238460-820-386"];
     ADRequestParameters* requestParams = [ADRequestParameters new];
@@ -88,8 +84,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 // Tests a normal authority
 - (void)testAadNormalFlow
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows-ppe.net/common";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
@@ -117,8 +111,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 //Ensures that an invalid authority is not approved
 - (void)testAadNonValidatedAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
@@ -179,8 +171,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)testUnreachableAadServer
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-
     NSString* authority = @"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com";
 
     
@@ -217,8 +207,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)testAdfsNormalOnPrems
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
@@ -255,8 +243,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)testAdfsNormalOnCloud
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
@@ -296,8 +282,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)testAdfsInvalidDrs
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
@@ -331,8 +315,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 // test invalid webfinger - 400
 - (void)testAdfsInvalidWebfinger
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
@@ -369,8 +351,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 // test invalid webfinger - 200 but not match
 - (void)testAdfsInvalidWebFingerNotTrusted
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
@@ -407,8 +387,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 // test invalid webfinger - not reachable
 - (void)testAdfsUnreachableWebFinger
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";

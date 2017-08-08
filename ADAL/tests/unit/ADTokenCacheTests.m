@@ -168,8 +168,8 @@ static NSString* ReginaIdtoken()
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     return idtoken;
 }
@@ -212,8 +212,8 @@ static NSString* CartmanIdtoken()
                                      @"given_name" : @"Cartman" };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part1 options:0 error:nil]],
-                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part2 options:0 error:nil]]];
+                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part1 options:0 error:nil]],
+                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part2 options:0 error:nil]]];
     
     return idtoken;
 }

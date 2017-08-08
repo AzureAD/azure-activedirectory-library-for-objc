@@ -66,7 +66,6 @@
 
 - (void)testCanonicalizeAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil or empty:
     XCTAssertNil([ADHelpers canonicalizeAuthority:nil]);
     XCTAssertNil([ADHelpers canonicalizeAuthority:@""]);

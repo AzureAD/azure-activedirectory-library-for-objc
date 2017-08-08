@@ -67,14 +67,13 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
-    [self adTestEnd];
+
     [super tearDown];
 }
 
