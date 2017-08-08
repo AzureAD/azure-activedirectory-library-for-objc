@@ -21,10 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
-
 #define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
 
-@interface ADAuthenticationContextTests : XCTestCase
+@interface ADAuthenticationContextTests : ADTestCase
 
 @end

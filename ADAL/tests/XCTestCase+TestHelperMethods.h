@@ -136,11 +136,6 @@ typedef enum
                                    responseHeaders:(NSDictionary *)responseHeaders
                                       responseJson:(NSDictionary *)responseJson;
 
-/*! Verifies that the correct error is returned when any method was passed invalid arguments.
- */
-- (void)adValidateForInvalidArgument:(NSString *)argument
-                               error:(ADAuthenticationError *)error;
-
 //Creates a new item with all of the properties having correct values
 - (ADTokenCacheItem *)adCreateCacheItem;
 - (ADTokenCacheItem *)adCreateCacheItem:(NSString*)userId;
