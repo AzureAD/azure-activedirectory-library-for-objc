@@ -30,11 +30,6 @@
 #import "ADTestURLResponse.h"
 
 @interface ADAuthenticationParametersTests : ADTestCase
-{
-@private
-    ADAuthenticationParameters* mParameters;
-    ADAuthenticationError* mError;//Set up by asynchronous calls
-}
 
 @end
 
@@ -43,43 +38,51 @@
 - (void)setUp
 {
     [super setUp];
-    
-    // Runs before each test case. Just in case, set them to nil.
-    mParameters = nil;
-    mError = nil;
-    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
 
 - (void)tearDown
 {
-    //Runs after each test case. Clean up to ensure that the memory is freed before the other test:
-    mParameters = nil;
-    mError = nil;
-
     [super tearDown];
 }
 
-#pragma mark - Tests
+#pragma mark - Initialization
 
-- (void)testNew
+- (void)testNew_shouldThrow
 {
     XCTAssertThrows([ADAuthenticationParameters new], "Creation with new should throw.");
 }
 
-- (void)testInit
+- (void)testInit_shouldThrow
 {
-    ADAuthenticationParameters* params = [ADAuthenticationParameters alloc];
-    XCTAssertThrows([params init], "Default init method should throw.");
+    XCTAssertThrows([[ADAuthenticationParameters alloc] init], "Default init method should throw.");
+}
+
+#pragma mark - parametersFromResourceUrl
+
+- (void)testParametersFromResourceUrl_whenResourceUrlIsNil_shouldReturnNilParameters
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"parametersFromResourceUrl: with nil resource should return error."];
+    
+    [ADAuthenticationParameters parametersFromResourceUrl:nil completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError __unused *error)
+     {
+         XCTAssertNil(parameters);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testParametersFromResourceUrl_whenResourceUrlIsNil_shouldReturnError
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"parametersFromResourceUrl: with nil resource should return error."];
     
-    [ADAuthenticationParameters parametersFromResourceUrl:nil completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError *error)
+    [ADAuthenticationParameters parametersFromResourceUrl:nil completionBlock:^(ADAuthenticationParameters __unused *parameters, ADAuthenticationError *error)
      {
-         XCTAssertNil(parameters);
-         [self assertErrorIsProperlyConfigured:error];
+         XCTAssertNotNil(error);
+         ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+         XCTAssertNil(error.protocolCode);
+         ADAssertStringEquals(error.errorDetails, @"The argument 'resourceUrl' is invalid. Value:(null)");
          
          [expectation fulfill];
      }];
@@ -90,7 +93,24 @@
 - (void)testParametersFromResourceUrl_whenCompletionBlockIsNil_shouldThrowException
 {
     NSURL *resource = [[NSURL alloc] initWithString:@"https://mytodolist.com"];
+    
     XCTAssertThrowsSpecificNamed([ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:nil], NSException, NSInvalidArgumentException);
+}
+
+- (void)testParametersFromResourceUrl_whenResourceUrlIsNotExist_shouldReturnNilParameters
+{
+    NSURL *resource = [[NSURL alloc] initWithString:@"https://noneistingurl12345676789.com"];
+    [ADTestURLSession addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"parametersFromResourceUrl: with non existing resource should return error."];
+    [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError __unused *error)
+     {
+         XCTAssertNil(parameters);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testParametersFromResourceUrl_whenResourceUrlIsNotExist_shouldReturnError
@@ -99,9 +119,8 @@
     [ADTestURLSession addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"parametersFromResourceUrl: with non existing resource should return error."];
-    [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError *error)
+    [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters __unused *parameters, ADAuthenticationError *error)
      {
-         XCTAssertNil(parameters);
          XCTAssertNotNil(error);
          XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
          
@@ -113,21 +132,41 @@
 
 - (void)testParametersFromResourceUrl_whenHttpResourceUrlExists_shouldReturnAuthenticationParameters
 {
-    NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
+    NSURL *resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
+    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
                                                     responseURLString:@"http://contoso.com"
                                                          responseCode:HTTP_UNAUTHORIZED
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                                      dictionaryAsJSON:@{}];
     [ADTestURLSession addResponse:response];
-    
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get parameters for valid resourceUrl."];
-    [ADAuthenticationParameters parametersFromResourceUrl:resourceUrl completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError *error)
+    
+    [ADAuthenticationParameters parametersFromResourceUrl:resourceUrl completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError __unused *error)
      {
          XCTAssertNotNil(parameters);
-         XCTAssertNil(error);
          XCTAssertNotNil(parameters.authority);
          XCTAssertEqualObjects(parameters.authority, @"https://login.windows.net/omercantest.onmicrosoft.com");
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testParametersFromResourceUrl_whenHttpResourceUrlExists_shouldReturnNilError
+{
+    NSURL *resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
+    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"http://contoso.com"
+                                                         responseCode:HTTP_UNAUTHORIZED
+                                                     httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
+                                                     dictionaryAsJSON:@{}];
+    [ADTestURLSession addResponse:response];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get parameters for valid resourceUrl."];
+    
+    [ADAuthenticationParameters parametersFromResourceUrl:resourceUrl completionBlock:^(ADAuthenticationParameters __unused *parameters, ADAuthenticationError *error)
+     {
+         XCTAssertNil(error);
          
          [expectation fulfill];
      }];
@@ -144,12 +183,11 @@
                                   httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                   dictionaryAsJSON:@{}];
     [ADTestURLSession addResponse:response];
-    
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get parameters for valid resourceUrl."];
-    [ADAuthenticationParameters parametersFromResourceUrl:resourceUrl completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError *error)
+    
+    [ADAuthenticationParameters parametersFromResourceUrl:resourceUrl completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError __unused *error)
      {
          XCTAssertNotNil(parameters);
-         XCTAssertNil(error);
          XCTAssertNotNil(parameters.authority);
          XCTAssertEqualObjects(parameters.authority, @"https://login.windows.net/omercantest.onmicrosoft.com");
          
@@ -159,260 +197,620 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testParametersFromAnauthorizedResponseNilParameter
+- (void)testParametersFromResourceUrl_whenHttpsResourceUrlExists_shouldReturnNilError
 {
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
-    mParameters  = [ADAuthenticationParameters parametersFromResponse:nil error:&error];
-    [self adValidateFactoryForInvalidArgument:@"response" error:error];
+    NSURL *resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
+    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"https://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"https://contoso.com"
+                                                         responseCode:HTTP_UNAUTHORIZED
+                                                     httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
+                                                     dictionaryAsJSON:@{}];
+    [ADTestURLSession addResponse:response];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get parameters for valid resourceUrl."];
     
-    //Now test that the method can handle passing nil for error:
-    mParameters = [ADAuthenticationParameters parametersFromResponse:nil error:nil];
-    XCTAssertNil(mParameters, "No parameters should be created.");
+    [ADAuthenticationParameters parametersFromResourceUrl:resourceUrl completionBlock:^(ADAuthenticationParameters __unused *parameters, ADAuthenticationError *error)
+     {
+         XCTAssertNil(error);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testParametersFromResponseAuthenticateHeaderNilParameter
+#pragma mark - parametersFromResponse
+
+- (void)testParametersFromResponse_whenResponseNilErrorPointerIsProvided_shouldReturnError
 {
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
-    mParameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:&error];
-    XCTAssertNil(mParameters);
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters parametersFromResponse:nil error:&error];
+
     XCTAssertNotNil(error);
-    
-    //Now test that the method can handle passing nil for error:
-    mParameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:nil];
-    XCTAssertNil(mParameters, "No parameters should be created.");
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The argument 'response' is invalid. Value:(null)");
 }
 
-- (void)testParametersFromResponseMissingHeader
+- (void)testParametersFromResponse_whenResponseNilErrorPointerIsProvided_shouldReturnNilParameters
 {
-    NSHTTPURLResponse* response = [NSHTTPURLResponse new];
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
-    mParameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
-    XCTAssertNil(mParameters, "Parameters object returned on a missing header.");
-    [self expectedError:error line:__LINE__];
+    ADAuthenticationError *error;
     
-    //Now test that the method can handle passing nil for error:
-    mParameters = [ADAuthenticationParameters parametersFromResponse:response error:nil];
-    XCTAssertNil(mParameters, "No parameters should be created.");
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:nil error:&error];
+
+    XCTAssertNil(parameters);
 }
 
-- (void)testParametersFromResponseDifferentHeaderCase
+- (void)testParametersFromResponse_whenResponseNilErrorPointerNil_shouldReturnNilParameters
 {
-    //HTTP headers are case-insensitive. This test validates that the underlying code is aware:
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:nil error:nil];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testParametersFromResponse_whenResponseWithoutAuthenticateHeaderErrorPointerIsProvided_shouldReturnNilParameters
+{
+    NSHTTPURLResponse *response = [NSHTTPURLResponse new];
+    ADAuthenticationError *error;
+    
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testParametersFromResponse_whenResponseWithoutAuthenticateHeaderErrorPointerIsProvided_shouldReturnError
+{
+    NSHTTPURLResponse *response = [NSHTTPURLResponse new];
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters parametersFromResponse:response error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' is missing in the Unauthorized (401) response. Make sure that the resouce server supports OAuth2 protocol.");
+}
+
+- (void)testParametersFromResponse_whenResponseWithoutAuthenticateHeaderErrorPointerNil_shouldReturnNilParameters
+{
+    NSHTTPURLResponse *response = [NSHTTPURLResponse new];
+    
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:response error:nil];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testParametersFromResponse_whenResponseWithUppercaseAuthenticateHeaderErrorPointerIsProvided_shouldReturnNilError
+{
     NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
-    NSDictionary* headerFields1 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
-                                                              forKey:@"WWW-AUTHENTICATE"];//Uppercase
-    NSHTTPURLResponse* response1 = [[NSHTTPURLResponse alloc] initWithURL:url
-                                                               statusCode:401
-                                                              HTTPVersion:@"1.1"
-                                                             headerFields:headerFields1];
-    ADAuthenticationError* error = nil;//A local variable is needed for __autoreleasing reference pointers.
-    mParameters = [ADAuthenticationParameters parametersFromResponse:response1 error:&error];
-    XCTAssertNil(error);
-    [self verifyWithAuthority:@"https://www.example.com"];
+    NSDictionary *headerFields = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
+                                                             forKey:@"WWW-AUTHENTICATE"];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                              statusCode:401
+                                                             HTTPVersion:@"1.1"
+                                                            headerFields:headerFields];
+    ADAuthenticationError *error = nil;
     
-    NSDictionary* headerFields2 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
-                                                              forKey:@"www-AUTHEnticate"];//Partially uppercase
-    NSHTTPURLResponse* response2 = [[NSHTTPURLResponse alloc] initWithURL:url
-                                                               statusCode:401
-                                                              HTTPVersion:@"1.1"
-                                                             headerFields:headerFields2];
-    mParameters = [ADAuthenticationParameters parametersFromResponse:response2 error:&error];
-    XCTAssertNil(error);
-    [self verifyWithAuthority:@"https://www.example.com"];
+    [ADAuthenticationParameters parametersFromResponse:response error:&error];
     
+    XCTAssertNil(error);
 }
 
-- (void)testExtractChallengeParametersInvalidBearer
+- (void)testParametersFromResponse_whenResponseWithUppercaseAuthenticateHeaderErrorPointerIsProvided_shouldReturnParametersWithAuthority
 {
-    ADAuthenticationError* error = nil;
-    XCTAssertNil([ADAuthenticationParameters extractChallengeParameters:nil error:&error]);
+    NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
+    NSDictionary *headerFields = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
+                                                             forKey:@"WWW-AUTHENTICATE"];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                              statusCode:401
+                                                             HTTPVersion:@"1.1"
+                                                            headerFields:headerFields];
+    ADAuthenticationError *error = nil;
+    
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNotNil(parameters.authority);
+    ADAssertStringEquals(parameters.authority, @"https://www.example.com");
+}
+
+- (void)testParametersFromResponse_whenResponseWithPartiallyUppercaseAuthenticateHeaderErrorPointerIsProvided_shouldReturnNilError
+{
+    NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
+    NSDictionary *headerFields = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
+                                                             forKey:@"www-AUTHEnticate"];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                              statusCode:401
+                                                             HTTPVersion:@"1.1"
+                                                            headerFields:headerFields];
+    ADAuthenticationError *error = nil;
+    
+    [ADAuthenticationParameters parametersFromResponse:response error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testParametersFromResponse_whenResponseWithPartiallyUppercaseAuthenticateHeaderErrorPointerIsProvided_shouldReturnParametersWithAuthority
+{
+    NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
+    NSDictionary *headerFields = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
+                                                             forKey:@"www-AUTHEnticate"];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                              statusCode:401
+                                                             HTTPVersion:@"1.1"
+                                                            headerFields:headerFields];
+    ADAuthenticationError *error = nil;
+    
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNotNil(parameters.authority);
+    ADAssertStringEquals(parameters.authority, @"https://www.example.com");
+}
+
+#pragma mark - parametersFromResponseAuthenticateHeader
+
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderNilErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:&error];
+    
     XCTAssertNotNil(error);
+}
+
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderNilErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
     
-    //No Bearer, or Bearer is not a word:
-    [self extractChallengeWithInvalidHeader:@"" line:__LINE__];//Empty string
-    [self extractChallengeWithInvalidHeader:@"   " line:__LINE__];//Blank string:
-    [self extractChallengeWithInvalidHeader:@"BearerBlahblah" line:__LINE__];//Starts with Bearer, but it is not
-    [self extractChallengeWithInvalidHeader:@"Bearer,, " line:__LINE__];
-    [self extractChallengeWithInvalidHeader:@"Bearer test string" line:__LINE__];
-}
-
-- (void)testInternalInit
-{
-    [self validateExtractChallenge:@"Bearerauthorization_uri=\"abc\", resource_id=\"something\"" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer something" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer something=bar" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer something=\"bar\"" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer something=\"bar" authority:nil resource:nil line:__LINE__];//Missing second quote
-    [self validateExtractChallenge:@"Bearer something=\"bar\"," authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer   authorization_uri=\"https://login.windows.net/common\""
-                         authority:@"https://login.windows.net/common" resource:nil line:__LINE__];
-    //More commas:
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"https://login.windows.net/common\""
-                         authority:@"https://login.windows.net/common"
-                          resource:nil
-                              line:__LINE__];
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\""
-                         authority:@"https://login.windows.net/common"
-                          resource:@"something"
-                              line:__LINE__];
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"\",resource_id=\"something\"" authority:nil resource:@"something" line:__LINE__];
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:&error];
     
-    //Pass an attribute, whose value contains commas:
-    [self validateExtractChallenge:@"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\""
-                         authority:@"https://login.windows.net/common"
-                          resource:@"something"
-                              line:__LINE__];
+    XCTAssertNil(parameters);
 }
 
-- (void)testParametersFromResponseAuthenticateHeaderInvalid
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderNilErrorPointerNil_shouldReturnNilParameters
 {
-    [self validateFactoryForBadHeader:@"Bearer something=bar" line:__LINE__];
-    [self validateFactoryForBadHeader:@"Bearer = , = , "  line:__LINE__];
-    [self validateFactoryForBadHeader:@"Bearer =,=,=" line:__LINE__];
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:nil];
+    
+    XCTAssertNil(parameters);
 }
 
-- (void)testParametersFromResponseAuthenticateHeaderValid
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderIsValid_shouldReturnNilError
 {
-    ADAuthenticationError* error = nil;
-    ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"something.com\", anotherParam=\"Indeed, another param=5\" "
-                                                                                                        error:&error];
-    XCTAssertNotNil(params);
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"something.com\", anotherParam=\"Indeed, another param=5\" " error:&error];
+    
     XCTAssertNil(error);
-    XCTAssertNil(params.resource);
-    ADAssertStringEquals(params.authority, @"https://login.windows.net/common");
+}
+
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderIsValid_shouldReturnParameters
+{
+    ADAuthenticationError *error;
     
-    NSDictionary* extractedParameters = [params extractedParameters];
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"something.com\", anotherParam=\"Indeed, another param=5\" " error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNil(parameters.resource);
+    ADAssertStringEquals(parameters.authority, @"https://login.windows.net/common");
+    NSDictionary *extractedParameters = [parameters extractedParameters];
     XCTAssertNotNil(extractedParameters);
     ADAssertStringEquals([extractedParameters objectForKey:@"anotherParam"], @"Indeed, another param=5");
 }
 
-- (void)testParametersFromResponseAuthenticateHeaderBadUrl
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderIsInvalid_shouldReturnError
 {
-    NSString* badUrl = @".\\..\\windows\\system32\\drivers\\etc\\host";
-    ADAuthenticationError* error = nil;
-    ADAuthenticationParameters* params =
-    [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:
-     [NSString stringWithFormat:@"Bearer authorization_uri=\"%@\"", badUrl]
-                                                                   error:&error];
-    XCTAssertNil(params);
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\".\\..\\windows\\system32\\drivers\\etc\\host\"" error:&error];
+    
     XCTAssertNotNil(error);
 }
 
-#pragma mark - Private
-
-- (void)assertErrorIsProperlyConfigured:(ADAuthenticationError *)error
+- (void)testParametersFromResponseAuthenticateHeader_whenHeaderIsValid_shouldReturnNilParameters
 {
+    ADAuthenticationError *error;
+    
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\".\\..\\windows\\system32\\drivers\\etc\\host\"" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+#pragma mark - extractChallengeParameters
+
+- (void)testExtractChallengeParameters_whenHeaderContentsNilErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:nil error:&error];
+    
     XCTAssertNotNil(error);
-    XCTAssertNotNil(error.domain);
-    XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
-    XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
-    XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
-    BOOL found = [error.errorDetails containsString:@"resourceUrl"];
-    XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
 
-/* A wrapper around ADTestHelper::validateCreatorForInvalidArgument, passing the test class members*/
-- (void)adValidateFactoryForInvalidArgument:(NSString *)argument error:(ADAuthenticationError *) error
+- (void)testExtractChallengeParameters_whenHeaderContentsNilErrorPointerIsProvided_shouldReturnNilParameters
 {
-    [self adValidateFactoryForInvalidArgument:argument
-                               returnedObject:mParameters
-                                        error:error];
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:nil error:&error];
+    
+    XCTAssertNil(parameters);
 }
 
-/* A wrapper around ADTestHelper::validateCreatorForInvalidArgument, passing the test class members*/
-- (void)adValidateFactoryForInvalidArgument:(NSString *)argument
+- (void)testExtractChallengeParameters_whenHeaderContentsEmptyErrorPointerIsProvided_shouldReturnNilParameters
 {
-    [self adValidateFactoryForInvalidArgument:argument
-                                        error:mError];
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"" error:&error];
+    
+    XCTAssertNil(parameters);
 }
 
-/* validates a successful parameters extraction */
-- (void)verifyWithAuthority:(NSString *)expectedAuthority
+- (void)testExtractChallengeParameters_whenHeaderContentsEmptyErrorPointerIsProvided_shouldReturnError
 {
-    XCTAssertNotNil(mParameters, "Valid parameters should have been extracted.");
-    XCTAssertNil(mError, "No error should be issued in this test. Details: %@", mError.errorDetails);
-    XCTAssertNotNil(mParameters.authority, "A valid authority should be returned");
-    ADAssertStringEquals(mParameters.authority, expectedAuthority);
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"" error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' for the Unauthorized (401) response cannot be parsed. Header value: ");
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
 }
 
-- (void)validateFactoryForBadHeader:(NSString *)header line:(int)sourceLine
+- (void)testExtractChallengeParameters_whenHeaderContentsBlankErrorPointerIsProvided_shouldReturnNilParameters
 {
-    ADAuthenticationError* error = nil;
-    ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:header error:&error];
-    XCTAssertNil(params);
-    [self expectedError:error line:sourceLine];
-    ADAssertLongEquals(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"   " error:&error];
+    
+    XCTAssertNil(parameters);
 }
 
-- (void)validateExtractChallenge:(NSString *)challenge
-                       authority:(NSString *)expectedAuthority
-                        resource:(NSString *)expectedResource
-                            line:(int)sourceLine
+- (void)testExtractChallengeParameters_whenHeaderContentsBlankErrorPointerIsProvided_shouldReturnError
 {
-    ADAuthenticationError* error = nil;
-    NSDictionary* params = [ADAuthenticationParameters extractChallengeParameters:challenge error:&error];
-    if (params)
-    {
-        [self adAssertStringEquals:[params objectForKey:OAuth2_Authorization_Uri]
-                  stringExpression:@"extracted authority"
-                          expected:expectedAuthority
-                              file:__FILE__
-                              line:sourceLine];
-        [self adAssertStringEquals:[params objectForKey:OAuth2_Resource_Id]
-                  stringExpression:@"extracted resource"
-                          expected:expectedResource
-                              file:__FILE__
-                              line:sourceLine];
-    }
-    else
-    {
-        if (!error)
-        {
-            [self recordFailureWithDescription:@"Record should be returned here." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-        }
-        //init will return nil if the bearer format is incorrect:
-        if (expectedAuthority)
-        {
-            [self recordFailureWithDescription:@"Failed to parse the Bearer header." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-        }
-    }
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"   " error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' for the Unauthorized (401) response cannot be parsed. Header value:    ");
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
 }
 
-/* Checks that the correct error is returned when extractChallenge is called with an invalid header text */
-- (void)extractChallengeWithInvalidHeader:(NSString *)text line:(int)sourceLine
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerButIsInvalidErrorPointerIsProvided_shouldReturnNilParameters
 {
-    //Empty string:
-    ADAuthenticationError* error = nil;
-    NSDictionary* result = [ADAuthenticationParameters extractChallengeParameters:text error:&error];
-    if (result)
-    {
-        [self recordFailureWithDescription:@"Parsed invalid header" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-    }
-    [self expectedError:error line:sourceLine];
-    if (AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT != error.code)
-    {
-        [self recordFailureWithDescription:@"Wrong error code" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-    }
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"BearerBlahblah" error:&error];
+    
+    XCTAssertNil(parameters);
 }
 
-- (void)expectedError:(ADAuthenticationError *)error line:(int)sourceLine
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerButIsInvalidErrorPointerIsProvided_shouldReturnError
 {
-    if (!error)
-    {
-        [self recordFailureWithDescription:@"Error expected" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-    }
-    if (![error.domain isEqualToString:ADAuthenticationErrorDomain])
-    {
-        [self recordFailureWithDescription:@"Wrong domain" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-    }
-    if ([NSString adIsStringNilOrBlank:error.errorDetails])
-    {
-        [self recordFailureWithDescription:@"Empty error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-    }
-    if (![error.errorDetails containsString:@"Unauthorized"])
-    {
-        [self recordFailureWithDescription:@"Wrong error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-    }
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"BearerBlahblah" error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' for the Unauthorized (401) response cannot be parsed. Header value: BearerBlahblah");
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerCommaButIsInvalidErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer,, " error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerCommaButIsInvalidErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer,, " error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' for the Unauthorized (401) response cannot be parsed. Header value: Bearer,, ");
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceButIsInvalidErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer test string" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceButIsInvalidErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer test string" error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' for the Unauthorized (401) response cannot be parsed. Header value: Bearer test string");
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerauthorizationErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearerauthorization_uri=\"abc\", resource_id=\"something\"" error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerauthorizationErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearerauthorization_uri=\"abc\", resource_id=\"something\"" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer something" error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualBarErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=bar" error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualBarErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=bar" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarQuoteErrorPointerIsProvided_shouldReturnNilError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar\"" error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarQuoteErrorPointerIsProvided_shouldReturnParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar\"" error:&error];
+    
+    XCTAssertNotNil(parameters);
+    ADAssertStringEquals(parameters[@"something"], @"bar");
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    // Missing second quote.
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar" error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+-(void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarQuoteCommaErrorPointerIsProvided_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar\"," error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarQuoteCommaErrorPointerIsProvided_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar\"," error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerMultipleSpacesAuthorizationUriErrorPointerIsProvided_shouldReturnNilError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer   authorization_uri=\"https://login.windows.net/common\"" error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerMultipleSpacesAuthorizationUriErrorPointerIsProvided_shouldReturnParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer   authorization_uri=\"https://login.windows.net/common\"" error:&error];
+    
+    XCTAssertNotNil(parameters);
+    ADAssertStringEquals(parameters[@"authorization_uri"], @"https://login.windows.net/common");
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceAuthorizationUriErrorPointerIsProvided_shouldReturnNilError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer authorization_uri=\"https://login.windows.net/common\"" error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceAuthorizationUriErrorPointerIsProvided_shouldReturnParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer authorization_uri=\"https://login.windows.net/common\"" error:&error];
+    
+    XCTAssertNotNil(parameters);
+    ADAssertStringEquals(parameters[@"authorization_uri"], @"https://login.windows.net/common");
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceAuthorizationUriCommaResourceIdErrorPointerIsProvided_shouldReturnNilError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\"" error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceAuthorizationUriCommaResourceIdErrorPointerIsProvided_shouldReturnParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\"" error:&error];
+    
+    XCTAssertNotNil(parameters);
+    ADAssertStringEquals(parameters[@"authorization_uri"], @"https://login.windows.net/common");
+    ADAssertStringEquals(parameters[@"resource_id"], @"something");
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsHasEmptyAuthorizationUriAndValidResourceIdErrorPointerIsProvided_shouldReturnNilError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer authorization_uri=\"\",resource_id=\"something\"" error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsHasEmptyAuthorizationUriAndValidResourceIdErrorPointerIsProvided_shouldReturnParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer authorization_uri=\"\",resource_id=\"something\"" error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNil(parameters[@"authorization_uri"]);
+    ADAssertStringEquals(parameters[@"resource_id"], @"something");
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsHasCommasInAttribute_shouldReturnNilError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\"" error:&error];
+    
+    XCTAssertNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsHasCommasInAttribute_shouldReturnParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\"" error:&error];
+    
+    XCTAssertNotNil(parameters);
+    ADAssertStringEquals(parameters[@"error_descritpion"], @"Make sure, that you handle commas, inside the text");
+    ADAssertStringEquals(parameters[@"authorization_uri"], @"https://login.windows.net/common");
+    ADAssertStringEquals(parameters[@"resource_id"], @"something");
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsHasAttributeValueWithoutQuotes_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=bar" error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsHasAttributeValueWithoutQuotes_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=bar" error:&error];
+    
+    XCTAssertNotNil(error);
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertNil(error.protocolCode);
+    ADAssertStringEquals(error.errorDetails, @"The authentication header 'WWW-Authenticate' for the Unauthorized (401) response cannot be parsed. Header value: Bearer something=bar");
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsIsInvalidAndContainsEqualsCommasSpaces_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer = , = , " error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsIsInvalidAndContainsEqualsCommasSpaces_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer = , = , " error:&error];
+    
+    XCTAssertNil(parameters);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsIsInvalidAndContainsEqualsCommas_shouldReturnError
+{
+    ADAuthenticationError *error;
+    
+    [ADAuthenticationParameters extractChallengeParameters:@"Bearer =,=,=" error:&error];
+    
+    XCTAssertNotNil(error);
+}
+
+- (void)testExtractChallengeParameters_whenHeaderContentsIsInvalidandContainsEqualsCommasSpaces_shouldReturnNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer =,=,=" error:&error];
+    
+    XCTAssertNil(parameters);
 }
 
 @end
