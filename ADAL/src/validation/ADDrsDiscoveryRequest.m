@@ -39,10 +39,8 @@
     [webRequest setIsGetRequest:YES];
     [webRequest setAcceptOnlyOKResponse:YES];
     
-    [webRequest sendRequest:^(NSMutableDictionary *response)
+    [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {
-        ADAuthenticationError *error = [response objectForKey:AUTH_NON_PROTOCOL_ERROR];
-
         if (error)
         {
             completionBlock(nil, error);

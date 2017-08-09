@@ -78,7 +78,6 @@ NSString *const ADAL_ID_DEVICE_MODEL      = @"x-client-DM";//E.g. iPhone
 //Internal constants:
 NSString *const AUTH_FAILED               = @"Authentication Failed";
 NSString *const AUTH_FAILED_ERROR_CODE    = @"Authentication Failed: %d";
-NSString *const AUTH_NON_PROTOCOL_ERROR   = @"non_protocol_error";
 
 NSString *const AUTH_FAILED_SERVER_ERROR   = @"The Authorization Server returned an unrecognized response";
 NSString *const AUTH_FAILED_NO_STATE       = @"The Authorization Server response has no encoded state";
