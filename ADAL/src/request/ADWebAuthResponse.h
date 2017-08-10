@@ -22,11 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "ADWebRequest.h"
 
 @class ADWebResponse;
 @class ADWebAuthRequest;
-
-typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 
 @interface ADWebAuthResponse : NSObject
 {

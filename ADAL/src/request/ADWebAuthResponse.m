@@ -226,7 +226,7 @@
             NSString *rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
             [_responseDictionary setObject:rawResponse forKey:@"raw_response"];
             
-            completionBlock(_responseDictionary);
+            completionBlock(nil, _responseDictionary);
             return;
         }
         else
@@ -342,7 +342,7 @@
                                             correlationId:_request.correlationId
                                              errorDetails:nil];
     
-    completionBlock(_responseDictionary);
+    completionBlock(nil, _responseDictionary);
 }
 
 #pragma mark -
@@ -408,15 +408,12 @@
 - (void)handleADError:(ADAuthenticationError*)adError
       completionBlock:(ADWebResponseCallback)completionBlock
 {
-    [_responseDictionary setObject:adError
-                            forKey:AUTH_NON_PROTOCOL_ERROR];
-    
     [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
                                                 startTime:[_request startTime]
                                             correlationId:_request.correlationId
                                              errorDetails:[adError errorDetails]];
     
-    completionBlock(_responseDictionary);
+    completionBlock(adError, _responseDictionary);
 }
 
 @end
