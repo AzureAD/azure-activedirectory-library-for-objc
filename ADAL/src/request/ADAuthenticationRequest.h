@@ -117,7 +117,7 @@
 - (void)setAssertionType:(ADAssertionType)assertionType;
 
 // This can be set anyTime
-- (void)setCloudAuthority:(NSString *)cloudInstanceName;
+- (void)setCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
 /*!
     Takes the UI interaction lock for the current request, will send an error

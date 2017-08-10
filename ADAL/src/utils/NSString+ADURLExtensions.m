@@ -25,19 +25,24 @@
 
 @implementation NSString (ADURLExtensions)
 
-- (NSString *)adAuthorityWithCloudInstanceName:(NSString *)cloudInstanceName
+- (NSString *)adAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName
 {
-    if (!cloudInstanceName)
+    if ([NSString adIsStringNilOrBlank:cloudInstanceHostName])
     {
         return self;
     }
     
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self];
     
-    // TODO: remove the hardcoded login prefix, once server starts sending a new parameter that includes full host name
-    NSString *loginHost = [NSString stringWithFormat:@"login.%@", cloudInstanceName];
+    // Invalid URL
+    if ([NSString adIsStringNilOrBlank:urlComponents.host])
+    {
+        return self;
+    }
     
-    return [self stringByReplacingOccurrencesOfString:[urlComponents host] withString:loginHost];
+    urlComponents.host = cloudInstanceHostName;
+    
+    return [urlComponents string];
     
 }
 

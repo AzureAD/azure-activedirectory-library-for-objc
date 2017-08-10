@@ -199,11 +199,11 @@ static dispatch_semaphore_t s_interactionLock = nil;
     [_requestParams setCorrelationId:correlationId];
 }
 
-- (void)setCloudAuthority:(NSString *)cloudInstanceName
+- (void)setCloudInstanceHostname:(NSString *)cloudInstanceHostName
 {
-    if (cloudInstanceName)
+    if (cloudInstanceHostName)
     {
-        _cloudAuthority = [_context.authority adAuthorityWithCloudInstanceName:cloudInstanceName];
+        _cloudAuthority = [_context.authority adAuthorityWithCloudInstanceHostname:cloudInstanceHostName];
     }
     else
     {

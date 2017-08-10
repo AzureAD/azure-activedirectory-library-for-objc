@@ -187,7 +187,7 @@
                  {
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
-                     [self setCloudAuthority:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     [self setCloudInstanceHostname:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_HOST_NAME]];
                  }
                  else
                  {
@@ -233,7 +233,7 @@
                                                                        correlationId:[_requestParams correlationId]];
                      }
                      
-                     [self setCloudAuthority:[parameters objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     [self setCloudInstanceHostname:[parameters objectForKey:AUTH_CLOUD_INSTANCE_HOST_NAME]];
                      
                  }
              }

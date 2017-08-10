@@ -33,36 +33,50 @@
 - (void)testAdAuthorityWithCloudInstanceName_whenNil_shouldReturnSame
 {
     NSString *authority = @"https://login.microsoftonline.com/common";
-    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceName:nil];
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:nil];
+    XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.com/common");
+}
+
+- (void)testAdAuthorityWithCloudInstanceName_whenEmpty_shouldReturnSame
+{
+    NSString *authority = @"https://login.microsoftonline.com/common";
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:@"  "];
     XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.com/common");
 }
 
 - (void)testAdAuthorityWithCloudInstanceName_whenCommon_shouldSwap
 {
     NSString *authority = @"https://login.microsoftonline.com/common";
-    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceName:@"microsoftonline.de"];
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.de/common");
 }
 
 - (void)testAdAuthorityWithCloudInstanceName_whenWithTenant_shouldSwap
 {
     NSString *authority = @"https://login.microsoftonline.com/b960c013-d381-403c-8d4d-939edac0d9ea";
-    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceName:@"microsoftonline.de"];
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.de/b960c013-d381-403c-8d4d-939edac0d9ea");
 }
 
 - (void)testAdAuthorityWithCloudInstanceName_whenLoginWindowsNet_shouldSwap
 {
     NSString *authority = @"https://login.windows.net/common";
-    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceName:@"microsoftonline.de"];
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.de/common");
 }
 
 - (void)testAdAuthorityWithCloudInstanceName_whenLoginSts_shouldSwap
 {
     NSString *authority = @"https://sts.microsoft.com/common";
-    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceName:@"microsoftonline.de"];
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.de/common");
+}
+
+- (void)testAdAuthorityWithCloudInstanceName_whenNoHost_shouldReturnSame
+{
+    NSString *authority = @"https://";
+    NSString *authorityWithCloudName = [authority adAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    XCTAssertEqualObjects(authorityWithCloudName, @"https://");
 }
 
 @end
