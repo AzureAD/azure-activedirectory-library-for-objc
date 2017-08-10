@@ -76,6 +76,7 @@
     ADAuthenticationError* _underlyingError;
     
     NSString *_cloudAuthority;
+    NSString *_graphResourceUrl;
 }
 
 @property (retain) NSString* logComponent;
@@ -118,6 +119,7 @@
 
 // This can be set anyTime
 - (void)setCloudAuthority:(NSString *)cloudInstanceName;
+- (void)setGraphResourceHost:(NSString *)graphResourceHost;
 
 /*!
     Takes the UI interaction lock for the current request, will send an error

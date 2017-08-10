@@ -65,4 +65,23 @@
     XCTAssertEqualObjects(authorityWithCloudName, @"https://login.microsoftonline.de/common");
 }
 
+- (void)testAdGraphResourceUrlWithHost_whenNil_shouldReturnNil
+{
+    NSString *resourceUrl = [NSString adGraphResourceUrlWithHost:nil];
+    XCTAssertNil(resourceUrl);
+}
+
+- (void)testAdGraphResourceUrlWithHost_whenEmpty_shouldReturnNil
+{
+    NSString *resourceUrl = [NSString adGraphResourceUrlWithHost:@"   "];
+    XCTAssertNil(resourceUrl);
+}
+
+- (void)testAdGraphResourceUrlWithHost_whenHasHost_shouldReturnUrl
+{
+    NSString *host = @"graph.windows.net";
+    NSString *resourceUrl = [NSString adGraphResourceUrlWithHost:host];
+    XCTAssertEqualObjects(resourceUrl, @"https://graph.windows.net");
+}
+
 @end

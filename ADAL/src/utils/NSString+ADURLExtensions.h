@@ -26,5 +26,6 @@
 @interface NSString (ADURLExtensions)
 
 - (NSString *)adAuthorityWithCloudInstanceName:(NSString *)cloudInstanceName;
++ (NSString *)adGraphResourceUrlWithHost:(NSString *)graphResourceHost;
 
 @end

@@ -188,6 +188,7 @@
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
                      [self setCloudAuthority:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     [self setGraphResourceHost:[queryParams objectForKey:AUTH_CLOUD_GRAPH_HOST_KEY]];
                  }
                  else
                  {
@@ -234,6 +235,7 @@
                      }
                      
                      [self setCloudAuthority:[parameters objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     [self setGraphResourceHost:[parameters objectForKey:AUTH_CLOUD_GRAPH_HOST_KEY]];
                      
                  }
              }
