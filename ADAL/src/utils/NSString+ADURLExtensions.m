@@ -41,4 +41,20 @@
     
 }
 
++ (NSString *)adGraphResourceUrlWithHost:(NSString *)graphResourceHost
+{
+    if (![NSString adIsStringNilOrBlank:graphResourceHost])
+    {
+        NSURLComponents *components = [[NSURLComponents alloc] init];
+        components.host = graphResourceHost;
+        components.scheme = @"https";
+        
+        return [components string];
+    }
+    else
+    {
+        return nil;
+    }
+}
+
 @end

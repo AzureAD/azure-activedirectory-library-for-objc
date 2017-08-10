@@ -420,6 +420,7 @@
                  {
                      ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
                      [result setCloudAuthority:_cloudAuthority];
+                     [result setGraphResourceUrl:_graphResourceUrl];
                      completionBlock(result);
                      return;
                  }
@@ -452,6 +453,7 @@
                                                                    context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
                           [result setCloudAuthority:_cloudAuthority];
+                          [result setGraphResourceUrl:_graphResourceUrl];
                       }
                       completionBlock(result);
                   }];

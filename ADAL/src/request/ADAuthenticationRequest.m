@@ -211,6 +211,11 @@ static dispatch_semaphore_t s_interactionLock = nil;
     }
 }
 
+- (void)setGraphResourceHost:(NSString *)graphResourceHost
+{
+    _graphResourceUrl = [NSString adGraphResourceUrlWithHost:graphResourceHost];
+}
+
 #if AD_BROKER
 
 - (NSString*)redirectUri

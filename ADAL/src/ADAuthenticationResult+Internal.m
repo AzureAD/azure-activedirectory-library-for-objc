@@ -234,4 +234,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     _authority = cloudAuthority;
 }
 
+- (void)setGraphResourceUrl:(NSString *)graphResourceUrl
+{
+    _graphResourceUrl = graphResourceUrl;
+}
+
 @end
