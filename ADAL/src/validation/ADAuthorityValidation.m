@@ -227,58 +227,41 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 #pragma mark - AAD authority validation
 
-- (BOOL)checkCacheImpl:(NSURL *)authority
-       completionBlock:(ADAuthorityValidationCallback)completionBlock
+- (ADAuthorityValidationAADRecord *)checkCacheImpl:(NSURL *)authority
 {
     __auto_type record = _validatedAADAuthorities[authority.adHostWithPortIfNecessary];
     pthread_rwlock_unlock(&_rwLock);
     
-    if (record)
-    {
-        completionBlock(record.validated, record.error);
-        return YES;
-    }
-    
-    return NO;
+    return record;
 }
 
-- (BOOL)tryCheckCache:(NSURL *)authority
-      completionBlock:(ADAuthorityValidationCallback)completionBlock
-{
+- (ADAuthorityValidationAADRecord *)tryCheckCache:(NSURL *)authority{
     if (pthread_rwlock_tryrdlock(&_rwLock) == 0)
     {
-        return [self checkCacheImpl:authority completionBlock:completionBlock];
+        return [self checkCacheImpl:authority];
     }
     
-    return NO;
+    return nil;
 }
 
-- (BOOL)checkCache:(NSURL *)authority
-           context:(id<ADRequestContext>)context
-   completionBlock:(ADAuthorityValidationCallback)completionBlock
+- (ADAuthorityValidationAADRecord *)checkCache:(NSURL *)authority
+                                       context:(id<ADRequestContext>)context
 {
     int status = pthread_rwlock_rdlock(&_rwLock);
     // This should be an extremely rare condition, and typically only happens if something
     // (a memory stomper bug) stomps on the rw lock.
     if (status != 0)
     {
-        // Because we're on a serialized queue here to ensure that we don't have more then one
-        // validation network request at a time, we want to jump off this queue as quick as
-        // possible whenever we hit an error to unblock the queue
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            ADAuthenticationError *error =
-            [ADAuthenticationError errorWithDomain:NSOSStatusErrorDomain
-                                              code:status
-                                      errorDetails:@"Failed to get validation cache read lock."
-                                     correlationId:context.correlationId];
-            
-            completionBlock(NO, error);
-        });
+        ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
+        record.error = [ADAuthenticationError errorWithDomain:NSOSStatusErrorDomain
+                                                         code:status
+                                                 errorDetails:@"Failed to get validation cache read lock."
+                                                correlationId:context.correlationId];
         
-        return YES;
+        return record;
     }
     
-    return [self checkCacheImpl:authority completionBlock:completionBlock];
+    return [self checkCacheImpl:authority];
 }
 
 // Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
@@ -288,41 +271,18 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
-    if ([self tryCheckCache:authority completionBlock:completionBlock])
+    // We first try to get a record from the cache, this will return immediately if it couldn't
+    // obtain a read lock
+    ADAuthorityValidationAADRecord *record = [self tryCheckCache:authority];
+    if (record)
     {
+        completionBlock(record.validated, record.error);
         return;
-    }
-    // If we can quickly grab the read lock on this cache then do so without having to jump threads
-    if (pthread_rwlock_tryrdlock(&_rwLock) == 0)
-    {
-        __auto_type record = _validatedAADAuthorities[authority.adHostWithPortIfNecessary];
-        pthread_rwlock_unlock(&_rwLock);
-        
-        if (record)
-        {
-            completionBlock(record.validated, record.error);
-            return;
-        }
     }
     
     // If we wither didn't have a cache, or couldn't get the read lock (which only happens if someone
     // has or is trying to get the write lock) then dispatch onto the AAD validation queue.
     dispatch_async(_aadValidationQueue, ^{
-        
-        if ([self checkCache:authority context:requestParams completionBlock:^(BOOL validated, ADAuthenticationError *error)
-        {
-            // Because we're on a serialized queue here to ensure that we don't have more then one
-            // validation network request at a time, we want to jump off this queue as quick as
-            // possible whenever we hit an error to unblock the queue
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                completionBlock(validated, error);
-            });
-        }])
-        {
-            return;
-        }
-        
         
         // If we didn't have anything in the cache then we need to hold onto the queue until we
         // get a response back from the server, or timeout, or fail for any other reason
@@ -332,6 +292,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                      requestParams:requestParams
                    completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
+             
+             // Because we're on a serialized queue here to ensure that we don't have more then one
+             // validation network request at a time, we want to jump off this queue as quick as
+             // possible whenever we hit an error to unblock the queue
+             
              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                  completionBlock(validated, error);
              });
@@ -377,6 +342,16 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
+    // Before we make the request, check the cache again, as these requests happen on a serial queue
+    // and it's possible we were waiting on a request that got the information we're looking for.
+    ADAuthorityValidationAADRecord *record = [self checkCache:authority context:requestParams];
+    if (record)
+    {
+        completionBlock(record.validated, record.error);
+        return;
+    }
+    
+    
     NSString *trustedHost = s_kTrustedAuthorityWorldWide;
     NSString *authorityHost = authority.adHostWithPortIfNecessary;
     if ([_whitelistedAADHosts containsObject:authorityHost])
