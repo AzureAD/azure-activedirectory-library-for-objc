@@ -23,21 +23,20 @@
 
 
 #import "ADAuthorityValidationRequest.h"
-#import "ADAuthorityValidationResponse.h"
 #import "ADOAuth2Constants.h"
 #import "ADWebAuthRequest.h"
 #import "NSDictionary+ADExtensions.h"
 
 static NSString* const s_kApiVersionKey            = @"api-version";
-static NSString* const s_kApiVersion               = @"1.0";
+static NSString* const s_kApiVersion               = @"1.1";
 static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 @implementation ADAuthorityValidationRequest
 
-+ (void)requestAuthorityValidationForAuthority:(NSString *)authority
-                                   trustedHost:(NSString *)trustedHost
-                                       context:(id<ADRequestContext>)context
-                               completionBlock:(void (^)(ADAuthorityValidationResponse *response, ADAuthenticationError *error))completionBlock
++ (void)requestMetadataWithAuthority:(NSString *)authority
+                         trustedHost:(NSString *)trustedHost
+                             context:(id<ADRequestContext>)context
+                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock
 {
     NSURL *endpoint = [self urlForAuthorityValidation:authority trustedHost:trustedHost];
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:endpoint
@@ -52,7 +51,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
         }
         else
         {
-            completionBlock([ADAuthorityValidationResponse responseWithJSON:response context:context], nil);
+            completionBlock(response, nil);
         }
         
         [webRequest invalidate];

@@ -46,6 +46,8 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 // Cache - AAD
 - (BOOL)isAuthorityValidated:(NSURL *)authorityHost;
 
+- (void)processMetadata:(NSArray<NSDictionary *> *)authorityMetadata;
+
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority;
 

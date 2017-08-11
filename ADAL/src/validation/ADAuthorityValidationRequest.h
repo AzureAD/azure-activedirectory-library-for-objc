@@ -36,10 +36,10 @@
  @param completionBlock             Completion block for this asynchronous request.
  
  */
-+ (void)requestAuthorityValidationForAuthority:(NSString *)authority
-                                   trustedHost:(NSString *)trustedHost
-                                       context:(id<ADRequestContext>)context
-                               completionBlock:(void (^)(ADAuthorityValidationResponse *response, ADAuthenticationError *error))completionBlock;
++ (void)requestMetadataWithAuthority:(NSString *)authority
+                         trustedHost:(NSString *)trustedHost
+                             context:(id<ADRequestContext>)context
+                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
 
 // Fetches the corresponding URL for the request
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost;
