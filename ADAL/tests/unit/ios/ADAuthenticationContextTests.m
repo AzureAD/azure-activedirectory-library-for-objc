@@ -36,6 +36,8 @@
 
 @implementation ADAuthenticationContextTests (iOS)
 
+#pragma mark - authenticationContextWithAuthority
+
 - (void)testAuthenticationContextWithAuthority_whenAuthorityNilSharedGroupNil_shouldReturnError
 {
     ADAuthenticationContext* context = nil;

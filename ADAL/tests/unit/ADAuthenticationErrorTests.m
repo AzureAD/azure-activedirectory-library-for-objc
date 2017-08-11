@@ -40,7 +40,7 @@
     [super tearDown];
 }
 
-#pragma mark - Tests
+#pragma mark - Initialization
 
 - (void)testNew_shouldThrow
 {
@@ -56,6 +56,8 @@
 {
     XCTAssertThrows([[ADAuthenticationError alloc] initWithDomain:@"domain" code:123 userInfo:nil], @"Parameterless init should throw. At: '%s'", __PRETTY_FUNCTION__);
 }
+
+#pragma mark - errorFromArgument
 
 - (void)testErrorFromArgument_whenArgumentIsValidArgumentNameNilCorrelationIdNil_shouldThrow
 {
@@ -99,6 +101,8 @@
     XCTAssertNil(error.protocolCode);
     ADAssertStringEquals(error.errorDetails, @"The argument 'parameter123456 %@' is invalid. Value:value1245 %s@");
 }
+
+#pragma mark - errorFromAuthenticationError
 
 - (void)testErrorFromAuthenticationError_whenErrorOAuthHprotocolCodeValiderrorDetailsValidCorrelationIdNil_shouldReturnError
 {

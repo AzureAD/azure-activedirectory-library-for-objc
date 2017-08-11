@@ -42,7 +42,7 @@
     [super tearDown];
 }
 
-#pragma mark - Tests
+#pragma mark - Initialization
 
 - (void)testNew_shouldThrow
 {
@@ -53,6 +53,8 @@
 {
     XCTAssertThrows([[ADAuthenticationContext alloc] init], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
+
+#pragma mark - authenticationContextWithAuthority
 
 - (void)testAuthenticationContextWithAuthority_whenAuthorityNil_shouldReturnError
 {
