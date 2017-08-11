@@ -112,8 +112,8 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                 nil;
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
     }
-    //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:
-    return [dictionary objectForKey:AUTH_NON_PROTOCOL_ERROR];
+    
+    return nil;
 }
 
 //Returns YES if we shouldn't attempt other means to get access token.
