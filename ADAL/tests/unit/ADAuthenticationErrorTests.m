@@ -104,7 +104,7 @@
 
 #pragma mark - errorFromAuthenticationError
 
-- (void)testErrorFromAuthenticationError_whenErrorOAuthHprotocolCodeValiderrorDetailsValidCorrelationIdNil_shouldReturnError
+- (void)testErrorFromAuthenticationError_whenCodeValidErrorProtocolValidDetailsValidCorrelationIdNil_shouldReturnError
 {
     NSString *details = @"Some details";
     NSString *protocolCode = @"procol code";
@@ -117,7 +117,7 @@
     ADAssertStringEquals(error.errorDetails, details);
 }
 
-- (void)testErrorFromAuthenticationError_whenErrorValidprotocolCodeValiderrorDetailsValidCorrelationIdNil_shouldReturnErrorWithDescription
+- (void)testErrorFromAuthenticationError_whenErrorValidCodeValidErrorDetailsValidCorrelationIdNil_shouldReturnErrorWithDescription
 {
     ADAuthenticationError *error = [ADAuthenticationError errorFromAuthenticationError:42 protocolCode:@"some-protocol-code" errorDetails:@"Some details" correlationId:nil];
     

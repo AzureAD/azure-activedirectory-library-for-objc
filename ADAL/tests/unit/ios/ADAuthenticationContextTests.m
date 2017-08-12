@@ -38,114 +38,71 @@
 
 #pragma mark - authenticationContextWithAuthority
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityNilSharedGroupNil_shouldReturnError
+- (void)testAuthenticationContextWithAuthority_whenAuthorityNilSharedGroupNil_shouldReturnErrorAndNilContext
 {
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = nil;
+    ADAuthenticationError *error = nil;
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityNilSharedGroupNil_shouldReturnNilContext
-{
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil sharedGroup:nil error:&error];
-    
     XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityNilValidateAuthorityNoSharedGroupNil_shouldReturnNilContext
+- (void)testAuthenticationContextWithAuthority_whenAuthorityNilValidateAuthorityNoSharedGroupNil_shouldReturnErrorAndNilContext
 {
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO sharedGroup:nil error:&error];
-    
-    XCTAssertNil(context);
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityNilValidateAuthorityNoSharedGroupNil_shouldReturnError
-{
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = nil;
+    ADAuthenticationError *error = nil;
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
+    XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankSharedGroupNil_shouldReturnError
+- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankSharedGroupNil_shouldReturnErrorAndNilContext
 {
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = nil;
+    ADAuthenticationError *error = nil;
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankSharedGroupNil_shouldReturnNilContext
-{
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " sharedGroup:nil error:&error];
-    
     XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankValidateAuthorityNoSharedGroupNil_shouldReturnError
+- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankValidateAuthorityNoSharedGroupNil_shouldReturnErrorAndNilContext
 {
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = nil;
+    ADAuthenticationError *error = nil;
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO sharedGroup:nil error:&error];
+    
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankValidateAuthorityNoSharedGroupNil_shouldReturnNilContext
-{
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO sharedGroup:nil error:&error];
     XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidSharedGroupNil_shouldReturnContext
+- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidSharedGroupNil_shouldReturnContextAndNilError
 {
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = nil;
+    ADAuthenticationError *error = nil;
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY sharedGroup:nil error:&error];
     
     XCTAssertNotNil(context);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidSharedGroupNil_shouldNotReturnError
-{
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY sharedGroup:nil error:&error];
-    
     XCTAssertNil(error);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidValidateAuthorityNoShareGroupNil_shouldReturnContext
+- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidValidateAuthorityNoShareGroupNil_shouldReturnContextAndNilError
 {
     ADAuthenticationContext* context = nil;
     ADAuthenticationError* error = nil;
@@ -154,15 +111,6 @@
     
     XCTAssertNotNil(context);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidValidateAuthorityNoShareGroupNil_shouldNotReturnError
-{
-    ADAuthenticationContext* context = nil;
-    ADAuthenticationError* error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY validateAuthority:NO sharedGroup:nil error:&error];
-    
     XCTAssertNil(error);
 }
 
