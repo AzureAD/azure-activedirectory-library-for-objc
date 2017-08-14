@@ -29,13 +29,43 @@
 #import "ADDrsDiscoveryRequest.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
+
+#import "NSURL+ADExtensions.h"
+
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
+static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
+
+@interface ADAuthorityValidation (TestUtils)
+
+- (void)setAADValidationCache:(NSDictionary<NSString *, ADAuthorityValidationAADRecord *> *)cacheDictionary;
+- (BOOL)isAuthorityValidated:(NSURL *)authority;
+
+@end
+
+@implementation ADAuthorityValidation (TestUtils)
+
+- (void)setAADValidationCache:(NSDictionary<NSString *, ADAuthorityValidationAADRecord *> *)cacheDictionary
+{
+    _aadValidationCache = [cacheDictionary mutableCopy];
+}
+
+// Checks the cache for previously validated authority.
+// Note that the authority host should be normalized: no ending "/" and lowercase.
+- (BOOL)isAuthorityValidated:(NSURL *)authority
+{
+    if (!authority)
+    {
+        return NO;
+    }
+    return _aadValidationCache[authority.adHostWithPortIfNecessary].validated;
+}
+
+@end
+
 
 @interface AADAuthorityValidationTests : ADTestCase
 
@@ -179,7 +209,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedAuthority:s_kTrustedAuthority];
+    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:s_kTrustedAuthority];
     NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
     
     requestURL = [NSURL URLWithString:requestURLString];
