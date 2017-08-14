@@ -29,9 +29,24 @@
 /*! The completion block declaration. */
 typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
 
+@interface ADAuthorityValidationAADRecord : NSObject
+
+@property BOOL validated;
+@property ADAuthenticationError *error;
+
+@property NSString *networkHost;
+@property NSString *cacheHost;
+@property NSArray<NSString *> *aliases;
+
+@end
+
 /*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
  The class is thread-safe. */
 @interface ADAuthorityValidation : NSObject
+{
+    NSMutableDictionary<NSString *, ADAuthorityValidationAADRecord *> *_aadValidationCache;
+    pthread_rwlock_t _rwLock;
+}
 
 + (ADAuthorityValidation *)sharedInstance;
 
@@ -44,7 +59,6 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 - (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain;
 - (BOOL)isAuthorityValidated:(NSURL *)authority domain:(NSString *)domain;
 // Cache - AAD
-- (BOOL)isAuthorityValidated:(NSURL *)authorityHost;
 
 - (void)processMetadata:(NSArray<NSDictionary *> *)authorityMetadata;
 
@@ -62,4 +76,10 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 - (void)validateAuthority:(ADRequestParameters*)requestParams
           completionBlock:(ADAuthorityValidationCallback)completionBlock;
 
+- (ADAuthorityValidationAADRecord *)tryCheckCache:(NSURL *)authority;
+- (ADAuthorityValidationAADRecord *)checkCache:(NSURL *)authority
+                                       context:(id<ADRequestContext>)context;
+
 @end
+
+

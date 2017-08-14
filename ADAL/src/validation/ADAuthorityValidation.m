@@ -52,17 +52,6 @@ static NSString* const s_kTenantDiscoveryEndpoint      = @"tenant_discovery_endp
 static NSString* const s_kDrsDiscoveryError            = @"DRS discovery was invalid or failed to return PassiveAuthEndpoint";
 static NSString* const s_kWebFingerError               = @"WebFinger request was invalid or failed";
 
-@interface ADAuthorityValidationAADRecord : NSObject
-
-@property BOOL validated;
-@property ADAuthenticationError *error;
-
-@property NSString *networkHost;
-@property NSString *cacheHost;
-@property NSArray<NSString *> *aliases;
-
-@end
-
 @implementation ADAuthorityValidationAADRecord
 
 @end
@@ -70,10 +59,8 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 @implementation ADAuthorityValidation
 {
     NSMutableDictionary *_validatedAdfsAuthorities;
-    NSMutableDictionary<NSString *, ADAuthorityValidationAADRecord *> *_validatedAADAuthorities;
     NSSet *_whitelistedAADHosts;
     
-    pthread_rwlock_t _rwLock;
     dispatch_queue_t _aadValidationQueue;
 }
 
@@ -99,7 +86,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
-    _validatedAADAuthorities = [NSMutableDictionary new];
+    _aadValidationCache = [NSMutableDictionary new];
     
     pthread_rwlock_init(&_rwLock, NULL);
     
@@ -115,6 +102,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     _aadValidationQueue = dispatch_queue_create("adal.validation.queue", DISPATCH_QUEUE_SERIAL);
     
     return self;
+}
+
+- (void)dealloc
+{
+    pthread_rwlock_destroy(&_rwLock);
 }
 
 
@@ -152,18 +144,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     return NO;
 }
-
-// Checks the cache for previously validated authority.
-// Note that the authority host should be normalized: no ending "/" and lowercase.
-- (BOOL)isAuthorityValidated:(NSURL *)authority
-{
-    if (!authority)
-    {
-        return NO;
-    }
-    return _validatedAADAuthorities[authority.adHostWithPortIfNecessary].validated;
-}
-
 
 #pragma mark - Authority validation
 
@@ -229,13 +209,14 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 - (ADAuthorityValidationAADRecord *)checkCacheImpl:(NSURL *)authority
 {
-    __auto_type record = _validatedAADAuthorities[authority.adHostWithPortIfNecessary];
+    __auto_type record = _aadValidationCache[authority.adHostWithPortIfNecessary];
     pthread_rwlock_unlock(&_rwLock);
     
     return record;
 }
 
-- (ADAuthorityValidationAADRecord *)tryCheckCache:(NSURL *)authority{
+- (ADAuthorityValidationAADRecord *)tryCheckCache:(NSURL *)authority
+{
     if (pthread_rwlock_tryrdlock(&_rwLock) == 0)
     {
         return [self checkCacheImpl:authority];
@@ -391,7 +372,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                  ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
                  record.validated = NO;
                  record.error = adError;
-                 _validatedAADAuthorities[authority.adHostWithPortIfNecessary] = record;
+                 _aadValidationCache[authority.adHostWithPortIfNecessary] = record;
                  pthread_rwlock_unlock(&_rwLock);
              }
              
@@ -408,12 +389,15 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          [self processMetadata:metadata];
          
          // In case the authority we were looking for wasn't in the metadata
-         if (!_validatedAADAuthorities[authority.adHostWithPortIfNecessary])
+         NSString *authorityHost = authority.adHostWithPortIfNecessary;
+         if (!_aadValidationCache[authorityHost])
          {
              ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
              record.validated = YES;
+             record.cacheHost = authorityHost;
+             record.networkHost = authorityHost;
              
-             _validatedAADAuthorities[authority.adHostWithPortIfNecessary] = record;
+             _aadValidationCache[authority.adHostWithPortIfNecessary] = record;
          }
          pthread_rwlock_unlock(&_rwLock);
          
@@ -435,7 +419,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         for (NSString *alias in aliases)
         {
-            _validatedAADAuthorities[alias] = record;
+            _aadValidationCache[alias] = record;
         }
     }
 }
