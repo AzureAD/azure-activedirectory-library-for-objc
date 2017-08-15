@@ -31,6 +31,7 @@
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
+		234F3D0A1F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */; };
 		2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
 		2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
@@ -223,8 +224,6 @@
 		B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E61F0D998A00957806 /* ADHelpersTests.m */; };
 		B20DC5FB1F0D998A00957806 /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E71F0D998A00957806 /* ADLoggerTests.m */; };
 		B20DC5FC1F0D998A00957806 /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E71F0D998A00957806 /* ADLoggerTests.m */; };
-		B20DC5FD1F0D998A00957806 /* ADTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E81F0D998A00957806 /* ADTelemetryTests.m */; };
-		B20DC5FE1F0D998A00957806 /* ADTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E81F0D998A00957806 /* ADTelemetryTests.m */; };
 		B20DC5FF1F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */; };
 		B20DC6001F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */; };
 		B20DC6011F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */; };
@@ -484,6 +483,7 @@
 		234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationContextTests.h; sourceTree = "<group>"; };
+		234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryIntegrationTests.m; sourceTree = "<group>"; };
 		290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryCollectionRules.h; sourceTree = "<group>"; };
 		290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryCollectionRules.m; sourceTree = "<group>"; };
 		29DBF6D31E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ADExtensions.h"; sourceTree = "<group>"; };
@@ -679,7 +679,6 @@
 		B20DC5E51F0D998A00957806 /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		B20DC5E61F0D998A00957806 /* ADHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpersTests.m; sourceTree = "<group>"; };
 		B20DC5E71F0D998A00957806 /* ADLoggerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLoggerTests.m; sourceTree = "<group>"; };
-		B20DC5E81F0D998A00957806 /* ADTelemetryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryTests.m; sourceTree = "<group>"; };
 		B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemTests.m; sourceTree = "<group>"; };
 		B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheKeyTests.m; sourceTree = "<group>"; };
 		B20DC5EB1F0D998A00957806 /* ADTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheTests.m; sourceTree = "<group>"; };
@@ -1330,7 +1329,6 @@
 				B20DC5E51F0D998A00957806 /* ADClientMetricsTests.m */,
 				B20DC5E61F0D998A00957806 /* ADHelpersTests.m */,
 				B20DC5E71F0D998A00957806 /* ADLoggerTests.m */,
-				B20DC5E81F0D998A00957806 /* ADTelemetryTests.m */,
 				B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */,
 				B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */,
 				B20DC5EB1F0D998A00957806 /* ADTokenCacheTests.m */,
@@ -1351,6 +1349,7 @@
 			children = (
 				B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */,
 				B20DC6111F0D9A5500957806 /* ADAuthorityValidationIntegrationTests.m */,
+				234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */,
 				B20DC5DE1F0D97E400957806 /* mac */,
 				B20DC5DB1F0D97DD00957806 /* ios */,
 			);
@@ -1924,6 +1923,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
+				234F3D0A1F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1941,7 +1941,6 @@
 				B20DC6051F0D998A00957806 /* ADUserInformationTests.m in Sources */,
 				96C75D241E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
 				D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */,
-				B20DC5FD1F0D998A00957806 /* ADTelemetryTests.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */,
 				D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
@@ -2051,7 +2050,6 @@
 			files = (
 				D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC6061F0D998A00957806 /* ADUserInformationTests.m in Sources */,
-				B20DC5FE1F0D998A00957806 /* ADTelemetryTests.m in Sources */,
 				B20DC60A1F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
 				B20DC6021F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */,
