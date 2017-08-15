@@ -65,50 +65,12 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
 
-
-/* See header for details.*/
-- (void)adValidateFactoryForInvalidArgument:(NSString *)argument
-                             returnedObject:(id)returnedObject
-                                      error:(ADAuthenticationError *)error
-{
-    XCTAssertNil(returnedObject, "Creator should have returned nil. Object: %@", returnedObject);
-    
-    [self adValidateForInvalidArgument:argument error:error];
-}
-
 //Parses backwards the log to find the test begin prefix. Returns the beginning
 //of the log string if not found:
 - (long)indexOfTestBegin:(NSString *)log
 {
     NSUInteger index = [log rangeOfString:sTestBegin options:NSBackwardsSearch].location;
     return (index == NSNotFound) ? 0 : index;
-}
-
-//Helper method to count how many times a string occurs in another string:
-- (int)adCountOccurencesOf:(NSString *)contained
-                  inString:(NSString *)string
-{
-    XCTAssertNotNil(contained);
-    XCTAssertNotNil(string);
-    
-    NSRange range = {.location = 0, .length = string.length};
-    int occurences = 0;
-    long end = string.length - contained.length;
-    while (range.location < end)
-    {
-        NSRange result = [string rangeOfString:contained options:NSLiteralSearch range:range];
-        if (result.location != NSNotFound)
-        {
-            ++occurences;
-            range.location = result.location + result.length;
-            range.length = string.length - range.location;
-        }
-        else
-        {
-            break;
-        }
-    }
-    return occurences;
 }
 
 //String clearing helper method:
@@ -275,24 +237,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     // If you're hitting this you might as well fix it before trying to run other tests.
     NSAssert(userInfo, @"Failed to create a userinfo object from a static idtoken. Something must have horribly broke,");
     return userInfo;
-}
-
-- (void)adCallAndWaitWithFile:(NSString *)file
-                         line:(int)line
-                    semaphore:(dispatch_semaphore_t)sem
-                        block:(void (^)(void))block
-{
-    THROW_ON_NIL_ARGUMENT(sem);
-    THROW_ON_NIL_EMPTY_ARGUMENT(file);
-    THROW_ON_NIL_ARGUMENT(block);
-    
-    (void)line;
-    
-    block();//Run the intended asynchronous method
-    while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))
-    {
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-    }
 }
 
 - (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken

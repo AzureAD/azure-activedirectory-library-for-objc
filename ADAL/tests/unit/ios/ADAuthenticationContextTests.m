@@ -30,51 +30,20 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 
-@implementation ADAuthenticationContextTests
+@interface ADAuthenticationContextTests (iOS)
 
-- (void)setUp
-{
-    [super setUp];
-}
+@end
 
-- (void)tearDown
-{
-    [super tearDown];
-}
-
-#pragma mark - Initialization
-
-- (void)testNew_shouldThrow
-{
-    XCTAssertThrows([ADAuthenticationContext new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
-}
-
-- (void)testParameterlessInit_shouldThrow
-{
-    XCTAssertThrows([[ADAuthenticationContext alloc] init], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
-}
+@implementation ADAuthenticationContextTests (iOS)
 
 #pragma mark - authenticationContextWithAuthority
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityNil_shouldReturnErrorAndNilContext
+- (void)testAuthenticationContextWithAuthority_whenAuthorityNilSharedGroupNil_shouldReturnErrorAndNilContext
 {
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
-    
-    XCTAssertNil(context);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
-    ADTAssertContains(error.errorDetails, @"authority");
-}
-
-- (void)testAuthenticationContextWithAuthority_whenAuthorityNilValidatedAuthorityNo_shouldReturnErrorAndNilContext
-{
-    ADAuthenticationContext *context = nil;
-    ADAuthenticationError *error = nil;
-    
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:nil sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
@@ -82,12 +51,12 @@
     XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityBlank_shouldReturnErrorAndNilContext
+- (void)testAuthenticationContextWithAuthority_whenAuthorityNilValidateAuthorityNoSharedGroupNil_shouldReturnErrorAndNilContext
 {
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
@@ -95,12 +64,12 @@
     XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankValidateAuthorityNo_shouldReturnErrorAndNilContext
+- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankSharedGroupNil_shouldReturnErrorAndNilContext
 {
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
@@ -108,24 +77,37 @@
     XCTAssertNil(context);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValid_shouldReturnContextAndNilError
+- (void)testAuthenticationContextWithAuthority_whenAuthorityBlankValidateAuthorityNoSharedGroupNil_shouldReturnErrorAndNilContext
 {
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO sharedGroup:nil error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+    ADTAssertContains(error.errorDetails, @"authority");
+    XCTAssertNil(context);
+}
+
+- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidSharedGroupNil_shouldReturnContextAndNilError
+{
+    ADAuthenticationContext *context = nil;
+    ADAuthenticationError *error = nil;
+    
+    context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY sharedGroup:nil error:&error];
     
     XCTAssertNotNil(context);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
     XCTAssertNil(error);
 }
 
-- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidValidateAuthorityNo_shouldReturnContextAndNilError
+- (void)testAuthenticationContextWithAuthority_whenAuthorityIsValidValidateAuthorityNoShareGroupNil_shouldReturnContextAndNilError
 {
-    ADAuthenticationContext *context = nil;
-    ADAuthenticationError *error = nil;
+    ADAuthenticationContext* context = nil;
+    ADAuthenticationError* error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY validateAuthority:NO error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY validateAuthority:NO sharedGroup:nil error:&error];
     
     XCTAssertNotNil(context);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
