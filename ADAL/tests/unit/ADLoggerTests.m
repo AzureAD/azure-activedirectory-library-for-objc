@@ -22,10 +22,10 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "XCTestCase+TestHelperMethods.h"
-#import <libkern/OSAtomic.h>
 
 @interface ADLoggerTests : ADTestCase
+
+@property (nonatomic) BOOL enableNSLogging;
 
 @end
 
@@ -35,20 +35,47 @@
 {
     [super setUp];
     
-    [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
-    XCTAssertTrue([ADLogger getNSLogging]);
+    self.enableNSLogging = [ADLogger getNSLogging];
+    [ADLogger setNSLogging:YES];
 }
 
 - (void)tearDown
 {
     [super tearDown];
+    
+    [ADLogger setNSLogging:self.enableNSLogging];
 }
 
-- (void)testMessageNoThrowing
+#pragma mark - setNSLogging
+
+- (void)testSetNSLogging_whenValueTrue_shouldReturnTrueInGetNSLogging
 {
-    //Neither of these calls should throw. See the method body for details:
+    [ADLogger setNSLogging:YES];
+    
+    XCTAssertTrue([ADLogger getNSLogging]);
+}
+
+- (void)testSetNSLogging_whenValueFalse_shouldReturnfalseInGetNSLogging
+{
+    [ADLogger setNSLogging:NO];
+    
+    XCTAssertFalse([ADLogger getNSLogging]);
+}
+
+#pragma mark - log:context:message:errorCode:info:correlationId:userInfo
+
+- (void)testLog_whenLogLevelNoLogContextNilMessageValidErrorCodeSucceededInfoValidCorrelationIdNilUserInfoNil_shouldNotThrow
+{
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
+}
+
+- (void)testLog_whenLogLevelErrorContextNilMessageNilErrorCodeSucceededInfoValidCorrelationIdNilUserInfoNil_shouldNotThrow
+{
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
+}
+
+- (void)testLog_whenLogLevelErrorContextNilMessageValidErrorCodeSucceededInfoNilCorrelationIdNilUserInfoNil_shouldNotThrow
+{
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil correlationId:nil userInfo:nil];
 }
 
