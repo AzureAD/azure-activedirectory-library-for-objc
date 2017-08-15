@@ -39,14 +39,6 @@
 #define TEST_REFRESH_TOKEN @"refresh token"
 #define TEST_CORRELATION_ID ({NSUUID *testID = [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]; testID;})
 
-typedef enum
-{
-    TEST_LOG_LEVEL,
-    TEST_LOG_MESSAGE,
-    TEST_LOG_INFO,
-    TEST_LOG_CODE,
-} ADLogPart;
-
 @class ADTokenCacheItem;
 @class ADUserInformation;
 @class ADTokenCacheKey;
@@ -59,14 +51,6 @@ typedef enum
                     expected:(NSString *)expected
                         file:(const char *)file
                         line:(int)line;
-
-/*! Used with the class factory methods that create class objects. Verifies
- the expectations when the passed argument is invalid:
- - The creator should return nil.
- - The error should be set accordingly, containing the argument in the description.*/
-- (void)adValidateFactoryForInvalidArgument:(NSString *)argument
-                             returnedObject:(id)returnedObject
-                                      error:(ADAuthenticationError *)error;
 
 - (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken
                                        authority:(NSString *)authority
@@ -136,11 +120,6 @@ typedef enum
                                    responseHeaders:(NSDictionary *)responseHeaders
                                       responseJson:(NSDictionary *)responseJson;
 
-/*! Verifies that the correct error is returned when any method was passed invalid arguments.
- */
-- (void)adValidateForInvalidArgument:(NSString *)argument
-                               error:(ADAuthenticationError *)error;
-
 //Creates a new item with all of the properties having correct values
 - (ADTokenCacheItem *)adCreateCacheItem;
 - (ADTokenCacheItem *)adCreateCacheItem:(NSString*)userId;
@@ -158,45 +137,6 @@ typedef enum
 
 //Creates a sample user information object
 - (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
-
-- (NSString *)adLogLevelLogs;
-- (NSString *)adMessagesLogs;
-- (NSString *)adInformationLogs;
-- (NSString *)adErrorCodesLogs;
-
-//Counts how many times the "contained" is sequentially occurring in "string".
-//Example: "bar bar" is contained once in "bar bar bar" and twice in "bar bar bar bar".
-- (int)adCountOccurencesOf:(NSString *)contained
-                  inString:(NSString *)string;
-
-//The methods help with verifying of the logs:
-- (int)adCountOfLogOccurrencesIn:(ADLogPart)logPart
-                        ofString:(NSString *)contained;
-
-//Checks if the test coverage is enabled and stores the test coverage, if yes.
-- (void)adFlushCodeCoverage;
-
-/* A special helper, which invokes the 'block' parameter in the UI thread and waits for its internal
- callback block to complete.
- IMPORTANT: The internal callback block should end with ASYNCH_COMPLETE macro to signal its completion. Example:
- static volatile int comletion  = 0;
- [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
- {
-    [mAuthenticationContext acquireTokenWithResource:mResource
-                                     completionBlock:^(ADAuthenticationResult* result)
-    {
-        //Inner block:
-        mResult = result;
-        ASYNC_BLOCK_COMPLETE(completion);//Signals the completion
-    }];
- }];
- The method executes the block in the UI thread, but runs an internal run loop and thus allows methods which enqueue their
- completion callbacks on the UI thread.
- */
-- (void)adCallAndWaitWithFile:(NSString*)file
-                         line:(int)line
-                    semaphore:(dispatch_semaphore_t)signal
-                        block:(void (^)(void)) block;
 
 @end
 
