@@ -36,51 +36,6 @@
 #import "NSURL+ADExtensions.h"
 
 #import "XCTestCase+TestHelperMethods.h"
-#import <XCTest/XCTest.h>
-
-#include <pthread.h>
-
-@interface ADAuthorityValidation (TestUtils)
-
-- (void)setAADValidationCache:(NSDictionary<NSString *, ADAuthorityValidationAADRecord *> *)cacheDictionary;
-
-- (BOOL)grabReadLock;
-- (BOOL)grabWriteLock;
-- (BOOL)tryWriteLock;
-- (BOOL)unlock;
-
-@end
-
-
-@implementation ADAuthorityValidation (TestUtils)
-
-- (void)setAADValidationCache:(NSDictionary<NSString *, ADAuthorityValidationAADRecord *> *)cacheDictionary
-{
-    _aadValidationCache = [cacheDictionary mutableCopy];
-}
-
-- (BOOL)grabWriteLock
-{
-    return 0 == pthread_rwlock_wrlock(&_rwLock);
-}
-
-- (BOOL)tryWriteLock
-{
-    return 0 == pthread_rwlock_trywrlock(&_rwLock);
-}
-
-- (BOOL)grabReadLock
-{
-    return 0 == pthread_rwlock_rdlock(&_rwLock);
-}
-
-- (BOOL)unlock
-{
-    return 0 == pthread_rwlock_unlock(&_rwLock);
-}
-
-
-@end
 
 @interface ADAuthortyValidationTests : ADTestCase
 
@@ -97,82 +52,8 @@
     [super tearDown];
 }
 
-// Test cases testing the test utilities! It's test-ception!
-- (void)testCheckCache_whenNilNoCache_shouldReturnNil
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    
-    XCTAssertNil([av checkCache:nil context:nil]);
-    // We do a try write lock check here to make sure that no one is still holding onto the lock
-    // after this is done.
-    XCTAssertTrue([av tryWriteLock]);
-}
-
-- (void)testCheckCache_whenWhitespaceStringhNoCache_shouldReturnNil
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    
-    XCTAssertNil([av checkCache:[NSURL URLWithString:@"  "] context:nil]);
-    XCTAssertTrue([av tryWriteLock]);
-}
-
-- (void)testCheckCache_whenValidURLNoCache_shouldReturnNil
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    
-    XCTAssertNil([av checkCache:[NSURL URLWithString:@"https://somedomain.com"] context:nil]);
-    XCTAssertTrue([av tryWriteLock]);
-}
-
-- (void)testCheckCache_whenNotValidCached_shouldReturnRecord
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    av.AADValidationCache = @{ @"somedomain.com" : [ADAuthorityValidationAADRecord new] };
-    
-    ADAuthorityValidationAADRecord *record = [av checkCache:[NSURL URLWithString:@"https://somedomain.com"] context:nil];
-    
-    XCTAssertNotNil(record);
-    XCTAssertFalse(record.validated);
-    XCTAssertTrue([av tryWriteLock]);
-}
-
-- (void)testTryCheckCache_whenNotValidCached_shouldReturnRecord
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    av.AADValidationCache = @{ @"somedomain.com" : [ADAuthorityValidationAADRecord new] };
-    
-    ADAuthorityValidationAADRecord *record = [av tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
-    
-    XCTAssertNotNil(record);
-    XCTAssertFalse(record.validated);
-    XCTAssertTrue([av tryWriteLock]);
-}
-
-- (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnRecord
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    av.AADValidationCache = @{ @"somedomain.com" : [ADAuthorityValidationAADRecord new] };
-    XCTAssertTrue([av grabReadLock]);
-    
-    // tryCheckCache should still be able to read the cache even if the read lock is being held
-    ADAuthorityValidationAADRecord *record = [av tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
-    
-    XCTAssertNotNil(record);
-    XCTAssertFalse(record.validated);
-}
-
-- (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNil
-{
-    ADAuthorityValidation *av = [[ADAuthorityValidation alloc] init];
-    av.AADValidationCache = @{ @"somedomain.com" : [ADAuthorityValidationAADRecord new] };
-    XCTAssertTrue([av grabWriteLock]);
-    
-    // The write lock prevents any readers until it gets unlocked, so this should prevent tryCheckCache
-    // from accessing the cache and it should immediately return nil.
-    ADAuthorityValidationAADRecord *record = [av tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
-    
-    XCTAssertNil(record);
-}
+#pragma mark -
+#pragma mark ADFS Validation Tests
 
 - (void)testAdfsAuthorityValidated
 {

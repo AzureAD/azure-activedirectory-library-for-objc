@@ -24,6 +24,7 @@
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult.h"
+#import "ADAadAuthorityCache.h"
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
@@ -38,21 +39,6 @@
 #import <XCTest/XCTest.h>
 
 static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
-
-@interface ADAuthorityValidation (TestUtils)
-
-- (void)setAADValidationCache:(NSDictionary<NSString *, ADAuthorityValidationAADRecord *> *)cacheDictionary;
-
-@end
-
-@implementation ADAuthorityValidation (TestUtils)
-
-- (void)setAADValidationCache:(NSDictionary<NSString *, ADAuthorityValidationAADRecord *> *)cacheDictionary
-{
-    _aadValidationCache = [cacheDictionary mutableCopy];
-}
-
-@end
 
 @interface AADAuthorityValidationTests : ADTestCase
 
@@ -144,7 +130,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    XCTAssertTrue([authorityValidation tryCheckCache:[NSURL URLWithString:authority]].validated);
+    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]].validated);
 }
 
 //Ensures that an invalid authority is not approved
@@ -172,7 +158,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    ADAuthorityValidationAADRecord *record = [authorityValidation tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type *record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -210,7 +196,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    ADAuthorityValidationAADRecord *record = [[ADAuthorityValidation sharedInstance] tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type *record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -252,7 +238,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     // Failing to connect should not create a validation record
-    ADAuthorityValidationAADRecord *record = [[ADAuthorityValidation sharedInstance] tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type *record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
     XCTAssertNil(record);
 }
 

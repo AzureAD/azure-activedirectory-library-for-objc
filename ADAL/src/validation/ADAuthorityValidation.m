@@ -23,12 +23,15 @@
 
 
 #import "ADAuthorityValidation.h"
+
+#import "ADAadAuthorityCache.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADHelpers.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
+
 #import "NSURL+ADExtensions.h"
 
 #include <pthread.h>
@@ -52,9 +55,7 @@ static NSString* const s_kTenantDiscoveryEndpoint      = @"tenant_discovery_endp
 static NSString* const s_kDrsDiscoveryError            = @"DRS discovery was invalid or failed to return PassiveAuthEndpoint";
 static NSString* const s_kWebFingerError               = @"WebFinger request was invalid or failed";
 
-@implementation ADAuthorityValidationAADRecord
 
-@end
 
 @implementation ADAuthorityValidation
 {
@@ -86,9 +87,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
-    _aadValidationCache = [NSMutableDictionary new];
-    
-    pthread_rwlock_init(&_rwLock, NULL);
+    _aadCache = [ADAadAuthorityCache new];
     
     _whitelistedAADHosts = [NSSet setWithObjects:s_kTrustedAuthority, s_kTrustedAuthorityUS,
                             s_kTrustedAuthorityChina, s_kTrustedAuthorityGermany,
@@ -103,12 +102,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     return self;
 }
-
-- (void)dealloc
-{
-    pthread_rwlock_destroy(&_rwLock);
-}
-
 
 #pragma mark - caching
 - (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain
@@ -194,56 +187,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
 }
 
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority
-{
-    return authority;
-}
-
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-{
-    return authority;
-}
-
-
 #pragma mark - AAD authority validation
-
-- (ADAuthorityValidationAADRecord *)checkCacheImpl:(NSURL *)authority
-{
-    __auto_type record = _aadValidationCache[authority.adHostWithPortIfNecessary];
-    pthread_rwlock_unlock(&_rwLock);
-    
-    return record;
-}
-
-- (ADAuthorityValidationAADRecord *)tryCheckCache:(NSURL *)authority
-{
-    if (pthread_rwlock_tryrdlock(&_rwLock) == 0)
-    {
-        return [self checkCacheImpl:authority];
-    }
-    
-    return nil;
-}
-
-- (ADAuthorityValidationAADRecord *)checkCache:(NSURL *)authority
-                                       context:(id<ADRequestContext>)context
-{
-    int status = pthread_rwlock_rdlock(&_rwLock);
-    // This should be an extremely rare condition, and typically only happens if something
-    // (a memory stomper bug) stomps on the rw lock.
-    if (status != 0)
-    {
-        ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
-        record.error = [ADAuthenticationError errorWithDomain:NSOSStatusErrorDomain
-                                                         code:status
-                                                 errorDetails:@"Failed to get validation cache read lock."
-                                                correlationId:context.correlationId];
-        
-        return record;
-    }
-    
-    return [self checkCacheImpl:authority];
-}
 
 // Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
 // If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
@@ -254,7 +198,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    ADAuthorityValidationAADRecord *record = [self tryCheckCache:authority];
+    ADAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority];
     if (record)
     {
         completionBlock(record.validated, record.error);
@@ -299,39 +243,18 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     });
 }
 
-
-- (BOOL)getWriteLock:(id<ADRequestContext>)context
-     completionBlock:(ADAuthorityValidationCallback)completionBlock
-{
-    int status = pthread_rwlock_wrlock(&_rwLock);
-    if (status != 0)
-    {
-        ADAuthenticationError *error =
-        [ADAuthenticationError errorWithDomain:NSOSStatusErrorDomain
-                                          code:status
-                                  errorDetails:@"Failed to get validation cache write lock."
-                                 correlationId:context.correlationId];
-        
-        completionBlock(NO, error);
-        return NO;
-    }
-    
-    return YES;
-}
-
 - (void)requestAADValidation:(NSURL *)authority
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    ADAuthorityValidationAADRecord *record = [self checkCache:authority context:requestParams];
+    ADAadAuthorityCacheRecord *record = [_aadCache checkCache:authority context:requestParams];
     if (record)
     {
         completionBlock(record.validated, record.error);
         return;
     }
-    
     
     NSString *trustedHost = s_kTrustedAuthorityWorldWide;
     NSString *authorityHost = authority.adHostWithPortIfNecessary;
@@ -364,65 +287,25 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              // on the server.
              if ([oauthError isEqualToString:@"invalid_instance"])
              {
-                 if (![self getWriteLock:requestParams completionBlock:completionBlock])
-                 {
-                     return;
-                 }
-                 
-                 ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
-                 record.validated = NO;
-                 record.error = adError;
-                 _aadValidationCache[authority.adHostWithPortIfNecessary] = record;
-                 pthread_rwlock_unlock(&_rwLock);
+                 [_aadCache addInvalidRecord:authority oauthError:adError context:requestParams error:&adError];
              }
              
              completionBlock(NO, adError);
              return;
          }
          
-         if (![self getWriteLock:requestParams completionBlock:completionBlock])
+         ADAuthenticationError *adError = nil;
+         NSArray<NSDictionary *> *metadata = response[@"metadata"];
+         if (![_aadCache processMetadata:metadata authority:authority context:requestParams error:&adError])
          {
+             completionBlock(NO, error);
              return;
          }
-         
-         NSArray<NSDictionary *> *metadata = response[@"metadata"];
-         [self processMetadata:metadata];
-         
-         // In case the authority we were looking for wasn't in the metadata
-         NSString *authorityHost = authority.adHostWithPortIfNecessary;
-         if (!_aadValidationCache[authorityHost])
-         {
-             ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
-             record.validated = YES;
-             record.cacheHost = authorityHost;
-             record.networkHost = authorityHost;
-             
-             _aadValidationCache[authority.adHostWithPortIfNecessary] = record;
-         }
-         pthread_rwlock_unlock(&_rwLock);
          
          completionBlock(YES, nil);
      }];
 }
 
-- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
-{
-    for (NSDictionary *environment in metadata)
-    {
-        ADAuthorityValidationAADRecord *record = [ADAuthorityValidationAADRecord new];
-        record.validated = YES;
-        record.networkHost = environment[@"preferred_network"];
-        record.cacheHost = environment[@"preferred_cache"];
-        
-        NSArray *aliases = environment[@"aliases"];
-        record.aliases = aliases;
-        
-        for (NSString *alias in aliases)
-        {
-            _aadValidationCache[alias] = record;
-        }
-    }
-}
 
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority
