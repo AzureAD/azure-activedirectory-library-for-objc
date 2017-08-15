@@ -71,35 +71,57 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
 }
 
 //Does not call the server, just passes invalid authority
-- (void)testValidateAuthorityError
+
+
+
+- (void)testValidateAuthority_whenSchemeIsHttp_shouldFailWithError
 {
-    NSArray* cases = @[@"http://invalidscheme.com",
-                       @"https://Invalid URL 2305 8 -0238460-820-386"];
+    NSString *authority = @"http://invalidscheme.com";
     ADRequestParameters* requestParams = [ADRequestParameters new];
     requestParams.correlationId = [NSUUID UUID];
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
-    for (NSString* testCase in cases)
-    {
-        [requestParams setAuthority:testCase];
-        
-        XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-        [authorityValidation validateAuthority:requestParams
-                               completionBlock:^(BOOL validated, ADAuthenticationError *error)
-        {
-            XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
-            XCTAssertNotNil(error);
-            
-            [expectation fulfill];
-        }];
-        
-        [self waitForExpectationsWithTimeout:1 handler:nil];
-    }
+    [requestParams setAuthority:authority];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+     {
+         XCTAssertFalse(validated, @"\"%@\" should come back invalid.", authority);
+         XCTAssertNotNil(error);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testValidateAuthority_whenAuthorityUrlIsInvalid_shouldFailWithError
+{
+    NSString *authority = @"https://Invalid URL 2305 8 -0238460-820-386";
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    requestParams.correlationId = [NSUUID UUID];
+    
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
+    
+    [requestParams setAuthority:authority];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+     {
+         XCTAssertFalse(validated, @"\"%@\" should come back invalid.", authority);
+         XCTAssertNotNil(error);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 // Tests a normal authority
-- (void)testAadNormalFlow
+- (void)testValidateAuthority_whenAuthorityValid_shouldPass
 {
     NSString* authority = @"https://login.windows-ppe.net/common";
     
@@ -126,7 +148,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
 }
 
 //Ensures that an invalid authority is not approved
-- (void)testAadNonValidatedAuthority
+- (void)testValidateAuthority_whenAuthorityInvalid_shouldReturnError
 {
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
     
@@ -156,7 +178,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     XCTAssertNotNil(record.error);
 }
 
-- (void)testBadAadAuthorityWithValidation
+- (void)testAcquireToken_whenAuthorityInvalid_shouldReturnError
 {
     ADAuthenticationError* error = nil;
     
@@ -193,7 +215,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     XCTAssertFalse(record.validated);
 }
 
-- (void)testUnreachableAadServer
+- (void)testValidateAuthority_whenHostUnreachable_shouldFail
 {
     NSString* authority = @"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com";
 
@@ -207,13 +229,13 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
     
     requestURL = [NSURL URLWithString:requestURLString];
-
+    
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
     
     ADTestURLResponse *response = [ADTestURLResponse request:requestURL
                                             respondWithError:responseError];
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
-
+    
     [ADTestURLSession addResponse:response];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority when server is unreachable."];
