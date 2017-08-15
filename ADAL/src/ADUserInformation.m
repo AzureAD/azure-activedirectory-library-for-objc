@@ -259,6 +259,35 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     return info;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (!object)
+    {
+        return NO;
+    }
+    
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:[ADUserInformation class]])
+    {
+        return NO;
+    }
+    
+    ADUserInformation *rhs = (ADUserInformation *)object;
+    
+    BOOL result = YES;
+    result &= [self.allClaims isEqualToDictionary:rhs.allClaims] || (self.allClaims == rhs.allClaims);
+    result &= [self.rawIdToken isEqual:rhs.rawIdToken] || (self.rawIdToken == rhs.rawIdToken);
+    result &= [self.uniqueId isEqualToString:rhs.uniqueId] || (self.uniqueId == rhs.uniqueId);
+    result &= self.userIdDisplayable == rhs.userIdDisplayable;
+    result &= [self.userId isEqualToString:rhs.userId] || (self.userId == rhs.userId);
+    
+    return result;
+}
+
 + (BOOL)supportsSecureCoding
 {
     return YES;

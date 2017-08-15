@@ -43,109 +43,479 @@
     [super tearDown];
 }
 
+#pragma mark - expiresOn
 
-- (void)testIsExpired
+// TODO: There is a dependency of ADTokenCacheItem on [[ADAuthenticationSettings sharedInstance] expirationBuffer].
+// It breaks "The Dependency Inversion Principle".
+// Fix this dependency and change tests accordingly.
+
+- (void)testIsExpired_whenExpiresOnIsNow_shouldReturnTrue
 {
-    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
-    item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
+    item.expiresOn = [NSDate new];
     XCTAssertTrue(item.isExpired, "When time is now, the item should expire.");
+}
+
+- (void)testIsExpired_whenExpiresOnIs30sFromNow_shoudReturnTrue
+{
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
+    
     XCTAssertTrue(item.isExpired, "The device clock can be off by a minute, so we should have enough buffer.");
+}
+
+- (void)testIsExpired_whenExpiresOnIsNil_shoudReturnFalse
+{
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = nil;
-    XCTAssertTrue(!item.isExpired, "No expiration time.");
+    
+    XCTAssertFalse(item.isExpired, "No expiration time.");
+}
+
+- (void)testIsExpired_whenExpiresOnIsDistantFuture_shoudReturnFalse
+{
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate distantFuture];
-    XCTAssertTrue(!item.isExpired, "The item will expire outside of my lifetime!");
+    
+    XCTAssertFalse(item.isExpired);
+}
+
+- (void)testIsExpired_whenExpiresOnIsDistantPast_shoudReturnTrue
+{
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate distantPast];
-    XCTAssertTrue(item.isExpired, "The item expired when the dinosaurs lived!");
+    
+    XCTAssertTrue(item.isExpired);
+}
+
+- (void)testIsExpired_whenExpiresOnIsOneHourFromNow_shoudReturnFalse
+{
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    XCTAssertTrue(!item.isExpired, "The item is good for one more hour!");
+    
+    XCTAssertFalse(item.isExpired);
 }
-- (void)testIsEmptyUser
+
+#pragma mark - isEmptyUser
+
+- (void)testIsEmptyUser_whenUserInformationIsValid_shouldReturnFalse
 {
-    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
+    
     XCTAssertFalse(item.isEmptyUser);
+}
+
+- (void)testIsEmptyUser_whenUserInformationIsNil_shouldReturnTrue
+{
+    ADTokenCacheItem *item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.userInformation = nil;
+    
     XCTAssertTrue(item.isEmptyUser);
-    item = [ADTokenCacheItem new];
-    XCTAssertTrue(item.isEmptyUser, "The default item should not have a user.");
 }
 
-- (void)verifySameUser:(NSString *)userId1
-               userId2:(NSString *)userId2
+#pragma mark - userInformation
+
+- (void)testUserInformation_byDefault_shouldBeNil
 {
-    ADTokenCacheItem* item1 = [self adCreateCacheItem:userId1];
-    ADTokenCacheItem* item2 = [self adCreateCacheItem:userId2];
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
     
-    XCTAssertTrue([item1 isSameUser:item2], "Should be the same: '%@' and '%@", userId1, userId2);
-    XCTAssertTrue([item2 isSameUser:item1], "Should be the same: '%@' and '%@", userId1, userId2);
+    XCTAssertNil(item.userInformation);
 }
 
--(void)testIsSameUser
+#pragma mark - isSameUser
+
+- (void)testIsSameUser_whenOtherUserIdIsIdenticalToCurrent_shouldReturnTrue
 {
-    [self verifySameUser:nil userId2:nil];
-    [self verifySameUser:@" test user" userId2:@"test user"];
-    [self verifySameUser:@" test user  " userId2:@"     test user     "];
-    [self verifySameUser:@" test user" userId2:@"test user     "];
-    [self verifySameUser:@"test user" userId2:@"test user"];
+    ADTokenCacheItem *item1 = [ADTokenCacheItem new];
+    item1.userInformation = [self adCreateUserInformation:@"test user"];
+    ADTokenCacheItem *item2 = [ADTokenCacheItem new];
+    item2.userInformation = [self adCreateUserInformation:@"test user"];
+    
+    XCTAssertTrue([item1 isSameUser:item2]);
+    XCTAssertTrue([item2 isSameUser:item1]);
 }
 
--(void) testMultiRefreshTokens
+- (void)testIsSameUser_whenOtherUserNilCurrentUserNil_shouldReturnTrue
 {
-    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
+    ADTokenCacheItem *item1 = [ADTokenCacheItem new];
+    item1.userInformation = nil;
+    ADTokenCacheItem *item2 = [ADTokenCacheItem new];
+    item2.userInformation = nil;
+    
+    XCTAssertTrue([item1 isSameUser:item2]);
+    XCTAssertTrue([item2 isSameUser:item1]);
+}
+
+// TODO: do we need this behaviour?
+- (void)DISABLEDtestIsSameUser_whenOtherUserIdStartsWithSpaceButOtherPartIsIdenticalToCurrent_shouldReturnTrue
+{
+    ADTokenCacheItem *item1 = [ADTokenCacheItem new];
+    item1.userInformation = [self adCreateUserInformation:@" test user"];
+    ADTokenCacheItem *item2 = [ADTokenCacheItem new];
+    item2.userInformation = [self adCreateUserInformation:@"test user"];
+    
+    XCTAssertTrue([item1 isSameUser:item2]);
+    XCTAssertTrue([item2 isSameUser:item1]);
+}
+
+#pragma mark - isMultiResourceRefreshToken
+
+- (void)testIsMultiResourceRefreshToken_whenResourceValidAccessTokenValidRefreshTokenValid_shouldReturnFalse
+{
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
+    item.resource = TEST_RESOURCE;
+    item.accessToken = TEST_ACCESS_TOKEN;
+    item.refreshToken = TEST_REFRESH_TOKEN;
+    
     XCTAssertFalse(item.isMultiResourceRefreshToken);
+}
+
+- (void)testIsMultiResourceRefreshToken_whenResourceNilAccessTokenValidRefreshTokenValid_shouldReturnFalse
+{
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
     item.resource = nil;
+    item.accessToken = TEST_ACCESS_TOKEN;
+    item.refreshToken = TEST_REFRESH_TOKEN;
+    
     XCTAssertFalse(item.isMultiResourceRefreshToken);
-    
-    //Valid:
+}
+
+- (void)testIsMultiResourceRefreshToken_whenResourceNilAccessTokenNilRefreshTokenValid_shouldReturnTrue
+{
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
+    item.resource = nil;
     item.accessToken = nil;
-    XCTAssertTrue(item.isMultiResourceRefreshToken);
+    item.refreshToken = TEST_REFRESH_TOKEN;
     
-    //Invalidate through refresh token:
-    item.refreshToken = nil;
-    XCTAssertFalse(item.isMultiResourceRefreshToken, "nil refresh token");
-    item.refreshToken = @"  ";
-    XCTAssertFalse(item.isMultiResourceRefreshToken, "Empty resource token");
-    
-    //Restore:
-    item.refreshToken = @"refresh token";
     XCTAssertTrue(item.isMultiResourceRefreshToken);
 }
 
-- (void)testSupportsSecureCoding
+- (void)testIsMultiResourceRefreshToken_whenResourceNilAccessTokenNilRefreshTokenNil_shouldReturnFalse
+{
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
+    item.resource = nil;
+    item.accessToken = nil;
+    item.refreshToken = nil;
+    
+    XCTAssertFalse(item.isMultiResourceRefreshToken);
+}
+
+- (void)testIsMultiResourceRefreshToken_whenResourceNilAccessTokenNilRefreshTokenEmptyString_shouldReturnFalse
+{
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
+    item.resource = nil;
+    item.accessToken = nil;
+    item.refreshToken = @"  ";
+    
+    XCTAssertFalse(item.isMultiResourceRefreshToken);
+}
+
+#pragma mark - supportsSecureCoding
+
+- (void)testSupportsSecureCoding_shouldReturnTrue
 {
     XCTAssertTrue([ADTokenCacheItem supportsSecureCoding], "Ensure that the unarchiving is secure.");
 }
 
-// Round trip the item though NSKeyedArchiver and NSKeyedUnarchiver to ensure the initWithCoder: and
-// encodeWithCoder: are properly implemented.
-- (void)testCoder
+#pragma mark - copyWithZone
+
+- (void)testCopyWithZone_whenAllPropertiesAreSet_shouldCopyAllOfThem
 {
-    ADTokenCacheItem* item = [self adCreateATCacheItem];
-    XCTAssertNotNil(item);
-    XCTAssertNotEqual([item hash], 0);
+    ADTokenCacheItem *item = [self createTestCacheItem];
     
-    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:item];
-    XCTAssertNotNil(data);
+    ADTokenCacheItem *itemCopy = [item copyWithZone:nil];
     
-    ADTokenCacheItem* unarchivedItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    XCTAssertNotNil(unarchivedItem);
-    
-    XCTAssertEqualObjects(item, unarchivedItem);
-    XCTAssertEqual([item hash], [unarchivedItem hash]);
+    XCTAssertEqualObjects(item.resource, itemCopy.resource);
+    XCTAssertEqualObjects(item.authority, itemCopy.authority);
+    XCTAssertEqualObjects(item.clientId, itemCopy.clientId);
+    XCTAssertEqualObjects(item.familyId, itemCopy.familyId);
+    XCTAssertEqualObjects(item.accessToken, itemCopy.accessToken);
+    XCTAssertEqualObjects(item.accessTokenType, itemCopy.accessTokenType);
+    XCTAssertEqualObjects(item.refreshToken, itemCopy.refreshToken);
+    XCTAssertEqualObjects(item.expiresOn, itemCopy.expiresOn);
+    XCTAssertEqualObjects(item.userInformation, itemCopy.userInformation);
+    XCTAssertEqualObjects(item.sessionKey, itemCopy.sessionKey);
+    XCTAssertEqualObjects(item.tombstone, itemCopy.tombstone);
+    XCTAssertEqualObjects(item.additionalClient, itemCopy.additionalClient);
+    XCTAssertEqualObjects(item.additionalServer, itemCopy.additionalServer);
+    XCTAssertEqualObjects(item, itemCopy);
+    XCTAssertNotEqual([itemCopy hash], 0);
+    XCTAssertEqual([item hash], [itemCopy hash]);
 }
 
-- (void)testCopyWithZone
+#pragma mark - isEqual
+
+- (void)testIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
 {
-    ADTokenCacheItem* item = [self adCreateATCacheItem];
-    XCTAssertNotNil(item);
-    XCTAssertNotEqual([item hash], 0);
-    NSZone* zone = NSDefaultMallocZone();
+    ADTokenCacheItem *lhs = [self createTestCacheItem];
+    ADTokenCacheItem *rhs = [self createTestCacheItem];
     
-    ADTokenCacheItem* copy = [item copyWithZone:zone];
-    XCTAssertNotNil(copy);
-    XCTAssertEqualObjects(copy, item);
-    XCTAssertEqual([copy hash], [item hash]);
+    XCTAssertEqualObjects(lhs, rhs);
 }
+
+- (void)testIsEqual_whenResourceIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.resource = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.resource = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenResourceIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.resource = TEST_RESOURCE;
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.resource = TEST_RESOURCE;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAuthorityIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.authority = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.authority = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAuthorityIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.authority = TEST_AUTHORITY;
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.authority = TEST_AUTHORITY;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenClientIdIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.clientId = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.clientId = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenClientIdIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.clientId = TEST_CLIENT_ID;
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.clientId = TEST_CLIENT_ID;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenFamilyIdIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.familyId = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.familyId = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenFamilyIdIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.familyId = @"some family id";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.familyId = @"some family id";
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAccessTokenIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.accessToken = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.accessToken = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAccessTokenIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.accessToken = TEST_ACCESS_TOKEN;
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.accessToken = TEST_ACCESS_TOKEN;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAccessTokenTypeIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.accessTokenType = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.accessTokenType = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAccessTokenTypeIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.refreshToken = @"qwe";
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.refreshToken = @"asd";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenRefreshTokenIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.refreshToken = TEST_REFRESH_TOKEN;
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.refreshToken = TEST_REFRESH_TOKEN;
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenExpiresOnIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.expiresOn = [NSDate dateWithTimeIntervalSince1970:1900000000];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenExpiresOnIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUserInformationIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.userInformation = [self adCreateUserInformation:TEST_USER_ID];
+    [lhs.userInformation setValue:@"qwe" forKey:@"rawIdToken"];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.userInformation = [self adCreateUserInformation:TEST_USER_ID];
+    [rhs.userInformation setValue:@"asd" forKey:@"rawIdToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUserInformationIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.userInformation = [self adCreateUserInformation:TEST_USER_ID];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.userInformation = [self adCreateUserInformation:TEST_USER_ID];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenSessionKeyIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.sessionKey = [@"qwe" dataUsingEncoding:NSUTF8StringEncoding];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.sessionKey = [@"asd" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenSessionKeyIstEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.sessionKey = [@"session key" dataUsingEncoding:NSUTF8StringEncoding];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.sessionKey = [@"session key" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenTombstoneIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    [lhs setValue:@{@"some key": @"some value"} forKey:@"tombstone"];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    [rhs setValue:@{@"some key 2": @"some value 2"} forKey:@"tombstone"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenTombstoneIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    [lhs setValue:@{@"some key": @"some value"} forKey:@"tombstone"];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    [rhs setValue:@{@"some key": @"some value"} forKey:@"tombstone"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAdditionalClientIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.additionalClient = [@{@"k1":@"v1"} mutableCopy];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.additionalClient = [@{@"k2":@"v2"} mutableCopy];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAdditionalClientIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    lhs.additionalClient = [@{@"k1":@"v1"} mutableCopy];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    rhs.additionalClient = [@{@"k1":@"v1"} mutableCopy];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAdditionalServerIsNotEqual_shouldReturnFalse
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    [lhs setValue:@{@"k1":@"v1"} forKey:@"additionalServer"];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    [rhs setValue:@{@"k2":@"v2"} forKey:@"additionalServer"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAdditionalServerIsEqual_shouldReturnTrue
+{
+    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
+    [lhs setValue:@{@"k1":@"v1"} forKey:@"additionalServer"];
+    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
+    [rhs setValue:@{@"k1":@"v1"} forKey:@"additionalServer"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+#pragma mark - 
 
 - (void)testV1BackCompatData
 {
@@ -167,6 +537,46 @@
     NSString* originalIdToken = @"eyJ0eXAiOiJKV1QiLCJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoibXlmYWtldXNlckBjb250b3NvLmNvbSIsInVuaXF1ZV9uYW1lIjoibXlmYWtldXNlckBjb250b3NvLmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlVzZXIiLCJnaXZlbl9uYW1lIjoiRmFrZSJ9";
     XCTAssertEqualObjects(item.userInformation.rawIdToken, originalIdToken);
     
+}
+
+// Round trip the item though NSKeyedArchiver and NSKeyedUnarchiver to ensure the initWithCoder: and
+// encodeWithCoder: are properly implemented.
+- (void)testCoder
+{
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    XCTAssertNotNil(item);
+    XCTAssertNotEqual([item hash], 0);
+    
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    XCTAssertNotNil(data);
+    
+    ADTokenCacheItem* unarchivedItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    XCTAssertNotNil(unarchivedItem);
+    
+    XCTAssertEqualObjects(item, unarchivedItem);
+    XCTAssertEqual([item hash], [unarchivedItem hash]);
+}
+
+#pragma mark - Private
+
+- (ADTokenCacheItem *)createTestCacheItem
+{
+    ADTokenCacheItem *item = [ADTokenCacheItem new];
+    item.resource = TEST_RESOURCE;
+    item.authority = TEST_AUTHORITY;
+    item.clientId = TEST_CLIENT_ID;
+    item.familyId = @"some family id";
+    item.accessToken = TEST_ACCESS_TOKEN;
+    item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
+    item.refreshToken = TEST_REFRESH_TOKEN;
+    item.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
+    item.sessionKey = [@"session key" dataUsingEncoding:NSUTF8StringEncoding];
+    [item setValue:@{@"some key": @"some value"} forKey:@"tombstone"];
+    item.additionalClient = [@{@"some key": @"some value"} mutableCopy];
+    [item setValue:@{@"some key": @"some value"} forKey:@"additionalServer"];
+    
+    return item;
 }
 
 @end

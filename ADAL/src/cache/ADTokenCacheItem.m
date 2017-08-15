@@ -121,7 +121,8 @@
     
     if ([self isEmptyUser])
         return [other isEmptyUser];
-    return (nil != other.userInformation && [_userInformation.userId isEqualToString:other.userInformation.userId]);
+    
+    return [self.userInformation isEqual:other.userInformation];
 }
 
 + (BOOL)supportsSecureCoding
@@ -179,34 +180,39 @@
 - (BOOL)isEqual:(id)object
 {
     if (!object)
+    {
         return NO;
+    }
+    
+    if (self == object)
+    {
+        return YES;
+    }
     
     if (![object isKindOfClass:[ADTokenCacheItem class]])
-        return NO;
-    
-    ADTokenCacheItem* item = (ADTokenCacheItem*)object;
-    
-    if (_resource && (!item.resource || ![_resource isEqualToString:item.resource]))
     {
         return NO;
     }
     
-    if (![_authority isEqualToString:item.authority])
-    {
-        return NO;
-    }
+    ADTokenCacheItem *rhs = (ADTokenCacheItem *)object;
     
-    if (![_clientId isEqualToString:item.clientId])
-    {
-        return NO;
-    }
+    BOOL result = YES;
     
-    if (![self isSameUser:item])
-    {
-        return NO;
-    }
-    
-    return YES;
+    result &= [self.resource isEqualToString:rhs.resource] || (self.resource == rhs.resource);
+    result &= [self.authority isEqualToString:rhs.authority] || (self.authority == rhs.authority);
+    result &= [self.clientId isEqualToString:rhs.clientId] || (self.clientId == rhs.clientId);
+    result &= [self.familyId isEqualToString:rhs.familyId] || (self.familyId == rhs.familyId);
+    result &= [self.accessToken isEqualToString:rhs.accessToken] || (self.accessToken == rhs.accessToken);
+    result &= [self.accessTokenType isEqualToString:rhs.accessTokenType] || (self.accessTokenType == rhs.accessTokenType);
+    result &= [self.refreshToken isEqualToString:rhs.refreshToken] || (self.refreshToken == rhs.refreshToken);
+    result &= [self.expiresOn isEqualToDate:rhs.expiresOn] || (self.expiresOn == rhs.expiresOn);
+    result &= [self.userInformation isEqual:rhs.userInformation]  || (self.userInformation == rhs.userInformation);
+    result &= [self.sessionKey isEqualToData:rhs.sessionKey] || (self.sessionKey == rhs.sessionKey);
+    result &= [self.tombstone isEqualToDictionary:rhs.tombstone] || (self.tombstone == rhs.tombstone);
+    result &= [self.additionalClient isEqualToDictionary:rhs.additionalClient] || (self.additionalClient == rhs.additionalClient);
+    result &= [self.additionalServer isEqualToDictionary:rhs.additionalServer] || (self.additionalServer == rhs.additionalServer);
+
+    return result;
 }
 
 - (NSString *)description

@@ -41,6 +41,133 @@
     [super tearDown];
 }
 
+#pragma mark - isEqual
+
+- (void)testIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
+{
+    ADUserInformation *lhs = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
+    ADUserInformation *rhs = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAllClaimsIsNotEqual_shouldReturnFalse
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@{@"k1":@"v1"} forKey:@"allClaims"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@{@"k2":@"v2"} forKey:@"allClaims"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenAllClaimsIsEqual_shouldReturnTrue
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@{@"k1":@"v1"} forKey:@"allClaims"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@{@"k1":@"v1"} forKey:@"allClaims"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenRawIdTokenIsNotEqual_shouldReturnFalse
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@"asd" forKey:@"rawIdToken"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@"qwe" forKey:@"rawIdToken"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenRawIdTokenIsEqual_shouldReturnFalse
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@"token" forKey:@"rawIdToken"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@"token" forKey:@"rawIdToken"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUniqueIdIsNotEqual_shouldReturnFalse
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@"id 1" forKey:@"uniqueId"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@"id 2" forKey:@"uniqueId"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUniqueIdIsEqual_shouldReturnTrue
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@"id 1" forKey:@"uniqueId"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@"id 1" forKey:@"uniqueId"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUserIdDisplayableIsNotEqual_shouldReturnFalse
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@NO forKey:@"userIdDisplayable"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@YES forKey:@"userIdDisplayable"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUserIdDisplayableIsEqual_shouldReturnTrue
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@YES forKey:@"userIdDisplayable"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@YES forKey:@"userIdDisplayable"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUserIdIsNotEqual_shouldReturnFalse
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@"asd" forKey:@"userId"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@"qwe" forKey:@"userId"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testIsEqual_whenUserIdIsEqual_shouldReturnTrue
+{
+    ADUserInformation *lhs = [self createEmptyUserInformation];
+    [lhs setValue:@"qwe" forKey:@"userId"];
+    ADUserInformation *rhs = [self createEmptyUserInformation];
+    [rhs setValue:@"qwe" forKey:@"userId"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+#pragma mark - userInformationWithIdToken
+
+- (void)testUserInformationWithIdToken_whenUpnContainsSpaces_shouldReturnTrimmedUserId
+{
+    NSDictionary *part1Claims = @{ @"typ" : @"JWT", @"alg" : @"none" };
+    NSString *p1 = [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1Claims options:0 error:nil]];
+    NSDictionary *idtokenClaims = @{@"upn" : @"     eric_cartman@contoso.com           ",};
+    NSString *p2 = [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtokenClaims options:0 error:nil]];
+    NSString *idtoken = [NSString stringWithFormat:@"%@.%@", p1, p2];
+    
+    ADUserInformation *userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
+    
+    ADAssertStringEquals(userInfo.userId, @"eric_cartman@contoso.com");
+}
+
+#pragma mark -
+
 - (void) testCopy
 {
     ADUserInformation* userInfo = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
@@ -48,7 +175,7 @@
     
     ADUserInformation* copy = [userInfo copy];
     XCTAssertNotNil(copy);
-    XCTAssertNotEqualObjects(copy, userInfo);
+    XCTAssertEqualObjects(copy, userInfo);
     ADAssertStringEquals(userInfo.userId, copy.userId);
     ADAssertStringEquals(userInfo.givenName, copy.givenName);
     ADAssertStringEquals(userInfo.familyName, copy.familyName);
@@ -127,6 +254,19 @@
 -(void) testSupportSecureCoding
 {
     XCTAssertTrue([ADUserInformation supportsSecureCoding], "Unarchiving should be secure.");
+}
+
+- (ADUserInformation *)createEmptyUserInformation
+{
+    // TODO: can we allow to use -init of ADUserInformation?
+    ADUserInformation *information = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
+    [information setValue:nil forKey:@"allClaims"];
+    [information setValue:nil forKey:@"rawIdToken"];
+    [information setValue:nil forKey:@"uniqueId"];
+    [information setValue:@NO forKey:@"userIdDisplayable"];
+    [information setValue:nil forKey:@"userId"];
+    
+    return information;
 }
 
 @end
