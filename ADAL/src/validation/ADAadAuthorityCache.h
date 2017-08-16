@@ -41,9 +41,11 @@
 }
 
 - (void)processMetadata:(NSArray<NSDictionary *> *)metadata
-              authority:(NSURL *)authority;
+              authority:(NSURL *)authority
+                context:(id<ADRequestContext>)context;
 - (void)addInvalidRecord:(NSURL *)authority
-              oauthError:(ADAuthenticationError *)oauthError;
+              oauthError:(ADAuthenticationError *)oauthError
+                 context:(id<ADRequestContext>)context;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority;

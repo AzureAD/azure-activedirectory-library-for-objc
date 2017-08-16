@@ -54,8 +54,18 @@
 
 - (void)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
+                context:(id<ADRequestContext>)context
 {
     [self getWriteLock];
+    
+    if (metadata.count == 0)
+    {
+        AD_LOG_INFO(@"No metadata returned from authority validation", context.correlationId, nil);
+    }
+    else
+    {
+        AD_LOG_INFO(@"Caching AAD Environements:", context.correlationId, nil);
+    }
     
     for (NSDictionary *environment in metadata)
     {
@@ -71,6 +81,8 @@
         {
             _map[alias] = record;
         }
+        
+        AD_LOG_INFO(([NSString stringWithFormat:@"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases]), context.correlationId, nil);
     }
     
     // In case the authority we were looking for wasn't in the metadata
@@ -89,8 +101,10 @@
 
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(ADAuthenticationError *)oauthError
+                 context:(id<ADRequestContext>)context
 {
     [self getWriteLock];
+    AD_LOG_WARN(@"Caching Invalid AAD Instance", context.correlationId, nil);
     __auto_type *record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
@@ -127,6 +141,7 @@
     // and should expect to fail soon.
     if (status != 0)
     {
+        AD_LOG_ERROR(@"Failed to grab authority cache read lock.", status, nil, nil);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];
@@ -141,6 +156,7 @@
     int status = pthread_rwlock_wrlock(&_rwLock);
     if (status != 0)
     {
+        AD_LOG_ERROR(@"Failed to grab authority cache write lock.", status, nil, nil);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];

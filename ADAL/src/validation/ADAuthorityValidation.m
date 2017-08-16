@@ -287,14 +287,14 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              // on the server.
              if ([oauthError isEqualToString:@"invalid_instance"])
              {
-                 [_aadCache addInvalidRecord:authority oauthError:adError];
+                 [_aadCache addInvalidRecord:authority oauthError:adError context:requestParams];
              }
              
              completionBlock(NO, adError);
              return;
          }
          
-         [_aadCache processMetadata:response[@"metadata"] authority:authority];
+         [_aadCache processMetadata:response[@"metadata"] authority:authority context:requestParams];
          completionBlock(YES, nil);
      }];
 }
