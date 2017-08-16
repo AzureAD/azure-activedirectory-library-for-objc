@@ -149,15 +149,51 @@
     return YES;
 }
 
+static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
+{
+    if (!preferredHost)
+    {
+        return url;
+    }
+    
+    // If the host is already (functionally) the same then just return the passed in URL.
+    if ([url.host isEqualToString:preferredHost] ||
+        [url.adHostWithPortIfNecessary isEqualToString:preferredHost])
+    {
+        return url;
+    }
+    
+    // Otherwise switch the host for the preferred one.
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    
+    // I hope there's never a case where there's percent encoded characters in the host, but using
+    // this setter prevents NSURLComponents from trying to do any further mangling on the string,
+    // probably a good thing.
+    components.percentEncodedHost = preferredHost;
+    
+    return components.URL;
+}
+
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
 {
+    __auto_type record = [self checkCache:authority];
+    if (!record)
+    {
+        return nil;
+    }
     
-    return authority;
+    return urlForPreferredHost(authority, record.networkHost);
 }
 
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
 {
-    return authority;
+    __auto_type record = [self checkCache:authority];
+    if (!record)
+    {
+        return nil;
+    }
+    
+    return urlForPreferredHost(authority, record.cacheHost);
 }
 
 @end

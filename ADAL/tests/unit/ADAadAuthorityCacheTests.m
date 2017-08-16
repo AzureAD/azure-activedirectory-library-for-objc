@@ -159,17 +159,143 @@
 }
 
 #pragma mark -
-#pragma mark URL Utility Tests
+#pragma mark Network URL Utility Tests
 
-- (void)testNetworkUrlForAuthority_whenNoCache_shouldReturnSameURL
+- (void)testNetworkUrlForAuthority_whenNotCached_shouldReturnNil
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
     
+    XCTAssertNil(cachedAuthority);
+}
+
+- (void)testNetworkUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    cache.map = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testNetworkUrlForAuthority_whenCachedValidNoPreferredNetwork_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    cache.map = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testNetworkUrlForAuthority_whenCachedValidSamePreferredNetwork_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"fakeauthority.com";
+    cache.map = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testNetworkUrlForAuthority_whenCachedValidDifferentPreferredNetwork_shouldReturnPreferredURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"preferredauthority.com";
+    cache.map = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+}
+
+#pragma mark -
+#pragma mark Cache URL Utility Tests
+
+- (void)testCacheUrlForAuthority_whenNotCached_shouldReturnNil
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNil(cachedAuthority);
+}
+
+- (void)testCacheUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    cache.map = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testCacheUrlForAuthority_whenCachedValidNoPreferredCache_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    cache.map = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testCacheUrlForAuthority_whenCachedValidSameCacheNetwork_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.cacheHost = @"fakeauthority.com";
+    cache.map = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testCacheUrlForAuthority_whenCachedValidDifferentPreferredNetwork_shouldReturnPreferredURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.cacheHost = @"preferredauthority.com";
+    cache.map = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
 }
 
 @end
