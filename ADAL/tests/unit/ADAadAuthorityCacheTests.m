@@ -27,6 +27,7 @@
 
 @interface ADAadAuthorityCache (TestUtils)
 
+- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)map;
 - (void)setMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
 
 - (BOOL)grabReadLock;
@@ -37,6 +38,11 @@
 @end
 
 @implementation ADAadAuthorityCache (TestUtils)
+
+- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)map
+{
+    return _map;
+}
 
 - (void)setMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
 {
@@ -296,6 +302,63 @@
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+}
+
+#pragma mark -
+#pragma mark Process Metadata tests
+
+- (void)testProcessMetadata_whenNilMetadata_shouldCreateDefaultEntry
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    
+    [cache processMetadata:nil authority:authority context:nil];
+    
+    __auto_type map = cache.map;
+    XCTAssertNotNil(map);
+    XCTAssertEqual(map.count, 1);
+    __auto_type record = map[expectedHost];
+    XCTAssertNotNil(record);
+    XCTAssertEqualObjects(expectedHost, record.networkHost);
+    XCTAssertEqualObjects(expectedHost, record.cacheHost);
+    XCTAssertNil(record.aliases);
+}
+
+- (void)testProcessMetadata_whenMetadataProvided_shouldCreateExpectedRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedCacheHost, expectedNetworkHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    [cache processMetadata:metadata authority:authority context:nil];
+    
+    __auto_type map = cache.map;
+    XCTAssertNotNil(map);
+    // A record should be created for each of the aliases, and each of those records should be
+    // identical
+    XCTAssertEqual(map.count, 3);
+    __auto_type record = map[expectedHost];
+    XCTAssertNotNil(record);
+    XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
+    XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
+    XCTAssertEqualObjects(expectedAliases, record.aliases);
+    record = map[expectedNetworkHost];
+    XCTAssertNotNil(record);
+    XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
+    XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
+    XCTAssertEqualObjects(expectedAliases, record.aliases);
+    record = map[expectedHost];
+    XCTAssertNotNil(expectedCacheHost);
+    XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
+    XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
+    XCTAssertEqualObjects(expectedAliases, record.aliases);
 }
 
 @end
