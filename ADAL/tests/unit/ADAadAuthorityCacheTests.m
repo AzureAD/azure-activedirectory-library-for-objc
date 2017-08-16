@@ -27,7 +27,7 @@
 
 @interface ADAadAuthorityCache (TestUtils)
 
-- (void)setAADValidationCache:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
+- (void)setMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
 
 - (BOOL)grabReadLock;
 - (BOOL)grabWriteLock;
@@ -38,9 +38,9 @@
 
 @implementation ADAadAuthorityCache (TestUtils)
 
-- (void)setAADValidationCache:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
+- (void)setMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
 {
-    _aadValidationCache = [cacheDictionary mutableCopy];
+    _map = [cacheDictionary mutableCopy];
 }
 
 - (BOOL)grabWriteLock
@@ -111,7 +111,7 @@
 - (void)testCheckCache_whenNotValidCached_shouldReturnNonValidRecordNoLock
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.AADValidationCache = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     
     ADAadAuthorityCacheRecord *record = [cache checkCache:[NSURL URLWithString:@"https://somedomain.com"] context:nil];
     
@@ -123,7 +123,7 @@
 - (void)testTryCheckCache_whenNotValidCached_shouldReturnNonValidRecordNoLock
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.AADValidationCache = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     
     ADAadAuthorityCacheRecord *record = [cache tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
     
@@ -135,7 +135,7 @@
 - (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNonValidRecordNoLock
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.AADValidationCache = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     XCTAssertTrue([cache grabReadLock]);
     
     // tryCheckCache should still be able to read the cache even if the read lock is being held
@@ -148,7 +148,7 @@
 - (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNil
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.AADValidationCache = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     XCTAssertTrue([cache grabWriteLock]);
     
     // The write lock prevents any readers until it gets unlocked, so this should prevent tryCheckCache

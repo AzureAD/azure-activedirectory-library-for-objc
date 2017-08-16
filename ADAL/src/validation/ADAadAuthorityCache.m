@@ -41,7 +41,7 @@
     }
     
     
-    _aadValidationCache = [NSMutableDictionary new];
+    _map = [NSMutableDictionary new];
     pthread_rwlock_init(&_rwLock, NULL);
     
     return self;
@@ -74,20 +74,20 @@
         
         for (NSString *alias in aliases)
         {
-            _aadValidationCache[alias] = record;
+            _map[alias] = record;
         }
     }
     
     // In case the authority we were looking for wasn't in the metadata
     NSString *authorityHost = authority.adHostWithPortIfNecessary;
-    if (!_aadValidationCache[authorityHost])
+    if (!_map[authorityHost])
     {
         __auto_type *record = [ADAadAuthorityCacheRecord new];
         record.validated = YES;
         record.cacheHost = authorityHost;
         record.networkHost = authorityHost;
         
-        _aadValidationCache[authority.adHostWithPortIfNecessary] = record;
+        _map[authority.adHostWithPortIfNecessary] = record;
     }
     pthread_rwlock_unlock(&_rwLock);
     
@@ -107,7 +107,7 @@
     __auto_type *record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
-    _aadValidationCache[authority.adHostWithPortIfNecessary] = record;
+    _map[authority.adHostWithPortIfNecessary] = record;
     pthread_rwlock_unlock(&_rwLock);
 }
 
@@ -116,7 +116,7 @@
 
 - (ADAadAuthorityCacheRecord *)checkCacheImpl:(NSURL *)authority
 {
-    __auto_type record = _aadValidationCache[authority.adHostWithPortIfNecessary];
+    __auto_type record = _map[authority.adHostWithPortIfNecessary];
     pthread_rwlock_unlock(&_rwLock);
     
     return record;

@@ -36,7 +36,7 @@
 
 @interface ADAadAuthorityCache : NSObject
 {
-    NSMutableDictionary<NSString *, ADAadAuthorityCacheRecord *> *_aadValidationCache;
+    NSMutableDictionary<NSString *, ADAadAuthorityCacheRecord *> *_map;
     pthread_rwlock_t _rwLock;
 }
 
