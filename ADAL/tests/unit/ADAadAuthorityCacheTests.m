@@ -86,7 +86,7 @@
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     
-    XCTAssertNil([cache checkCache:nil context:nil]);
+    XCTAssertNil([cache checkCache:nil]);
     // We do a try write lock check here to make sure that no one is still holding onto the lock
     // after this is done.
     XCTAssertTrue([cache tryWriteLock]);
@@ -96,7 +96,7 @@
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     
-    XCTAssertNil([cache checkCache:[NSURL URLWithString:@"  "] context:nil]);
+    XCTAssertNil([cache checkCache:[NSURL URLWithString:@"  "]]);
     XCTAssertTrue([cache tryWriteLock]);
 }
 
@@ -104,7 +104,7 @@
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     
-    XCTAssertNil([cache checkCache:[NSURL URLWithString:@"https://somedomain.com"] context:nil]);
+    XCTAssertNil([cache checkCache:[NSURL URLWithString:@"https://somedomain.com"]]);
     XCTAssertTrue([cache tryWriteLock]);
 }
 
@@ -113,7 +113,7 @@
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     
-    ADAadAuthorityCacheRecord *record = [cache checkCache:[NSURL URLWithString:@"https://somedomain.com"] context:nil];
+    ADAadAuthorityCacheRecord *record = [cache checkCache:[NSURL URLWithString:@"https://somedomain.com"]];
     
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);

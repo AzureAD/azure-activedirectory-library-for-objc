@@ -52,15 +52,10 @@
     pthread_rwlock_destroy(&_rwLock);
 }
 
-- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
-                context:(id<ADRequestContext>)context
-                  error:(ADAuthenticationError * __autoreleasing *)error
 {
-    if (![self getWriteLock:context error:error])
-    {
-        return NO;
-    }
+    [self getWriteLock];
     
     for (NSDictionary *environment in metadata)
     {
@@ -90,20 +85,12 @@
         _map[authority.adHostWithPortIfNecessary] = record;
     }
     pthread_rwlock_unlock(&_rwLock);
-    
-    return YES;
 }
 
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(ADAuthenticationError *)oauthError
-                 context:(id<ADRequestContext>)context
-                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-    if (![self getWriteLock:context error:error])
-    {
-        return;
-    }
-    
+    [self getWriteLock];
     __auto_type *record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
@@ -133,38 +120,30 @@
 }
 
 - (ADAadAuthorityCacheRecord *)checkCache:(NSURL *)authority
-                                       context:(id<ADRequestContext>)context
 {
     int status = pthread_rwlock_rdlock(&_rwLock);
     // This should be an extremely rare condition, and typically only happens if something
-    // (a memory stomper bug) stomps on the rw lock.
+    // (a memory stomper bug) stomps on the rw lock. In that case we're in a really bad state anyways
+    // and should expect to fail soon.
     if (status != 0)
     {
-        ADAadAuthorityCacheRecord *record = [ADAadAuthorityCacheRecord new];
-        record.error = [ADAuthenticationError errorWithDomain:NSOSStatusErrorDomain
-                                                         code:status
-                                                 errorDetails:@"Failed to get validation cache read lock."
-                                                correlationId:context.correlationId];
-        
-        return record;
+        @throw [NSException exceptionWithName:@"ADALException"
+                                       reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
+                                     userInfo:nil];
     }
     
     return [self checkCacheImpl:authority];
 }
 
 
-- (BOOL)getWriteLock:(id<ADRequestContext>)context
-               error:(ADAuthenticationError * __autoreleasing *)error
+- (BOOL)getWriteLock
 {
     int status = pthread_rwlock_wrlock(&_rwLock);
     if (status != 0)
     {
-        *error =
-        [ADAuthenticationError errorWithDomain:NSOSStatusErrorDomain
-                                          code:status
-                                  errorDetails:@"Failed to get validation cache write lock."
-                                 correlationId:context.correlationId];
-        return NO;
+        @throw [NSException exceptionWithName:@"ADALException"
+                                       reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
+                                     userInfo:nil];
     }
     
     return YES;
@@ -172,6 +151,7 @@
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
 {
+    
     return authority;
 }
 

@@ -249,7 +249,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    ADAadAuthorityCacheRecord *record = [_aadCache checkCache:authority context:requestParams];
+    ADAadAuthorityCacheRecord *record = [_aadCache checkCache:authority];
     if (record)
     {
         completionBlock(record.validated, record.error);
@@ -287,21 +287,14 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              // on the server.
              if ([oauthError isEqualToString:@"invalid_instance"])
              {
-                 [_aadCache addInvalidRecord:authority oauthError:adError context:requestParams error:&adError];
+                 [_aadCache addInvalidRecord:authority oauthError:adError];
              }
              
              completionBlock(NO, adError);
              return;
          }
          
-         ADAuthenticationError *adError = nil;
-         NSArray<NSDictionary *> *metadata = response[@"metadata"];
-         if (![_aadCache processMetadata:metadata authority:authority context:requestParams error:&adError])
-         {
-             completionBlock(NO, error);
-             return;
-         }
-         
+         [_aadCache processMetadata:response[@"metadata"] authority:authority];
          completionBlock(YES, nil);
      }];
 }

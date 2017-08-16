@@ -40,21 +40,15 @@
     pthread_rwlock_t _rwLock;
 }
 
-- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
-              authority:(NSURL *)authority
-                context:(id<ADRequestContext>)context
-                  error:(ADAuthenticationError * __autoreleasing *)error;
+- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
+              authority:(NSURL *)authority;
 - (void)addInvalidRecord:(NSURL *)authority
-              oauthError:(ADAuthenticationError *)oauthError
-                 context:(id<ADRequestContext>)context
-                   error:(ADAuthenticationError * __autoreleasing *)error;
-
+              oauthError:(ADAuthenticationError *)oauthError;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority;
 
 - (ADAadAuthorityCacheRecord *)tryCheckCache:(NSURL *)authority;
-- (ADAadAuthorityCacheRecord *)checkCache:(NSURL *)authority
-                                       context:(id<ADRequestContext>)context;
+- (ADAadAuthorityCacheRecord *)checkCache:(NSURL *)authority;
 
 @end
