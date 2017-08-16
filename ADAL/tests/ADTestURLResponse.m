@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import "ADTestURLResponse.h"
+#import "ADAuthorityValidationRequest.h"
 #import "ADOAuth2Constants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "NSURL+ADExtensions.h"
 #import "NSDictionary+ADTestUtil.h"
 
 #define DEFAULT_TRUSTED_HOST "login.microsoftonline.com"
-#define AAD_VALIDATION_API_VERSION "api-version=1.1"
 
 @implementation ADTestURLResponse
 
@@ -122,7 +122,7 @@
 
 + (ADTestURLResponse *)responseValidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?" AAD_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:200
@@ -135,7 +135,7 @@
 
 + (ADTestURLResponse *)responseInvalidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?" AAD_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400

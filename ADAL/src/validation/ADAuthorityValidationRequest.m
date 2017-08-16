@@ -28,7 +28,7 @@
 #import "NSDictionary+ADExtensions.h"
 
 static NSString* const s_kApiVersionKey            = @"api-version";
-static NSString* const s_kApiVersion               = @"1.1";
+static NSString* const s_kApiVersion               = @AAD_AUTHORITY_VALIDATION_API_VERSION;
 static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 @implementation ADAuthorityValidationRequest
