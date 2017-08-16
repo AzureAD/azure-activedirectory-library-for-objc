@@ -354,8 +354,8 @@
     XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
     XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
     XCTAssertEqualObjects(expectedAliases, record.aliases);
-    record = map[expectedHost];
-    XCTAssertNotNil(expectedCacheHost);
+    record = map[expectedCacheHost];
+    XCTAssertNotNil(record);
     XCTAssertEqualObjects(expectedNetworkHost, record.networkHost);
     XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
     XCTAssertEqualObjects(expectedAliases, record.aliases);
