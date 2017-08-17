@@ -36,13 +36,14 @@
 
 @interface ADAadAuthorityCache : NSObject
 {
-    NSMutableDictionary<NSString *, ADAadAuthorityCacheRecord *> *_map;
+    NSMutableDictionary<NSString *, ADAadAuthorityCacheRecord *> *_recordMap;
     pthread_rwlock_t _rwLock;
 }
 
-- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
+- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
-                context:(id<ADRequestContext>)context;
+                context:(id<ADRequestContext>)context
+                  error:(ADAuthenticationError * __autoreleasing *)error;
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(ADAuthenticationError *)oauthError
                  context:(id<ADRequestContext>)context;

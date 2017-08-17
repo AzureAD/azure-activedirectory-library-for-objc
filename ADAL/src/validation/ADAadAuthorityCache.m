@@ -27,6 +27,17 @@
 
 #include <pthread.h>
 
+#define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
+    if (![_CHK isKindOfClass:[_CLS class]]) { \
+        ADAuthenticationError *adError = \
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_INVALID_RESPONSE \
+                                       protocolCode:nil \
+                                       errorDetails:_ERROR \
+                                      correlationId:context.correlationId]; \
+        if (error) { *error = adError; } \
+        return NO; \
+    }
+
 @implementation ADAadAuthorityCacheRecord
 
 @end
@@ -41,7 +52,7 @@
     }
     
     
-    _map = [NSMutableDictionary new];
+    _recordMap = [NSMutableDictionary new];
     pthread_rwlock_init(&_rwLock, NULL);
     
     return self;
@@ -52,12 +63,28 @@
     pthread_rwlock_destroy(&_rwLock);
 }
 
-- (void)processMetadata:(NSArray<NSDictionary *> *)metadata
+- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
                 context:(id<ADRequestContext>)context
+                  error:(ADAuthenticationError * __autoreleasing *)error
 {
-    [self getWriteLock];
+    if (metadata != nil)
+    {
+        CHECK_CLASS_TYPE(metadata, NSArray, @"JSON metadata from authority validation is not an array");
+    }
     
+    [self getWriteLock];
+    BOOL ret = [self processImpl:metadata authority:authority context:context error:error];
+    pthread_rwlock_unlock(&_rwLock);
+    
+    return ret;
+}
+
+- (BOOL)processImpl:(NSArray<NSDictionary *> *)metadata
+          authority:(NSURL *)authority
+            context:(id<ADRequestContext>)context
+              error:(ADAuthenticationError * __autoreleasing *)error
+{
     if (metadata.count == 0)
     {
         AD_LOG_INFO(@"No metadata returned from authority validation", context.correlationId, nil);
@@ -67,19 +94,41 @@
         AD_LOG_INFO(@"Caching AAD Environements:", context.correlationId, nil);
     }
     
+    NSMutableArray<ADAadAuthorityCacheRecord *> *recordsToAdd = [NSMutableArray new];
+    
     for (NSDictionary *environment in metadata)
     {
+        CHECK_CLASS_TYPE(environment, NSDictionary, @"JSON metadata entry is not a dictionary");
+        
         __auto_type *record = [ADAadAuthorityCacheRecord new];
         record.validated = YES;
-        record.networkHost = environment[@"preferred_network"];
-        record.cacheHost = environment[@"preferred_cache"];
+        
+        NSString *networkHost = environment[@"preferred_network"];
+        CHECK_CLASS_TYPE(networkHost, NSString, @"\"preferred_network\" in JSON authority validation metadata must be a string");
+        record.networkHost = networkHost;
+        
+        NSString *cacheHost = environment[@"preferred_cache"];
+        CHECK_CLASS_TYPE(cacheHost, NSString, @"\"preferred_cache\" in JSON authority validation metadata must be a string");
+        record.cacheHost = cacheHost;
         
         NSArray *aliases = environment[@"aliases"];
+        CHECK_CLASS_TYPE(aliases, NSArray, @"\"alias\" in JSON authority validation metadata must be an array");
         record.aliases = aliases;
         
         for (NSString *alias in aliases)
         {
-            _map[alias] = record;
+            CHECK_CLASS_TYPE(alias, NSString, @"\"alias\" in JSON authority validation metadata must be an array of strings");
+        }
+        
+        [recordsToAdd addObject:record];
+    }
+    
+    for (ADAadAuthorityCacheRecord *record in recordsToAdd)
+    {
+        __auto_type aliases = record.aliases;
+        for (NSString *alias in aliases)
+        {
+            _recordMap[alias] = record;
         }
         
         AD_LOG_INFO(([NSString stringWithFormat:@"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases]), context.correlationId, nil);
@@ -87,16 +136,17 @@
     
     // In case the authority we were looking for wasn't in the metadata
     NSString *authorityHost = authority.adHostWithPortIfNecessary;
-    if (!_map[authorityHost])
+    if (!_recordMap[authorityHost])
     {
         __auto_type *record = [ADAadAuthorityCacheRecord new];
         record.validated = YES;
         record.cacheHost = authorityHost;
         record.networkHost = authorityHost;
         
-        _map[authority.adHostWithPortIfNecessary] = record;
+        _recordMap[authorityHost] = record;
     }
-    pthread_rwlock_unlock(&_rwLock);
+    
+    return YES;
 }
 
 - (void)addInvalidRecord:(NSURL *)authority
@@ -108,7 +158,7 @@
     __auto_type *record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
-    _map[authority.adHostWithPortIfNecessary] = record;
+    _recordMap[authority.adHostWithPortIfNecessary] = record;
     pthread_rwlock_unlock(&_rwLock);
 }
 
@@ -117,7 +167,7 @@
 
 - (ADAadAuthorityCacheRecord *)checkCacheImpl:(NSURL *)authority
 {
-    __auto_type record = _map[authority.adHostWithPortIfNecessary];
+    __auto_type record = _recordMap[authority.adHostWithPortIfNecessary];
     pthread_rwlock_unlock(&_rwLock);
     
     return record;
@@ -172,9 +222,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
         return url;
     }
     
-    // If the host is already (functionally) the same then just return the passed in URL.
-    if ([url.host isEqualToString:preferredHost] ||
-        [url.adHostWithPortIfNecessary isEqualToString:preferredHost])
+    if ([url.adHostWithPortIfNecessary isEqualToString:preferredHost])
     {
         return url;
     }

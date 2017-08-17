@@ -27,8 +27,8 @@
 
 @interface ADAadAuthorityCache (TestUtils)
 
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)map;
-- (void)setMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
+- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap;
+- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
 
 - (BOOL)grabReadLock;
 - (BOOL)grabWriteLock;
@@ -39,14 +39,14 @@
 
 @implementation ADAadAuthorityCache (TestUtils)
 
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)map
+- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap
 {
-    return _map;
+    return _recordMap;
 }
 
-- (void)setMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
+- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
 {
-    _map = [cacheDictionary mutableCopy];
+    _recordMap = [cacheDictionary mutableCopy];
 }
 
 - (BOOL)grabWriteLock
@@ -117,7 +117,7 @@
 - (void)testCheckCache_whenNotValidCached_shouldReturnNonValidRecordNoLock
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.recordMap = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     
     ADAadAuthorityCacheRecord *record = [cache checkCache:[NSURL URLWithString:@"https://somedomain.com"]];
     
@@ -129,7 +129,7 @@
 - (void)testTryCheckCache_whenNotValidCached_shouldReturnNonValidRecordNoLock
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.recordMap = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     
     ADAadAuthorityCacheRecord *record = [cache tryCheckCache:[NSURL URLWithString:@"https://somedomain.com"]];
     
@@ -141,7 +141,7 @@
 - (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNonValidRecordNoLock
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.recordMap = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     XCTAssertTrue([cache grabReadLock]);
     
     // tryCheckCache should still be able to read the cache even if the read lock is being held
@@ -154,7 +154,7 @@
 - (void)testTryCheckCache_whenNotValidCacheReadLockHeld_shouldReturnNil
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.map = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
+    cache.recordMap = @{ @"somedomain.com" : [ADAadAuthorityCacheRecord new] };
     XCTAssertTrue([cache grabWriteLock]);
     
     // The write lock prevents any readers until it gets unlocked, so this should prevent tryCheckCache
@@ -180,7 +180,7 @@
 - (void)testNetworkUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.map = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
+    cache.recordMap = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
@@ -194,7 +194,7 @@
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = YES;
-    cache.map = @{ @"fakeauthority.com" : record };
+    cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
@@ -209,7 +209,7 @@
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"fakeauthority.com";
-    cache.map = @{ @"fakeauthority.com" : record };
+    cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
@@ -224,7 +224,7 @@
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = YES;
     record.networkHost = @"preferredauthority.com";
-    cache.map = @{ @"fakeauthority.com" : record };
+    cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
@@ -250,7 +250,7 @@
 - (void)testCacheUrlForAuthority_whenCachedNotValid_shouldReturnSameURL
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
-    cache.map = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
+    cache.recordMap = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
@@ -264,7 +264,7 @@
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = YES;
-    cache.map = @{ @"fakeauthority.com" : record };
+    cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
@@ -279,7 +279,7 @@
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = YES;
     record.cacheHost = @"fakeauthority.com";
-    cache.map = @{ @"fakeauthority.com" : record };
+    cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
@@ -294,7 +294,7 @@
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = YES;
     record.cacheHost = @"preferredauthority.com";
-    cache.map = @{ @"fakeauthority.com" : record };
+    cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
@@ -313,9 +313,11 @@
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
     NSString *expectedHost = @"fakeauthority.com";
     
-    [cache processMetadata:nil authority:authority context:nil];
+    ADAuthenticationError *error = nil;
+    XCTAssertTrue([cache processMetadata:nil authority:authority context:nil error:&error]);
     
-    __auto_type map = cache.map;
+    XCTAssertNil(error);
+    __auto_type map = cache.recordMap;
     XCTAssertNotNil(map);
     XCTAssertEqual(map.count, 1);
     __auto_type record = map[expectedHost];
@@ -337,9 +339,11 @@
                               @"preferred_cache" :  expectedCacheHost,
                               @"aliases" : expectedAliases } ];
     
-    [cache processMetadata:metadata authority:authority context:nil];
+    ADAuthenticationError *error = nil;
+    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
     
-    __auto_type map = cache.map;
+    XCTAssertNil(error);
+    __auto_type map = cache.recordMap;
     XCTAssertNotNil(map);
     // A record should be created for each of the aliases, and each of those records should be
     // identical
@@ -360,5 +364,93 @@
     XCTAssertEqualObjects(expectedCacheHost, record.cacheHost);
     XCTAssertEqualObjects(expectedAliases, record.aliases);
 }
+
+
+- (void)testProcessMetadata_whenBadMetadataWrongNetworkHostType_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedCacheHost, expectedNetworkHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : @1,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
+- (void)testProcessMetadata_whenBadMetadataWrongCacheHostType_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedCacheHost, expectedNetworkHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  @1,
+                              @"aliases" : expectedAliases } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
+- (void)testProcessMetadata_whenBadMetadataWrongAliasesType_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : @1 } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
+- (void)testProcessMetadata_whenBadMetadataWrongTypeInAliases_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, @1, expectedNetworkHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
 
 @end

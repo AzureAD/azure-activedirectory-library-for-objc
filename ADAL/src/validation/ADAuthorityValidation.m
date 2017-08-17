@@ -34,9 +34,6 @@
 
 #import "NSURL+ADExtensions.h"
 
-#include <pthread.h>
-
-
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
 
@@ -275,7 +272,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          }
          
          NSString *oauthError = response[@"error"];
-         if (oauthError)
+         if (![NSString adIsStringNilOrBlank:oauthError])
          {
              ADAuthenticationError *adError =
              [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
@@ -294,7 +291,17 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              return;
          }
          
-         [_aadCache processMetadata:response[@"metadata"] authority:authority context:requestParams];
+         
+         ADAuthenticationError *adError = nil;
+         if (![_aadCache processMetadata:response[@"metadata"]
+                               authority:authority
+                                 context:requestParams
+                                   error:&adError])
+         {
+             completionBlock(NO, adError);
+             return;
+         }
+         
          completionBlock(YES, nil);
      }];
 }
