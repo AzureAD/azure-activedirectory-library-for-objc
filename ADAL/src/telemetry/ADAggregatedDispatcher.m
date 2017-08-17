@@ -159,7 +159,11 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               
                                               AD_TELEMETRY_KEY_OAUTH_ERROR_CODE,
                                               AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
-                                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT,
+                                              AD_TELEMETRY_KEY_SERVER_ERROR_CODE,
+                                              AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
+                                              AD_TELEMETRY_KEY_RT_AGE,
+                                              AD_TELEMETRY_KEY_SPE_INFO
                                               ],
                                       NSStringFromClass([ADTelemetryCacheEvent class]): @[
                                               // default properties apply to all events

@@ -264,6 +264,7 @@
     }
     
     [event setOAuthErrorCode:response];
+    [event setClientTelemetry:[response headers][@"x-ms-clitelem"]];
     
     [event setHttpRequestQueryParams:_requestURL.query];
     
