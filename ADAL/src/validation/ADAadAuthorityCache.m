@@ -230,10 +230,21 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     // Otherwise switch the host for the preferred one.
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     
+    NSArray *hostComponents = [preferredHost componentsSeparatedByString:@":"];
+    
     // I hope there's never a case where there's percent encoded characters in the host, but using
     // this setter prevents NSURLComponents from trying to do any further mangling on the string,
     // probably a good thing.
-    components.percentEncodedHost = preferredHost;
+    components.percentEncodedHost = hostComponents[0];
+    
+    if (hostComponents.count > 1)
+    {
+        components.port = [NSNumber numberWithInt:[hostComponents[1] intValue]];
+    }
+    else
+    {
+        components.port = nil;
+    }
     
     return components.URL;
 }

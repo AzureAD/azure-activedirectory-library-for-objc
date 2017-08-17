@@ -189,6 +189,18 @@
     XCTAssertEqualObjects(authority, cachedAuthority);
 }
 
+- (void)testNetworkUrlForAuthority_whenCachedNotValidWithPort_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    cache.recordMap = @{ @"fakeauthority.com:444" : [ADAadAuthorityCacheRecord new] };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
 - (void)testNetworkUrlForAuthority_whenCachedValidNoPreferredNetwork_shouldReturnSameURL
 {
     ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
@@ -201,6 +213,19 @@
     
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testNetworkUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    cache.recordMap = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNil(cachedAuthority);
 }
 
 - (void)testNetworkUrlForAuthority_whenCachedValidSamePreferredNetwork_shouldReturnSameURL
@@ -234,6 +259,38 @@
     XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
 }
 
+- (void)testNetworkUrlForAuthority_whenCachedValidDifferentPreferredNetworkAndURLContainsNonStandardPort_shouldReturnPreferredURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"preferredauthority.com:444";
+    cache.recordMap = @{ @"fakeauthority.com:444" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com:444/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+}
+
+- (void)testNetworkUrlForAuthority_whenCachedValidDifferentPreferredNetworkAndURLContainsPort_shouldReturnPreferredURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"preferredauthority.com";
+    cache.recordMap = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
+    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache networkUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+}
+
 #pragma mark -
 #pragma mark Cache URL Utility Tests
 
@@ -258,6 +315,30 @@
     XCTAssertNotNil(cachedAuthority);
     XCTAssertEqualObjects(authority, cachedAuthority);
 }
+
+- (void)testCacheUrlForAuthority_whenCachedNotValidWithPort_shouldReturnSameURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    cache.recordMap = @{ @"fakeauthority.com:444" : [ADAadAuthorityCacheRecord new] };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(authority, cachedAuthority);
+}
+
+- (void)testCacheUrlForAuthority_whenCacheMismatchOnPort_shouldReturnNil
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    cache.recordMap = @{ @"fakeauthority.com" : [ADAadAuthorityCacheRecord new] };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNil(cachedAuthority);
+}
+
 
 - (void)testCacheUrlForAuthority_whenCachedValidNoPreferredCache_shouldReturnSameURL
 {
@@ -296,6 +377,22 @@
     record.cacheHost = @"preferredauthority.com";
     cache.recordMap = @{ @"fakeauthority.com" : record };
     NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
+    
+    NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
+    
+    XCTAssertNotNil(cachedAuthority);
+    XCTAssertEqualObjects(expectedAuthority, cachedAuthority);
+}
+
+- (void)testCacheUrlForAuthority_whenCachedValidDifferentPreferredNetworkAndUrlIncludesPort_shouldReturnPreferredURL
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.cacheHost = @"preferredauthority.com";
+    cache.recordMap = @{ @"fakeauthority.com" : record };
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
     NSURL *expectedAuthority = [NSURL URLWithString:@"https://preferredauthority.com/v2/oauth/endpoint"];
     
     NSURL *cachedAuthority = [cache cacheUrlForAuthority:authority];
@@ -365,6 +462,55 @@
     XCTAssertEqualObjects(expectedAliases, record.aliases);
 }
 
+- (void)testProcessMetadata_whenMetadataProvidedUsingAuthorityWithPort_shouldCreateExpectedRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:443/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedHost,
+                              @"preferred_cache" :  expectedHost,
+                              @"aliases" : @[ expectedHost ] } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    XCTAssertNil(error);
+    __auto_type map = cache.recordMap;
+    XCTAssertNotNil(map);
+    // A record should be created for each of the aliases, and each of those records should be
+    // identical
+    XCTAssertEqual(map.count, 1);
+    __auto_type record = map[expectedHost];
+    XCTAssertNotNil(record);
+    XCTAssertEqualObjects(expectedHost, record.networkHost);
+    XCTAssertEqualObjects(expectedHost, record.cacheHost);
+    XCTAssertEqualObjects(@[ expectedHost ], record.aliases);
+}
+
+- (void)testProcessMetadata_whenMetadataProvidedWithNonStandardPortUsingAuthorityWithNonStandardPort_shouldCreateExpectedRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com:444/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com:444";
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedHost,
+                              @"preferred_cache" :  expectedHost,
+                              @"aliases" : @[ expectedHost ] } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertTrue([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    XCTAssertNil(error);
+    __auto_type map = cache.recordMap;
+    XCTAssertNotNil(map);
+    // A record should be created for each of the aliases, and each of those records should be
+    // identical
+    XCTAssertEqual(map.count, 1);
+    __auto_type record = map[expectedHost];
+    XCTAssertNotNil(record);
+    XCTAssertEqualObjects(expectedHost, record.networkHost);
+    XCTAssertEqualObjects(expectedHost, record.cacheHost);
+    XCTAssertEqualObjects(@[ expectedHost ], record.aliases);
+}
 
 - (void)testProcessMetadata_whenBadMetadataWrongNetworkHostType_shouldReturnErrorCreateNoRecords
 {
