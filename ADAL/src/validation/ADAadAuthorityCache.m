@@ -100,7 +100,7 @@
     {
         CHECK_CLASS_TYPE(environment, NSDictionary, @"JSON metadata entry is not a dictionary");
         
-        __auto_type *record = [ADAadAuthorityCacheRecord new];
+        __auto_type record = [ADAadAuthorityCacheRecord new];
         record.validated = YES;
         
         NSString *networkHost = environment[@"preferred_network"];
@@ -138,7 +138,7 @@
     NSString *authorityHost = authority.adHostWithPortIfNecessary;
     if (!_recordMap[authorityHost])
     {
-        __auto_type *record = [ADAadAuthorityCacheRecord new];
+        __auto_type record = [ADAadAuthorityCacheRecord new];
         record.validated = YES;
         record.cacheHost = authorityHost;
         record.networkHost = authorityHost;
@@ -155,7 +155,7 @@
 {
     [self getWriteLock];
     AD_LOG_WARN(@"Caching Invalid AAD Instance", context.correlationId, nil);
-    __auto_type *record = [ADAadAuthorityCacheRecord new];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
     _recordMap[authority.adHostWithPortIfNecessary] = record;
