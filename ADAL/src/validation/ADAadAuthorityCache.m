@@ -80,6 +80,43 @@
     return ret;
 }
 
+static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id<ADRequestContext> context, ADAuthenticationError * __autoreleasing *error)
+{
+    CHECK_CLASS_TYPE(host, NSString, ([NSString stringWithFormat:@"\"%@\" in JSON authority validation metadata must be %@", label, isAliases ? @"an array of strings" : @"a string"]));
+    
+    @try
+    {
+        // Run this through urlForPreferredHost to make sure it does not throw any exceptions
+        urlForPreferredHost([NSURL URLWithString:@"https://fakeurl.com"], host);
+        
+        return YES;
+    }
+    @catch (NSException *ex)
+    {
+        NSString *details = nil;
+        if (isAliases)
+        {
+            details = [NSString stringWithFormat:@"\"%@\" must contain valid percent encoded host strings", label];
+        }
+        else
+        {
+            details = [NSString stringWithFormat:@"\"%@\" must have a valid percent encoded host", label];
+        }
+        ADAuthenticationError *adError =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_INVALID_RESPONSE
+                                               protocolCode:nil
+                                               errorDetails:details
+                                              correlationId:context.correlationId];
+        if (error)
+        {
+            *error = adError;
+        }
+        return NO;
+    }
+}
+
+#define VERIFY_HOST_STRING(_HOST, _LABEL, _ISALIASES) if (!VerifyHostString(_HOST, _LABEL, _ISALIASES, context, error)) { return NO; }
+
 - (BOOL)processImpl:(NSArray<NSDictionary *> *)metadata
           authority:(NSURL *)authority
             context:(id<ADRequestContext>)context
@@ -104,11 +141,11 @@
         record.validated = YES;
         
         NSString *networkHost = environment[@"preferred_network"];
-        CHECK_CLASS_TYPE(networkHost, NSString, @"\"preferred_network\" in JSON authority validation metadata must be a string");
+        VERIFY_HOST_STRING(networkHost, @"preferred_network", NO);
         record.networkHost = networkHost;
         
         NSString *cacheHost = environment[@"preferred_cache"];
-        CHECK_CLASS_TYPE(cacheHost, NSString, @"\"preferred_cache\" in JSON authority validation metadata must be a string");
+        VERIFY_HOST_STRING(cacheHost, @"preferred_cache", NO);
         record.cacheHost = cacheHost;
         
         NSArray *aliases = environment[@"aliases"];
@@ -117,7 +154,7 @@
         
         for (NSString *alias in aliases)
         {
-            CHECK_CLASS_TYPE(alias, NSString, @"\"aliases\" in JSON authority validation metadata must be an array of strings");
+            VERIFY_HOST_STRING(alias, @"aliases", YES);
         }
         
         [recordsToAdd addObject:record];
