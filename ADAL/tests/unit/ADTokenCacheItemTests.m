@@ -122,42 +122,6 @@
     XCTAssertNil(item.userInformation);
 }
 
-#pragma mark - isSameUser
-
-- (void)testIsSameUser_whenOtherUserIdIsIdenticalToCurrent_shouldReturnTrue
-{
-    ADTokenCacheItem *item1 = [ADTokenCacheItem new];
-    item1.userInformation = [self adCreateUserInformation:@"test user"];
-    ADTokenCacheItem *item2 = [ADTokenCacheItem new];
-    item2.userInformation = [self adCreateUserInformation:@"test user"];
-    
-    XCTAssertTrue([item1 isSameUser:item2]);
-    XCTAssertTrue([item2 isSameUser:item1]);
-}
-
-- (void)testIsSameUser_whenOtherUserNilCurrentUserNil_shouldReturnTrue
-{
-    ADTokenCacheItem *item1 = [ADTokenCacheItem new];
-    item1.userInformation = nil;
-    ADTokenCacheItem *item2 = [ADTokenCacheItem new];
-    item2.userInformation = nil;
-    
-    XCTAssertTrue([item1 isSameUser:item2]);
-    XCTAssertTrue([item2 isSameUser:item1]);
-}
-
-// TODO: do we need this behaviour?
-- (void)DISABLEDtestIsSameUser_whenOtherUserIdStartsWithSpaceButOtherPartIsIdenticalToCurrent_shouldReturnTrue
-{
-    ADTokenCacheItem *item1 = [ADTokenCacheItem new];
-    item1.userInformation = [self adCreateUserInformation:@" test user"];
-    ADTokenCacheItem *item2 = [ADTokenCacheItem new];
-    item2.userInformation = [self adCreateUserInformation:@"test user"];
-    
-    XCTAssertTrue([item1 isSameUser:item2]);
-    XCTAssertTrue([item2 isSameUser:item1]);
-}
-
 #pragma mark - isMultiResourceRefreshToken
 
 - (void)testIsMultiResourceRefreshToken_whenResourceValidAccessTokenValidRefreshTokenValid_shouldReturnFalse

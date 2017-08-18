@@ -114,17 +114,6 @@
     return !_userInformation;
 }
 
-/*! Verifies if the user (as defined by userId) is the same between the two items. */
-- (BOOL)isSameUser:(ADTokenCacheItem*) other
-{
-    THROW_ON_NIL_ARGUMENT(other);
-    
-    if ([self isEmptyUser])
-        return [other isEmptyUser];
-    
-    return [self.userInformation isEqual:other.userInformation];
-}
-
 + (BOOL)supportsSecureCoding
 {
     return YES;
