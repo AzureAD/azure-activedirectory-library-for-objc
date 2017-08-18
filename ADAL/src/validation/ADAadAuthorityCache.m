@@ -276,7 +276,16 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     
     if (hostComponents.count > 1)
     {
-        components.port = [NSNumber numberWithInt:[hostComponents[1] intValue]];
+        NSScanner *scanner = [NSScanner scannerWithString:hostComponents[1]];
+        int port = 0;
+        if (![scanner scanInt:&port] || !scanner.isAtEnd || port < 1 )
+        {
+            // setPercentEncodedHost and setPort both throw if there's an error. The validation code runs
+            // this function in a try block first to make sure the data is valid, so it's okay for
+            // us to throw here as well to propogate the error
+            @throw [NSException exceptionWithName:@"InvalidNumberFormatException" reason:@"Port is not a valid integer or port" userInfo:nil];
+        }
+        components.port = [NSNumber numberWithInt:port];
     }
     else
     {

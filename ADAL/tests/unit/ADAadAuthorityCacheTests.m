@@ -664,4 +664,70 @@
     XCTAssertEqual(cache.recordMap.count, 0);
 }
 
+- (void)testProcessMetadata_whenInvalidPortInPreferredNetwork_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedNetworkHost, expectedCacheHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : @"sts.contoso.com:4sde3as",
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
+- (void)testProcessMetadata_whenInvalidPortInPreferredCache_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedNetworkHost, expectedCacheHost ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  @"sts.contoso.com:43as",
+                              @"aliases" : expectedAliases } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
+- (void)testProcessMetadata_whenInvalidPortInAliases_shouldReturnErrorCreateNoRecords
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    NSString *expectedHost = @"fakeauthority.com";
+    NSString *expectedNetworkHost = @"fakeauthority.net";
+    NSString *expectedCacheHost = @"sts.fakeauthority.com";
+    NSArray *expectedAliases = @[ expectedHost, expectedNetworkHost, expectedCacheHost, @"sts.contoso.com:43as" ];
+    NSArray *metadata = @[ @{ @"preferred_network" : expectedNetworkHost,
+                              @"preferred_cache" :  expectedCacheHost,
+                              @"aliases" : expectedAliases } ];
+    
+    ADAuthenticationError *error = nil;
+    XCTAssertFalse([cache processMetadata:metadata authority:authority context:nil error:&error]);
+    
+    
+    // Verify the correct error code is returned and no records were added to the cache
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, AD_ERROR_SERVER_INVALID_RESPONSE);
+    XCTAssertEqual(cache.recordMap.count, 0);
+}
+
 @end
