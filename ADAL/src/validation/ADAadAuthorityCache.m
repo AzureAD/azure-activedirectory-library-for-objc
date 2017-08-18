@@ -117,7 +117,7 @@
         
         for (NSString *alias in aliases)
         {
-            CHECK_CLASS_TYPE(alias, NSString, @"\"alias\" in JSON authority validation metadata must be an array of strings");
+            CHECK_CLASS_TYPE(alias, NSString, @"\"aliases\" in JSON authority validation metadata must be an array of strings");
         }
         
         [recordsToAdd addObject:record];
