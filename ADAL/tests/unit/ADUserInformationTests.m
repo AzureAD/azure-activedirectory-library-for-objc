@@ -166,23 +166,23 @@
     ADAssertStringEquals(userInfo.userId, @"eric_cartman@contoso.com");
 }
 
-#pragma mark -
+#pragma mark - copyWithZone
 
-- (void) testCopy
+- (void)testCopyWithZone_whenAllPropertiesAreSet_shouldCopyAllOfThem
 {
-    ADUserInformation* userInfo = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
-    XCTAssertNotNil(userInfo);
+    ADUserInformation *userInfo = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
     
-    ADUserInformation* copy = [userInfo copy];
-    XCTAssertNotNil(copy);
-    XCTAssertEqualObjects(copy, userInfo);
-    ADAssertStringEquals(userInfo.userId, copy.userId);
-    ADAssertStringEquals(userInfo.givenName, copy.givenName);
-    ADAssertStringEquals(userInfo.familyName, copy.familyName);
-    ADAssertStringEquals(userInfo.identityProvider, copy.identityProvider);
-    XCTAssertEqual(userInfo.userIdDisplayable, copy.userIdDisplayable);
-    XCTAssertEqualObjects(userInfo.allClaims, copy.allClaims);
+    ADUserInformation *userInfoCopy = [userInfo copy];
+    
+    XCTAssertEqualObjects(userInfo.rawIdToken, userInfoCopy.rawIdToken);
+    XCTAssertEqualObjects(userInfo.userId, userInfoCopy.userId);
+    XCTAssertEqual(userInfo.userIdDisplayable, userInfoCopy.userIdDisplayable);
+    XCTAssertEqualObjects(userInfo.uniqueId, userInfoCopy.uniqueId);
+    XCTAssertEqualObjects(userInfo.allClaims, userInfoCopy.allClaims);
+    XCTAssertEqualObjects(userInfo, userInfoCopy);
 }
+
+#pragma mark -
 
 - (void) testIdTokenNormal
 {
