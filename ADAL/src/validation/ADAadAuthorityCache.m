@@ -87,7 +87,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     @try
     {
         // Run this through urlForPreferredHost to make sure it does not throw any exceptions
-        urlForPreferredHost([NSURL URLWithString:@"https://fakeurl.com"], host);
+        urlForPreferredHost([NSURL URLWithString:@"https://fakeurl.contoso.com"], host);
         
         return YES;
     }
