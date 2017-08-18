@@ -51,26 +51,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenAllClaimsIsNotEqual_shouldReturnFalse
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@{@"k1":@"v1"} forKey:@"allClaims"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@{@"k2":@"v2"} forKey:@"allClaims"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenAllClaimsIsEqual_shouldReturnTrue
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@{@"k1":@"v1"} forKey:@"allClaims"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@{@"k1":@"v1"} forKey:@"allClaims"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 - (void)testIsEqual_whenRawIdTokenIsNotEqual_shouldReturnFalse
 {
     ADUserInformation *lhs = [self createEmptyUserInformation];
@@ -87,66 +67,6 @@
     [lhs setValue:@"token" forKey:@"rawIdToken"];
     ADUserInformation *rhs = [self createEmptyUserInformation];
     [rhs setValue:@"token" forKey:@"rawIdToken"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenUniqueIdIsNotEqual_shouldReturnFalse
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@"id 1" forKey:@"uniqueId"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@"id 2" forKey:@"uniqueId"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenUniqueIdIsEqual_shouldReturnTrue
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@"id 1" forKey:@"uniqueId"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@"id 1" forKey:@"uniqueId"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenUserIdDisplayableIsNotEqual_shouldReturnFalse
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@NO forKey:@"userIdDisplayable"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@YES forKey:@"userIdDisplayable"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenUserIdDisplayableIsEqual_shouldReturnTrue
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@YES forKey:@"userIdDisplayable"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@YES forKey:@"userIdDisplayable"];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenUserIdIsNotEqual_shouldReturnFalse
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@"asd" forKey:@"userId"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@"qwe" forKey:@"userId"];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenUserIdIsEqual_shouldReturnTrue
-{
-    ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@"qwe" forKey:@"userId"];
-    ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@"qwe" forKey:@"userId"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }

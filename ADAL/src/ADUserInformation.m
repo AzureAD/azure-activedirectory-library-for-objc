@@ -279,11 +279,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     ADUserInformation *rhs = (ADUserInformation *)object;
     
     BOOL result = YES;
-    result &= [self.allClaims isEqualToDictionary:rhs.allClaims] || (self.allClaims == rhs.allClaims);
     result &= [self.rawIdToken isEqual:rhs.rawIdToken] || (self.rawIdToken == rhs.rawIdToken);
-    result &= [self.uniqueId isEqualToString:rhs.uniqueId] || (self.uniqueId == rhs.uniqueId);
-    result &= self.userIdDisplayable == rhs.userIdDisplayable;
-    result &= [self.userId isEqualToString:rhs.userId] || (self.userId == rhs.userId);
     
     return result;
 }
