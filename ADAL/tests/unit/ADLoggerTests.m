@@ -64,17 +64,17 @@
 
 #pragma mark - log:context:message:errorCode:info:correlationId:userInfo
 
-- (void)testLog_whenLogLevelNoLogContextNilMessageValidErrorCodeSucceededInfoValidCorrelationIdNilUserInfoNil_shouldNotThrow
+- (void)testLog_whenLogLevelNoMessageValidInfoValid_shouldNotThrow
 {
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
 }
 
-- (void)testLog_whenLogLevelErrorContextNilMessageNilErrorCodeSucceededInfoValidCorrelationIdNilUserInfoNil_shouldNotThrow
+- (void)testLog_whenLogLevelErrorMessageNilInfoValid_shouldNotThrow
 {
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
 }
 
-- (void)testLog_whenLogLevelErrorContextNilMessageValidErrorCodeSucceededInfoNilCorrelationIdNilUserInfoNil_shouldNotThrow
+- (void)testLog_whenLogLevelErrorMessageValidInfoNil_shouldNotThrow
 {
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil correlationId:nil userInfo:nil];
 }
