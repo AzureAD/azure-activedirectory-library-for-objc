@@ -178,7 +178,6 @@
 
 - (ADUserInformation *)createEmptyUserInformation
 {
-    // TODO: can we allow to use -init of ADUserInformation?
     ADUserInformation *information = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
     [information setValue:nil forKey:@"allClaims"];
     [information setValue:nil forKey:@"rawIdToken"];
