@@ -24,18 +24,21 @@
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult.h"
+#import "ADAadAuthorityCache.h"
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
+
+#import "NSURL+ADExtensions.h"
+
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
+static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
 
 @interface AADAuthorityValidationTests : ADTestCase
 
@@ -127,7 +130,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"https://login.windows-ppe.net"]]);
+    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]].validated);
 }
 
 //Ensures that an invalid authority is not approved
@@ -155,7 +158,10 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNotNil(record);
+    XCTAssertFalse(record.validated);
+    XCTAssertNotNil(record.error);
 }
 
 - (void)testAcquireToken_whenAuthorityInvalid_shouldReturnError
@@ -189,6 +195,10 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
      }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNotNil(record);
+    XCTAssertFalse(record.validated);
 }
 
 - (void)testValidateAuthority_whenHostUnreachable_shouldFail
@@ -201,7 +211,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedAuthority:s_kTrustedAuthority];
+    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:s_kTrustedAuthority];
     NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
     
     requestURL = [NSURL URLWithString:requestURLString];
@@ -227,7 +237,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
+    // Failing to connect should not create a validation record
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNil(record);
 }
 
 @end

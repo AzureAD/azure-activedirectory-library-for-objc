@@ -21,46 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #import <Foundation/Foundation.h>
 
-@class ADAuthorityValidationResponse;
-@class ADAadAuthorityCache;
+@interface ADAadAuthorityCacheRecord : NSObject
 
-/*! The completion block declaration. */
-typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
+@property BOOL validated;
+@property ADAuthenticationError *error;
 
-/*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
- The class is thread-safe. */
-@interface ADAuthorityValidation : NSObject
-{
-    ADAadAuthorityCache *_aadCache;
-}
-
-@property (readonly) ADAadAuthorityCache *aadCache;
-
-+ (ADAuthorityValidation *)sharedInstance;
-
-/*!
- This is for caching of valid authorities.
- For ADFS, it will cache the authority and the domain. 
- For AAD, it will simply cache the authority
- */
-// Cache - ADFS
-- (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain;
-- (BOOL)isAuthorityValidated:(NSURL *)authority domain:(NSString *)domain;
-// Cache - AAD
-
-/*!
- Validates an authority.
- 
- @param requestParams        Request parameters
- @param completionBlock      The block to execute upon completion.
-
- */
-- (void)validateAuthority:(ADRequestParameters*)requestParams
-          completionBlock:(ADAuthorityValidationCallback)completionBlock;
+@property NSString *networkHost;
+@property NSString *cacheHost;
+@property NSArray<NSString *> *aliases;
 
 @end
 
+@interface ADAadAuthorityCache : NSObject
+{
+    NSMutableDictionary<NSString *, ADAadAuthorityCacheRecord *> *_recordMap;
+    pthread_rwlock_t _rwLock;
+}
 
+- (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
+              authority:(NSURL *)authority
+                context:(id<ADRequestContext>)context
+                  error:(ADAuthenticationError * __autoreleasing *)error;
+- (void)addInvalidRecord:(NSURL *)authority
+              oauthError:(ADAuthenticationError *)oauthError
+                 context:(id<ADRequestContext>)context;
+
+- (NSURL *)networkUrlForAuthority:(NSURL *)authority;
+- (NSURL *)cacheUrlForAuthority:(NSURL *)authority;
+
+- (ADAadAuthorityCacheRecord *)tryCheckCache:(NSURL *)authority;
+- (ADAadAuthorityCacheRecord *)checkCache:(NSURL *)authority;
+
+@end

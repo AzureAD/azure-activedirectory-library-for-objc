@@ -68,6 +68,11 @@
                               errorDetails:(NSString *)errorDetails
                              correlationId:(NSUUID *)correlationId;
 
++ (ADAuthenticationError *)errorWithDomain:(NSErrorDomain)domain
+                                      code:(NSInteger)code
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId;
+
 /*! Genearates an error from the code and details of an authentication error */
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString *)protocolCode

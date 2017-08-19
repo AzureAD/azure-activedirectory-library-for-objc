@@ -22,10 +22,13 @@
 // THE SOFTWARE.
 
 #import "ADTestURLResponse.h"
+#import "ADAuthorityValidationRequest.h"
 #import "ADOAuth2Constants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "NSURL+ADExtensions.h"
 #import "NSDictionary+ADTestUtil.h"
+
+#define DEFAULT_TRUSTED_HOST "login.microsoftonline.com"
 
 @implementation ADTestURLResponse
 
@@ -119,7 +122,7 @@
 
 + (ADTestURLResponse *)responseValidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:200
@@ -132,12 +135,12 @@
 
 + (ADTestURLResponse *)responseInvalidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
                                                      httpHeaderFields:@{}
-                                                     dictionaryAsJSON:@{OAUTH2_ERROR : @"I'm an OAUTH server error!",
+                                                     dictionaryAsJSON:@{OAUTH2_ERROR : @"invalid_instance",
                                                                         OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     
