@@ -91,8 +91,8 @@ NSString *const AUTH_FAILED_BUSY           = @"Authorization call is already in 
 
 NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 
-NSString *const AUTH_USERNAME_KEY           = @"username";
-NSString *const AUTH_CLOUD_INSTANCE_NAME    = @"cloud_instance_name";
+NSString *const AUTH_USERNAME_KEY                = @"username";
+NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
 
 //application constants
 NSString* const ADAL_BROKER_SCHEME = @"msauth";

@@ -25,6 +25,6 @@
 
 @interface NSString (ADURLExtensions)
 
-- (NSString *)adAuthorityWithCloudInstanceName:(NSString *)cloudInstanceName;
+- (NSString *)adAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
 @end

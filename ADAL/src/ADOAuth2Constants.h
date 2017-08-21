@@ -91,7 +91,7 @@ extern NSString *const AUTH_FAILED_BUSY;
 extern NSString *const AAD_SECURECONVERSATION_LABEL;
 
 extern NSString *const AUTH_USERNAME_KEY;
-extern NSString *const AUTH_CLOUD_INSTANCE_NAME;
+extern NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME;
 
 extern NSString* const ADAL_BROKER_SCHEME;
 extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;
