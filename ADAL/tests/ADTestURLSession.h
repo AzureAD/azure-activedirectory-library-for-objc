@@ -40,9 +40,6 @@
 
 // Helper methods for common responses
 + (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (void)addValidAuthorityResponse:(NSString *)authority;
-+ (void)addInvalidAuthorityResponse:(NSString *)authority;
-
 + (BOOL)noResponsesLeft;
 + (void)clearResponses;
 

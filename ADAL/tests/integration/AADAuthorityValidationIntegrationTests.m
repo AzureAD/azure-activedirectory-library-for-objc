@@ -116,7 +116,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    [ADTestURLSession addResponse:[ADTestURLResponse responseValidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate valid authority."];
     [authorityValidation validateAuthority:requestParams
@@ -143,7 +143,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    [ADTestURLSession addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
     [authorityValidation validateAuthority:requestParams
@@ -177,7 +177,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     XCTAssertNotNil(context);
     XCTAssertNil(error);
     
-    [ADTestURLSession addInvalidAuthorityResponse:authority];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithResource: with invalid authority."];
     [context acquireTokenWithResource:TEST_RESOURCE
