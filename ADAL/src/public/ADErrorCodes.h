@@ -91,6 +91,9 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     /*! A failure occurred while trying to get an authorization code */
     AD_ERROR_SERVER_AUTHORIZATION_CODE = 211,
     
+    /*! Invalid data was returned from the server, see -errorDetails for more information. */
+    AD_ERROR_SERVER_INVALID_RESPONSE = 212,
+    
     
     //
     // Cache Errors
