@@ -259,6 +259,31 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     return info;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (!object)
+    {
+        return NO;
+    }
+    
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:[ADUserInformation class]])
+    {
+        return NO;
+    }
+    
+    ADUserInformation *rhs = (ADUserInformation *)object;
+    
+    BOOL result = YES;
+    result &= [self.rawIdToken isEqual:rhs.rawIdToken] || (self.rawIdToken == rhs.rawIdToken);
+    
+    return result;
+}
+
 + (BOOL)supportsSecureCoding
 {
     return YES;
