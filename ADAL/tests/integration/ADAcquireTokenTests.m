@@ -709,6 +709,10 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@"invalid_grant"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    XCTAssertEqualObjects([firstEvent objectForKey:@"Microsoft.ADAL.server_error_code"], @"7000");
+    XCTAssertEqualObjects([firstEvent objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"7");
+    XCTAssertEqualObjects([firstEvent objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
+    XCTAssertEqualObjects([firstEvent objectForKey:@"Microsoft.ADAL.rt_age"], @"255.0643");
     
     // the following properties are expected for 2nd acquire token call
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
@@ -1217,10 +1221,12 @@ const int sAsyncContextTimeout = 10;
                                                      authority:TEST_AUTHORITY
                                                       resource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
+                                                requestHeaders:nil
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"new family refresh token"
                                                 newAccessToken:TEST_ACCESS_TOKEN
-                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
+                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}
+                                               responseHeaders:@{@"x-ms-clitelem" : @"1,0,0,2550.0643,I"}];
     
     [ADTestURLSession addResponse:response];
     
@@ -1274,6 +1280,10 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SUCCEEDED"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@""]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
+    XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.server_error_code"], @"0");
+    XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"0");
+    XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.rt_age"], @"2550.0643");
+    XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];

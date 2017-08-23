@@ -269,7 +269,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                            OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:400
-                       httpHeaderFields:@{}
+                       httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
                        dictionaryAsJSON:@{ OAUTH2_ERROR : oauthError,
                                            OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
     
@@ -353,6 +353,29 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                newAccessToken:(NSString *)newAccessToken
                              additionalFields:(NSDictionary *)additionalFields
 {
+    return [self adResponseRefreshToken:oldRefreshToken
+                              authority:authority
+                               resource:resource
+                               clientId:clientId
+                         requestHeaders:requestHeaders
+                          correlationId:correlationId
+                        newRefreshToken:newRefreshToken
+                         newAccessToken:newAccessToken
+                       additionalFields:additionalFields
+                        responseHeaders:nil];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                               requestHeaders:(NSDictionary *)requestHeaders
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                             additionalFields:(NSDictionary *)additionalFields
+                              responseHeaders:(NSDictionary *)responseHeaders
+{
     NSDictionary* jsonBody = @{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
                                 OAUTH2_ACCESS_TOKEN : newAccessToken,
                                 OAUTH2_RESOURCE : resource };
@@ -371,7 +394,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                          requestHeaders:requestHeaders
                           correlationId:correlationId
                            responseCode:400
-                        responseHeaders:nil
+                        responseHeaders:responseHeaders
                            responseJson:jsonBody];
 }
 

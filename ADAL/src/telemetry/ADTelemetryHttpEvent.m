@@ -29,8 +29,6 @@
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADTelemetryExtensions.h"
 
-#define AD_CLIENT_TELEMETRY_VERSION_NUMBER @"1"
-
 @implementation ADTelemetryHttpEvent
 
 - (id)initWithName:(NSString*)eventName

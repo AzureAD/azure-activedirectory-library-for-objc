@@ -85,7 +85,10 @@
 
 - (void)setSpeInfo:(NSString *)speInfo
 {
-    [self setProperty:AD_TELEMETRY_KEY_SPE_INFO value:speInfo];
+    if (![NSString adIsStringNilOrBlank:speInfo])
+    {
+        [self setProperty:AD_TELEMETRY_KEY_SPE_INFO value:speInfo];
+    }
 }
 
 @end

@@ -93,6 +93,17 @@
                                newAccessToken:(NSString *)newAccessToken
                              additionalFields:(NSDictionary *)additionalFields;
 
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                               requestHeaders:(NSDictionary *)requestHeaders
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                             additionalFields:(NSDictionary *)additionalFields
+                              responseHeaders:(NSDictionary *)responseHeaders;
+
 /*! Used for constructing a response with the provided refresh token parameters */
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
