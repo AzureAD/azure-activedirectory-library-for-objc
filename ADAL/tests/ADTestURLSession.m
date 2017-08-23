@@ -127,16 +127,6 @@ static NSMutableArray* s_responses = nil;
     [self addResponse:[ADTestURLResponse serverNotFoundResponseForURLString:URLString]];
 }
 
-+ (void)addValidAuthorityResponse:(NSString *)authority
-{
-    [self addResponse:[ADTestURLResponse responseValidAuthority:authority]];
-}
-
-+ (void)addInvalidAuthorityResponse:(NSString *)authority
-{
-    [self addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
-}
-
 + (BOOL)noResponsesLeft
 {
     return s_responses.count == 0;

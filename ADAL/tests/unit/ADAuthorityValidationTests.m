@@ -32,10 +32,10 @@
 
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-#import "XCTestCase+TestHelperMethods.h"
-#import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
+#import "NSURL+ADExtensions.h"
+
+#import "XCTestCase+TestHelperMethods.h"
 
 @interface ADAuthortyValidationTests : ADTestCase
 
@@ -52,30 +52,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [super tearDown];
 }
 
-- (void)testIsAADAuthorityValidated
-{
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    XCTAssertFalse([authorityValidation isAuthorityValidated:nil]);
-    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
-    NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost]);
-    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
-}
-
-- (void)testAddAADValidAuthority
-{
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    XCTAssertFalse([authorityValidation addValidAuthority:nil]);
-    XCTAssertFalse([authorityValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
-    //Test that re-adding is ok. This can happen in multi-threaded scenarios:
-    XCTAssertTrue([authorityValidation addValidAuthority:[NSURL URLWithString:s_kTrustedAuthority]]);
-    
-    NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    [authorityValidation addValidAuthority:anotherHost];
-    XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost]);
-}
+#pragma mark -
+#pragma mark ADFS Validation Tests
 
 - (void)testAdfsAuthorityValidated
 {

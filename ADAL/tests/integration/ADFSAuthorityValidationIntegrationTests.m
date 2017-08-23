@@ -61,12 +61,12 @@
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
-                                                                      onPrems:YES
-                                                passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLSession addResponse: [ADTestAuthorityValidationResponse validDrsPayload:upnSuffix
+                                                                              onPrems:YES
+                                                        passiveAuthenticationEndpoint:passiveEndpoint]];
     
-    [ADTestURLSession addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
-                                                                  authority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validWebFinger:passiveEndpoint
+                                                                          authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
@@ -97,15 +97,15 @@
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseUnreachableDrsService:upnSuffix
-                                                                            onPrems:YES]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse unreachableDrsService:upnSuffix
+                                                                                   onPrems:YES]];
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
-                                                                      onPrems:NO
-                                                passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validDrsPayload:upnSuffix
+                                                                             onPrems:NO
+                                                       passiveAuthenticationEndpoint:passiveEndpoint]];
     
-    [ADTestURLSession addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
-                                                                  authority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validWebFinger:passiveEndpoint
+                                                                          authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
@@ -135,8 +135,10 @@
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
-    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidDrsPayload:upnSuffix
+                                                                               onPrems:YES]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidDrsPayload:upnSuffix
+                                                                               onPrems:NO]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     
@@ -169,11 +171,11 @@
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
-                                                                      onPrems:YES
-                                                passiveAuthenticationEndpoint:passiveEndpoint]];
-    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
-                                                                     authority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validDrsPayload:upnSuffix
+                                                                             onPrems:YES
+                                                       passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidWebFinger:passiveEndpoint
+                                                                            authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
@@ -205,11 +207,11 @@
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
-                                                                      onPrems:YES
-                                                passiveAuthenticationEndpoint:passiveEndpoint]];
-    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
-                                                                               authority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validDrsPayload:upnSuffix
+                                                                             onPrems:YES
+                                                       passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidWebFingerNotTrusted:passiveEndpoint
+                                                                                      authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
@@ -241,10 +243,11 @@
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
-                                                                      onPrems:YES
-                                                passiveAuthenticationEndpoint:passiveEndpoint]];
-    [ADTestURLSession addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validDrsPayload:upnSuffix
+                                                                             onPrems:YES
+                                                       passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse unreachableWebFinger:passiveEndpoint
+                                                                                authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
