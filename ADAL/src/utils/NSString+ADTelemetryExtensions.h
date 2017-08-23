@@ -21,18 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetryDefaultEvent.h"
+#import <Foundation/Foundation.h>
 
-@interface ADTelemetryCacheEvent : ADTelemetryDefaultEvent
+@interface NSString (ADTelemetryExtensions)
 
-- (void)setTokenType:(NSString*)tokenType;
-- (void)setStatus:(NSString*)status;
-- (void)setIsRT:(NSString*)isRT;
-- (void)setIsMRRT:(NSString*)isMRRT;
-- (void)setIsFRT:(NSString*)isFRT;
-- (void)setRTStatus:(NSString*)status;
-- (void)setMRRTStatus:(NSString*)status;
-- (void)setFRTStatus:(NSString*)status;
-- (void)setSpeInfo:(NSString *)speInfo;
+- (NSDictionary *)parsedClientTelemetry;
 
 @end

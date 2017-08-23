@@ -27,6 +27,7 @@
 #import "ADOAuth2Constants.h"
 #import "NSString+ADHelperMethods.h"
 #import "NSDictionary+ADExtensions.h"
+#import "NSString+ADTelemetryExtensions.h"
 
 #define AD_CLIENT_TELEMETRY_VERSION_NUMBER @"1"
 
@@ -122,21 +123,7 @@
 {
     if (![NSString adIsStringNilOrBlank:clientTelemetry])
     {
-        NSArray *telemetryComponents = [clientTelemetry componentsSeparatedByString:@","];
-        
-        // Check that there's exactly 5 components
-        if ([telemetryComponents count] == 5)
-        {
-            // Check that the version number is supported
-            if ([telemetryComponents[0] isEqualToString:AD_CLIENT_TELEMETRY_VERSION_NUMBER])
-            {
-                // Fill in the data
-                [self setProperty:AD_TELEMETRY_KEY_SERVER_ERROR_CODE value:telemetryComponents[1]];
-                [self setProperty:AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE value:telemetryComponents[2]];
-                [self setProperty:AD_TELEMETRY_KEY_RT_AGE value:telemetryComponents[3]];
-                [self setProperty:AD_TELEMETRY_KEY_SPE_INFO value:telemetryComponents[4]];
-            }
-        }
+        [_propertyMap addEntriesFromDictionary:[clientTelemetry parsedClientTelemetry]];
     }
 }
 

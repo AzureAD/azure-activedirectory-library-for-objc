@@ -86,6 +86,7 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_IS_RT: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_IS_MRRT: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_IS_FRT: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_SPE_INFO: @(CollectAndUpdate),
                              // HTTPEvent
                              AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER: @(CollectAndUpdate),
@@ -93,7 +94,6 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_SERVER_ERROR_CODE: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_RT_AGE: @(CollectAndUpdate),
-                             AD_TELEMETRY_KEY_SPE_INFO: @(CollectAndUpdate),
                              // UIEvent
                              AD_TELEMETRY_KEY_USER_CANCEL: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_NTLM_HANDLED: @(CollectAndUpdate)

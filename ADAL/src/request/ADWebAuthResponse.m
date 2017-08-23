@@ -29,6 +29,8 @@
 #import "ADWorkplaceJoinConstants.h"
 #import "ADPKeyAuthHelper.h"
 #import "ADClientMetrics.h"
+#import "NSString+ADTelemetryExtensions.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADWebAuthResponse
 
@@ -300,6 +302,15 @@
     
     // Load the response
     [_responseDictionary addEntriesFromDictionary:(NSDictionary*)jsonObject];
+    
+    NSString *clientTelemetry = [webResponse headers][ADAL_CLIENT_TELEMETRY];
+    
+    if (![NSString adIsStringNilOrBlank:clientTelemetry])
+    {
+        NSString *speInfo = [clientTelemetry parsedClientTelemetry][AD_TELEMETRY_KEY_SPE_INFO];
+        [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
+    }
+    
     [self handleSuccess:completionBlock];
     return;
 }

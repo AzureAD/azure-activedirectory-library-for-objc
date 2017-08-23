@@ -264,7 +264,7 @@
     }
     
     [event setOAuthErrorCode:response];
-    [event setClientTelemetry:[response headers][@"x-ms-clitelem"]];
+    [event setClientTelemetry:[response headers][ADAL_CLIENT_TELEMETRY]];
     
     [event setHttpRequestQueryParams:_requestURL.query];
     

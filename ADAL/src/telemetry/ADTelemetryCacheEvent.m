@@ -83,4 +83,9 @@
     [self setProperty:AD_TELEMETRY_KEY_FRT_STATUS value:status];
 }
 
+- (void)setSpeInfo:(NSString *)speInfo
+{
+    [self setProperty:AD_TELEMETRY_KEY_SPE_INFO value:speInfo];
+}
+
 @end

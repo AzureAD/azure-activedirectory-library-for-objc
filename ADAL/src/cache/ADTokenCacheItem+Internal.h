@@ -31,6 +31,7 @@
 
 @property (readwrite) NSMutableDictionary * additionalClient;
 @property (readonly) NSDictionary * additionalServer;
+@property (readonly) NSString *speInfo;
 
 @end
 

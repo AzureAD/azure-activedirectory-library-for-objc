@@ -173,7 +173,8 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               AD_TELEMETRY_KEY_RT_STATUS,
                                               AD_TELEMETRY_KEY_FRT_STATUS,
                                               AD_TELEMETRY_KEY_MRRT_STATUS,
-                                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT,
+                                              AD_TELEMETRY_KEY_SPE_INFO
                                               ],
                                       NSStringFromClass([ADTelemetryBrokerEvent class]): @[
                                               // default properties apply to all events
