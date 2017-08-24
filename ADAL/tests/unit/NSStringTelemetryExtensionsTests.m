@@ -43,7 +43,7 @@
 
 - (void)testParsedClientTelemetry_whenTooLittleComponents_shouldReturnEmptyDictionary
 {
-    NSString *clientTelemetry = @"2,0,0";
+    NSString *clientTelemetry = @"1,0,0";
     
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     XCTAssertNotNil(parsedTelemetry);
@@ -52,7 +52,7 @@
 
 - (void)testParsedClientTelemetry_whenTooManyComponents_shouldReturnEmptyDictionary
 {
-    NSString *clientTelemetry = @"2,0,0,0,0,0,1234,";
+    NSString *clientTelemetry = @"1,0,0,0,0,0,1234,";
     
     NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
     XCTAssertNotNil(parsedTelemetry);
