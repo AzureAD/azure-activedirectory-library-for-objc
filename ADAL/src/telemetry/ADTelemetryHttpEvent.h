@@ -36,5 +36,6 @@
 - (void)setHttpErrorCode:(NSString*)code;
 - (void)setOAuthErrorCode:(ADWebResponse *)response;
 - (void)setHttpErrorDomain:(NSString*)errorDomain;
+- (void)setClientTelemetry:(NSString *)clientTelemetry;
 
 @end
