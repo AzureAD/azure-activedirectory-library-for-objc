@@ -68,6 +68,8 @@ NSString *const BROKER_APP_VERSION              = @"x-broker-app-ver";
 NSString *const BROKER_RESPONSE_KEY             = @"response";
 NSString *const BROKER_HASH_KEY                 = @"hash";
 
+NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";
+
 //Diagnostic traces sent to the Azure Active Directory servers:
 NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
 NSString *const ADAL_ID_VERSION           = @"x-client-Ver";

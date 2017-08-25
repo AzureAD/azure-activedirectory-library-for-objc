@@ -67,6 +67,8 @@ extern NSString *const BROKER_APP_VERSION;
 extern NSString *const BROKER_RESPONSE_KEY;
 extern NSString *const BROKER_HASH_KEY;
 
+extern NSString *const ADAL_CLIENT_TELEMETRY;
+
 //Diagnostic traces sent to the Azure Active Directory servers:
 extern NSString *const ADAL_ID_PLATFORM;//The ADAL platform. iOS or OSX
 extern NSString *const ADAL_ID_VERSION;

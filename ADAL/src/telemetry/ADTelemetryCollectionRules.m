@@ -75,6 +75,7 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_API_STATUS: @(CollectOnly),
                              AD_TELEMETRY_KEY_EVENT_NAME: @(CollectOnly),
                              AD_TELEMETRY_KEY_REQUEST_ID: @(CollectOnly),
+                             AD_TELEMETRY_KEY_SPE_INFO: @(CollectOnly),
                              
                              // Collect and count
                              AD_TELEMETRY_KEY_UI_EVENT_COUNT: @(CollectAndCount),
@@ -90,6 +91,9 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_OAUTH_ERROR_CODE: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_SERVER_ERROR_CODE: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_RT_AGE: @(CollectAndUpdate),
                              // UIEvent
                              AD_TELEMETRY_KEY_USER_CANCEL: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_NTLM_HANDLED: @(CollectAndUpdate)

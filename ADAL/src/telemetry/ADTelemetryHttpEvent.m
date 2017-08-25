@@ -27,6 +27,7 @@
 #import "ADOAuth2Constants.h"
 #import "NSString+ADHelperMethods.h"
 #import "NSDictionary+ADExtensions.h"
+#import "NSString+ADTelemetryExtensions.h"
 
 @implementation ADTelemetryHttpEvent
 
@@ -114,6 +115,14 @@
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
     [self setProperty:AD_TELEMETRY_KEY_HTTP_ERROR_DOMAIN value:errorDomain];
+}
+
+- (void)setClientTelemetry:(NSString *)clientTelemetry
+{
+    if (![NSString adIsStringNilOrBlank:clientTelemetry])
+    {
+        [_propertyMap addEntriesFromDictionary:[clientTelemetry parsedClientTelemetry]];
+    }
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url
