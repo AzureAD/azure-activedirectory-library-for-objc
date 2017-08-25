@@ -42,9 +42,6 @@
 
 - (void)tearDown
 {
-    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-    [ADTestURLSession clearResponses];
-
     [super tearDown];
 }
 
