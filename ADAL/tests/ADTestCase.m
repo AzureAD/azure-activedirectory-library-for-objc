@@ -40,6 +40,8 @@
 
 - (void)tearDown
 {
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    [ADTestURLSession clearResponses];
     [[ADClientMetrics getInstance] clearMetrics];
     [ADAuthorityValidation clearAadCache];
 
