@@ -31,6 +31,12 @@
 
 @property (readwrite) NSMutableDictionary * additionalClient;
 @property (readonly) NSDictionary * additionalServer;
+
+/*!
+ This indicates whether the request was executed on a ring serving SPE traffic. 
+ An empty string indicates this occurred on an outer ring, 
+ and the string "I" indicated the request occurred on the inner ring.
+ */
 @property (readonly) NSString *speInfo;
 
 @end
