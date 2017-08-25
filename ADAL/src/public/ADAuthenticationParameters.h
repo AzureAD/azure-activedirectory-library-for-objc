@@ -80,8 +80,8 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters *parameters, A
     expects that the resource will respond with a HTTP 401 and "WWW-Authenticate" header, containing the
     authentication parameters.
  
-    @param  resourceUrl The address of the resource.
-    @param  completion  The callback block to be executed upon completion.
+    @param  resourceUrl     The address of the resource.
+    @param  completionBlock The callback block to be executed upon completion.
  */
 + (void)parametersFromResourceUrl:(NSURL *)resourceUrl
                   completionBlock:(ADParametersCompletion)completionBlock;
