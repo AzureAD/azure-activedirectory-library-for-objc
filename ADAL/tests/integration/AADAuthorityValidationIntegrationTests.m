@@ -259,14 +259,14 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
     [validationResponse setWaitSemaphore:validationSem];
     ADTestURLResponse *tokenResponse1 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                                                           authority:@"https://login.contoso.com/common"
+                                                           authority:authority
                                                             resource:resource1
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId1
                                                      newRefreshToken:@"new-rt-1"
                                                       newAccessToken:@"new-at-1"];
     ADTestURLResponse *tokenResponse2 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                                                           authority:@"https://login.contoso.com/common"
+                                                           authority:authority
                                                             resource:resource2
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId2
