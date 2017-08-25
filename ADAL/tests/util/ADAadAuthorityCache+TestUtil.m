@@ -57,4 +57,11 @@
     return 0 == pthread_rwlock_unlock(&_rwLock);
 }
 
+- (void)clear
+{
+    [self grabWriteLock];
+    [_recordMap removeAllObjects];
+    [self unlock];
+}
+
 @end
