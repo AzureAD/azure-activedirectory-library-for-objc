@@ -71,9 +71,6 @@ const int sAsyncContextTimeout = 10;
 
 - (void)tearDown
 {
-    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-    [ADTestURLSession clearResponses];
-
     [super tearDown];
 }
 

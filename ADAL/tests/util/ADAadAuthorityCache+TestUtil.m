@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,37 +15,53 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
+#import "ADAadAuthorityCache+TestUtil.h"
 
-#import "ADTestCase.h"
-#import "ADClientMetrics.h"
-#import "ADAuthorityValidation+TestUtil.h"
+#include <pthread.h>
 
-@implementation ADTestCase
+@implementation ADAadAuthorityCache (TestUtil)
 
-- (void)setUp
+- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap
 {
-    [super setUp];
+    return _recordMap;
 }
 
-
-- (void)tearDown
+- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
 {
-    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-    [ADTestURLSession clearResponses];
-    [[ADClientMetrics getInstance] clearMetrics];
-    [ADAuthorityValidation clearAadCache];
-
-    [super tearDown];
+    _recordMap = [cacheDictionary mutableCopy];
 }
 
+- (BOOL)grabWriteLock
+{
+    return 0 == pthread_rwlock_wrlock(&_rwLock);
+}
 
+- (BOOL)tryWriteLock
+{
+    return 0 == pthread_rwlock_trywrlock(&_rwLock);
+}
+
+- (BOOL)grabReadLock
+{
+    return 0 == pthread_rwlock_rdlock(&_rwLock);
+}
+
+- (BOOL)unlock
+{
+    return 0 == pthread_rwlock_unlock(&_rwLock);
+}
+
+- (void)clear
+{
+    [self grabWriteLock];
+    [_recordMap removeAllObjects];
+    [self unlock];
+}
 
 @end
