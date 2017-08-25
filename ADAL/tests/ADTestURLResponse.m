@@ -257,6 +257,11 @@
     _requestHeaders[@"Content-Length"] = [NSString stringWithFormat:@"%lu", (unsigned long)[urlEncoded lengthOfBytesUsingEncoding:NSUTF8StringEncoding]];
 }
 
+- (void)setWaitSemaphore:(dispatch_semaphore_t)sem
+{
+    _waitSemaphore = sem;
+}
+
 - (BOOL)matchesURL:(NSURL *)url
 {
     // Start with making sure the base URLs match up

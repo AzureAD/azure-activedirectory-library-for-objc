@@ -69,6 +69,11 @@
         return;
     }
     
+    if (response->_waitSemaphore)
+    {
+        dispatch_semaphore_wait(response->_waitSemaphore, DISPATCH_TIME_FOREVER);
+    }
+    
     if (response->_error)
     {
         [self.session dispatchIfNeed:^{
