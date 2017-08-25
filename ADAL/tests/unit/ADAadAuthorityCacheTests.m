@@ -22,54 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAadAuthorityCache.h"
-
-#include <pthread.h>
-
-@interface ADAadAuthorityCache (TestUtils)
-
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap;
-- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
-
-- (BOOL)grabReadLock;
-- (BOOL)grabWriteLock;
-- (BOOL)tryWriteLock;
-- (BOOL)unlock;
-
-@end
-
-@implementation ADAadAuthorityCache (TestUtils)
-
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap
-{
-    return _recordMap;
-}
-
-- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
-{
-    _recordMap = [cacheDictionary mutableCopy];
-}
-
-- (BOOL)grabWriteLock
-{
-    return 0 == pthread_rwlock_wrlock(&_rwLock);
-}
-
-- (BOOL)tryWriteLock
-{
-    return 0 == pthread_rwlock_trywrlock(&_rwLock);
-}
-
-- (BOOL)grabReadLock
-{
-    return 0 == pthread_rwlock_rdlock(&_rwLock);
-}
-
-- (BOOL)unlock
-{
-    return 0 == pthread_rwlock_unlock(&_rwLock);
-}
-
-@end
+#import "ADAadAuthorityCache+TestUtil.h"
 
 @interface ADAadAuthorityCacheTests : ADTestCase
 
