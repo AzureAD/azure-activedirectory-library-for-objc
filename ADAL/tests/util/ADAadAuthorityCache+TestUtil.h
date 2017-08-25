@@ -33,4 +33,6 @@
 - (BOOL)tryWriteLock;
 - (BOOL)unlock;
 
+- (void)clear;
+
 @end

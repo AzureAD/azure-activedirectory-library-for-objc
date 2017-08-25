@@ -25,4 +25,6 @@
 
 @interface ADAuthorityValidation (TestUtil)
 
++ (void)clearAadCache;
+
 @end
