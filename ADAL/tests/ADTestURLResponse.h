@@ -36,6 +36,7 @@
     NSData *_responseData;
     NSURLResponse *_response;
     NSError *_error;
+    dispatch_semaphore_t _waitSemaphore;
 }
 
 + (NSDictionary *)defaultHeaders;
@@ -83,6 +84,12 @@
           headerFields:(NSDictionary *)headerFields;
 - (void)setResponseJSON:(id)jsonResponse;
 - (void)setResponseData:(NSData *)response;
+
+/*!
+    Set a semaphore that ADTestURLSession will wait on until it is signalled in the test. The test
+    must signal this semaphore or else the test will deadlock.
+ */
+- (void)setWaitSemaphore:(dispatch_semaphore_t)sem;
 
 - (BOOL)matchesURL:(NSURL *)url;
 - (BOOL)matchesBody:(NSData *)body;
