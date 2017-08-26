@@ -99,9 +99,6 @@ static NSMutableArray* s_responses = nil;
     return self;
 }
 
-
-
-
 + (void)initialize
 {
     s_responses = [NSMutableArray new];
@@ -109,7 +106,15 @@ static NSMutableArray* s_responses = nil;
 
 + (void)addResponse:(ADTestURLResponse *)response
 {
-    [s_responses addObject:response];
+    if (!response)
+    {
+        return;
+    }
+    
+    @synchronized (self)
+    {
+        [s_responses addObject:response];
+    }
 }
 
 + (void)addResponses:(NSArray *)responses
@@ -119,7 +124,10 @@ static NSMutableArray* s_responses = nil;
         return;
     }
     NSArray* copy = [responses mutableCopy];
-    [s_responses addObject:copy];
+    @synchronized (self)
+    {
+        [s_responses addObject:copy];
+    }
 }
 
 + (void)addNotFoundResponseForURLString:(NSString *)URLString
@@ -129,12 +137,18 @@ static NSMutableArray* s_responses = nil;
 
 + (BOOL)noResponsesLeft
 {
-    return s_responses.count == 0;
+    @synchronized (self)
+    {
+        return s_responses.count == 0;
+    }
 }
 
 + (void)clearResponses
 {
-    [s_responses removeAllObjects];
+    @synchronized (self)
+    {
+        [s_responses removeAllObjects];
+    }
 }
 
 - (NSURLSessionDataTask *)dataTaskWithURL:(NSURL *)url
@@ -155,52 +169,54 @@ static NSMutableArray* s_responses = nil;
 
 + (ADTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request
 {
-    NSUInteger cResponses = [s_responses count];
-    
     NSURL *requestURL = [request URL];
     
     NSData *body = [request HTTPBody];
     NSDictionary *headers = [request allHTTPHeaderFields];
     
-    for (NSUInteger i = 0; i < cResponses; i++)
+    @synchronized (self)
     {
-        id obj = [s_responses objectAtIndex:i];
-        ADTestURLResponse *response = nil;
-        
-        if ([obj isKindOfClass:[ADTestURLResponse class]])
+        NSUInteger cResponses = [s_responses count];
+        for (NSUInteger i = 0; i < cResponses; i++)
         {
-            response = (ADTestURLResponse *)obj;
+            id obj = [s_responses objectAtIndex:i];
+            ADTestURLResponse *response = nil;
             
-            // We don't want the compiler to short circuit this case as finding out in one go all
-            // of the data that doesn't match can speed up debugging & fixing tests
-            bool match = [response matchesURL:requestURL];
-            match &= [response matchesBody:body];
-            match &= [response matchesHeaders:headers];
-            
-            if (match)
+            if ([obj isKindOfClass:[ADTestURLResponse class]])
             {
-                [s_responses removeObjectAtIndex:i];
-                return response;
-            }
-        }
-        
-        if ([obj isKindOfClass:[NSMutableArray class]])
-        {
-            NSMutableArray *subResponses = [s_responses objectAtIndex:i];
-            response = [subResponses objectAtIndex:0];
-            
-            bool match = [response matchesURL:requestURL];
-            match &= [response matchesBody:body];
-            match &= [response matchesHeaders:headers];
-            
-            if (match)
-            {
-                [subResponses removeObjectAtIndex:0];
-                if ([subResponses count] == 0)
+                response = (ADTestURLResponse *)obj;
+                
+                // We don't want the compiler to short circuit this case as finding out in one go all
+                // of the data that doesn't match can speed up debugging & fixing tests
+                bool match = [response matchesURL:requestURL];
+                match &= [response matchesBody:body];
+                match &= [response matchesHeaders:headers];
+                
+                if (match)
                 {
                     [s_responses removeObjectAtIndex:i];
+                    return response;
                 }
-                return response;
+            }
+            
+            if ([obj isKindOfClass:[NSMutableArray class]])
+            {
+                NSMutableArray *subResponses = [s_responses objectAtIndex:i];
+                response = [subResponses objectAtIndex:0];
+                
+                bool match = [response matchesURL:requestURL];
+                match &= [response matchesBody:body];
+                match &= [response matchesHeaders:headers];
+                
+                if (match)
+                {
+                    [subResponses removeObjectAtIndex:0];
+                    if ([subResponses count] == 0)
+                    {
+                        [s_responses removeObjectAtIndex:i];
+                    }
+                    return response;
+                }
             }
         }
     }
@@ -226,7 +242,10 @@ static NSMutableArray* s_responses = nil;
     
     if (AmIBeingDebugged())
     {
-        NSLog(@"Failed to find repsonse for %@\ncurrent responses: %@", requestURL, s_responses);
+        @synchronized (self)
+        {
+            NSLog(@"Failed to find repsonse for %@\ncurrent responses: %@", requestURL, s_responses);
+        }
         // This will cause the tests to immediately stop execution right here if we're in the debugger,
         // hopefully making it a little easier to see why a test is failing. :)
         __builtin_trap();

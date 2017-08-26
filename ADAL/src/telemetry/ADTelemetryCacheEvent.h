@@ -33,5 +33,6 @@
 - (void)setRTStatus:(NSString*)status;
 - (void)setMRRTStatus:(NSString*)status;
 - (void)setFRTStatus:(NSString*)status;
+- (void)setSpeInfo:(NSString *)speInfo;
 
 @end

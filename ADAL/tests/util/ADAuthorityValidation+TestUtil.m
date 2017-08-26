@@ -22,7 +22,13 @@
 // THE SOFTWARE.
 
 #import "ADAuthorityValidation+TestUtil.h"
+#import "ADAadAuthorityCache+TestUtil.h"
 
 @implementation ADAuthorityValidation (TestUtil)
+
++ (void)clearAadCache
+{
+    [[ADAuthorityValidation sharedInstance]->_aadCache clear];
+}
 
 @end

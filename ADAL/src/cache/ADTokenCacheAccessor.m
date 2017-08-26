@@ -102,6 +102,7 @@
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -128,6 +129,7 @@
         [event setMRRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -156,6 +158,7 @@
         [event setFRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -190,6 +193,7 @@
         [event setRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -272,6 +276,7 @@
                                                                            context:context];
         [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
         [event setTokenType:AD_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+        [event setSpeInfo:multiRefreshTokenItem.speInfo];
         [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
@@ -290,6 +295,7 @@
                                                                                context:context];
             [event setIsFRT:AD_TELEMETRY_VALUE_YES];
             [event setTokenType:AD_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+            [event setSpeInfo:frtItem.speInfo];
             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         }
     }
@@ -301,6 +307,7 @@
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setSpeInfo:cacheItem.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }
 
@@ -357,6 +364,8 @@
     }
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
                                                                        context:context];
+    
+    [event setSpeInfo:cacheItem.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
 }
 

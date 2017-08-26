@@ -28,6 +28,7 @@
 
 #import "ADTestCase.h"
 #import "ADClientMetrics.h"
+#import "ADAuthorityValidation+TestUtil.h"
 
 @implementation ADTestCase
 
@@ -39,8 +40,12 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    [ADTestURLSession clearResponses];
     [[ADClientMetrics getInstance] clearMetrics];
+    [ADAuthorityValidation clearAadCache];
+
+    [super tearDown];
 }
 
 

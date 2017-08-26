@@ -21,18 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAadAuthorityCache.h"
+#import <Foundation/Foundation.h>
 
-@interface ADAadAuthorityCache (TestUtil)
+@interface NSString (ADTelemetryExtensions)
 
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap;
-- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
-
-- (BOOL)grabReadLock;
-- (BOOL)grabWriteLock;
-- (BOOL)tryWriteLock;
-- (BOOL)unlock;
-
-- (void)clear;
+- (NSDictionary *)parsedClientTelemetry;
 
 @end
