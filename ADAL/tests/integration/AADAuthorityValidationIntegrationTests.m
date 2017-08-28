@@ -276,12 +276,6 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     [ADTestURLSession addResponse:tokenResponse1];
     [ADTestURLSession addResponse:tokenResponse2];
     
-    // Cache Setup
-    __block ADTokenCache *tokenCache = [ADTokenCache new];
-    ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
-    mrrt.authority = authority;
-    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
-    
     // This semaphore makes sure that both acquireToken calls have been made before we hit the
     // validationSem to allow the authority validation response to go through.
     dispatch_semaphore_t asyncSem = dispatch_semaphore_create(0);
@@ -291,6 +285,10 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     dispatch_async(concurrentQueue, ^{
         ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
         XCTAssertNotNil(context);
+        ADTokenCache *tokenCache = [ADTokenCache new];
+        ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+        mrrt.authority = authority;
+        [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
         [context setTokenCacheStore:tokenCache];
         [context setCorrelationId:correlationId1];
         
@@ -318,6 +316,10 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire thread 2"];
     dispatch_async(concurrentQueue, ^{
         ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+        ADTokenCache *tokenCache = [ADTokenCache new];
+        ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+        mrrt.authority = authority;
+        [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
         [context setTokenCacheStore:tokenCache];
         [context setCorrelationId:correlationId2];
         XCTAssertNotNil(context);
