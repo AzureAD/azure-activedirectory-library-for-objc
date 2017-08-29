@@ -21,21 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAL_Internal.h"
-#import "ADOAuth2Constants.h"
-#import "NSURL+ADExtensions.h"
-#import "ADErrorCodes.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADWebRequest.h"
-#import "ADWebResponse.h"
+
 #import "ADAuthenticationSettings.h"
+#import "ADAuthorityValidation.h"
+#import "ADErrorCodes.h"
 #import "ADHelpers.h"
 #import "ADLogger+Internal.h"
-#import "ADURLProtocol.h"
+#import "ADOAuth2Constants.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryHttpEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADURLProtocol.h"
+#import "ADWebResponse.h"
+
+#import "NSURL+ADExtensions.h"
+#import "NSString+ADHelperMethods.h"
+
 
 @interface ADWebRequest ()
 
@@ -153,6 +156,7 @@
     }
     
     NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
+    requestURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:requestURL context:self];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData

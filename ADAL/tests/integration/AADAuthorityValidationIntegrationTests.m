@@ -338,4 +338,51 @@
     [self waitForExpectations:@[expectation1, expectation2] timeout:5.0];
 }
 
+- (void)testAcquireTokenSilent_whenDifferentPreferredNetwork_shouldUsePreferred
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *preferredAuthority = @"https://login.contoso.net/common";
+    
+    // Network Setup
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.net",
+                              @"preferred_cache" : @"login.contoso.com",
+                              @"aliases" : @[ @"login.contoso.net", @"login.contoso.com"] } ];
+    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
+    ADTestURLResponse *tokenResponse = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                          authority:preferredAuthority
+                                                           resource:TEST_RESOURCE
+                                                           clientId:TEST_CLIENT_ID
+                                                      correlationId:TEST_CORRELATION_ID
+                                                    newRefreshToken:@"new-rt-1"
+                                                     newAccessToken:@"new-at-1"];
+    
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+    mrrt.authority = authority;
+    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    XCTAssertNotNil(context);
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         // Make sure the cache authority didn't change
+         XCTAssertEqualObjects(result.tokenCacheItem.authority, authority);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
 @end
