@@ -40,8 +40,6 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
-
 @interface AADAuthorityValidationTests : ADTestCase
 
 @end
@@ -243,7 +241,7 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     XCTAssertNil(record);
 }
 
-- (void)testValidateAuthority_whenMultipleAcquireTokenCallsNoMetadataDiffs_shouldOnlyValidateOnce
+- (void)testAcquireTokenSilent_whenMultipleCalls_shouldOnlyValidateOnce
 {
     NSString *authority = @"https://login.contoso.com/common";
     NSString *resource1 = @"resource1";
