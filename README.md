@@ -184,7 +184,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 
 ### Brokered Authentication
 
-If your app requires conditional access or certificate authentication (currently in preview) support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app.
+If your app requires conditional access or certificate authentication support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app.
 
 
 #### Enable Broker Mode on Your Context
