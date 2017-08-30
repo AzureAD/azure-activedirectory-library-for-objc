@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 
-#import "ADAuthenticationContext.h"
+#import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult.h"
 #import "ADAadAuthorityCache.h"
 #import "ADAuthorityValidation.h"
@@ -30,6 +30,8 @@
 #import "ADDrsDiscoveryRequest.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
+#import "ADTokenCache+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
 
@@ -37,8 +39,6 @@
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
-
-static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
 
 @interface AADAuthorityValidationTests : ADTestCase
 
@@ -203,15 +203,14 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
 
 - (void)testValidateAuthority_whenHostUnreachable_shouldFail
 {
-    NSString* authority = @"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com";
-
+    NSString* authority = @"https://login.windows.net/contoso.com";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:s_kTrustedAuthority];
+    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:@"login.windows.net"];
     NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
     
     requestURL = [NSURL URLWithString:requestURLString];
@@ -240,6 +239,103 @@ static NSString* const s_kTrustedAuthority = @"login.microsoftonline.com";
     // Failing to connect should not create a validation record
     __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
     XCTAssertNil(record);
+}
+
+- (void)testAcquireTokenSilent_whenMultipleCalls_shouldOnlyValidateOnce
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *resource1 = @"resource1";
+    NSString *resource2 = @"resource2";
+    NSUUID *correlationId1 = [NSUUID new];
+    NSUUID *correlationId2 = [NSUUID new];
+    
+    // Network Setup
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.com",
+                              @"preferred_cache" : @"login.contoso.com",
+                              @"aliases" : @[ @"sts.contoso.com", @"login.contoso.com"] } ];
+    dispatch_semaphore_t validationSem = dispatch_semaphore_create(0);
+    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
+    [validationResponse setWaitSemaphore:validationSem];
+    ADTestURLResponse *tokenResponse1 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                           authority:authority
+                                                            resource:resource1
+                                                            clientId:TEST_CLIENT_ID
+                                                       correlationId:correlationId1
+                                                     newRefreshToken:@"new-rt-1"
+                                                      newAccessToken:@"new-at-1"];
+    ADTestURLResponse *tokenResponse2 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                           authority:authority
+                                                            resource:resource2
+                                                            clientId:TEST_CLIENT_ID
+                                                       correlationId:correlationId2
+                                                     newRefreshToken:@"new-rt-2"
+                                                      newAccessToken:@"new-at-2"];
+    [ADTestURLSession addResponse:validationResponse];
+    [ADTestURLSession addResponse:tokenResponse1];
+    [ADTestURLSession addResponse:tokenResponse2];
+    
+    // This semaphore makes sure that both acquireToken calls have been made before we hit the
+    // validationSem to allow the authority validation response to go through.
+    dispatch_semaphore_t asyncSem = dispatch_semaphore_create(0);
+    
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("test queue", DISPATCH_QUEUE_CONCURRENT);
+    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"acquire thread 1"];
+    dispatch_async(concurrentQueue, ^{
+        ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+        XCTAssertNotNil(context);
+        ADTokenCache *tokenCache = [ADTokenCache new];
+        ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+        mrrt.authority = authority;
+        [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+        [context setTokenCacheStore:tokenCache];
+        [context setCorrelationId:correlationId1];
+        
+        
+        [context acquireTokenSilentWithResource:resource1
+                                       clientId:TEST_CLIENT_ID
+                                    redirectUri:TEST_REDIRECT_URL
+                                         userId:TEST_USER_ID
+                                completionBlock:^(ADAuthenticationResult *result)
+         {
+             XCTAssertNotNil(result);
+             XCTAssertEqual(result.status, AD_SUCCEEDED);
+             [expectation1 fulfill];
+         }];
+        
+        // The first semaphore makes sure both acquireToken calls have been made
+        dispatch_semaphore_wait(asyncSem, DISPATCH_TIME_FOREVER);
+        
+        // The second semaphore releases the validation response, so we can be sure this test is
+        // properly validating that the correct behavior happens when there are two different acquire
+        // token calls waiting on AAD validaiton cache
+        dispatch_semaphore_signal(validationSem);
+    });
+    
+    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire thread 2"];
+    dispatch_async(concurrentQueue, ^{
+        ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+        ADTokenCache *tokenCache = [ADTokenCache new];
+        ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+        mrrt.authority = authority;
+        [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+        [context setTokenCacheStore:tokenCache];
+        [context setCorrelationId:correlationId2];
+        XCTAssertNotNil(context);
+        [context acquireTokenSilentWithResource:resource2
+                                       clientId:TEST_CLIENT_ID
+                                    redirectUri:TEST_REDIRECT_URL
+                                         userId:TEST_USER_ID
+                                completionBlock:^(ADAuthenticationResult *result)
+         {
+             XCTAssertNotNil(result);
+             XCTAssertEqual(result.status, AD_SUCCEEDED);
+             [expectation2 fulfill];
+         }];
+        
+        dispatch_semaphore_signal(asyncSem);
+    });
+    
+    [self waitForExpectations:@[expectation1, expectation2] timeout:5.0];
 }
 
 @end
