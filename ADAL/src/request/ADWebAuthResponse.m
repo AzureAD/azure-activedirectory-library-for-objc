@@ -308,7 +308,11 @@
     if (![NSString adIsStringNilOrBlank:clientTelemetry])
     {
         NSString *speInfo = [clientTelemetry parsedClientTelemetry][AD_TELEMETRY_KEY_SPE_INFO];
-        [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
+        
+        if (![NSString adIsStringNilOrBlank:speInfo])
+        {
+            [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
+        }
     }
     
     [self handleSuccess:completionBlock];
