@@ -311,6 +311,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
                           context:(id<ADRequestContext>)context
 {
+    if ([ADHelpers isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
     NSURL *url = [_aadCache networkUrlForAuthority:authority];
     if (!url)
     {
