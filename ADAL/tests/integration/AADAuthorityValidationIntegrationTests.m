@@ -28,11 +28,13 @@
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
+#import "ADTestAuthenticationViewController.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
+#import "ADWebAuthDelegate.h"
 #import "ADWebFingerRequest.h"
 
 #import "NSURL+ADExtensions.h"
@@ -383,6 +385,50 @@
      }];
     
     [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testAcquireTokenInteractive_whenDifferentPreferredNetwork_shouldUsePreferred
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *preferredAuthority = @"https://login.contoso.net/common";
+    NSString *authCode = @"i_am_a_auth_code";
+    
+    // Network Setup
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.net",
+                              @"preferred_cache" : @"login.contoso.com",
+                              @"aliases" : @[ @"login.contoso.net", @"login.contoso.com"] } ];
+    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
+    ADTestURLResponse *authCodeResponse = [self adResponseAuthCode:authCode authority:preferredAuthority correlationId:TEST_CORRELATION_ID];
+    [ADTestURLSession addResponses:@[validationResponse, authCodeResponse]];
+    
+    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    XCTAssertNotNil(context);
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
+    [ADTestAuthenticationViewController onLoadRequest:^(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate) {
+        XCTAssertNotNil(urlRequest);
+        XCTAssertTrue([urlRequest.URL.absoluteString hasPrefix:preferredAuthority]);
+        
+        NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
+        [delegate webAuthDidCompleteWithURL:endURL];
+        [expectation1 fulfill];
+    }];
+    
+    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                      completionBlock:^(ADAuthenticationResult *result)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.status, AD_SUCCEEDED);
+        [expectation2 fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation1, expectation2] timeout:1000000.0];
 }
 
 @end

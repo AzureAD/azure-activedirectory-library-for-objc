@@ -125,6 +125,10 @@
                               responseHeaders:(NSDictionary *)responseHeaders
                                  responseJson:(NSDictionary *)responseJson;
 
+- (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
+                                authority:(NSString *)authority
+                            correlationId:(NSUUID *)correlationId;
+
 /*! Used for constructing a response with a specific HTTP code and HTTP headers 
     to a default refresh token request */
 - (ADTestURLResponse *)adDefaultRefreshReponseCode:(NSInteger)responseCode
