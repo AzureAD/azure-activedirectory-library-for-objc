@@ -428,7 +428,7 @@
         [expectation2 fulfill];
     }];
     
-    [self waitForExpectations:@[expectation1, expectation2] timeout:1000000.0];
+    [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
 }
 
 @end
