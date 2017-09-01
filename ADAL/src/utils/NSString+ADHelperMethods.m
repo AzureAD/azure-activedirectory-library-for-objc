@@ -272,7 +272,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 
 + (BOOL)adIsStringNilOrBlank:(NSString *)string
 {
-    if (!string || !string.length)
+    if (!string || [string isKindOfClass:[NSNull class]] || !string.length)
     {
         return YES;
     }
