@@ -89,7 +89,6 @@ static OnLoadBlock s_onLoadBlock = nil;
 
 - (void)loadRequest:(NSURLRequest *)request
 {
-    (void) request;
     if (s_onLoadBlock)
     {
         s_onLoadBlock(request, _delegate);
