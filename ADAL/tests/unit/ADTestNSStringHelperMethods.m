@@ -45,6 +45,11 @@
     XCTAssertTrue([NSString adIsStringNilOrBlank:nil], "Should return true for nil.");
 }
 
+- (void)testIsStringNilOrBlank_whenNSNull_shouldReturnTrue
+{
+    XCTAssertTrue([NSString adIsStringNilOrBlank:(NSString *)[NSNull null]]);
+}
+
 - (void)testIsStringNilOrBlankSpace
 {
     XCTAssertTrue([NSString adIsStringNilOrBlank:@" "], "Should return true for nil.");
