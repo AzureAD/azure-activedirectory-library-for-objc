@@ -7,7 +7,5 @@ ADAL/ObjectiveC.gcno
 ADAL/Security.gcda
 ADAL/Security.gcno
 .DS_Store
-.scannerwork/
-ADAL/build/
-ADAL/bw-output/
+\.scannerwork/
 bw-output/
