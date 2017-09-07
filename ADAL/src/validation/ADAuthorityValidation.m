@@ -326,6 +326,16 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     return url;
 }
 
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
+{
+    if ([ADHelpers isADFSInstanceURL:authority])
+    {
+        return @[ authority ];
+    }
+    
+    return [_aadCache cacheAliasesForAuthority:authority];
+}
+
 
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority
