@@ -330,7 +330,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     
     NSArray<NSString *> *aliases = record.aliases;
     NSString *cacheHost = record.cacheHost;
-    NSString *host = authority.host;
+    NSString *host = authority.adHostWithPortIfNecessary;
     if (cacheHost)
     {
         // The cache lookup order for authorities is defined as the preferred host first
