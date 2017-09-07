@@ -448,4 +448,33 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return response;
 }
 
+- (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
+                                authority:(NSString *)authority
+                            correlationId:(NSUUID *)correlationId
+{
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [correlationId UUIDString];
+    
+    ADTestURLResponse* response =
+    [ADTestURLResponse requestURLString:requestUrlString
+                         requestHeaders:headers
+                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_AUTHORIZATION_CODE,
+                                           OAUTH2_CODE : authCode,
+                                           OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                           OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
+                      responseURLString:@"https://contoso.com"
+                           responseCode:200
+                       httpHeaderFields:@{}
+                       dictionaryAsJSON:@{ @"refresh_token" : TEST_REFRESH_TOKEN,
+                                           @"access_token" : TEST_ACCESS_TOKEN,
+                                           @"expires_in" : @"3600",
+                                           @"resource" : TEST_RESOURCE,
+                                           @"id_token" : [self adCreateUserInformation:TEST_USER_ID].rawIdToken }];
+    
+    return response;
+}
+
+
 @end
