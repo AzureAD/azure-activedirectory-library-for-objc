@@ -39,6 +39,9 @@
 #import "ADTelemetryEventStrings.h"
 
 @interface ADTelemetryTests : ADTestCase
+{
+    NSMutableArray *_receivedEvents;
+}
 
 @end
 
@@ -46,27 +49,31 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    _receivedEvents = [NSMutableArray array];
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    _receivedEvents = nil;
     [super tearDown];
 }
 
-- (void)testDefaultEventProperties {
-    // new a dispatcher
+- (void)setupADTelemetryDispatcherWithAggregationRequired:(BOOL)aggregationRequired
+{
     ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
     [dispatcher setTestCallback:^(NSDictionary* event)
-    {
-        [receivedEvents addObject:event];
-    }];
+     {
+         [_receivedEvents addObject:event];
+     }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:aggregationRequired];
+}
+
+- (void)testDefaultEventProperties {
+    
+    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -79,11 +86,11 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as we only generated one above
-    XCTAssertEqual([receivedEvents count], 1);
+    XCTAssertEqual([_receivedEvents count], 1);
     
     // make sure the default properties are recorded in the telemetry event,
     // i.e. sdk_id, sdk_version, device_id, device_name
-    NSDictionary* event = [receivedEvents firstObject];
+    NSDictionary* event = [_receivedEvents firstObject];
     
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_sku"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_ver"]);
@@ -98,18 +105,8 @@
 }
 
 - (void)testSequentialEvents {
-    // new a dispatcher
-    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
     
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSDictionary* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
+    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event 1
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -131,10 +128,10 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 2 telemetry events recorded as we generated two
-    XCTAssertEqual([receivedEvents count], 2);
+    XCTAssertEqual([_receivedEvents count], 2);
     
     // make sure the 1st event has an event_name, start_time and end_time
-    NSDictionary* firstEvent = [receivedEvents firstObject];
+    NSDictionary* firstEvent = [_receivedEvents firstObject];
     
     XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
@@ -142,7 +139,7 @@
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.response_time"]);
 
     // make sure the 2nd event has customized_property, event_name, start_time and end_time
-    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    NSDictionary* secondEvent = [_receivedEvents objectAtIndex:1];
     
     XCTAssertEqual([secondEvent objectForKey:@"customized_property"], @"customized_value");
     XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
@@ -153,19 +150,10 @@
 }
 
 - (void)testSequentialEventsWithAggregation {
-    // new a dispatcher
-    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
+    
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
     NSUUID* correlationId = [NSUUID UUID];
-    
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSDictionary* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher with aggregation
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event 1
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -187,10 +175,10 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is on
-    XCTAssertEqual([receivedEvents count], 1);
+    XCTAssertEqual([_receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    NSDictionary* event = [receivedEvents firstObject];
+    NSDictionary* event = [_receivedEvents firstObject];
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
@@ -205,18 +193,8 @@
 }
 
 - (void)testNestedEvents {
-    // new a dispatcher
-    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
     
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSDictionary* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
+    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -238,11 +216,11 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 2 telemetry events recorded as we generated two
-    XCTAssertEqual([receivedEvents count], 2);
+    XCTAssertEqual([_receivedEvents count], 2);
     
     // the first event recorded is event2
     // make sure it has customized_property, event_name, start_time and end_time
-    NSDictionary* firstEvent = [receivedEvents firstObject];
+    NSDictionary* firstEvent = [_receivedEvents firstObject];
     XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
     XCTAssertEqual([firstEvent objectForKey:@"customized_property"], @"customized_value");
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
@@ -250,7 +228,7 @@
     
     // the second event recorded is event1
     // make sure it has event_name, start_time and end_time
-    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    NSDictionary* secondEvent = [_receivedEvents objectAtIndex:1];
     XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
@@ -258,19 +236,10 @@
 }
 
 - (void)testNestedEventsWithAggregation {
-    // new a dispatcher
-    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
+    
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
     NSUUID* correlationId = [NSUUID UUID];
-    
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSDictionary* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher with aggregation
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -292,10 +261,10 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is ON
-    XCTAssertEqual([receivedEvents count], 1);
+    XCTAssertEqual([_receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    NSDictionary* event = [receivedEvents firstObject];
+    NSDictionary* event = [_receivedEvents firstObject];
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
@@ -309,18 +278,8 @@
 }
 
 - (void)testComplexEvents {
-    // new a dispatcher
-    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
     
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSDictionary* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
+    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -353,47 +312,38 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 4 telemetry events recorded as we generated four
-    XCTAssertEqual([receivedEvents count], 4);
+    XCTAssertEqual([_receivedEvents count], 4);
     
     // the first event recorded is event3
-    NSDictionary* firstEvent = [receivedEvents firstObject];
+    NSDictionary* firstEvent = [_receivedEvents firstObject];
     XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent3");
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the second event recorded is event2
-    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    NSDictionary* secondEvent = [_receivedEvents objectAtIndex:1];
     XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the third event recorded is event1
-    NSDictionary* thirdEvent = [receivedEvents objectAtIndex:2];
+    NSDictionary* thirdEvent = [_receivedEvents objectAtIndex:2];
     XCTAssertEqual([thirdEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
     XCTAssertNotNil([thirdEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([thirdEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the fourth event recorded is event4
-    NSDictionary* fourthEvent = [receivedEvents objectAtIndex:3];
+    NSDictionary* fourthEvent = [_receivedEvents objectAtIndex:3];
     XCTAssertEqual([fourthEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent4");
     XCTAssertNotNil([fourthEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([fourthEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
 }
 
 - (void)testComplexEventsWithAggregation {
-    // new a dispatcher
-    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
+    
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
     NSUUID* correlationId = [NSUUID UUID];
-    
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSDictionary* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -426,10 +376,10 @@
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
-    XCTAssertEqual([receivedEvents count], 1);
+    XCTAssertEqual([_receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    NSDictionary* event = [receivedEvents firstObject];
+    NSDictionary* event = [_receivedEvents firstObject];
     
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
@@ -441,6 +391,143 @@
     XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
+}
+
+- (void)testAdditionalTelemetry_whenSingleEventAndAggregated_shouldReturnAllProperties
+{
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
+    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                   requestId:requestId correlationId:nil];
+    
+    [event setClientTelemetry:@"1,111,999,200.056,I"];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event];
+    
+    [[ADTelemetry sharedInstance] flush:requestId];
+    
+    // there should be 1 telemetry events recorded as aggregation flag is ON
+    XCTAssertEqual([_receivedEvents count], 1);
+    
+    NSDictionary* receivedEvent = [_receivedEvents firstObject];
+    
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_error_code"], @"111");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"999");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.rt_age"], @"200.056");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
+}
+
+- (void)testAdditionalTelemetry_whenMultipleEventsAggregated_shouldReturnLatestProperties
+{
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
+    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    
+    ADTelemetryHttpEvent* event1 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                    requestId:requestId correlationId:nil];
+    
+    [event1 setClientTelemetry:@"1,111,999,200.056,I"];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event1];
+    
+    ADTelemetryHttpEvent* event2 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                    requestId:requestId correlationId:nil];
+    
+    [event2 setClientTelemetry:@"1,888,777,15868,M"];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event2];
+    
+    [[ADTelemetry sharedInstance] flush:requestId];
+    
+    // there should be 1 telemetry events recorded as aggregation flag is ON
+    XCTAssertEqual([_receivedEvents count], 1);
+    
+    NSDictionary* receivedEvent = [_receivedEvents firstObject];
+    
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_error_code"], @"888");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"777");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.rt_age"], @"15868");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.spe_info"], @"M");
+}
+
+- (void)testAdditionalTelemetry_whenMultipleEventsAndBlankErrors_shouldReturnAllNilProperties
+{
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
+    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    
+    ADTelemetryHttpEvent* event1 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                    requestId:requestId correlationId:nil];
+    
+    [event1 setClientTelemetry:@"1,111,999,200.056,"];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event1];
+    
+    ADTelemetryHttpEvent* event2 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                    requestId:requestId correlationId:nil];
+    
+    [event2 setClientTelemetry:@"1,,,,"];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event2];
+    
+    [[ADTelemetry sharedInstance] flush:requestId];
+    
+    // there should be 1 telemetry events recorded as aggregation flag is ON
+    XCTAssertEqual([_receivedEvents count], 1);
+    
+    NSDictionary* receivedEvent = [_receivedEvents firstObject];
+    
+    XCTAssertNil([receivedEvent objectForKey:@"Microsoft.ADAL.server_error_code"]);
+    XCTAssertNil([receivedEvent objectForKey:@"Microsoft.ADAL.server_sub_error_code"]);
+    XCTAssertNil([receivedEvent objectForKey:@"Microsoft.ADAL.rt_age"]);
+    XCTAssertNil([receivedEvent objectForKey:@"Microsoft.ADAL.spe_info"]);
+}
+
+- (void)testAdditionalTelemetry_whenTelemetryOnlyInLastEvent_shouldReturnLatestProperties
+{
+    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
+    
+    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    
+    ADTelemetryHttpEvent* event1 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                    requestId:requestId correlationId:nil];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event1];
+    
+    ADTelemetryHttpEvent* event2 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+                                                                    requestId:requestId correlationId:nil];
+    
+    [event2 setClientTelemetry:@"1,5,10,85,I"];
+    
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] stopEvent:requestId
+                                      event:event2];
+    
+    [[ADTelemetry sharedInstance] flush:requestId];
+    
+    // there should be 1 telemetry events recorded as aggregation flag is ON
+    XCTAssertEqual([_receivedEvents count], 1);
+    
+    NSDictionary* receivedEvent = [_receivedEvents firstObject];
+    
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_error_code"], @"5");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"10");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.rt_age"], @"85");
+    XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
 }
 
 @end
