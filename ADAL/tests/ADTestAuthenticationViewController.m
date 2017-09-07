@@ -69,6 +69,12 @@ typedef enum
 @implementation ADTestAuthenticationViewController
 
 static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
+static OnLoadBlock s_onLoadBlock = nil;
+
++ (void)onLoadRequest:(OnLoadBlock)onLoadBlock
+{
+    s_onLoadBlock = onLoadBlock;
+}
 
 - (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -83,7 +89,12 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
 
 - (void)loadRequest:(NSURLRequest *)request
 {
-    (void) request;
+    if (s_onLoadBlock)
+    {
+        s_onLoadBlock(request, _delegate);
+        s_onLoadBlock = nil;
+        return;
+    }
     for (WebAuthDelegateCall* call in s_delegateCalls)
     {
         [self makeDelegateCall:call];
