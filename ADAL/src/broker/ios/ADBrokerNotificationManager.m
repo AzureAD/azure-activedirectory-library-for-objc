@@ -68,6 +68,9 @@
         _callbackForBroker = callback;
     }
     
+    // If the broker app itself requested a token, we don't care if it goes to background or not - the
+    // user should be able to continue the flow regardless
+#if !AD_BROKER
     // UIApplicationDidBecomeActive can get hit after the iOS 9 "This app wants to open this other app"
     // dialog is displayed. Because of the multitude of ways that notification can be sent we can't rely
     // merely on it to be able to accurately decide when we need to clean up. According to Apple's
@@ -79,6 +82,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onEnterForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification object:nil];
+#endif
     
 }
 
