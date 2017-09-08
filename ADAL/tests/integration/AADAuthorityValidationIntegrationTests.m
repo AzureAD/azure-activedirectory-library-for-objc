@@ -33,6 +33,7 @@
 #import "ADTestURLResponse.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADTokenCacheKey.h"
 #import "ADUserIdentifier.h"
 #import "ADWebAuthDelegate.h"
 #import "ADWebFingerRequest.h"
@@ -429,6 +430,67 @@
     }];
     
     [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
+}
+
+
+- (void)testAcquireTokenSilent_whenDifferentPreferredCache_shouldUsePreferred
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *preferredAuthority = @"https://login.contoso.net/common";
+    NSString *updatedAT = @"updated-access-token";
+    NSString *updatedRT = @"updated-refresh-token";
+    NSString *doNotUseRT = @"do not use me";
+    
+    // Network Setup
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.com",
+                              @"preferred_cache" : @"login.contoso.net",
+                              @"aliases" : @[ @"login.contoso.net", @"login.contoso.com"] } ];
+    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
+    ADTestURLResponse *tokenResponse = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                          authority:authority
+                                                           resource:TEST_RESOURCE
+                                                           clientId:TEST_CLIENT_ID
+                                                      correlationId:TEST_CORRELATION_ID
+                                                    newRefreshToken:updatedRT
+                                                     newAccessToken:updatedAT
+                                                   additionalFields:@{ @"foci" : @"1" }];
+    
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    
+    // Add an MRRT in the preferred location to use
+    ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+    mrrt.authority = preferredAuthority;
+    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    
+    // Also add a MRRT in the non-preferred lcoation to ignore
+    ADTokenCacheItem *otherMrrt = [self adCreateMRRTCacheItem];
+    mrrt.refreshToken = doNotUseRT;
+    [tokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
+    
+    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    XCTAssertNotNil(context);
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         // Make sure the cache authority didn't change
+         XCTAssertEqualObjects(result.tokenCacheItem.authority, authority);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
 @end
