@@ -109,4 +109,30 @@
     XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
 }
 
+- (void)testParsedClientTelemetry_whenErrorSubErrorHaveZeroesRtAgeEmpty_shouldReturnOnlySpeInfo
+{
+    NSString *clientTelemetry = @"1,0,0,,I";
+    
+    NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
+    
+    XCTAssertNotNil(parsedTelemetry);
+    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.ADAL.server_error_code"]);
+    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.ADAL.server_sub_error_code"]);
+    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.ADAL.rt_age"]);
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
+}
+
+- (void)testParsedClientTelemetry_whenErrorHasZeroes_shouldReturnAllPropertiesButErrorCode
+{
+    NSString *clientTelemetry = @"1,0,5,200.5,I";
+    
+    NSDictionary *parsedTelemetry = [clientTelemetry parsedClientTelemetry];
+    
+    XCTAssertNotNil(parsedTelemetry);
+    XCTAssertNil([parsedTelemetry objectForKey:@"Microsoft.ADAL.server_error_code"]);
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"5");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.ADAL.rt_age"], @"200.5");
+    XCTAssertEqualObjects([parsedTelemetry objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
+}
+
 @end
