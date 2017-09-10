@@ -51,6 +51,14 @@
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority;
 
+/*!
+    Returns an array of authority URLs for the provided URL, in the order that cache lookups
+    should be attempted.
+ 
+    @param  authority   The authority URL the developer provided for the authority context
+ */
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
+
 - (ADAadAuthorityCacheRecord *)tryCheckCache:(NSURL *)authority;
 - (ADAadAuthorityCacheRecord *)checkCache:(NSURL *)authority;
 
