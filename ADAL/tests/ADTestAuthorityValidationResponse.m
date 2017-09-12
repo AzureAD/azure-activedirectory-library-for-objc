@@ -31,12 +31,24 @@
 
 + (ADTestURLResponse *)validAuthority:(NSString *)authority
 {
+    return [self validAuthority:authority withMetadata:nil];
+}
+
++ (ADTestURLResponse *)validAuthority:(NSString *)authority
+                         withMetadata:(NSArray *)metadata
+{
     NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
-    ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
-                                                    responseURLString:@"https://idontmatter.com"
-                                                         responseCode:200
-                                                     httpHeaderFields:@{}
-                                                     dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+    ADTestURLResponse *response = [ADTestURLResponse new];
+    response.requestURL = [NSURL URLWithString:authorityValidationURL];
+    [response setResponseURL:@"https://idontmatter.com" code:200 headerFields:@{}];
+    if (metadata)
+    {
+        [response setResponseJSON:@{@"tenant_discovery_endpoint" : @"totally valid!", @"metadata" : metadata}];
+    }
+    else
+    {
+        [response setResponseJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+    }
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     
     return response;

@@ -99,11 +99,16 @@ static NSDictionary *s_eventPropertiesDictionary;
     for (NSString* propertyName in eventProperties)
     {
         ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
+        
         if (collectionBehavior == CollectAndUpdate)
         {
-            //erase the previous event properties if any
-            [aggregatedEvent setObject:@"" forKey:propertyName];
+            //erase the previous event properties only if there were any previously
+            if ([aggregatedEvent objectForKey:propertyName])
+            {
+                [aggregatedEvent removeObjectForKey:propertyName];
+            }
         }
+        
         if (collectionBehavior != CollectAndCount)
         {
             [aggregatedEvent adSetObjectIfNotNil:[[event getProperties] objectForKey:propertyName] forKey:propertyName];

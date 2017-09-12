@@ -317,4 +317,48 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     return urlForPreferredHost(authority, record.cacheHost);
 }
 
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
+{
+    NSMutableArray<NSURL *> *authorities = [NSMutableArray new];
+    
+    __auto_type record = [self checkCache:authority];
+    if (!record)
+    {
+        [authorities addObject:authority];
+        return authorities;
+    }
+    
+    NSArray<NSString *> *aliases = record.aliases;
+    NSString *cacheHost = record.cacheHost;
+    NSString *host = authority.adHostWithPortIfNecessary;
+    if (cacheHost)
+    {
+        // The cache lookup order for authorities is defined as the preferred host first
+        [authorities addObject:urlForPreferredHost(authority, cacheHost)];
+        if (![cacheHost isEqualToString:host])
+        {
+            // Followed by the authority provided by the developer, provided here by the authority
+            // URL passed into this method
+            [authorities addObject:authority];
+        }
+    }
+    else
+    {
+        [authorities addObject:authority];
+    }
+    
+    // And then we add any remaining aliases listed in the metadata
+    for (NSString *alias in aliases)
+    {
+        if ([alias isEqualToString:host] || (cacheHost && [alias isEqualToString:cacheHost]))
+        {
+            continue;
+        }
+        
+        [authorities addObject:urlForPreferredHost(authority, alias)];
+    }
+    
+    return authorities;
+}
+
 @end

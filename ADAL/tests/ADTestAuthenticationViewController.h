@@ -19,7 +19,7 @@
 #import "ADAL_Internal.h"
 #import "ADAuthenticationViewController.h"
 
-
+typedef void (^OnLoadBlock)(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate);
 
 /*! This mock ADAuthenticationViewController has the same set of public properties and functions.*/
 @interface ADTestAuthenticationViewController : NSObject
@@ -40,6 +40,8 @@
 - (void)stop:(void (^)(void))completion;
 - (void)startSpinner;
 - (void)stopSpinner;
+
++ (void)onLoadRequest:(OnLoadBlock)onLoadBlock;
 
 // Following methods are used to add ADWebAuthDelegate calls to the queue
 // All calls added in the queue will be called in order when method [loadRequest:] is executed

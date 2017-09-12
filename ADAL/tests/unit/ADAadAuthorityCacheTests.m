@@ -355,6 +355,94 @@
 }
 
 #pragma mark -
+#pragma mark Cache Aliases tests
+
+- (void)testCacheAliasesForAuthority_whenNilCache_shouldReturnArrayWithAuthority
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    
+    NSArray *aliases = [cache cacheAliasesForAuthority:authority];
+    
+    XCTAssertEqualObjects(aliases, @[authority]);
+}
+
+- (void)testCacheAliasesForAuthority_withNoMetadata_shouldReturnArrayWithAuthority
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    cache.recordMap = @{ @"login.contoso.com" : record };
+    
+    NSArray *aliases = [cache cacheAliasesForAuthority:authority];
+    
+    XCTAssertEqualObjects(aliases, @[authority]);
+}
+
+- (void)testCacheAliasesForAuthority_withSimpleMetadata_shouldReturnArrayWithAuthority
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.contoso.com";
+    record.cacheHost = @"login.contoso.com";
+    record.aliases = @[ @"login.contoso.com" ];
+    cache.recordMap = @{ @"login.contoso.com" : record };
+    
+    NSArray *aliases = [cache cacheAliasesForAuthority:authority];
+    
+    XCTAssertEqualObjects(aliases, @[authority]);
+}
+
+- (void)testCacheAliasesForAuthority_withDifferentPreferredCache_shouldReturnArrayInProperOrder
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com/endpoint"];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.contoso.com";
+    record.cacheHost = @"login.contoso.net";
+    record.aliases = @[ @"sts.contoso.com", @"login.contoso.net", @"sts.contoso.net", @"login.contoso.com" ];
+    cache.recordMap = @{ @"login.contoso.com" : record };
+                          // cacheAliasesForAuthority should be returning the preferred host first
+    NSArray *expected = @[[NSURL URLWithString:@"https://login.contoso.net/endpoint"],
+                          // The host the API was called with second
+                          authority,
+                          // And then any remaining hosts in the alias list
+                          [NSURL URLWithString:@"https://sts.contoso.com/endpoint"],
+                          [NSURL URLWithString:@"https://sts.contoso.net/endpoint"]];
+    
+    NSArray *aliases = [cache cacheAliasesForAuthority:authority];
+    
+    XCTAssertEqualObjects(aliases, expected);
+}
+
+- (void)testCacheAliasesForAuthority_withPortDifferentPreferredCache_shouldReturnArrayInProperOrder
+{
+    ADAadAuthorityCache *cache = [[ADAadAuthorityCache alloc] init];
+    NSURL *authority = [NSURL URLWithString:@"https://login.contoso.com:8888/endpoint"];
+    __auto_type record = [ADAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.contoso.com:8888";
+    record.cacheHost = @"login.contoso.net:9000";
+    record.aliases = @[ @"sts.contoso.com", @"login.contoso.net:9000", @"sts.contoso.net", @"login.contoso.com:8888" ];
+    cache.recordMap = @{ @"login.contoso.com:8888" : record };
+    // cacheAliasesForAuthority should be returning the preferred host first
+    NSArray *expected = @[[NSURL URLWithString:@"https://login.contoso.net:9000/endpoint"],
+                          // The host the API was called with second
+                          authority,
+                          // And then any remaining hosts in the alias list
+                          [NSURL URLWithString:@"https://sts.contoso.com/endpoint"],
+                          [NSURL URLWithString:@"https://sts.contoso.net/endpoint"]];
+    
+    NSArray *aliases = [cache cacheAliasesForAuthority:authority];
+    
+    XCTAssertEqualObjects(aliases, expected);
+}
+
+#pragma mark -
 #pragma mark Process Metadata tests
 
 - (void)testProcessMetadata_whenNilMetadata_shouldCreateDefaultEntry
