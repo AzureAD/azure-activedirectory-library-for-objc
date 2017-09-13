@@ -119,7 +119,7 @@ class BuildTarget:
 		"""
 		Generate and return an xcodebuild command string based on the ivars and operation provided.
 		"""
-		command = "xcodebuild "
+		command = "build-wrapper-macosx-x86 --out-dir $HOME/.sonar/cache  xcodebuild "
 		if (operation != None) :
 			command += operation + " "
 		

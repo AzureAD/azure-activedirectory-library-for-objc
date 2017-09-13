@@ -1,6 +1,16 @@
 language: objective-c
 osx_image: xcode8.3
 
+# set up SonarCube
+addons:
+  sonarcloud:
+    organization: "devex-aad"
+    token:
+      secure: "RXczf7TfFH5rveDaP5iAIet6waDOFO86uTsyM8lmUZrxwHgrwgDChimURPqCeqG9iCNuV+qDO/N7HgI1YJ+s9N2tK/zKOtd1LZFP9c6mVPHOZjY/Sy0DjhOu7XZUex0suqfQDfKJ0wkj+pcMrGfnFAyMtxtow6APk++1Oj1rOAw="
+    branches:
+     - master
+     - dev
+
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty -N
@@ -13,6 +23,7 @@ before_script:
 script:  
 # Run the ADAL build script
   - ./build.py --no-clean
+  - sonar-scanner
 
 after_success:
 # Run slather once to have it print out the results in the travis log
