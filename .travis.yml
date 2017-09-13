@@ -13,6 +13,10 @@ addons:
      - master
      - dev
 
+cache:
+   directories:
+      - '$HOME/.sonar/cache'
+
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty -N
