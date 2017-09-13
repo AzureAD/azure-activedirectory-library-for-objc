@@ -26,6 +26,7 @@
 import subprocess
 import sys
 import re
+import os
 
 ios_sim_dest = "-destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
@@ -119,7 +120,8 @@ class BuildTarget:
 		"""
 		Generate and return an xcodebuild command string based on the ivars and operation provided.
 		"""
-		command = "build-wrapper-macosx-x86 --out-dir $HOME/.sonar/cache  xcodebuild "
+		command = "xcodebuild "
+		
 		if (operation != None) :
 			command += operation + " "
 		
@@ -132,7 +134,10 @@ class BuildTarget:
 		
 		if (operation == "test" and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
-		
+		else :
+			if (os.environ['TRAVIS'] == "true") :
+				command = "build-wrapper-macosx-x86 --out-dir $HOME/.sonar/cache " + command
+
 		if (self.platform == "iOS") :
 			command += " " + ios_sim_flags + " " + ios_sim_dest
 		
