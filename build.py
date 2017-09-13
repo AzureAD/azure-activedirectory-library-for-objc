@@ -135,8 +135,8 @@ class BuildTarget:
 		if (operation == "test" and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
 		else :
-			if (os.environ.get("TRAVIS") is not None and os.environ["TRAVIS"] == "true") :
-				command = "build-wrapper-macosx-x86 --out-dir $HOME/.sonar/cache " + command
+			if (os.environ.get('TRAVIS') == "true") :
+				command = "build-wrapper-macosx-x86 --out-dir ./.sonar/cache " + command
 
 		if (self.platform == "iOS") :
 			command += " " + ios_sim_flags + " " + ios_sim_dest
