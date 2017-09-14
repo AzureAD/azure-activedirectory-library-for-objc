@@ -253,6 +253,7 @@ class BuildTarget:
 			else :
 				command = self.xcodebuild_command(operation, use_xcpretty)
 				if (operation == "build" and self.use_sonarcube == "true" and os.environ.get('TRAVIS') == "true") :
+					subprocess.call("rmdir -rf .sonar; rmdir -rf build-wrapper-output", shell = True)
 					command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
 				print command
 				exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
