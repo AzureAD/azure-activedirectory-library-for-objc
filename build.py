@@ -57,14 +57,14 @@ target_specifiers = [
 		"name" : "iOS Test App",
 		"scheme" : "MyTestiOSApp",
 		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"platform" : "iOS",
 		"use_build_wrapper" : "false"
 	},
 	{
 		"name" : "iOS Automation Test App",
 		"scheme" : "ADALAutomation",
 		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"platform" : "iOS",
 		"use_build_wrapper" : "false"
 	},
 	{
@@ -80,14 +80,14 @@ target_specifiers = [
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
-		"platform" : "Mac"
+		"platform" : "Mac",
 		"use_build_wrapper" : "false"
 	},
 	{
 		"name" : "Mac Test App",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
-		"platform" : "Mac"
+		"platform" : "Mac",
 		"use_build_wrapper" : "false"
 	}
 ]
