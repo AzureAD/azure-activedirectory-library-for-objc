@@ -256,7 +256,7 @@ class BuildTarget:
 				exit_code = self.do_codecov()
 			else :
 				command = self.xcodebuild_command(operation, use_xcpretty)
-				if (os.environ.get('TRAVIS') == "true" and self.use_build_wrapper == "true") :
+				if (os.environ.get('TRAVIS') == "true" and operation == "build" and self.use_build_wrapper == "true") :
 					command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
 				print command
 				exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
