@@ -48,43 +48,44 @@ target_specifiers = [
 	{
 		"name" : "iOS Framework",
 		"scheme" : "ADAL",
-		"operations" : [ "build", "test", "codecov" ],
+#		"operations" : [ "build", "test", "codecov" ],
+		"operations" : [ "build" ],
 		"min_warn_codecov" : 70.0,
-		"platform" : "iOS"
-	},
-	{
-		"name" : "iOS Test App",
-		"scheme" : "MyTestiOSApp",
-		"operations" : [ "build" ],
-		"platform" : "iOS"
-	},
-	{
-		"name" : "iOS Automation Test App",
-		"scheme" : "ADALAutomation",
-		"operations" : [ "build" ],
-		"platform" : "iOS"
-	},
-	{
-		"name" : "Sample Swift App",
-		"scheme" : "SampleSwiftApp",
-		"operations" : [ "build" ],
 		"platform" : "iOS",
-		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace"
-	},
-	{
-		"name" : "Mac Framework",
-		"scheme" : "ADAL Mac",
-		"operations" : [ "build", "test", "codecov" ],
-		"min_warn_codecov" : 70.0,
-		"platform" : "Mac",
 		"use_sonarcube" : "true"
-	},
-	{
-		"name" : "Mac Test App",
-		"scheme" : "MyTestMacOSApp",
-		"operations" : [ "build" ],
-		"platform" : "Mac"
-	}
+	}#,
+	# {
+	# 	"name" : "iOS Test App",
+	# 	"scheme" : "MyTestiOSApp",
+	# 	"operations" : [ "build" ],
+	# 	"platform" : "iOS"
+	# },
+	# {
+	# 	"name" : "iOS Automation Test App",
+	# 	"scheme" : "ADALAutomation",
+	# 	"operations" : [ "build" ],
+	# 	"platform" : "iOS"
+	# },
+	# {
+	# 	"name" : "Sample Swift App",
+	# 	"scheme" : "SampleSwiftApp",
+	# 	"operations" : [ "build" ],
+	# 	"platform" : "iOS",
+	# 	"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace"
+	# },
+	# {
+	# 	"name" : "Mac Framework",
+	# 	"scheme" : "ADAL Mac",
+	# 	"operations" : [ "build", "test", "codecov" ],
+	# 	"min_warn_codecov" : 70.0,
+	# 	"platform" : "Mac"
+	# },
+	# {
+	# 	"name" : "Mac Test App",
+	# 	"scheme" : "MyTestMacOSApp",
+	# 	"operations" : [ "build" ],
+	# 	"platform" : "Mac"
+	# }
 ]
 
 def print_operation_start(name, operation) :
@@ -275,6 +276,8 @@ for arg in sys.argv :
 		clean = False
 	if (arg == "--no-xcpretty") :
 		use_xcpretty = False
+	if ("--scheme" in arg)
+		
 
 targets = []
 
