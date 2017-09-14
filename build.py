@@ -51,44 +51,39 @@ target_specifiers = [
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
-		"use_build_wrapper" : "true"
+		"use_sonarcube" : "true"
 	},
 	{
 		"name" : "iOS Test App",
 		"scheme" : "MyTestiOSApp",
 		"operations" : [ "build" ],
-		"platform" : "iOS",
-		"use_build_wrapper" : "false"
+		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Automation Test App",
 		"scheme" : "ADALAutomation",
 		"operations" : [ "build" ],
-		"platform" : "iOS",
-		"use_build_wrapper" : "false"
+		"platform" : "iOS"
 	},
 	{
 		"name" : "Sample Swift App",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS",
-		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace",
-		"use_build_wrapper" : "false"
+		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace"
 	},
 	{
 		"name" : "Mac Framework",
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
-		"platform" : "Mac",
-		"use_build_wrapper" : "false"
+		"platform" : "Mac"
 	},
 	{
 		"name" : "Mac Test App",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
-		"platform" : "Mac",
-		"use_build_wrapper" : "false"
+		"platform" : "Mac"
 	}
 ]
 
@@ -118,7 +113,7 @@ class BuildTarget:
 		self.build_settings = None
 		self.min_codecov = target.get("min_codecov")
 		self.min_warn_codecov = target.get("min_warn_codecov")
-		self.use_build_wrapper = target.get("use_build_wrapper")
+		self.use_sonarcube = target.get("use_sonarcube")
 		self.coverage = None
 		self.failed = False
 		self.skipped = False
@@ -256,7 +251,7 @@ class BuildTarget:
 				exit_code = self.do_codecov()
 			else :
 				command = self.xcodebuild_command(operation, use_xcpretty)
-				if (os.environ.get('TRAVIS') == "true" and operation == "build" and self.use_build_wrapper == "true") :
+				if (operation == "build" and self.use_sonarcube == "true" and os.environ.get('TRAVIS') == "true") :
 					command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
 				print command
 				exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
