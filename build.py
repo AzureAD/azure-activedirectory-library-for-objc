@@ -50,8 +50,7 @@ target_specifiers = [
 		"scheme" : "ADAL",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
-		"platform" : "iOS",
-		"use_sonarcube" : "true"
+		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Test App",
@@ -77,7 +76,8 @@ target_specifiers = [
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
-		"platform" : "Mac"
+		"platform" : "Mac",
+		"use_sonarcube" : "true"
 	},
 	{
 		"name" : "Mac Test App",
