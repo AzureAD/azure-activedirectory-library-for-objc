@@ -36,7 +36,7 @@ default_config = "Debug"
 
 use_xcpretty = True
 
-class tclr:
+class colorValues:
 	HDR = '\033[1m'
 	OK = '\033[32m\033[1m'
 	FAIL = '\033[31m\033[1m'
@@ -89,16 +89,16 @@ target_specifiers = [
 ]
 
 def print_operation_start(name, operation) :
-	print tclr.HDR + "Beginning " + name + " [" + operation + "]" + tclr.END
+	print colorValues.HDR + "Beginning " + name + " [" + operation + "]" + colorValues.END
 	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_")
 
 def print_operation_end(name, operation, exit_code) :
 	print "travis_fold:end:" + (name + "_" + operation).replace(" ", "_")
 
 	if (exit_code == 0) :
-		print tclr.OK + name + " [" + operation + "] Succeeded" + tclr.END
+		print colorValues.OK + name + " [" + operation + "] Succeeded" + colorValues.END
 	else :
-		print tclr.FAIL + name + " [" + operation + "] Failed" + tclr.END
+		print colorValues.FAIL + name + " [" + operation + "] Failed" + colorValues.END
 
 class BuildTarget:
 	def __init__(self, target):
@@ -185,27 +185,25 @@ class BuildTarget:
 			
 		printed = False
 		
-		if (self.min_warn_codecov != None) :
-			if (self.coverage < self.min_warn_codecov) :
-				sys.stdout.write(tclr.WARN)
-				if (printName) :
-					sys.stdout.write(self.name + ": ")
-				sys.stdout.write(str(self.coverage) + "% coverage is below the recommended minimum requirement: " + str(self.min_warn_codecov) + "%" + tclr.END + "\n")
-				printed = True
-				
-		if (self.min_codecov != None) :
-			if (self.coverage < self.min_codecov) :
-				sys.stdout.write(tclr.FAIL)
-				if (printName) :
-					sys.stdout.write(self.name + ": ")
-				sys.stdout.write(str(self.coverage) + "% coverage is below the minimum requirement: " + str(self.min_codecov) + "%" + tclr.END + "\n")
-				return -1
-		
-		if (not printed) :
-			sys.stdout.write(tclr.OK)
+		if (self.min_warn_codecov != None and self.coverage < self.min_warn_codecov) :
+			sys.stdout.write(colorValues.WARN)
 			if (printName) :
 				sys.stdout.write(self.name + ": ")
-			sys.stdout.write(str(self.coverage) + "%" + tclr.END + "\n")
+			sys.stdout.write(str(self.coverage) + "% coverage is below the recommended minimum requirement: " + str(self.min_warn_codecov) + "%" + colorValues.END + "\n")
+			printed = True
+				
+		if (self.min_codecov != None and self.coverage < self.min_codecov) :
+			sys.stdout.write(colorValues.FAIL)
+			if (printName) :
+				sys.stdout.write(self.name + ": ")
+			sys.stdout.write(str(self.coverage) + "% coverage is below the minimum requirement: " + str(self.min_codecov) + "%" + colorValues.END + "\n")
+			return -1
+		
+		if (not printed) :
+			sys.stdout.write(colorValues.OK)
+			if (printName) :
+				sys.stdout.write(self.name + ": ")
+			sys.stdout.write(str(self.coverage) + "%" + colorValues.END + "\n")
 			
 		return 0
 		
@@ -253,7 +251,7 @@ class BuildTarget:
 			else :
 				command = self.xcodebuild_command(operation, use_xcpretty)
 				if (operation == "build" and self.use_sonarcube == "true" and os.environ.get('TRAVIS') == "true") :
-					subprocess.call("rmdir -rf .sonar; rmdir -rf build-wrapper-output", shell = True)
+					subprocess.call("rm -rf .sonar; rm -rf build-wrapper-output", shell = True)
 					command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
 				print command
 				exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
@@ -310,9 +308,9 @@ for target in targets:
 
 	# Add success/failure state to the build status dictionary
 	if (exit_code == 0) :
-		print tclr.OK + target.name + " Succeeded" + tclr.END
+		print colorValues.OK + target.name + " Succeeded" + colorValues.END
 	else :
-		print tclr.FAIL + target.name + " Failed" + tclr.END
+		print colorValues.FAIL + target.name + " Failed" + colorValues.END
 
 final_status = 0
 
@@ -323,12 +321,12 @@ code_coverage = False
 # Print out the final result of each operation.
 for target in targets :
 	if (target.failed) :
-		print tclr.FAIL + target.name + " failed." + tclr.END
+		print colorValues.FAIL + target.name + " failed." + colorValues.END
 		final_status = 1
 	else :
 		if ("codecov" in target.operations) :
 			code_coverage = True
-		print tclr.OK + '\033[92m' + target.name + " succeeded." + tclr.END
+		print colorValues.OK + '\033[92m' + target.name + " succeeded." + colorValues.END
 
 if code_coverage :
 	print "\nCode Coverage Results:"
