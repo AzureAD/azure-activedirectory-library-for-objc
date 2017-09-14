@@ -118,6 +118,7 @@ class BuildTarget:
 		self.build_settings = None
 		self.min_codecov = target.get("min_codecov")
 		self.min_warn_codecov = target.get("min_warn_codecov")
+		self.use_build_wrapper = target.get("use_build_wrapper")
 		self.coverage = None
 		self.failed = False
 		self.skipped = False
