@@ -51,18 +51,21 @@ target_specifiers = [
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
+		"use_build_wrapper" : "true"
 	},
 	{
 		"name" : "iOS Test App",
 		"scheme" : "MyTestiOSApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
+		"use_build_wrapper" : "false"
 	},
 	{
 		"name" : "iOS Automation Test App",
 		"scheme" : "ADALAutomation",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
+		"use_build_wrapper" : "false"
 	},
 	{
 		"name" : "Sample Swift App",
@@ -70,6 +73,7 @@ target_specifiers = [
 		"operations" : [ "build" ],
 		"platform" : "iOS",
 		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace",
+		"use_build_wrapper" : "false"
 	},
 	{
 		"name" : "Mac Framework",
@@ -77,12 +81,14 @@ target_specifiers = [
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "Mac"
+		"use_build_wrapper" : "false"
 	},
 	{
 		"name" : "Mac Test App",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
 		"platform" : "Mac"
+		"use_build_wrapper" : "false"
 	}
 ]
 
@@ -134,9 +140,6 @@ class BuildTarget:
 		
 		if (operation == "test" and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
-		else :
-			if (os.environ.get('TRAVIS') == "true") :
-				command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
 
 		if (self.platform == "iOS") :
 			command += " " + ios_sim_flags + " " + ios_sim_dest
@@ -252,6 +255,8 @@ class BuildTarget:
 				exit_code = self.do_codecov()
 			else :
 				command = self.xcodebuild_command(operation, use_xcpretty)
+				if (os.environ.get('TRAVIS') == "true" and self.use_build_wrapper == "true") :
+					command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
 				print command
 				exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 			
