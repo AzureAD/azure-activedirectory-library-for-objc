@@ -276,7 +276,7 @@ for arg in sys.argv :
 		clean = False
 	if (arg == "--no-xcpretty") :
 		use_xcpretty = False
-	if ("--scheme" in arg)
+#	if ("--scheme" in arg)
 		
 
 targets = []
