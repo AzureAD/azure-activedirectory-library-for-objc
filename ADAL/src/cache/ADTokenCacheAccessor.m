@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheKey.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "ADAuthorityValidation.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "ADTelemetry.h"
@@ -63,25 +64,45 @@
     return _dataSource;
 }
 
-- (ADTokenCacheItem *)getItemForUser:(ADUserIdentifier *)identifier
+- (ADTokenCacheItem *)getItemForUser:(NSString *)userId
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
                              context:(id<ADRequestContext>)context
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_authority
-                                                    resource:resource
-                                                    clientId:clientId
-                                                       error:error];
-    if (!key)
+    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
+    for (NSURL *alias in aliases)
     {
-        return nil;
+        ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:[alias absoluteString]
+                                                        resource:resource
+                                                        clientId:clientId
+                                                           error:error];
+        if (!key)
+        {
+            return nil;
+        }
+        
+        ADAuthenticationError *adError = nil;
+        ADTokenCacheItem *item = [_dataSource getItemWithKey:key
+                                                      userId:userId
+                                               correlationId:[context correlationId]
+                                                       error:&adError];
+        if (item)
+        {
+            return item;
+        }
+        
+        if (adError)
+        {
+            if (error)
+            {
+                *error = adError;
+            }
+            return nil;
+        }
     }
     
-    return [_dataSource getItemWithKey:key
-                                userId:identifier.userId
-                         correlationId:[context correlationId]
-                                 error:error];
+    return nil;
 }
 
 /*!
@@ -97,7 +118,7 @@
 {
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
-    ADTokenCacheItem* item = [self getItemForUser:identifier resource:resource clientId:clientId context:context error:error];
+    ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:resource clientId:clientId context:context error:error];
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
@@ -117,7 +138,7 @@
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
-    ADTokenCacheItem* item = [self getItemForUser:identifier resource:nil clientId:clientId context:context error:error];
+    ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:nil clientId:clientId context:context error:error];
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                      requestId:[context telemetryRequestId]
                                                                  correlationId:[context correlationId]];
@@ -146,7 +167,7 @@
     [[ADTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
     NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
-    ADTokenCacheItem* item = [self getItemForUser:identifier resource:nil clientId:fociClientId context:context error:error];
+    ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:nil clientId:fociClientId context:context error:error];
 
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
