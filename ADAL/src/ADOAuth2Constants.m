@@ -68,6 +68,8 @@ NSString *const BROKER_APP_VERSION              = @"x-broker-app-ver";
 NSString *const BROKER_RESPONSE_KEY             = @"response";
 NSString *const BROKER_HASH_KEY                 = @"hash";
 
+NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";
+
 //Diagnostic traces sent to the Azure Active Directory servers:
 NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
 NSString *const ADAL_ID_VERSION           = @"x-client-Ver";
@@ -78,7 +80,6 @@ NSString *const ADAL_ID_DEVICE_MODEL      = @"x-client-DM";//E.g. iPhone
 //Internal constants:
 NSString *const AUTH_FAILED               = @"Authentication Failed";
 NSString *const AUTH_FAILED_ERROR_CODE    = @"Authentication Failed: %d";
-NSString *const AUTH_NON_PROTOCOL_ERROR   = @"non_protocol_error";
 
 NSString *const AUTH_FAILED_SERVER_ERROR   = @"The Authorization Server returned an unrecognized response";
 NSString *const AUTH_FAILED_NO_STATE       = @"The Authorization Server response has no encoded state";

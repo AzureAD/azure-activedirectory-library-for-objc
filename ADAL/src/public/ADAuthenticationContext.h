@@ -134,7 +134,7 @@ typedef enum
 /*!
     Initializes an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param validateAuthority    Specifies if the authority should be validated.
     @param sharedGroup          The keychain sharing group to use for the ADAL token cache (iOS Only)
     @param error                (Optional) Any extra error details, if the method fails
@@ -151,7 +151,7 @@ typedef enum
 /*!
     Initializes an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param validateAuthority    Specifies if the authority should be validated.
     @param delegate             An object conforming to the ADTokenCacheDelegate protocol, this is mandatory
                                 if you wish to persist tokens on OS X.
@@ -168,7 +168,7 @@ typedef enum
 /*!
     Initializes an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param validateAuthority    Specifies if the authority should be validated.
     @param error                (Optional) Any extra error details, if the method fails
  
@@ -182,7 +182,7 @@ typedef enum
 /*!
     Creates an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param error                (Optional) Any extra error details, if the method fails
  
     @return An instance of ADAuthenticationContext, nil if it fails.
@@ -193,7 +193,7 @@ typedef enum
 /*!
     Creates an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param validate             Specifies if the authority should be validated.
     @param error                (Optional) Any extra error details, if the method fails
  
@@ -207,7 +207,7 @@ typedef enum
 /*!
     Creates an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param sharedGroup          The keychain sharing group to use for the ADAL token cache (iOS Only)
     @param error                (Optional) Any extra error details, if the method fails
  
@@ -220,7 +220,7 @@ typedef enum
 /*!
     Creates an instance of ADAuthenticationContext with the provided parameters.
  
-    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param authority            The AAD or ADFS authority. Example: @"https://login.microsoftonline.com/contoso.com"
     @param validate             Specifies if the authority should be validated.
     @param sharedGroup          The keychain sharing group to use for the ADAL token cache (iOS Only)
     @param error                (Optional) Any extra error details, if the method fails

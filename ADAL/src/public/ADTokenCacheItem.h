@@ -102,9 +102,6 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Returns YES if the user is not not set. */
 - (BOOL)isEmptyUser;
 
-/*! Verifies if the user (as defined by userId) is the same between the two items. */
-- (BOOL)isSameUser:(ADTokenCacheItem *)other;
-
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
  used to obtain access token for any resource within the same user, authority and client id. This property is calculated
  from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/

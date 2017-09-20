@@ -35,50 +35,55 @@
     NSString* _resource;
 }
 
-/*! The extracted authority. Can be null in case of an error. See the status field */
-@property (readonly) NSString* authority;
+/*! The extracted authority. */
+@property (readonly) NSString *authority;
 
-/*! The resource URI, as returned by the server. */
-@property (readonly) NSString* resource;
+/*! The resource, as returned by the server. */
+@property (readonly) NSString *resource;
 
-@property (readonly) NSDictionary* extractedParameters;
+/*! All parameters that were extracted from the authentication challenge */
+@property (readonly) NSDictionary *extractedParameters;
 
-/*! The completion block declaration. In case of success, NSException parameter is nil and ADAuthenticationParameters
- is a valid pointer. If an error occurs, ADAuthenticationParameters will be nil and the NSException parameter
- contains all of the details.
+/*!
+    @param  parameters  The authentication parameters from the challenge presented by the resource,
+                        nil if an error occurred
+    @param  error       An ADAuthenticationError object with error details.
 */
-typedef void (^ADParametersCompletion)(ADAuthenticationParameters* parameters, ADAuthenticationError* error);
+typedef void (^ADParametersCompletion)(ADAuthenticationParameters *parameters, ADAuthenticationError *error);
 
-/*! Creates authentication parameters from the response received from the resource. The method 
- creates an HTTP GET request and expects the resource to have unauthorized status (401) and "WWW-Authenticate" 
- header, containing authentication parameters.
- @param response The response received from the server with the requirements above. May return null if
- an error has occurred.
- @param error Can be nil. If this parameter is not nil and an error occurred, it will be set to
- contain the error
+/*!
+    Creates authentication parameters from the response received from the resource. The method
+    creates an HTTP GET request and expects the resource to have unauthorized status (401) and "WWW-Authenticate"
+    header, containing authentication parameters.
+ 
+    @param  response    The response received from the server with the requirements above. May return null if
+                        an error has occurred.
+    @param  error       Can be nil. If this parameter is not nil and an error occurred, it will be set to
+                        contain the error
  */
-+(ADAuthenticationParameters*) parametersFromResponse: (NSHTTPURLResponse*) response
-                                                error: (ADAuthenticationError*__autoreleasing*) error;
++ (ADAuthenticationParameters *)parametersFromResponse:(NSHTTPURLResponse *)response
+                                                 error:(ADAuthenticationError * __autoreleasing *)error;
 
-/*! Creates authentication parameters from "WWW-Authenticate" header of the response received
- from the resource. The method expects the header to contain authentication parameters.
- @param authenticateHeader The http response header, containing the authentication parameters.
- @param error Can be nil. If this parameter is not nil and an error occurred, it will be set to
- contain the error
+/*!
+    Creates authentication parameters from "WWW-Authenticate" header of the response received
+    from the resource. The method expects the header to contain authentication parameters.
+ 
+    @param  authenticateHeader  The http response header, containing the authentication parameters.
+    @param  error               Can be nil. If this parameter is not nil and an error occurred, it will be set to
+                                contain the error
  */
-+(ADAuthenticationParameters*) parametersFromResponseAuthenticateHeader: (NSString*) authenticateHeader
-                                                                  error: (ADAuthenticationError*__autoreleasing*) error;
++ (ADAuthenticationParameters *)parametersFromResponseAuthenticateHeader:(NSString *)authenticateHeader
+                                                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
-/*! Extracts the authority from the the error code 401 http error code response. The method
- expects that the resource will respond with a HTTP 401 and "WWW-Authenticate" header, containing the
- authentication parameters.
- @param resourceUrl The address of the resource.
- @param completion The callback block to be executed upon completion.
+/*!
+    Extracts the authority from the the error code 401 http error code response. The method
+    expects that the resource will respond with a HTTP 401 and "WWW-Authenticate" header, containing the
+    authentication parameters.
+ 
+    @param  resourceUrl     The address of the resource.
+    @param  completionBlock The callback block to be executed upon completion.
  */
-+(void) parametersFromResourceUrl: (NSURL*)resourceUrl
-                  completionBlock: (ADParametersCompletion) completion;
-
-/*! Returns a readonly copy of the extracted parameters from the authenticate header. */
--(NSDictionary*) extractedParameters;
++ (void)parametersFromResourceUrl:(NSURL *)resourceUrl
+                  completionBlock:(ADParametersCompletion)completionBlock;
 
 @end

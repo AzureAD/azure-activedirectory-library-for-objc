@@ -30,6 +30,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTokenCacheItem (Internal)
 
@@ -319,6 +320,11 @@
     }
     
     return NO;
+}
+
+- (NSString *)speInfo
+{
+    return [_additionalServer objectForKey:AD_TELEMETRY_KEY_SPE_INFO];
 }
 
 @end

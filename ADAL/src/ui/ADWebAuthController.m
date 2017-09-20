@@ -31,6 +31,7 @@
 
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationSettings.h"
+#import "ADAuthorityValidation.h"
 #import "ADCustomHeaderHandler.h"
 #import "ADHelpers.h"
 #import "ADNTLMHandler.h"
@@ -535,6 +536,7 @@ static ADAuthenticationResult* s_result = nil;
     _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:AD_TELEMETRY_EVENT_UI_EVENT
                                                                  context:_requestParams];
     
+    startURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:startURL context:requestParams];
     startURL = [self addToURL:startURL correlationId:requestParams.correlationId];//Append the correlation id
     _endURL = [endURL absoluteString];
     _complete = NO;

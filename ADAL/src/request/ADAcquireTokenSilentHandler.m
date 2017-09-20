@@ -126,8 +126,15 @@
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", nil, @"clientId: '%@'; resource: '%@';", [_requestParams clientId], [_requestParams resource]);
-    [webReq sendRequest:^(NSDictionary *response)
+    [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
+         if (error)
+         {
+             completionBlock([ADAuthenticationResult resultFromError:error]);
+             [webReq invalidate];
+             return;
+         }
+         
          ADTokenCacheItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheItem new];
          
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item

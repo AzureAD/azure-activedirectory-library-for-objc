@@ -37,6 +37,8 @@ typedef enum
     
 } AdfsType;
 
+@interface ADDrsDiscoveryRequest : NSObject
+
 /*!
  This handles DRS discovery request to be used for ADFS authority validation/
  
@@ -46,8 +48,6 @@ typedef enum
  @param completionBlock Completion block for this asynchronous request.
  
  */
-@interface ADDrsDiscoveryRequest : NSObject
-
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
                             adfsType:(AdfsType)type
                              context:(id<ADRequestContext>)context

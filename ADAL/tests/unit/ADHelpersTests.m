@@ -25,7 +25,7 @@
 #import "ADHelpers.h"
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADHelpersTests : XCTestCase
+@interface ADHelpersTests : ADTestCase
 
 @end
 
@@ -66,7 +66,6 @@
 
 - (void)testCanonicalizeAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil or empty:
     XCTAssertNil([ADHelpers canonicalizeAuthority:nil]);
     XCTAssertNil([ADHelpers canonicalizeAuthority:@""]);

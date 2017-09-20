@@ -32,11 +32,6 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheKey.h"
 
-dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
-volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
-const int sMaxThreads = 3;//The number of threads to spawn
-int sThreadsRunTime = 5;//How long the bacground threads would run
-
 //Some logging constant to help with testing the persistence:
 NSString* const sPersisted = @"successfully persisted";
 NSString* const sNoNeedForPersistence = @"No need for cache persistence.";
@@ -50,7 +45,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 @end
 
-@interface ADKeychainTokenCacheTests : XCTestCase
+@interface ADKeychainTokenCacheTests : ADTestCase
 {
     ADKeychainTokenCache* mStore;
 }
@@ -73,7 +68,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore testRemoveAll:nil];//Attempt to clear all things from the keychain
     mStore = nil;
     
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -178,7 +172,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 - (void)testInitializer
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADKeychainTokenCache* simple = [ADKeychainTokenCache new];
     XCTAssertNotNil(simple);
     NSString* group = @"test";

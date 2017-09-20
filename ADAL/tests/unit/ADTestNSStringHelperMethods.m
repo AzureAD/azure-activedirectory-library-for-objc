@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADTestNSStringHelperMethods : XCTestCase
+@interface ADTestNSStringHelperMethods : ADTestCase
 
 @end
 
@@ -33,18 +33,21 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 
 - (void)testIsStringNilOrBlankNil
 {
     XCTAssertTrue([NSString adIsStringNilOrBlank:nil], "Should return true for nil.");
+}
+
+- (void)testIsStringNilOrBlank_whenNSNull_shouldReturnTrue
+{
+    XCTAssertTrue([NSString adIsStringNilOrBlank:(NSString *)[NSNull null]]);
 }
 
 - (void)testIsStringNilOrBlankSpace

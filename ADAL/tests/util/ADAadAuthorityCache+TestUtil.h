@@ -21,26 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADAadAuthorityCache.h"
 
-@interface ADAuthorityValidationRequest : NSObject
+@interface ADAadAuthorityCache (TestUtil)
 
-/*!
- This handles request for authority validation to the trusted authority.
- 
- @param authority                   Authority to be validated.
- @param trustedAuthority            Trusted authority to ask for validation.
- @param context                     Context to be used for the internal web request
- @param completionBlock             Completion block for this asynchronous request.
- 
- */
-+ (void)requestAuthorityValidationForAuthority:(NSString *)authority
-                              trustedAuthority:(NSString *)trustedAuthority
-                                       context:(id<ADRequestContext>)context
-                               completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock;
+- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap;
+- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
 
-// Fetches the corresponding URL for the request
-+ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority;
+- (BOOL)grabReadLock;
+- (BOOL)grabWriteLock;
+- (BOOL)tryWriteLock;
+- (BOOL)unlock;
 
+- (void)clear;
 
 @end

@@ -51,8 +51,15 @@
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
-    [req sendRequest:^(NSDictionary *response)
+    [req sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
+         if (error)
+         {
+             completionBlock([ADAuthenticationResult resultFromError:error]);
+             [req invalidate];
+             return;
+         }
+         
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheItem* item = [ADTokenCacheItem new];
          item.resource = [_requestParams resource];
@@ -275,11 +282,16 @@
                                                               context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
-        [req sendRequest:^(NSDictionary * parameters)
+        [req sendRequest:^(ADAuthenticationError *error, NSDictionary * parameters)
          {
+             if (error)
+             {
+                 requestCompletion(error, nil);
+                 [req invalidate];
+                 return;
+             }
              
              NSURL* endURL = nil;
-             ADAuthenticationError* error = nil;
              
              //OAuth2 error may be passed by the server
              endURL = [parameters objectForKey:@"url"];

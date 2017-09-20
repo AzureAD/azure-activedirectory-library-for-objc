@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheKey.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "ADAuthorityValidation.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "ADTelemetry.h"
@@ -63,25 +64,45 @@
     return _dataSource;
 }
 
-- (ADTokenCacheItem *)getItemForUser:(ADUserIdentifier *)identifier
+- (ADTokenCacheItem *)getItemForUser:(NSString *)userId
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
                              context:(id<ADRequestContext>)context
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_authority
-                                                    resource:resource
-                                                    clientId:clientId
-                                                       error:error];
-    if (!key)
+    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
+    for (NSURL *alias in aliases)
     {
-        return nil;
+        ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:[alias absoluteString]
+                                                        resource:resource
+                                                        clientId:clientId
+                                                           error:error];
+        if (!key)
+        {
+            return nil;
+        }
+        
+        ADAuthenticationError *adError = nil;
+        ADTokenCacheItem *item = [_dataSource getItemWithKey:key
+                                                      userId:userId
+                                               correlationId:[context correlationId]
+                                                       error:&adError];
+        if (item)
+        {
+            return item;
+        }
+        
+        if (adError)
+        {
+            if (error)
+            {
+                *error = adError;
+            }
+            return nil;
+        }
     }
     
-    return [_dataSource getItemWithKey:key
-                                userId:identifier.userId
-                         correlationId:[context correlationId]
-                                 error:error];
+    return nil;
 }
 
 /*!
@@ -97,11 +118,12 @@
 {
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
-    ADTokenCacheItem* item = [self getItemForUser:identifier resource:resource clientId:clientId context:context error:error];
+    ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:resource clientId:clientId context:context error:error];
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -116,7 +138,7 @@
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
-    ADTokenCacheItem* item = [self getItemForUser:identifier resource:nil clientId:clientId context:context error:error];
+    ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:nil clientId:clientId context:context error:error];
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                      requestId:[context telemetryRequestId]
                                                                  correlationId:[context correlationId]];
@@ -128,6 +150,7 @@
         [event setMRRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -144,7 +167,7 @@
     [[ADTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
     NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
-    ADTokenCacheItem* item = [self getItemForUser:identifier resource:nil clientId:fociClientId context:context error:error];
+    ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:nil clientId:fociClientId context:context error:error];
 
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
@@ -156,6 +179,7 @@
         [event setFRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -190,6 +214,7 @@
         [event setRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -272,6 +297,7 @@
                                                                            context:context];
         [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
         [event setTokenType:AD_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+        [event setSpeInfo:multiRefreshTokenItem.speInfo];
         [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
@@ -290,6 +316,7 @@
                                                                                context:context];
             [event setIsFRT:AD_TELEMETRY_VALUE_YES];
             [event setTokenType:AD_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+            [event setSpeInfo:frtItem.speInfo];
             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         }
     }
@@ -301,6 +328,7 @@
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setSpeInfo:cacheItem.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }
 
@@ -357,6 +385,8 @@
     }
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
                                                                        context:context];
+    
+    [event setSpeInfo:cacheItem.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
 }
 

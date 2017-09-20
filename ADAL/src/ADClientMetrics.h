@@ -51,4 +51,6 @@
                  correlationId:(NSUUID *)correlationId
                   errorDetails:(NSString *)errorDetails;
 
+- (void)clearMetrics;
+
 @end

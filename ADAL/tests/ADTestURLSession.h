@@ -23,88 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ADTestURLResponse : NSObject
-{
-@public
-    NSURL *_requestURL;
-    id _requestJSONBody;
-    id _requestParamsBody;
-    NSDictionary *_requestHeaders;
-    NSData *_requestBody;
-    NSDictionary *_QPs;
-    NSDictionary *_expectedRequestHeaders;
-    NSData *_responseData;
-    NSURLResponse *_response;
-    NSError *_error;
-}
-
-+ (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
-                     responseURLString:(NSString *)responseUrlString
-                          responseCode:(NSInteger)responseCode
-                      httpHeaderFields:(NSDictionary *)headerFields
-                      dictionaryAsJSON:(NSDictionary *)data;
-
-+ (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
-                       requestJSONBody:(id)requestJSONBody
-                     responseURLString:(NSString *)responseUrlString
-                          responseCode:(NSInteger)responseCode
-                      httpHeaderFields:(NSDictionary *)headerFields
-                      dictionaryAsJSON:(NSDictionary *)data;
-
-+ (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
-                        requestHeaders:(NSDictionary *)requestHeaders
-                     requestParamsBody:(id)requestParams
-                     responseURLString:(NSString *)responseUrlString
-                          responseCode:(NSInteger)responseCode
-                      httpHeaderFields:(NSDictionary *)headerFields
-                      dictionaryAsJSON:(NSDictionary *)data;
-
-+ (ADTestURLResponse*)request:(NSURL *)request
-                     response:(NSURLResponse *)response
-                  reponseData:(NSData *)data;
-
-+ (ADTestURLResponse*)request:(NSURL *)request
-                      reponse:(NSURLResponse *)response;
-
-+ (ADTestURLResponse*)request:(NSURL *)request
-             respondWithError:(NSError *)error;
-
-+ (ADTestURLResponse*)serverNotFoundResponseForURLString:(NSString *)requestURLString;
-
-+ (ADTestURLResponse*)responseValidAuthority:(NSString *)authority;
-+ (ADTestURLResponse*)responseInvalidAuthority:(NSString *)authority;
-
-+ (ADTestURLResponse*)responseValidDrsPayload:(NSString *)domain
-                                      onPrems:(BOOL)onPrems
-                passiveAuthenticationEndpoint:(NSString *)passiveAuthEndpoint;
-+ (ADTestURLResponse*)responseInvalidDrsPayload:(NSString *)domain
-                                        onPrems:(BOOL)onPrems;
-+ (ADTestURLResponse*)responseUnreachableDrsService:(NSString *)domain
-                                            onPrems:(BOOL)onPrems;
-+ (ADTestURLResponse*)responseValidWebFinger:(NSString *)passiveEndpoint
-                                   authority:(NSString *)authority;
-+ (ADTestURLResponse*)responseInvalidWebFinger:(NSString *)passiveEndpoint
-                                     authority:(NSString *)authority;
-+ (ADTestURLResponse*)responseInvalidWebFingerNotTrusted:(NSString *)passiveEndpoint
-                                               authority:(NSString *)authority;
-+ (ADTestURLResponse*)responseUnreachableWebFinger:(NSString *)passiveEndpoint
-                                         authority:(NSString *)authority;
-
-
-- (void)setRequestURL:(NSURL *)requestURL;
-- (void)setRequestHeaders:(NSDictionary *)headers;
-- (void)setRequestBody:(NSData *)body;
-- (void)setRequestJSONBody:(NSDictionary *)jsonBody;
-
-- (void)setResponseURL:(NSString *)urlString
-                  code:(NSInteger)code
-          headerFields:(NSDictionary *)headerFields;
-- (void)setResponseJSON:(id)jsonResponse;
-- (void)setResponseData:(NSData *)response;
-
-
-@end
-
+@class ADTestURLResponse;
 
 @interface ADTestURLSession : NSObject 
 
@@ -121,9 +40,6 @@
 
 // Helper methods for common responses
 + (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (void)addValidAuthorityResponse:(NSString *)authority;
-+ (void)addInvalidAuthorityResponse:(NSString *)authority;
-
 + (BOOL)noResponsesLeft;
 + (void)clearResponses;
 

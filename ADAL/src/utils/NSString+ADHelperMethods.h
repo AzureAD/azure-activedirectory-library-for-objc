@@ -43,10 +43,10 @@
 - (NSString *)adUrlFormEncode;
 
 /*! Converts base64 String to NSData */
-+ (NSData *)adBase64DecodeData:(NSString *)encodedString;
++ (NSData *)adBase64UrlDecodeData:(NSString *)encodedString;
 
 /*! Converts NSData to base64 String */
-+ (NSString *)adBase64EncodeData:(NSData *)data;
++ (NSString *)adBase64UrlEncodeData:(NSData *)data;
 
 - (NSString*)adComputeSHA256;
 

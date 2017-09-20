@@ -32,12 +32,12 @@
 
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
+
+#import "NSURL+ADExtensions.h"
+
 #import "XCTestCase+TestHelperMethods.h"
-#import <XCTest/XCTest.h>
 
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
-
-@interface ADAuthortyValidationTests : XCTestCase
+@interface ADAuthortyValidationTests : ADTestCase
 
 @end
 
@@ -45,48 +45,20 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)setUp {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 
-- (void)testIsAADAuthorityValidated
-{
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    XCTAssertFalse([authorityValidation isAuthorityValidated:nil]);
-    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
-    NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost]);
-    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
-}
-
-- (void)testAddAADValidAuthority
-{
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    XCTAssertFalse([authorityValidation addValidAuthority:nil]);
-    XCTAssertFalse([authorityValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
-    //Test that re-adding is ok. This can happen in multi-threaded scenarios:
-    XCTAssertTrue([authorityValidation addValidAuthority:[NSURL URLWithString:s_kTrustedAuthority]]);
-    
-    NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    [authorityValidation addValidAuthority:anotherHost];
-    XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost]);
-}
+#pragma mark -
+#pragma mark ADFS Validation Tests
 
 - (void)testAdfsAuthorityValidated
 {
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-  
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     NSString* upnSuffix = @"user@foo.com";
     
@@ -98,8 +70,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testAddAdfsAuthority
 {
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     NSString* upnSuffix = @"user@foo.com";

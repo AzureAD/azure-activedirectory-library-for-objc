@@ -24,6 +24,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class ADAuthorityValidationResponse;
+@class ADAadAuthorityCache;
+
 /*! The completion block declaration. */
 typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
 
@@ -31,9 +34,10 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
  The class is thread-safe. */
 @interface ADAuthorityValidation : NSObject
 {
-    NSMutableDictionary *_validatedAdfsAuthorities;
-    NSMutableSet *_validatedADAuthorities;
+    ADAadAuthorityCache *_aadCache;
 }
+
+@property (readonly) ADAadAuthorityCache *aadCache;
 
 + (ADAuthorityValidation *)sharedInstance;
 
@@ -46,13 +50,10 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 - (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain;
 - (BOOL)isAuthorityValidated:(NSURL *)authority domain:(NSString *)domain;
 // Cache - AAD
-- (BOOL)isAuthorityValidated:(NSURL *)authorityHost;
-- (BOOL)addValidAuthority:(NSURL *)authorityHost;
 
 /*!
  Validates an authority.
  
- @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
  @param requestParams        Request parameters
  @param completionBlock      The block to execute upon completion.
 
@@ -60,4 +61,10 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 - (void)validateAuthority:(ADRequestParameters*)requestParams
           completionBlock:(ADAuthorityValidationCallback)completionBlock;
 
+- (NSURL *)networkUrlForAuthority:(NSURL *)authority
+                          context:(id<ADRequestContext>)context;
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
+
 @end
+
+

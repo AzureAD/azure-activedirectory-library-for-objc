@@ -29,6 +29,8 @@
 #import "ADWorkplaceJoinConstants.h"
 #import "ADPKeyAuthHelper.h"
 #import "ADClientMetrics.h"
+#import "NSString+ADTelemetryExtensions.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADWebAuthResponse
 
@@ -226,7 +228,7 @@
             NSString *rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
             [_responseDictionary setObject:rawResponse forKey:@"raw_response"];
             
-            completionBlock(_responseDictionary);
+            completionBlock(nil, _responseDictionary);
             return;
         }
         else
@@ -300,6 +302,19 @@
     
     // Load the response
     [_responseDictionary addEntriesFromDictionary:(NSDictionary*)jsonObject];
+    
+    NSString *clientTelemetry = [webResponse headers][ADAL_CLIENT_TELEMETRY];
+    
+    if (![NSString adIsStringNilOrBlank:clientTelemetry])
+    {
+        NSString *speInfo = [clientTelemetry parsedClientTelemetry][AD_TELEMETRY_KEY_SPE_INFO];
+        
+        if (![NSString adIsStringNilOrBlank:speInfo])
+        {
+            [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
+        }
+    }
+    
     [self handleSuccess:completionBlock];
     return;
 }
@@ -342,7 +357,7 @@
                                             correlationId:_request.correlationId
                                              errorDetails:nil];
     
-    completionBlock(_responseDictionary);
+    completionBlock(nil, _responseDictionary);
 }
 
 #pragma mark -
@@ -408,15 +423,12 @@
 - (void)handleADError:(ADAuthenticationError*)adError
       completionBlock:(ADWebResponseCallback)completionBlock
 {
-    [_responseDictionary setObject:adError
-                            forKey:AUTH_NON_PROTOCOL_ERROR];
-    
     [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
                                                 startTime:[_request startTime]
                                             correlationId:_request.correlationId
                                              errorDetails:[adError errorDetails]];
     
-    completionBlock(_responseDictionary);
+    completionBlock(adError, _responseDictionary);
 }
 
 @end

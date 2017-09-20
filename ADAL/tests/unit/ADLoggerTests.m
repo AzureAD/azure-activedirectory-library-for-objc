@@ -22,15 +22,10 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "XCTestCase+TestHelperMethods.h"
-#import <libkern/OSAtomic.h>
 
-const int sMaxLoggerThreadsDuration = 5;//In seconds
-const int sMaxLoggerTestThreads = 100;
-volatile int32_t sLoggerTestThreadsCompleted = 0;
-dispatch_semaphore_t sLoggerTestCompletedSignal;
+@interface ADLoggerTests : ADTestCase
 
-@interface ADLoggerTests : XCTestCase
+@property (nonatomic) BOOL enableNSLogging;
 
 @end
 
@@ -39,25 +34,48 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here; it will be run once, before the first test case.
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
-    [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
-    XCTAssertTrue([ADLogger getNSLogging]);
+    
+    self.enableNSLogging = [ADLogger getNSLogging];
+    [ADLogger setNSLogging:YES];
 }
 
 - (void)tearDown
 {
-    // Put teardown code here; it will be run once, after the last test case.
-    [self adTestEnd];
     [super tearDown];
+    
+    [ADLogger setNSLogging:self.enableNSLogging];
 }
 
-- (void)testMessageNoThrowing
+#pragma mark - setNSLogging
+
+- (void)testSetNSLogging_whenValueTrue_shouldReturnTrueInGetNSLogging
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    //Neither of these calls should throw. See the method body for details:
+    [ADLogger setNSLogging:YES];
+    
+    XCTAssertTrue([ADLogger getNSLogging]);
+}
+
+- (void)testSetNSLogging_whenValueFalse_shouldReturnfalseInGetNSLogging
+{
+    [ADLogger setNSLogging:NO];
+    
+    XCTAssertFalse([ADLogger getNSLogging]);
+}
+
+#pragma mark - log:context:message:errorCode:info:correlationId:userInfo
+
+- (void)testLog_whenLogLevelNoMessageValidInfoValid_shouldNotThrow
+{
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
+}
+
+- (void)testLog_whenLogLevelErrorMessageNilInfoValid_shouldNotThrow
+{
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
+}
+
+- (void)testLog_whenLogLevelErrorMessageValidInfoNil_shouldNotThrow
+{
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil correlationId:nil userInfo:nil];
 }
 

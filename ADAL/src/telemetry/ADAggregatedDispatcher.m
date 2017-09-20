@@ -99,11 +99,16 @@ static NSDictionary *s_eventPropertiesDictionary;
     for (NSString* propertyName in eventProperties)
     {
         ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
+        
         if (collectionBehavior == CollectAndUpdate)
         {
-            //erase the previous event properties if any
-            [aggregatedEvent setObject:@"" forKey:propertyName];
+            //erase the previous event properties only if there were any previously
+            if ([aggregatedEvent objectForKey:propertyName])
+            {
+                [aggregatedEvent removeObjectForKey:propertyName];
+            }
         }
+        
         if (collectionBehavior != CollectAndCount)
         {
             [aggregatedEvent adSetObjectIfNotNil:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
@@ -159,7 +164,11 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               
                                               AD_TELEMETRY_KEY_OAUTH_ERROR_CODE,
                                               AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
-                                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT,
+                                              AD_TELEMETRY_KEY_SERVER_ERROR_CODE,
+                                              AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
+                                              AD_TELEMETRY_KEY_RT_AGE,
+                                              AD_TELEMETRY_KEY_SPE_INFO
                                               ],
                                       NSStringFromClass([ADTelemetryCacheEvent class]): @[
                                               // default properties apply to all events
@@ -169,7 +178,8 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               AD_TELEMETRY_KEY_RT_STATUS,
                                               AD_TELEMETRY_KEY_FRT_STATUS,
                                               AD_TELEMETRY_KEY_MRRT_STATUS,
-                                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT,
+                                              AD_TELEMETRY_KEY_SPE_INFO
                                               ],
                                       NSStringFromClass([ADTelemetryBrokerEvent class]): @[
                                               // default properties apply to all events

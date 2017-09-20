@@ -23,68 +23,122 @@
 
 #import <XCTest/XCTest.h>
 #import "ADClientMetrics.h"
+#import "XCTestCase+TestHelperMethods.h"
 
-@interface ADClientMetricsTests : XCTestCase
+@interface ADClientMetricsTests : ADTestCase
 
 @end
 
 @implementation ADClientMetricsTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)tearDown
+{
     [super tearDown];
 }
 
-- (void)testMetrics
+#pragma mark - addClientMetrics
+
+- (void)testAddClientMetrics_whenNoMetrics_shouldNotModifyHeader
 {
-    ADClientMetrics* metrics = [ADClientMetrics new];
-    NSMutableDictionary* header = [NSMutableDictionary new];
+    ADClientMetrics *metrics = [ADClientMetrics new];
+    NSMutableDictionary *header = [NSMutableDictionary new];
     
-    NSDate* startTime = [NSDate new];
-    [metrics addClientMetrics:header
-                     endpoint:@"https://login.windows.net/common/oauth2/token"];
-    [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
-                          startTime:startTime
-                      correlationId:[NSUUID UUID]
-                       errorDetails:@"error"];
+    [metrics addClientMetrics:header endpoint:@"https://login.windows.net/common/oauth2/token"];
+    
     XCTAssertEqual([header count], 0);
-    
-    [metrics addClientMetrics:header
-                     endpoint:@"https://login.windows.net/common/oauth2/token"];
-    XCTAssertEqual([header count], 4);
 }
 
-- (void)testMetricsWithADFSEndpointFollowedByNonADFS
+- (void)testAddClientMetrics_whenMetricsAreStored_shouldAddMetricsToHeader
 {
-    ADClientMetrics* metrics = [ADClientMetrics new];
-    NSMutableDictionary* header = [NSMutableDictionary new];
-    
-    NSDate* startTime = [NSDate new];
-    [metrics addClientMetrics:header
-                     endpoint:@"https://sts.contoso.com/adfs/oauth2/token"];
-    XCTAssertEqual([header count], 0);
-    [metrics endClientMetricsRecord:@"https://sts.contoso.com/adfs/oauth2/token"
-                          startTime:startTime
-                      correlationId:[NSUUID UUID]
+    ADClientMetrics *metrics = [ADClientMetrics new];
+    NSMutableDictionary *header = [NSMutableDictionary new];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"3FBD4165-1CA5-436D-A2C7-15EF855F6893"];
+    [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
+                          startTime:[NSDate new]
+                      correlationId:correlationId
                        errorDetails:@"error"];
     
-    [metrics addClientMetrics:header
-                     endpoint:@"https://login.windows.net/common/oauth2/token"];
+    [metrics addClientMetrics:header endpoint:@"https://login.windows.net/common/oauth2/token"];
+    
+    XCTAssertEqual([header count], 4);
+    ADAssertStringEquals(header[@"x-client-last-endpoint"], @"token");
+    ADAssertStringEquals(header[@"x-client-last-error"], @"error");
+    ADAssertStringEquals(header[@"x-client-last-request"], @"3FBD4165-1CA5-436D-A2C7-15EF855F6893");
+    XCTAssertNotNil(header[@"x-client-last-response-time"]);
+}
+
+- (void)testAddClientMetrics_whenMetricsAreStored_shouldClearStoredMetrics
+{
+    ADClientMetrics *metrics = [ADClientMetrics new];
+    NSMutableDictionary *header = [NSMutableDictionary new];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"3FBD4165-1CA5-436D-A2C7-15EF855F6893"];
+    [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
+                          startTime:[NSDate new]
+                      correlationId:correlationId
+                       errorDetails:@"error"];
+    
+    [metrics addClientMetrics:header endpoint:@"https://login.windows.net/common/oauth2/token"];
+    
+    XCTAssertNil(metrics.endpoint);
+    XCTAssertNil(metrics.correlationId);
+    XCTAssertNil(metrics.errorToReport);
+    XCTAssertNil(metrics.responseTime);
+}
+
+- (void)testAddClientMetrics_whenMetricsAreStoredWithADFSEndpoint_shouldNotAddMetricsToHeader
+{
+    ADClientMetrics *metrics = [ADClientMetrics new];
+    NSMutableDictionary *header = [NSMutableDictionary new];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"3FBD4165-1CA5-436D-A2C7-15EF855F6893"];
+    [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
+                          startTime:[NSDate new]
+                      correlationId:correlationId
+                       errorDetails:@"error"];
+    
+    [metrics addClientMetrics:header endpoint:@"https://sts.contoso.com/adfs/oauth2/token"];
+    
     XCTAssertEqual([header count], 0);
+}
+
+#pragma mark - endClientMetricsRecord
+
+- (void)testEndClientMetricsRecord_whenMetricsAreProvided_shouldStoreThem
+{
+    ADClientMetrics *metrics = [ADClientMetrics new];
+    NSDate *startTime = [NSDate new];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"3FBD4165-1CA5-436D-A2C7-15EF855F6893"];
     
     [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
                           startTime:startTime
-                      correlationId:[NSUUID UUID]
+                      correlationId:correlationId
                        errorDetails:@"error"];
     
-    [metrics addClientMetrics:header
-                     endpoint:@"https://login.windows.net/common/oauth2/token"];
-    XCTAssertEqual([header count], 4);
+    ADAssertStringEquals(metrics.endpoint, @"https://login.windows.net/common/oauth2/token");
+    ADAssertStringEquals(metrics.correlationId, @"3FBD4165-1CA5-436D-A2C7-15EF855F6893");
+    ADAssertStringEquals(metrics.errorToReport, @"error");
+    XCTAssertNotNil(metrics.responseTime);
+}
+
+- (void)testEndClientMetricsRecord_whenMetricsAreProvidedWithADFSEndpoint_shouldNotStoreThem
+{
+    ADClientMetrics *metrics = [ADClientMetrics new];
+    NSDate *startTime = [NSDate new];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"3FBD4165-1CA5-436D-A2C7-15EF855F6893"];
+    
+    [metrics endClientMetricsRecord:@"https://sts.contoso.com/adfs/oauth2/token"
+                          startTime:startTime
+                      correlationId:correlationId
+                       errorDetails:@"error"];
+    
+    XCTAssertNil(metrics.endpoint);
+    XCTAssertNil(metrics.correlationId);
+    XCTAssertNil(metrics.errorToReport);
+    XCTAssertNil(metrics.responseTime);
 }
 
 @end
