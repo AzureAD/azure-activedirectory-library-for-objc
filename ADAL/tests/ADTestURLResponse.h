@@ -91,6 +91,9 @@
  */
 - (void)setWaitSemaphore:(dispatch_semaphore_t)sem;
 
+- (BOOL)matchesURL:(NSURL *)url
+           headers:(NSDictionary *)headers
+              body:(NSData *)body;
 - (BOOL)matchesURL:(NSURL *)url;
 - (BOOL)matchesBody:(NSData *)body;
 - (BOOL)matchesHeaders:(NSDictionary *)headers;

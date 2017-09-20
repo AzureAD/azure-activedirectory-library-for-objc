@@ -263,6 +263,19 @@
 }
 
 - (BOOL)matchesURL:(NSURL *)url
+           headers:(NSDictionary *)headers
+              body:(NSData *)body
+{
+    // We don't want the compiler to short circuit this out so that ways we print out all of the
+    // things in the response that doesn't match.
+    BOOL ret = YES;
+    ret = [self matchesURL:url] ? ret : NO;
+    ret = [self matchesHeaders:headers] ? ret : NO;
+    ret = [self matchesBody:body] ? ret : NO;
+    return ret;
+}
+
+- (BOOL)matchesURL:(NSURL *)url
 {
     // Start with making sure the base URLs match up
     if ([url.scheme caseInsensitiveCompare:_requestURL.scheme] != NSOrderedSame)
