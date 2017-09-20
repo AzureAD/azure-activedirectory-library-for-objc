@@ -110,7 +110,6 @@ static NSMutableArray* s_responses = nil;
     {
         return;
     }
-    
     @synchronized (self)
     {
         [s_responses addObject:response];
@@ -170,7 +169,6 @@ static NSMutableArray* s_responses = nil;
 + (ADTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request
 {
     NSURL *requestURL = [request URL];
-    
     NSData *body = [request HTTPBody];
     NSDictionary *headers = [request allHTTPHeaderFields];
     
@@ -185,14 +183,7 @@ static NSMutableArray* s_responses = nil;
             if ([obj isKindOfClass:[ADTestURLResponse class]])
             {
                 response = (ADTestURLResponse *)obj;
-                
-                // We don't want the compiler to short circuit this case as finding out in one go all
-                // of the data that doesn't match can speed up debugging & fixing tests
-                bool match = [response matchesURL:requestURL];
-                match &= [response matchesBody:body];
-                match &= [response matchesHeaders:headers];
-                
-                if (match)
+                if ([response matchesURL:requestURL headers:headers body:body])
                 {
                     [s_responses removeObjectAtIndex:i];
                     return response;
@@ -203,12 +194,7 @@ static NSMutableArray* s_responses = nil;
             {
                 NSMutableArray *subResponses = [s_responses objectAtIndex:i];
                 response = [subResponses objectAtIndex:0];
-                
-                bool match = [response matchesURL:requestURL];
-                match &= [response matchesBody:body];
-                match &= [response matchesHeaders:headers];
-                
-                if (match)
+                if ([response matchesURL:requestURL headers:headers body:body])
                 {
                     [subResponses removeObjectAtIndex:0];
                     if ([subResponses count] == 0)
