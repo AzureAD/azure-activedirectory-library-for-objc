@@ -141,6 +141,8 @@
 - (ADTokenCacheItem *)adCreateATCacheItem;
 - (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
                                    userId:(NSString *)userId;
+
++ (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId

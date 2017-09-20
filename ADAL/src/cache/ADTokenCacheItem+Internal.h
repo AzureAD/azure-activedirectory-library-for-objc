@@ -41,6 +41,12 @@
 
 @end
 
+@interface ADTokenCacheItem ()
+
+@property NSString *storageAuthority;
+
+@end
+
 @interface ADTokenCacheItem (Internal)
 
 - (void)checkCorrelationId:(NSDictionary*)response

@@ -37,6 +37,7 @@
 @synthesize refreshToken = _refreshToken;
 @synthesize sessionKey = _sessionKey;
 @synthesize familyId = _familyId;
+@synthesize storageAuthority;
 
 + (void)load
 {
@@ -90,6 +91,15 @@
 
 - (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
+    NSString *storageAuthority = self.storageAuthority;
+    if (storageAuthority)
+    {
+        return [ADTokenCacheKey keyWithAuthority:storageAuthority
+                                        resource:_resource
+                                        clientId:_clientId
+                                           error:error];
+    }
+    
     return [ADTokenCacheKey keyWithAuthority:_authority
                                     resource:_resource
                                     clientId:_clientId

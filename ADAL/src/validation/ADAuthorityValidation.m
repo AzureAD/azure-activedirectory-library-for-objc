@@ -326,6 +326,25 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     return url;
 }
 
+- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+                        context:(id<ADRequestContext>)context
+{
+    if ([ADHelpers isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
+    NSURL *url = [_aadCache cacheUrlForAuthority:authority];
+    if (!url)
+    {
+        AD_LOG_WARN(@"No cached preferred_cache for authority", context.correlationId, nil);
+        return authority;
+    }
+    
+    
+    return url;
+}
+
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
 {
     if ([ADHelpers isADFSInstanceURL:authority])
