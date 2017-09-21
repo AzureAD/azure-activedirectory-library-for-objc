@@ -24,6 +24,7 @@
 # THE SOFTWARE.
 
 import subprocess
+import traceback
 import sys
 import re
 
@@ -221,7 +222,12 @@ class BuildTarget:
 		print out an error if it is below the minimum requirement
 		"""
 		build_settings = self.get_build_settings();
-		codecov_dir = build_settings["OBJROOT"] + "/CodeCoverage"
+		objroot = build_settings["OBJROOT"]
+		
+		# Starting in Xcocde 9 they add ".noindex" to the intermediates, but the code coverage folder is not in that folder
+		if (objroot.endswith(".noindex")) :
+			objroot = objroot[0:len(objroot) - 8]
+		codecov_dir = objroot + "/CodeCoverage"
 		executable_path = build_settings["EXECUTABLE_PATH"]
 		config = build_settings["CONFIGURATION"]
 		platform_name = build_settings.get("EFFECTIVE_PLATFORM_NAME")
@@ -229,6 +235,7 @@ class BuildTarget:
 			platform_name = ""
 		
 		command = "xcrun llvm-cov report -instr-profile Coverage.profdata -arch=\"x86_64\" -use-color Products/" + config + platform_name + "/" + executable_path
+		print command
 		p = subprocess.Popen(command, cwd = codecov_dir, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 		
 		output = p.communicate()
@@ -266,9 +273,8 @@ class BuildTarget:
 		except Exception as inst:
 			self.failed = True
 			print "Failed due to exception in build script"
-			print type(inst)
-			print inst.args
-			print inst
+			tb = traceback.format_exc()
+			print tb
 
 		print_operation_end(self.name, operation, exit_code, start_time)
 		
