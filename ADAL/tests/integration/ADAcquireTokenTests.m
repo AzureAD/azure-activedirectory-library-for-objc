@@ -1188,7 +1188,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-        [expectation fulfill];
+        TEST_SIGNAL;
     }];
 
     [self waitForExpectations:@[expectation] timeout:1];
@@ -1259,7 +1259,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-         [expectation fulfill];
+         TEST_SIGNAL;
      }];
     
     [self waitForExpectations:@[expectation] timeout:1];
@@ -1353,7 +1353,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-         [expectation fulfill];
+         TEST_SIGNAL;
      }];
     
     [self waitForExpectations:@[expectation] timeout:1];
@@ -1432,7 +1432,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-        [expectation fulfill];
+        TEST_SIGNAL;
     }];
     
     [self waitForExpectations:@[expectation] timeout:1];
@@ -1501,7 +1501,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-         [expectation fulfill];
+         TEST_SIGNAL;
      }];
     
     [self waitForExpectations:@[expectation] timeout:1];
