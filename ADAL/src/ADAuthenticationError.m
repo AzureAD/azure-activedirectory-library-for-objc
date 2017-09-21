@@ -87,7 +87,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     {
         // If we're getting nil back here we have bigger problems and the logging below is going to fail anyways.`
         return nil;
-    }
+    }  
+    
     
     _errorDetails = details;
     _protocolCode = protocolCode;
@@ -236,8 +237,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                                  correlationId:correlationId];
 }
 
-+ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
-                                               status:(OSStatus)status
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation                                               status:(OSStatus)status
                                         correlationId:(NSUUID *)correlationId
 {
     NSString* details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", operation];
