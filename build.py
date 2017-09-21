@@ -50,44 +50,50 @@ target_specifiers = [
 	{
 		"name" : "iOS Framework",
 		"scheme" : "ADAL",
-#		"operations" : [ "build", "test", "codecov" ],
 		"operations" : [ "build" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
 		"use_sonarcube" : "true"
-	}#,
-	# {
-	# 	"name" : "iOS Test App",
-	# 	"scheme" : "MyTestiOSApp",
-	# 	"operations" : [ "build" ],
-	# 	"platform" : "iOS"
-	# },
-	# {
-	# 	"name" : "iOS Automation Test App",
-	# 	"scheme" : "ADALAutomation",
-	# 	"operations" : [ "build" ],
-	# 	"platform" : "iOS"
-	# },
-	# {
-	# 	"name" : "Sample Swift App",
-	# 	"scheme" : "SampleSwiftApp",
-	# 	"operations" : [ "build" ],
-	# 	"platform" : "iOS",
-	# 	"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace"
-	# },
-	# {
-	# 	"name" : "Mac Framework",
-	# 	"scheme" : "ADAL Mac",
-	# 	"operations" : [ "build", "test", "codecov" ],
-	# 	"min_warn_codecov" : 70.0,
-	# 	"platform" : "Mac"
-	# },
-	# {
-	# 	"name" : "Mac Test App",
-	# 	"scheme" : "MyTestMacOSApp",
-	# 	"operations" : [ "build" ],
-	# 	"platform" : "Mac"
-	# }
+	},
+	{
+		"name" : "iOS Framework",
+		"scheme" : "ADAL",
+		"operations" : [ "test", "codecov" ],
+		"min_warn_codecov" : 70.0,
+		"platform" : "iOS"
+	},
+	{
+		"name" : "iOS Test App",
+		"scheme" : "MyTestiOSApp",
+		"operations" : [ "build" ],
+		"platform" : "iOS"
+	},
+	{
+		"name" : "iOS Automation Test App",
+		"scheme" : "ADALAutomation",
+		"operations" : [ "build" ],
+		"platform" : "iOS"
+	},
+	{
+		"name" : "Sample Swift App",
+		"scheme" : "SampleSwiftApp",
+		"operations" : [ "build" ],
+		"platform" : "iOS",
+		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace"
+	},
+	{
+		"name" : "Mac Framework",
+		"scheme" : "ADAL Mac",
+		"operations" : [ "build", "test", "codecov" ],
+		"min_warn_codecov" : 70.0,
+		"platform" : "Mac"
+	},
+	{
+		"name" : "Mac Test App",
+		"scheme" : "MyTestMacOSApp",
+		"operations" : [ "build" ],
+		"platform" : "Mac"
+	}
 ]
 
 def print_operation_start(name, operation) :
@@ -100,9 +106,9 @@ def print_operation_end(name, operation, exit_code, start_time) :
 	end_time = timer()
 
 	if (exit_code == 0) :
-		print colorValues.OK + name + " [" + operation + "] Succeeded" + tclr.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
+		print colorValues.OK + name + " [" + operation + "] Succeeded" + colorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
 	else :
-		print colorValues.FAIL + name + " [" + operation + "] Failed" + tclr.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
+		print colorValues.FAIL + name + " [" + operation + "] Failed" + colorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
 
 class BuildTarget:
 	def __init__(self, target):
