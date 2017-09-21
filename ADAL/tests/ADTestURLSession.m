@@ -110,7 +110,6 @@ static NSMutableArray* s_responses = nil;
     {
         return;
     }
-    
     @synchronized (self)
     {
         [s_responses addObject:response];
@@ -170,7 +169,6 @@ static NSMutableArray* s_responses = nil;
 + (ADTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request
 {
     NSURL *requestURL = [request URL];
-    
     NSData *body = [request HTTPBody];
     NSDictionary *headers = [request allHTTPHeaderFields];
     
@@ -185,14 +183,7 @@ static NSMutableArray* s_responses = nil;
             if ([obj isKindOfClass:[ADTestURLResponse class]])
             {
                 response = (ADTestURLResponse *)obj;
-                
-                // We don't want the compiler to short circuit this case as finding out in one go all
-                // of the data that doesn't match can speed up debugging & fixing tests
-                bool match = [response matchesURL:requestURL];
-                match &= [response matchesBody:body];
-                match &= [response matchesHeaders:headers];
-                
-                if (match)
+                if ([response matchesURL:requestURL headers:headers body:body])
                 {
                     [s_responses removeObjectAtIndex:i];
                     return response;
@@ -203,12 +194,7 @@ static NSMutableArray* s_responses = nil;
             {
                 NSMutableArray *subResponses = [s_responses objectAtIndex:i];
                 response = [subResponses objectAtIndex:0];
-                
-                bool match = [response matchesURL:requestURL];
-                match &= [response matchesBody:body];
-                match &= [response matchesHeaders:headers];
-                
-                if (match)
+                if ([response matchesURL:requestURL headers:headers body:body])
                 {
                     [subResponses removeObjectAtIndex:0];
                     if ([subResponses count] == 0)
@@ -219,39 +205,37 @@ static NSMutableArray* s_responses = nil;
                 }
             }
         }
-    }
     
-    // This class is used in the test target only. If you're seeing this outside the test target that means you linked in the file wrong
-    // take it out!
-    //
-    // No unit tests are allowed to hit network. This is done to ensure reliability of the test code. Tests should run quickly and
-    // deterministically. If you're hitting this assert that means you need to add an expected request and response to ADTestURLConnection
-    // using the ADTestRequestReponse class and add it using -[ADTestURLConnection addExpectedRequestResponse:] if you have a single
-    // request/response or -[ADTestURLConnection addExpectedRequestsAndResponses:] if you have a series of network requests that you need
-    // to ensure happen in the proper order.
-    //
-    // Example:
-    //
-    // MSALTestRequestResponse *response = [MSALTestRequestResponse requestURLString:@"https://requestURL"
-    //                                                             responseURLString:@"https://idontknowwhatthisshouldbe.com"
-    //                                                                  responseCode:400
-    //                                                              httpHeaderFields:@{}
-    //                                                              dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
-    //
-    //  [MSALTestURLSession addResponse:response];
-    
-    if (AmIBeingDebugged())
-    {
-        @synchronized (self)
+        // This class is used in the test target only. If you're seeing this outside the test target that means you linked in the file wrong
+        // take it out!
+        //
+        // No unit tests are allowed to hit network. This is done to ensure reliability of the test code. Tests should run quickly and
+        // deterministically. If you're hitting this assert that means you need to add an expected request and response to ADTestURLConnection
+        // using the ADTestRequestReponse class and add it using -[ADTestURLConnection addExpectedRequestResponse:] if you have a single
+        // request/response or -[ADTestURLConnection addExpectedRequestsAndResponses:] if you have a series of network requests that you need
+        // to ensure happen in the proper order.
+        //
+        // Example:
+        //
+        // MSALTestRequestResponse *response = [MSALTestRequestResponse requestURLString:@"https://requestURL"
+        //                                                             responseURLString:@"https://idontknowwhatthisshouldbe.com"
+        //                                                                  responseCode:400
+        //                                                              httpHeaderFields:@{}
+        //                                                              dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+        //
+        //  [MSALTestURLSession addResponse:response];
+        
+        if (AmIBeingDebugged())
         {
             NSLog(@"Failed to find repsonse for %@\ncurrent responses: %@", requestURL, s_responses);
+            
+            // This will cause the tests to immediately stop execution right here if we're in the debugger,
+            // hopefully making it a little easier to see why a test is failing. :)
+            __builtin_trap();
         }
-        // This will cause the tests to immediately stop execution right here if we're in the debugger,
-        // hopefully making it a little easier to see why a test is failing. :)
-        __builtin_trap();
+        
+        NSAssert(nil, @"did not find a matching response for %@", requestURL.absoluteString);
     }
-    
-    NSAssert(nil, @"did not find a matching response for %@", requestURL.absoluteString);
     
     return nil;
 }

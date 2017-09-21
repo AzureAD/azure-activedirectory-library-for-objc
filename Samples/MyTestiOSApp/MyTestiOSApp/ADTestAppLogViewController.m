@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 #import "ADTestAppLogViewController.h"
+#import "ADTelemetry.h"
 
-@interface ADTestAppLogViewController ()
+@interface ADTestAppLogViewController () <ADDispatcher>
 
 @end
 
@@ -55,32 +56,44 @@ static NSAttributedString* s_attrNewLine = nil;
     [self setEdgesForExtendedLayout:UIRectEdgeNone];
     
     [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode, NSDictionary *userInfo)
-    {
-        NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
-        
-        NSLog(@"%@", log);
-        
-        NSAttributedString* attrLog = [[NSAttributedString alloc] initWithString:log];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (_logView)
-            {
-                [[_logView textStorage] appendAttributedString:attrLog];
-                [[_logView textStorage] appendAttributedString:s_attrNewLine];
-                
-                [self scrollToBottom];
-            }
-            else
-            {
-                
-                [_logStorage appendAttributedString:attrLog];
-                [_logStorage appendAttributedString:s_attrNewLine];
-            }
-        });
-    }];
+     {
+         NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
+         [self appendNewLogLine:log];
+     }];
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     
+    [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
+    
     return self;
+}
+
+- (void)appendNewLogLine:(NSString *)log
+{
+    NSLog(@"%@", log);
+    
+    NSAttributedString* attrLog = [[NSAttributedString alloc] initWithString:log];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (_logView)
+        {
+            [[_logView textStorage] appendAttributedString:attrLog];
+            [[_logView textStorage] appendAttributedString:s_attrNewLine];
+            
+            [self scrollToBottom];
+        }
+        else
+        {
+            
+            [_logStorage appendAttributedString:attrLog];
+            [_logStorage appendAttributedString:s_attrNewLine];
+        }
+    });
+}
+
+- (void)dispatchEvent:(nonnull NSDictionary<NSString*, NSString*> *)event
+{
+    NSString *log = [NSString stringWithFormat:@"ADTelemetry event dispatched: %@", event];
+    [self appendNewLogLine:log];
 }
 
 - (void)scrollToBottom

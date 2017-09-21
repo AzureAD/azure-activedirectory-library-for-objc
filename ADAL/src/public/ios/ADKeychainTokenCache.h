@@ -29,21 +29,29 @@
 
 @property (readonly) NSString* __nonnull sharedGroup;
 
-/*! The name of the keychain group to be used if sharing of cache between applications
- is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
- object. See apple's documentation for keychain groups: such groups require certain
- entitlements to be set by the applications. Additionally, access to the items in this group
- is only given to the applications from the same vendor. If this property is not set, the behavior
- will depend on the values in the entitlements file (if such exists) and may not result in token
- sharing. The property has no effect if other cache mechanisms are used (non-keychain).
- 
- NOTE: Once an authentication context has been created with the default keychain
- group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
- this value cannot be changed. Doing so will throw an exception.
+/*!
+     The name of the keychain group to be used by default when creating an ADAuthenticationContext,
+     the default value is com.microsoft.adalcache.
  */
 + (nullable NSString*)defaultKeychainGroup;
-+ (void)setDefaultKeychainGroup:(nullable NSString*)keychainGroup;
 
+/*!
+     Set the default keychain sharing group to use with ADAL. If set to 'nil' the main bundle's
+     identifier will be used instead. Any keychain sharing group other then the main bundle's identifier
+     will require a keychain sharing group entitlement.
+ 
+     See apple's documentation for keychain groups: such groups require certain
+     entitlements to be set by the applications. Additionally, access to the items in this group
+     is only given to the applications from the same vendor. If this property is not set, the behavior
+     will depend on the values in the entitlements file (if such exists) and may not result in token
+     sharing. The property has no effect if other cache mechanisms are used (non-keychain).
+
+ 
+     NOTE: Once an authentication context has been created with the default keychain
+     group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
+     this value cannot be changed. Doing so will throw an exception.
+ */
++ (void)setDefaultKeychainGroup:(nullable NSString*)keychainGroup;
 
 /*!
     @return A singleton instance of the ADKeychainTokenCache for the default keychain group.

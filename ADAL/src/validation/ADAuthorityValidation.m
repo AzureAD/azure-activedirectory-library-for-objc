@@ -306,6 +306,36 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
      }];
 }
 
+#pragma mark - AAD Authority URL utilities
+
+- (NSURL *)networkUrlForAuthority:(NSURL *)authority
+                          context:(id<ADRequestContext>)context
+{
+    if ([ADHelpers isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
+    NSURL *url = [_aadCache networkUrlForAuthority:authority];
+    if (!url)
+    {
+        AD_LOG_WARN(@"No cached preferred_network for authority", context.correlationId, nil);
+        return authority;
+    }
+    
+    return url;
+}
+
+- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
+{
+    if ([ADHelpers isADFSInstanceURL:authority])
+    {
+        return @[ authority ];
+    }
+    
+    return [_aadCache cacheAliasesForAuthority:authority];
+}
+
 
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority

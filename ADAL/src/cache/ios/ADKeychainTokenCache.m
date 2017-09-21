@@ -87,8 +87,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     if (s_defaultCache)
     {
+        AD_LOG_ERROR(@"Failed to set default keychain group, default keychain cache has already been instantiated.", AD_ERROR_UNEXPECTED, nil, nil);
+        
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
+    
+    AD_LOG_INFO(([NSString stringWithFormat:@"Setting default keychain group to %@", keychainGroup]), nil, nil);
     
     if (keychainGroup == s_defaultKeychainGroup)
     {

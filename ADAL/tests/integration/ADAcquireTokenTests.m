@@ -1277,8 +1277,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SUCCEEDED"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@""]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
-    XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.server_error_code"], @"0");
-    XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"0");
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.server_error_code"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.server_sub_error_code"]);
     XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.rt_age"], @"2550.0643");
     XCTAssertEqualObjects([event objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
     

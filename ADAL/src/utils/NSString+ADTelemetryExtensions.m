@@ -32,6 +32,12 @@
         [_DICT setObject:_OBJECT forKey:_KEY]; \
     } \
 
+#define CHECK_AND_SET_OBJ_IF_NOT_ZERO(_DICT, _OBJECT, _KEY) \
+    if (![NSString adIsStringNilOrBlank:_OBJECT] && ![_OBJECT isEqualToString:@"0"]) \
+    { \
+        [_DICT setObject:_OBJECT forKey:_KEY]; \
+    } \
+
 @implementation NSString (ADTelemetryExtensions)
 
 - (NSDictionary *)parsedClientTelemetry
@@ -49,8 +55,8 @@
             if ([telemetryComponents[0] isEqualToString:AD_CLIENT_TELEMETRY_VERSION_NUMBER])
             {
                 // Fill in the data
-                CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[1], AD_TELEMETRY_KEY_SERVER_ERROR_CODE);
-                CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[2], AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE);
+                CHECK_AND_SET_OBJ_IF_NOT_ZERO(telemetryDict, telemetryComponents[1], AD_TELEMETRY_KEY_SERVER_ERROR_CODE);
+                CHECK_AND_SET_OBJ_IF_NOT_ZERO(telemetryDict, telemetryComponents[2], AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE);
                 CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[3], AD_TELEMETRY_KEY_RT_AGE);
                 CHECK_AND_SET_OBJ(telemetryDict, telemetryComponents[4], AD_TELEMETRY_KEY_SPE_INFO);
             }

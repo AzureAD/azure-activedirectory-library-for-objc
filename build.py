@@ -28,6 +28,8 @@ import sys
 import re
 import os
 
+from timeit import default_timer as timer
+
 ios_sim_dest = "-destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
@@ -92,13 +94,15 @@ def print_operation_start(name, operation) :
 	print colorValues.HDR + "Beginning " + name + " [" + operation + "]" + colorValues.END
 	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_")
 
-def print_operation_end(name, operation, exit_code) :
+def print_operation_end(name, operation, exit_code, start_time) :
 	print "travis_fold:end:" + (name + "_" + operation).replace(" ", "_")
+	
+	end_time = timer()
 
 	if (exit_code == 0) :
-		print colorValues.OK + name + " [" + operation + "] Succeeded" + colorValues.END
+		print colorValues.OK + name + " [" + operation + "] Succeeded" + tclr.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
 	else :
-		print colorValues.FAIL + name + " [" + operation + "] Failed" + colorValues.END
+		print colorValues.FAIL + name + " [" + operation + "] Failed" + tclr.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
 
 class BuildTarget:
 	def __init__(self, target):
@@ -155,6 +159,8 @@ class BuildTarget:
 		
 		command = self.xcodebuild_command(None, False)
 		command += " -showBuildSettings"
+		
+		start = timer()
         
 		settings_blob = subprocess.check_output(command, shell=True)
 		settings_blob = settings_blob.decode("utf-8")
@@ -172,6 +178,10 @@ class BuildTarget:
 			settings[key] = value
 		
 		self.build_settings = settings
+		
+		end = timer()
+		
+		print "Retrieved Build Settings (" + "{0:.2f}".format(end - start) + " sec)"
 		
 		return settings
 		
@@ -244,6 +254,7 @@ class BuildTarget:
 	def do_operation(self, operation) :
 		exit_code = -1;
 		print_operation_start(self.name, operation)
+		start_time = timer()
 		
 		try :
 			if (operation == "codecov") :
@@ -265,7 +276,9 @@ class BuildTarget:
 			print inst.args
 			print inst
 
-		print_operation_end(self.name, operation, exit_code)
+		print_operation_end(self.name, operation, exit_code, start_time)
+		
+		print 
 		return exit_code
 
 clean = True
