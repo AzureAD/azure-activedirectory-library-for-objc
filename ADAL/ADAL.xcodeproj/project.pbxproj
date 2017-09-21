@@ -260,8 +260,8 @@
 		B299FF1F1F22C565004A2CB9 /* ADURLExtensionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */; };
 		B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
-		B2A08AE61F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A08AE51F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m */; };
-		B2A08AE71F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A08AE51F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m */; };
+		B2B785101F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */; };
+		B2B785111F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */; };
 		D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */; };
 		D60B653C1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */; };
 		D60B653D1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */; };
@@ -729,7 +729,7 @@
 		B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ADURLExtensions.m"; sourceTree = "<group>"; };
 		B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLExtensionsTest.m; sourceTree = "<group>"; };
 		B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRegistrationInformation.m; sourceTree = "<group>"; };
-		B2A08AE51F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTelemetryExtensionsTests.m; sourceTree = "<group>"; };
+		B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTelemetryExtensionsTests.m; sourceTree = "<group>"; };
 		D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
 		D622564F1F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAuthorityValidationResponse.h; sourceTree = "<group>"; };
@@ -1371,6 +1371,7 @@
 		B20DC5D31F0D975A00957806 /* unit */ = {
 			isa = PBXGroup;
 			children = (
+				B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */,
 				D67D3D4D1F43B17000660F32 /* ADAadAuthorityCacheTests.m */,
 				234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */,
 				234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */,
@@ -2023,6 +2024,7 @@
 				B20DC6151F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
 				B20DC5F91F0D998A00957806 /* ADHelpersTests.m in Sources */,
 				B20DC6071F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */,
+				B2B785101F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */,
 				B20DC6181F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */,
 				B20DC5F51F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
 				B20DC61D1F0DA39C00957806 /* ADBrokerKeyHelperTests.m in Sources */,
@@ -2034,7 +2036,6 @@
 				B20DC5F71F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
 				B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
 				D67D3D351F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
-				B2A08AE61F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2137,7 +2138,6 @@
 				B20DC5FC1F0D998A00957806 /* ADLoggerTests.m in Sources */,
 				B20DC6001F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */,
 				B299FF1F1F22C565004A2CB9 /* ADURLExtensionsTest.m in Sources */,
-				B20DC5F01F0D998A00957806 /* ADAuthenticationContextTests.m in Sources */,
 				603841A11DF9248F00D30F3D /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC6081F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */,
 				B20DC6161F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
@@ -2149,11 +2149,11 @@
 				D67D3D371F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 				94DD18F51C5ACFF900F80C62 /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */,
+				B2B785111F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */,
 				D62256531F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				D67D3D4F1F43B17000660F32 /* ADAadAuthorityCacheTests.m in Sources */,
 				D632B54E1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				B20DC5F41F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
-				B2A08AE71F4E184E00FC715A /* NSStringTelemetryExtensionsTests.m in Sources */,
 				B20DC6191F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */,
 				601BEE321C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */,
 				234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
