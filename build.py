@@ -38,7 +38,7 @@ default_config = "Debug"
 
 use_xcpretty = True
 
-class colorValues:
+class ColorValues:
 	HDR = '\033[1m'
 	OK = '\033[32m\033[1m'
 	FAIL = '\033[31m\033[1m'
@@ -50,17 +50,10 @@ target_specifiers = [
 	{
 		"name" : "iOS Framework",
 		"scheme" : "ADAL",
-		"operations" : [ "build" ],
+		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
 		"use_sonarcube" : "true"
-	},
-	{
-		"name" : "iOS Framework",
-		"scheme" : "ADAL",
-		"operations" : [ "test", "codecov" ],
-		"min_warn_codecov" : 70.0,
-		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Test App",
@@ -97,7 +90,7 @@ target_specifiers = [
 ]
 
 def print_operation_start(name, operation) :
-	print colorValues.HDR + "Beginning " + name + " [" + operation + "]" + colorValues.END
+	print ColorValues.HDR + "Beginning " + name + " [" + operation + "]" + ColorValues.END
 	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_")
 
 def print_operation_end(name, operation, exit_code, start_time) :
@@ -106,9 +99,9 @@ def print_operation_end(name, operation, exit_code, start_time) :
 	end_time = timer()
 
 	if (exit_code == 0) :
-		print colorValues.OK + name + " [" + operation + "] Succeeded" + colorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
+		print ColorValues.OK + name + " [" + operation + "] Succeeded" + ColorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
 	else :
-		print colorValues.FAIL + name + " [" + operation + "] Failed" + colorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
+		print ColorValues.FAIL + name + " [" + operation + "] Failed" + ColorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)"
 
 class BuildTarget:
 	def __init__(self, target):
@@ -191,7 +184,7 @@ class BuildTarget:
 		
 		return settings
 		
-	def print_coverage(self, printName) :
+	def print_coverage(self, printname) :
 		"""
 		Print a summary of the code coverage results with the proper coloring and
 		return -1 if the coverage is below the minimum required.
@@ -202,24 +195,24 @@ class BuildTarget:
 		printed = False
 		
 		if (self.min_warn_codecov != None and self.coverage < self.min_warn_codecov) :
-			sys.stdout.write(colorValues.WARN)
-			if (printName) :
+			sys.stdout.write(ColorValues.WARN)
+			if (printname) :
 				sys.stdout.write(self.name + ": ")
-			sys.stdout.write(str(self.coverage) + "% coverage is below the recommended minimum requirement: " + str(self.min_warn_codecov) + "%" + colorValues.END + "\n")
+			sys.stdout.write(str(self.coverage) + "% coverage is below the recommended minimum requirement: " + str(self.min_warn_codecov) + "%" + ColorValues.END + "\n")
 			printed = True
 				
 		if (self.min_codecov != None and self.coverage < self.min_codecov) :
-			sys.stdout.write(colorValues.FAIL)
-			if (printName) :
+			sys.stdout.write(ColorValues.FAIL)
+			if (printname) :
 				sys.stdout.write(self.name + ": ")
-			sys.stdout.write(str(self.coverage) + "% coverage is below the minimum requirement: " + str(self.min_codecov) + "%" + colorValues.END + "\n")
+			sys.stdout.write(str(self.coverage) + "% coverage is below the minimum requirement: " + str(self.min_codecov) + "%" + ColorValues.END + "\n")
 			return -1
 		
 		if (not printed) :
-			sys.stdout.write(colorValues.OK)
-			if (printName) :
+			sys.stdout.write(ColorValues.OK)
+			if (printname) :
 				sys.stdout.write(self.name + ": ")
-			sys.stdout.write(str(self.coverage) + "%" + colorValues.END + "\n")
+			sys.stdout.write(str(self.coverage) + "%" + ColorValues.END + "\n")
 			
 		return 0
 		
@@ -327,9 +320,9 @@ for target in targets:
 
 	# Add success/failure state to the build status dictionary
 	if (exit_code == 0) :
-		print colorValues.OK + target.name + " Succeeded" + colorValues.END
+		print ColorValues.OK + target.name + " Succeeded" + ColorValues.END
 	else :
-		print colorValues.FAIL + target.name + " Failed" + colorValues.END
+		print ColorValues.FAIL + target.name + " Failed" + ColorValues.END
 
 final_status = 0
 
@@ -340,12 +333,12 @@ code_coverage = False
 # Print out the final result of each operation.
 for target in targets :
 	if (target.failed) :
-		print colorValues.FAIL + target.name + " failed." + colorValues.END
+		print ColorValues.FAIL + target.name + " failed." + ColorValues.END
 		final_status = 1
 	else :
 		if ("codecov" in target.operations) :
 			code_coverage = True
-		print colorValues.OK + '\033[92m' + target.name + " succeeded." + colorValues.END
+		print ColorValues.OK + '\033[92m' + target.name + " succeeded." + ColorValues.END
 
 if code_coverage :
 	print "\nCode Coverage Results:"
