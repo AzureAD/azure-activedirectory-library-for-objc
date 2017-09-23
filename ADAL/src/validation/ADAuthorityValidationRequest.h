@@ -25,7 +25,7 @@
 
 // TODO: Set this to 1.1 once PROD deployment goes through to allow it.
 
-#define AAD_AUTHORITY_VALIDATION_API_VERSION "1.0"
+#define AAD_AUTHORITY_VALIDATION_API_VERSION "1.1"
 
 @class ADAuthorityValidationResponse;
 
