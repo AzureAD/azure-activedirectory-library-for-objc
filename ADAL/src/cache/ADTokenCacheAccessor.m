@@ -342,6 +342,9 @@
     NSURL *oldAuthority = [NSURL URLWithString:item.authority];
     NSURL *newAuthority = [[ADAuthorityValidation sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
     
+    // The authority used to retrieve the item over the network can differ from the preferred authority used to
+    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
+    // it with we switch it out before saving it to cache.
     item.authority = [newAuthority absoluteString];
     BOOL ret = [_dataSource addOrUpdateItem:item correlationId:context.correlationId error:error];
     item.authority = [oldAuthority absoluteString];
