@@ -20,8 +20,9 @@ cache:
 
 env:
     matrix:
-        - BUILD_TARGETS=ios_framework ios_test_app ios_auto_app sample_swift_app
-        - BUILD_TARGETS=mac_framework mac_test_app
+        - BUILD_TARGETS="ios_framework ios_test_app ios_auto_app sample_swift_app"
+        - BUILD_TARGETS="mac_framework mac_test_app"
+        
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty -N
