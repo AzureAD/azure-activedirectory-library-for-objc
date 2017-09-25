@@ -98,7 +98,7 @@
 
 - (void)testBrokerv2Message
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U="];
+    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     
     NSString* v2Base64UrlEncryptedPayload = @"TKQ6mTbSf_FgBnb5mvtnSQXQ4_LajVjSNPjymF1wI2ZQWzGSvut3mWziWV0Xvti_ULCFD39BwuFJykXxrtsHZeuynfHRdpUXnhm4qZoAiRfjgY37HBbYbXW3FLzQWvUTCBFz3S9MWpPQE1bJmgke8NisoZ7jlj_gJh-nkfL_Kqg_q7f-AGHvF_TKZoZajosKjbSXzSrW5jLVEA8evIezJS_mIAIUTxxtyoDr1XnQmL2obbi2xLsdbfUDQYpRM2fVLQchO3P_J0TlJrTlR7NAuGnjRUckQHXRsR0-qSK0zF_4rxlClrQgJOudWKpZCVVeUhHMNYzhehLNfABphLeAc_Vxbo7yf0pgKo482ThT86Zb438eSqHivrB8f3VGSx8jRd6MusubxG6VAE5iaHC3xzDumwxAC95QNzv4CspKl5Q";
      
