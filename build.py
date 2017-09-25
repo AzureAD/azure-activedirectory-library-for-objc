@@ -298,6 +298,9 @@ args = parser.parse_args()
 clean = args.no_clean
 use_xcpretty = args.no_xcpretty
 
+if (args.targets != None) :
+	print "Targets specified: " + str(args.targets)
+
 targets = []
 
 for spec in target_specifiers :
