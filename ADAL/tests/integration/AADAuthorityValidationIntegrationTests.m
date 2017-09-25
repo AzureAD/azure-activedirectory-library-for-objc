@@ -29,6 +29,7 @@
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADTestAuthenticationViewController.h"
+#import "ADTokenCacheTestUtil.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
 #import "ADTokenCache+Internal.h"
@@ -432,28 +433,6 @@
     [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
 }
 
-static ADTokenCacheItem *getToken(ADTokenCache *tokenCache, NSString *authority, NSString *clientId, NSString *resource)
-{
-    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority resource:resource clientId:clientId error:nil];
-    return [tokenCache getItemsWithKey:key userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil].firstObject;
-}
-
-static NSString *getMRRT(ADTokenCache *tokenCache, NSString *authority)
-{
-    return getToken(tokenCache, authority, TEST_CLIENT_ID, nil).refreshToken;
-}
-
-static NSString *getFRT(ADTokenCache *tokenCache, NSString *authority)
-{
-    return getToken(tokenCache, authority, @"foci-1", nil).refreshToken;
-}
-
-static NSString *getAT(ADTokenCache *tokenCache, NSString *authority)
-{
-    return getToken(tokenCache, authority, TEST_CLIENT_ID, TEST_RESOURCE).accessToken;
-}
-
-
 static NSString *s_doNotUseRT = @"do not use me";
 
 static ADTestURLResponse *
@@ -551,14 +530,14 @@ CreateAuthContext(NSString *authority,
     [self waitForExpectations:@[expectation] timeout:1.0];
     
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    XCTAssertEqualObjects(getMRRT(tokenCache, preferredAuthority), updatedRT);
-    XCTAssertEqualObjects(getFRT(tokenCache, preferredAuthority), updatedRT);
-    XCTAssertEqualObjects(getAT(tokenCache, preferredAuthority), updatedAT);
+    XCTAssertEqualObjects([tokenCache getMRRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getAT:preferredAuthority], updatedAT);
     
     // And that the non-preferred location did not get touched
-    XCTAssertEqualObjects(getMRRT(tokenCache, authority), TEST_REFRESH_TOKEN);
-    XCTAssertNil(getFRT(tokenCache, authority));
-    XCTAssertNil(getAT(tokenCache, authority));
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], TEST_REFRESH_TOKEN);
+    XCTAssertNil([tokenCache getFRT:authority]);
+    XCTAssertNil([tokenCache getAT:authority]);
 }
 
 - (void)testAcquireTokenSilent_whenDifferentPreferredCache_shouldUsePreferred
@@ -602,14 +581,14 @@ CreateAuthContext(NSString *authority,
     [self waitForExpectations:@[expectation] timeout:1.0];
     
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    XCTAssertEqualObjects(getMRRT(tokenCache, preferredAuthority), updatedRT);
-    XCTAssertEqualObjects(getFRT(tokenCache, preferredAuthority), updatedRT);
-    XCTAssertEqualObjects(getAT(tokenCache, preferredAuthority), updatedAT);
+    XCTAssertEqualObjects([tokenCache getMRRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getAT:preferredAuthority], updatedAT);
     
     // And that the non-preferred location did not get touched
-    XCTAssertEqualObjects(getMRRT(tokenCache, authority), s_doNotUseRT);
-    XCTAssertNil(getFRT(tokenCache, authority));
-    XCTAssertNil(getAT(tokenCache, authority));
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
+    XCTAssertNil([tokenCache getFRT:authority]);
+    XCTAssertNil([tokenCache getAT:authority]);
 }
 
 - (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldTombstoneCorrectToken
@@ -648,13 +627,14 @@ CreateAuthContext(NSString *authority,
     [self waitForExpectations:@[expectation] timeout:1.0];
     
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    ADTokenCacheItem *preferredMRRT = getToken(tokenCache, preferredAuthority, TEST_CLIENT_ID, nil);
+    ADTokenCacheKey *mrrtKey = [ADTokenCacheKey keyWithAuthority:preferredAuthority resource:nil clientId:TEST_CLIENT_ID error:nil];
+    ADTokenCacheItem *preferredMRRT = [tokenCache getItemsWithKey:mrrtKey userId:TEST_USER_ID correlationId:nil error:nil].firstObject;
     XCTAssertNotNil(preferredMRRT.tombstone);
     
     // And that the non-preferred location did not get touched
-    XCTAssertEqualObjects(getMRRT(tokenCache, authority), s_doNotUseRT);
-    XCTAssertNil(getFRT(tokenCache, authority));
-    XCTAssertNil(getAT(tokenCache, authority));
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
+    XCTAssertNil([tokenCache getFRT:authority]);
+    XCTAssertNil([tokenCache getAT:authority]);
 }
 
 @end
