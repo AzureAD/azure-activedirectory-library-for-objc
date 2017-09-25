@@ -51,6 +51,7 @@ class ColorValues:
 target_specifiers = [
 	{
 		"name" : "iOS Framework",
+		"target" : "ios_framework",
 		"scheme" : "ADAL",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
@@ -59,18 +60,21 @@ target_specifiers = [
 	},
 	{
 		"name" : "iOS Test App",
+		"target" : "ios_test_app",
 		"scheme" : "MyTestiOSApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Automation Test App",
+		"target" : "ios_auto_app",
 		"scheme" : "ADALAutomation",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
 	{
 		"name" : "Sample Swift App",
+		"target" : "sample_swift_app",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS",
@@ -78,6 +82,7 @@ target_specifiers = [
 	},
 	{
 		"name" : "Mac Framework",
+		"target" : "mac_framework",
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
@@ -85,6 +90,7 @@ target_specifiers = [
 	},
 	{
 		"name" : "Mac Test App",
+		"target" : "mac_test_app",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
 		"platform" : "Mac"
@@ -304,7 +310,7 @@ if (args.targets != None) :
 targets = []
 
 for spec in target_specifiers :
-	if (args.targets == None or spec["name"] in args.targets) :
+	if (args.targets == None or spec["target"] in args.targets) :
 		targets.append(BuildTarget(spec))
 
 # start by cleaning up any derived data that might be lying around
