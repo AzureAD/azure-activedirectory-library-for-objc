@@ -1,3 +1,13 @@
+Version 1.2.10 (09.26.2017)
+--------------------------
+(Note: We recommend using 2.2.5 or later, this is a maintenance fix for 1.2.x.)
+* Fixing project compilation issue in Xcode 9 and increasing the deployment target to iOS 8
+
+Version 1.2.9 (09.11.2016)
+--------------------------
+(Note: We recommend using 2.2.5 or later, this is a maintenance fix for 1.2.x.)
+* Fix a regression in NTLM authentication caused by the iOS 10 fix.
+
 Version 1.2.8 (08.04.2016)
 --------------------------
 (Note: We still recommend using 2.2 or later, as support for 1.2.x will end in the near future.)
