@@ -26,6 +26,7 @@
 #import "NSDictionary+ADExtensions.h"
 #import "NSDictionary+ADTestUtil.h"
 #import "NSURL+ADExtensions.h"
+#import "NSURL+ADTestUtil.h"
 
 @implementation ADTestURLResponse
 
@@ -277,40 +278,7 @@
 
 - (BOOL)matchesURL:(NSURL *)url
 {
-    // Start with making sure the base URLs match up
-    if ([url.scheme caseInsensitiveCompare:_requestURL.scheme] != NSOrderedSame)
-    {
-        return NO;
-    }
-    
-    if ([[url adHostWithPortIfNecessary] caseInsensitiveCompare:[_requestURL adHostWithPortIfNecessary]] != NSOrderedSame)
-    {
-        return NO;
-    }
-    
-    // Then the relative portions
-    if ([url.relativePath caseInsensitiveCompare:_requestURL.relativePath] != NSOrderedSame)
-    {
-        return NO;
-    }
-    
-    // And lastly, the tricky part. Query Params can come in any order so we need to process them
-    // a bit instead of just a string compare
-    NSString *query = [url query];
-    if (![NSString adIsStringNilOrBlank:query])
-    {
-        NSDictionary *QPs = [NSDictionary adURLFormDecode:query];
-        if (![_QPs compareAndPrintDiff:QPs dictionaryDescription:@"URL QPs"])
-        {
-            return NO;
-        }
-    }
-    else if (_QPs)
-    {
-        return NO;
-    }
-    
-    return YES;
+    return [_requestURL matchesURL:url];
 }
 
 - (BOOL)matchesBody:(NSData *)body
