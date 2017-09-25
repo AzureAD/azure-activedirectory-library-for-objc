@@ -36,10 +36,10 @@
 
 @end
 
-@interface ADTokenCache (ADTokenCacheTestUtil)
+@interface ADTokenCache (TestUtil) <ADTokenCacheTestUtil>
 @end
 
 #if TARGET_OS_IPHONE
-@interface ADKeychainTokenCache (ADTokenCacheTestUtil)
+@interface ADKeychainTokenCache (TestUtil) <ADTokenCacheTestUtil>
 @end
 #endif
