@@ -28,6 +28,7 @@ import traceback
 import sys
 import re
 import os
+import argparse
 
 from timeit import default_timer as timer
 
@@ -288,18 +289,20 @@ class BuildTarget:
 
 clean = True
 
-for arg in sys.argv :
-	if (arg == "--no-clean") :
-		clean = False
-	if (arg == "--no-xcpretty") :
-		use_xcpretty = False
-#	if ("--scheme" in arg)
-		
+parser = argparse.ArgumentParser(description='ADAL SDK Build Script')
+parser.add_argument('--no-clean', action='store_false', help="Skips the clean build products step")
+parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
+parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+args = parser.parse_args()
+
+clean = args.no_clean
+use_xcpretty = args.no_xcpretty
 
 targets = []
 
 for spec in target_specifiers :
-	targets.append(BuildTarget(spec))
+	if (args.targets == None or spec["name"] in args.targets) :
+		targets.append(BuildTarget(spec))
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :

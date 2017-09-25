@@ -18,6 +18,13 @@ cache:
    directories:
       - '$HOME/.sonar/cache'
 
+env:
+    matrix:
+        - BUILD_TARGETS="\"iOS Framework\""
+        - BUILD_TARGETS="\"iOS Test App\" \"iOS Automation Test App\" \"Sample Swift App\""
+        - BUILD_TARGETS="\"Mac Framework\""
+        - BUILD_TARGETS="\"Mac Test App\""
+
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty -N
@@ -29,7 +36,7 @@ before_script:
 
 script:  
 # Run the ADAL build script
-  - ./build.py --no-clean
+  - ./build.py --no-clean --targets $BUILD_TARGETS
   - sonar-scanner
 
 after_success:
