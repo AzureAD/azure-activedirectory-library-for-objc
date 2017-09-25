@@ -23,30 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-// TODO: Set this to 1.1 once PROD deployment goes through to allow it.
+@interface NSURL (ADTestUtil)
 
-#define AAD_AUTHORITY_VALIDATION_API_VERSION "1.1"
-
-@class ADAuthorityValidationResponse;
-
-@interface ADAuthorityValidationRequest : NSObject
-
-/*!
- This handles request for authority validation to the trusted authority.
- 
- @param authority                   Authority to be validated.
- @param trustedHost                 Trusted host to ask for validation.
- @param context                     Context to be used for the internal web request
- @param completionBlock             Completion block for this asynchronous request.
- 
- */
-+ (void)requestMetadataWithAuthority:(NSString *)authority
-                         trustedHost:(NSString *)trustedHost
-                             context:(id<ADRequestContext>)context
-                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
-
-// Fetches the corresponding URL for the request
-+ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost;
-
+- (BOOL)matchesURL:(NSURL *)url;
 
 @end
