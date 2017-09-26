@@ -29,7 +29,10 @@
 #import "ADTestCase.h"
 #import "ADClientMetrics.h"
 #import "ADAuthorityValidation+TestUtil.h"
+
+#if TARGET_OS_IPHONE
 #import "ADApplicationTestUtil.h"
+#endif
 
 @implementation ADTestCase
 
@@ -45,8 +48,11 @@
     [ADTestURLSession clearResponses];
     [[ADClientMetrics getInstance] clearMetrics];
     [ADAuthorityValidation clearAadCache];
+    
+#if TARGET_OS_IPHONE
     [ADApplicationTestUtil reset];
-
+#endif
+    
     [super tearDown];
 }
 
