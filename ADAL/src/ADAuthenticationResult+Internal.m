@@ -216,6 +216,18 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     ADTokenCacheItem* item = [ADTokenCacheItem new];
     [item setAccessTokenType:@"Bearer"];
     BOOL isMRRT = [item fillItemWithResponse:response];
+    
+    // A bug in previous versions of broker would override the provided authority in some cases with
+    // common. If the intended tenant was something other then common then the access token may
+    // be bad, so clear it out. We will force a token refresh later.
+    NSArray *pathComponents = [[NSURL URLWithString:item.authority] pathComponents];
+    NSString *tenant = pathComponents.count > 1 ? pathComponents[1] : nil;
+    BOOL fValidTenant = response[@"vt"] != nil || [tenant isEqualToString:@"common"];
+    if (!fValidTenant)
+    {
+        item.accessToken = nil;
+    }
+    
     ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item
                                                         multiResourceRefreshToken:isMRRT
                                                                     correlationId:correlationId];
