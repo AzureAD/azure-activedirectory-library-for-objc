@@ -25,6 +25,10 @@
 + (ADTestURLResponse*)validAuthority:(NSString *)authority;
 + (ADTestURLResponse *)validAuthority:(NSString *)authority
                          withMetadata:(NSArray *)metadata;
++ (ADTestURLResponse *)validAuthority:(NSString *)authority
+                          trustedHost:(NSString *)trustedHost
+                         withMetadata:(NSArray *)metadata;
+
 + (ADTestURLResponse*)invalidAuthority:(NSString *)authority;
 
 + (ADTestURLResponse*)validDrsPayload:(NSString *)domain

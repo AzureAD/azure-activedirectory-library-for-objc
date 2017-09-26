@@ -25,7 +25,7 @@
 #import "NSURL+ADExtensions.h"
 
 
-#define DEFAULT_TRUSTED_HOST "login.microsoftonline.com"
+#define DEFAULT_TRUSTED_HOST @"login.microsoftonline.com"
 
 @implementation ADTestAuthorityValidationResponse
 
@@ -37,7 +37,14 @@
 + (ADTestURLResponse *)validAuthority:(NSString *)authority
                          withMetadata:(NSArray *)metadata
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
+    return [self validAuthority:authority trustedHost:DEFAULT_TRUSTED_HOST withMetadata:metadata];
+}
+
++ (ADTestURLResponse *)validAuthority:(NSString *)authority
+                          trustedHost:(NSString *)trustedHost
+                         withMetadata:(NSArray *)metadata
+{
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, trustedHost, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse new];
     response.requestURL = [NSURL URLWithString:authorityValidationURL];
     [response setResponseURL:@"https://idontmatter.com" code:200 headerFields:@{}];
@@ -56,7 +63,7 @@
 
 + (ADTestURLResponse *)invalidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://" DEFAULT_TRUSTED_HOST "/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, DEFAULT_TRUSTED_HOST, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
