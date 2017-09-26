@@ -21,33 +21,57 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADAuthenticationError.h"
+#import "ADApplicationTestUtil.h"
 
-#define kChosenCipherKeySize    kCCKeySizeAES256
-#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
 
-@interface ADBrokerKeyHelper : NSObject
+@implementation ADApplicationTestUtil
+
++ (void)onOpenURL:(BOOL (^)(NSURL *url, NSDictionary<NSString *, id> *options))openUrlBlock
 {
-    NSData * _symmetricTag;
-    NSData * _symmetricKey;
+    s_onOpenUrl = openUrlBlock;
 }
 
-- (id)init;
++ (void)reset
+{
+    s_onOpenUrl = nil;
+}
 
-- (BOOL)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
-- (BOOL)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error;
-- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
-- (NSData*)decryptBrokerResponse:(NSData*)response
-                         version:(NSInteger)version
-                           error:(ADAuthenticationError* __autoreleasing*)error;
-- (NSData*)decryptBrokerResponse:(NSData *)response
-                             key:(const void*)key
-                            size:(size_t)size
-                           error:(ADAuthenticationError *__autoreleasing *)error;
+@end
 
-// NOTE: Used for testing purposes only. Does not change keychain entries.
-+ (void)setSymmetricKey:(NSString *)base64Key;
-+ (NSData *)symmetricKey;
+
+@interface UIApplication (TestOverride)
+
+@end
+
+
+#pragma push
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
+@implementation UIApplication (TestOverride)
+
+- (BOOL)openURL:(NSURL *)url
+{
+    if (!s_onOpenUrl)
+    {
+        NSAssert(s_onOpenUrl, @"Some test isn't properly waiting for the flow to complete");
+    }
+    
+    return s_onOpenUrl(url, nil);
+}
+
+- (BOOL)canOpenURL:(NSURL *)url
+{
+    (void)url;
+    return YES;
+}
+
+- (void)openURL:(NSURL*)url
+        options:(NSDictionary<NSString *, id> *)options
+completionHandler:(void (^ __nullable)(BOOL success))completionHandler
+{
+    completionHandler(s_onOpenUrl(url, options));
+}
+
+#pragma pop
 
 @end

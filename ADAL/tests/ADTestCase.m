@@ -29,6 +29,7 @@
 #import "ADTestCase.h"
 #import "ADClientMetrics.h"
 #import "ADAuthorityValidation+TestUtil.h"
+#import "ADApplicationTestUtil.h"
 
 @implementation ADTestCase
 
@@ -44,6 +45,7 @@
     [ADTestURLSession clearResponses];
     [[ADClientMetrics getInstance] clearMetrics];
     [ADAuthorityValidation clearAadCache];
+    [ADApplicationTestUtil reset];
 
     [super tearDown];
 }
