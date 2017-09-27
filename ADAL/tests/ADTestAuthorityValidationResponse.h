@@ -30,6 +30,8 @@
                          withMetadata:(NSArray *)metadata;
 
 + (ADTestURLResponse*)invalidAuthority:(NSString *)authority;
++ (ADTestURLResponse*)invalidAuthority:(NSString *)authority
+                           trustedHost:(NSString *)trustedHost;
 
 + (ADTestURLResponse*)validDrsPayload:(NSString *)domain
                               onPrems:(BOOL)onPrems

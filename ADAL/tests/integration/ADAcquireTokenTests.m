@@ -39,6 +39,7 @@
 #import "ADTelemetryTestDispatcher.h"
 #import "ADUserIdentifier.h"
 #import "ADTestAuthenticationViewController.h"
+#import "ADAuthorityValidation.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -67,6 +68,7 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
+    [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
 }
 
 - (void)tearDown

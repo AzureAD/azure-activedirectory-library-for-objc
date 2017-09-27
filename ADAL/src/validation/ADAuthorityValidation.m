@@ -356,6 +356,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 }
 
 
+- (void)addInvalidAuthority:(NSString *)authority
+{
+    [_aadCache addInvalidRecord:[NSURL URLWithString:authority] oauthError:nil context:nil];
+}
+
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority
                        domain:(NSString *)domain
