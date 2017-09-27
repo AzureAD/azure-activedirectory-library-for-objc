@@ -61,6 +61,8 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 - (void)validateAuthority:(ADRequestParameters*)requestParams
           completionBlock:(ADAuthorityValidationCallback)completionBlock;
 
+- (void)addInvalidAuthority:(NSString *)authority;
+
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
                           context:(id<ADRequestContext>)context;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority

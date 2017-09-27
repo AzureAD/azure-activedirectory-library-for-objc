@@ -63,7 +63,13 @@
 
 + (ADTestURLResponse *)invalidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, DEFAULT_TRUSTED_HOST, [authority lowercaseString]];
+    return [self invalidAuthority:authority trustedHost:DEFAULT_TRUSTED_HOST];
+}
+
++ (ADTestURLResponse*)invalidAuthority:(NSString *)authority
+                           trustedHost:(NSString *)trustedHost
+{
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, trustedHost, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400

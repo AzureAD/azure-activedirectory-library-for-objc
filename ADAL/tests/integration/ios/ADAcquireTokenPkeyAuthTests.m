@@ -56,8 +56,9 @@
     [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
-    [ADTestURLSession addResponses:@[[self defaultTokenEndpointPkeyAuthChallenge],
-                                        [self defaultPkeyAuthNoWPJResponse]]];
+    [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:TEST_AUTHORITY trustedHost:@"login.windows.net"],
+                                     [self defaultTokenEndpointPkeyAuthChallenge],
+                                     [self defaultPkeyAuthNoWPJResponse]]];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilent should return new token."];
     
