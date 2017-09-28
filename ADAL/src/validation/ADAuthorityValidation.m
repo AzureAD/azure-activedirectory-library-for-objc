@@ -137,8 +137,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 #pragma mark - Authority validation
 
-- (void)validateAuthority:(ADRequestParameters*)requestParams
-          completionBlock:(ADAuthorityValidationCallback)completionBlock
+- (void)checkAuthority:(ADRequestParameters*)requestParams
+     validateAuthority:(BOOL)validateAuthority
+       completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     NSString *upn = requestParams.identifier.userId;
     NSString *authority = requestParams.authority;
@@ -163,6 +164,12 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     // Check for AAD or ADFS
     if ([ADHelpers isADFSInstanceURL:authorityURL])
     {
+        if (!validateAuthority)
+        {
+            completionBlock(YES, nil);
+            return;
+        }
+        
         // Check for upn suffix
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
         if ([NSString adIsStringNilOrBlank:upnSuffix])
@@ -180,7 +187,14 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     else
     {
         // Validate AAD authority
-        [self validateAADAuthority:authorityURL requestParams:requestParams completionBlock:completionBlock];
+        [self validateAADAuthority:authorityURL requestParams:requestParams completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         {
+             if (!validateAuthority && error && [error.protocolCode isEqualToString:@"invalid_instance"])
+             {
+                 error = nil;
+             }
+             completionBlock(validated, error);
+         }];
     }
 }
 
