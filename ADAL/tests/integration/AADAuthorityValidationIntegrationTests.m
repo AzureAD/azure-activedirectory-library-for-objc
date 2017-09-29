@@ -64,7 +64,7 @@
 
 
 
-- (void)testValidateAuthority_whenSchemeIsHttp_shouldFailWithError
+- (void)testCheckAuthority_whenSchemeIsHttp_shouldFailWithError
 {
     NSString *authority = @"http://invalidscheme.com";
     ADRequestParameters* requestParams = [ADRequestParameters new];
@@ -75,8 +75,9 @@
     [requestParams setAuthority:authority];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated, @"\"%@\" should come back invalid.", authority);
          XCTAssertNotNil(error);
@@ -87,7 +88,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testValidateAuthority_whenAuthorityUrlIsInvalid_shouldFailWithError
+- (void)testCheckAuthority_whenAuthorityUrlIsInvalid_shouldFailWithError
 {
     NSString *authority = @"https://Invalid URL 2305 8 -0238460-820-386";
     ADRequestParameters* requestParams = [ADRequestParameters new];
@@ -98,8 +99,9 @@
     [requestParams setAuthority:authority];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated, @"\"%@\" should come back invalid.", authority);
          XCTAssertNotNil(error);
@@ -111,7 +113,7 @@
 }
 
 // Tests a normal authority
-- (void)testValidateAuthority_whenAuthorityValid_shouldPass
+- (void)testCheckAuthority_whenAuthorityValid_shouldPass
 {
     NSString* authority = @"https://login.windows-ppe.net/common";
     
@@ -123,8 +125,9 @@
     [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate valid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError * error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -138,7 +141,7 @@
 }
 
 //Ensures that an invalid authority is not approved
-- (void)testValidateAuthority_whenAuthorityInvalid_shouldReturnError
+- (void)testCheckAuthority_whenAuthorityInvalid_shouldReturnError
 {
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
     
@@ -150,12 +153,44 @@
     [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError * error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
          XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNotNil(record);
+    XCTAssertFalse(record.validated);
+    XCTAssertNotNil(record.error);
+}
+
+//Ensures there is no error with an invalid authority if validateAuthority is turned off.
+- (void)testCheckAuthority_whenAuthorityInvalidAndNoValidation_shouldReturnNoError
+{
+    NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
+    
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
+    
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:NO
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
+     {
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
          
          [expectation fulfill];
      }];
@@ -264,7 +299,7 @@
     XCTAssertFalse(record.validated);
 }
 
-- (void)testValidateAuthority_whenHostUnreachable_shouldFail
+- (void)testCheckAuthority_whenHostUnreachable_shouldFail
 {
     NSString* authority = @"https://login.windows.net/contoso.com";
     
@@ -288,14 +323,15 @@
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority when server is unreachable."];
     
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
-    {
-        XCTAssertFalse(validated);
-        XCTAssertNotNil(error);
-        
-        [expectation fulfill];
-    }];
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+     {
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         
+         [expectation fulfill];
+     }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -530,11 +566,11 @@
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        XCTAssertNotNil(result);
-        XCTAssertEqual(result.status, AD_SUCCEEDED);
-        [expectation2 fulfill];
-    }];
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         [expectation2 fulfill];
+     }];
     
     [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
 }
@@ -744,3 +780,4 @@ CreateAuthContext(NSString *authority,
 }
 
 @end
+
