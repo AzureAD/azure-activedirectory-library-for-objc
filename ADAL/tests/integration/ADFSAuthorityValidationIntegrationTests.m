@@ -270,7 +270,7 @@
 }
 
 // test
-- (void)testCheckAuthority_whenValidationTurnedOff_shouldPass
+- (void)testCheckAuthority_whenValidationTurnedOffAndAdfsAuthority_shouldPass
 {
     {
         NSString* authority = @"https://login.windows.com/adfs";

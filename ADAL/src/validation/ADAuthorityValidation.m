@@ -182,12 +182,17 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         }
         
         // Validate ADFS authority
-        [self validateADFSAuthority:authorityURL domain:upnSuffix requestParams:requestParams completionBlock:completionBlock];
+        [self validateADFSAuthority:authorityURL
+                             domain:upnSuffix
+                      requestParams:requestParams
+                    completionBlock:completionBlock];
     }
     else
     {
         // Validate AAD authority
-        [self validateAADAuthority:authorityURL requestParams:requestParams completionBlock:^(BOOL validated, ADAuthenticationError *error)
+        [self validateAADAuthority:authorityURL
+                     requestParams:requestParams
+                   completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              if (!validateAuthority && error && [error.protocolCode isEqualToString:@"invalid_instance"])
              {
