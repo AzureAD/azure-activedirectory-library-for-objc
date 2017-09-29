@@ -47,7 +47,7 @@
     [super tearDown];
 }
 
-- (void)testAdfsNormalOnPrems
+- (void)testCheckAuthority_whenAuthorityOnPremsValid_shouldPass
 {
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
@@ -69,8 +69,9 @@
                                                                           authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -83,7 +84,7 @@
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
 
-- (void)testAdfsNormalOnCloud
+- (void)testCheckAuthority_whenAuthorityOnCloudValid_shouldPass
 {
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
@@ -108,8 +109,9 @@
                                                                           authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -122,7 +124,7 @@
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
 
-- (void)testAdfsInvalidDrs
+- (void)testCheckAuthority_whenInvalidDrs_shuoldFail
 {
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
@@ -142,8 +144,9 @@
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -157,7 +160,7 @@
 }
 
 // test invalid webfinger - 400
-- (void)testAdfsInvalidWebfinger
+- (void)testCheckAuthority_whenInvalidWebFinger_shouldFail
 {
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
@@ -178,8 +181,9 @@
                                                                             authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -193,7 +197,7 @@
 }
 
 // test invalid webfinger - 200 but not match
-- (void)testAdfsInvalidWebFingerNotTrusted
+- (void)testCheckAuthority_whenWebFingerNotTrusted_shouldFail
 {
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
@@ -214,8 +218,9 @@
                                                                                       authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -229,7 +234,7 @@
 }
 
 // test invalid webfinger - not reachable
-- (void)testAdfsUnreachableWebFinger
+- (void)testCheckAuthority_whenWebFingerNotReachable_shouldFail
 {
     NSString* authority = @"https://login.windows.com/adfs";
     NSString* upn       = @"someuser@somehost.com";
@@ -250,8 +255,9 @@
                                                                                 authority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -263,4 +269,31 @@
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
 
+// test
+- (void)testCheckAuthority_whenValidationTurnedOff_shouldPass
+{
+    {
+        NSString* authority = @"https://login.windows.com/adfs";
+        
+        ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
+        
+        ADRequestParameters* requestParams = [ADRequestParameters new];
+        requestParams.authority = authority;
+        requestParams.correlationId = [NSUUID UUID];
+        
+        XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
+        [authorityValidation checkAuthority:requestParams
+                          validateAuthority:NO
+                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         {
+             XCTAssertFalse(validated);
+             XCTAssertNil(error);
+             
+             [expectation fulfill];
+         }];
+        [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+
+}
 @end

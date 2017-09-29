@@ -166,7 +166,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     {
         if (!validateAuthority)
         {
-            completionBlock(YES, nil);
+            completionBlock(NO, nil);
             return;
         }
         
