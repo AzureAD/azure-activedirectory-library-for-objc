@@ -172,6 +172,37 @@
     XCTAssertNotNil(record.error);
 }
 
+//Ensures there is no error with an invalid authority if validateAuthority is turned off.
+- (void)testCheckAuthority_whenAuthorityInvalidAndNoValidation_shouldReturnNoError
+{
+    NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
+    
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
+    
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:NO
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
+     {
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNotNil(record);
+    XCTAssertFalse(record.validated);
+    XCTAssertNotNil(record.error);
+}
+
 - (void)testAcquireToken_whenAuthorityInvalid_shouldReturnError
 {
     ADAuthenticationError* error = nil;
