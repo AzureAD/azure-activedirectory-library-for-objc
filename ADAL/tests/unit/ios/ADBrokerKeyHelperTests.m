@@ -55,7 +55,7 @@ enum {
 
 - (void)testv1Decrypt
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U="];
+    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     ADBrokerKeyHelper* keyHelper = [[ADBrokerKeyHelper alloc] init];
     ADAuthenticationError* error = nil;
     
@@ -73,7 +73,7 @@ enum {
 
 - (void)testv2Decrypt
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U="];
+    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     ADBrokerKeyHelper* keyHelper = [[ADBrokerKeyHelper alloc] init];
     ADAuthenticationError* error = nil;
     

@@ -276,9 +276,14 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     _symmetricKey = symmetricKey;
 }
 
++ (NSData *)symmetricKey
+{
+    return s_symmetricKeyOverride;
+}
+
 + (void)setSymmetricKey:(NSString *)base64Key
 {
-    s_symmetricKeyOverride = base64Key ? [[NSData alloc] initWithBase64EncodedString:base64Key options:0] : nil;
+    s_symmetricKeyOverride = base64Key ? [NSString adBase64UrlDecodeData:base64Key] : nil;
 }
 
 @end

@@ -145,23 +145,19 @@
         return;
     }
     
-    if (!_context.validateAuthority)
-    {
-        [self validatedAcquireToken:wrappedCallback];
-        return;
-    }
-    
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
     ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
-    [authorityValidation validateAuthority:_requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:_requestParams
+                      validateAuthority:_context.validateAuthority
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION
                                                                         context:_requestParams];
          [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_VALUE_YES:AD_TELEMETRY_VALUE_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+         
          if (error)
          {
              wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
@@ -170,8 +166,7 @@
          {
              [self validatedAcquireToken:wrappedCallback];
          }
-     }];
-    
+     }];    
 }
 
 - (BOOL)checkExtraQueryParameters

@@ -55,5 +55,7 @@
 /*! The application client identifier */
 @property (readonly) NSString* clientId;
 
+- (ADTokenCacheKey *)mrrtKey;
+
 
 @end

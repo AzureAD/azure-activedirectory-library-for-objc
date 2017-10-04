@@ -48,5 +48,6 @@
 
 // NOTE: Used for testing purposes only. Does not change keychain entries.
 + (void)setSymmetricKey:(NSString *)base64Key;
++ (NSData *)symmetricKey;
 
 @end

@@ -155,4 +155,9 @@
     return key;
 }
 
+- (ADTokenCacheKey *)mrrtKey
+{
+    return [[self class] keyWithAuthority:_authority resource:nil clientId:_clientId error:nil];
+}
+
 @end

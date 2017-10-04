@@ -30,6 +30,9 @@
 #import "ADTokenCacheItem+Internal.h"
 
 @implementation ADTokenCacheItem
+{
+    NSString *_storageAuthority;
+}
 
 @synthesize accessToken = _accessToken;
 @synthesize accessTokenType = _accessTokenType;
@@ -37,6 +40,7 @@
 @synthesize refreshToken = _refreshToken;
 @synthesize sessionKey = _sessionKey;
 @synthesize familyId = _familyId;
+@synthesize storageAuthority = _storageAuthority;
 
 + (void)load
 {
@@ -90,6 +94,14 @@
 
 - (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
+    if (_storageAuthority)
+    {
+        return [ADTokenCacheKey keyWithAuthority:_storageAuthority
+                                        resource:_resource
+                                        clientId:_clientId
+                                           error:error];
+    }
+    
     return [ADTokenCacheKey keyWithAuthority:_authority
                                     resource:_resource
                                     clientId:_clientId
