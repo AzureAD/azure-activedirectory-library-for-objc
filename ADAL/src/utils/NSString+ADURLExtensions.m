@@ -21,37 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import "NSString+ADURLExtensions.h"
 
-@interface ADTestAppAcquireTokenWindowController : NSWindowController
+@implementation NSString (ADURLExtensions)
+
+- (NSString *)adAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName
 {
-    IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
+    if ([NSString adIsStringNilOrBlank:cloudInstanceHostName])
+    {
+        return self;
+    }
     
-    IBOutlet NSView* _acquireSettingsView;
-    IBOutlet NSTextField* _userIdField;
-    IBOutlet NSTextView* _resultView;
-    IBOutlet NSSegmentedControl* _validateAuthority;
-    IBOutlet NSSegmentedControl* _webViewType;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self];
     
-    IBOutlet NSPopUpButton* _profiles;
+    // Invalid URL
+    if ([NSString adIsStringNilOrBlank:urlComponents.host])
+    {
+        return self;
+    }
     
-    IBOutlet NSTextField* _authority;
-    IBOutlet NSTextField* _clientId;
-    IBOutlet NSTextField* _redirectUri;
-    IBOutlet NSTextField* _resource;
+    urlComponents.host = cloudInstanceHostName;
     
-    IBOutlet NSTextField* _extraQueryParamsField;
+    return [urlComponents string];
     
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
-    
-    BOOL _userIdEdited;
 }
-
-+ (void)showWindow;
 
 @end

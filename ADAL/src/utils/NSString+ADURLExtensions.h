@@ -21,37 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import <Foundation/Foundation.h>
 
-@interface ADTestAppAcquireTokenWindowController : NSWindowController
-{
-    IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
-    
-    IBOutlet NSView* _acquireSettingsView;
-    IBOutlet NSTextField* _userIdField;
-    IBOutlet NSTextView* _resultView;
-    IBOutlet NSSegmentedControl* _validateAuthority;
-    IBOutlet NSSegmentedControl* _webViewType;
-    
-    IBOutlet NSPopUpButton* _profiles;
-    
-    IBOutlet NSTextField* _authority;
-    IBOutlet NSTextField* _clientId;
-    IBOutlet NSTextField* _redirectUri;
-    IBOutlet NSTextField* _resource;
-    
-    IBOutlet NSTextField* _extraQueryParamsField;
-    
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
-    
-    BOOL _userIdEdited;
-}
+@interface NSString (ADURLExtensions)
 
-+ (void)showWindow;
+- (NSString *)adAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
 @end
