@@ -508,4 +508,60 @@
     XCTAssertNil(parameters);
 }
 
+- (void)testExtractChallengeParameters_whenMultipleChallengesBearerFirst_shouldReturnParameters
+{
+    NSDictionary *parameters = nil;
+    ADAuthenticationError *error = nil;
+    NSString *challengeString = @"Bearer authorization_uri=\"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\", Basic realm=\"https://contoso.com/\", TFS-Federated";
+    
+    parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
+                                                                  error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(parameters, @{ @"authorization_uri" : @"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47" });
+}
+
+- (void)testExtractChallengeParameters_whenMultipleChallengesBearerLast_shouldReturnParameters
+{
+    NSDictionary *parameters = nil;
+    ADAuthenticationError *error = nil;
+    NSString *challengeString = @"Badger realm=\"https://contoso.com/\", Bearer authorization_uri=\"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\"";
+    
+    parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
+                                                                  error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(parameters, @{ @"authorization_uri" : @"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47" });
+}
+
+- (void)testExtractChallengeParameters_whenMultipleChallengesWithExtraWhitespaces_shouldReturnParameters
+{
+    NSDictionary *parameters = nil;
+    ADAuthenticationError *error = nil;
+    NSString *challengeString = @"Badger realm=\"https://contoso.com/\", Bearer authorization_uri  =   \"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\"";
+    
+    parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
+                                                                  error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(parameters, @{ @"authorization_uri" : @"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47" });
+}
+
+- (void)testExtractChallengeParameters_whenMultipleChallengesBearerAsParam_shouldReturnParameters
+{
+    NSDictionary *parameters = nil;
+    ADAuthenticationError *error = nil;
+    NSString *challengeString = @"Badger bearer=\"https://contoso.com/\", Bearer authorization_uri=\"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\"";
+    
+    parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
+                                                                  error:&error];
+    
+    XCTAssertNotNil(parameters);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(parameters, @{ @"authorization_uri" : @"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47" });
+}
+
 @end

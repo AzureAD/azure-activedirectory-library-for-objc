@@ -38,8 +38,8 @@ NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Unauthorized (401) HTTP status code is expected, but the actual status code is %d";
 const unichar Quote = '\"';
 //The regular expression that matches the Bearer contents:
-NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
-NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
+NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
+NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
 
 @implementation ADAuthenticationParameters (Internal)
 
@@ -92,8 +92,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                                                   correlationId:nil];
 }
 
-+ (NSDictionary *)extractChallengeParameters:(NSString *)headerContents
-                                       error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSDictionary *)parseBearerChallenge:(NSString *)headerContents
+                                 error:(ADAuthenticationError * __autoreleasing *)error;
 {
     NSError* rgError = nil;
     __block ADAuthenticationError* adError = nil;
@@ -168,6 +168,150 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
         *error = adError;
     }
     return nil;
+
+}
+
++ (NSDictionary *)extractChallengeParameters:(NSString *)headerContents
+                                       error:(ADAuthenticationError * __autoreleasing *)error;
+{
+    __block ADAuthenticationError* adError = nil;
+    NSDictionary *parameters = nil;
+    
+    if ([NSString adIsStringNilOrBlank:headerContents])
+    {
+        adError = [self invalidHeader:headerContents];
+    }
+    else
+    {
+        NSString *bearerChallendge = [self extractBearerChallenge:headerContents];
+        if (!bearerChallendge) {
+            adError = [self invalidHeader:headerContents];
+        } else {
+            parameters = [self parseBearerChallenge:bearerChallendge error:&adError];
+        }
+    }
+    
+    if (error)
+    {
+        *error = adError;
+    }
+    
+    return parameters;
+}
+
+#pragma mark - Private
+
++ (NSUInteger)quotedStringLastIndex:(NSString *)headerContents startIndex:(NSUInteger)startIndex
+{
+    NSUInteger lastIndex = startIndex;
+    
+    unichar quotedChar = [headerContents characterAtIndex:startIndex];
+    if (quotedChar == '"' || quotedChar == '\'')
+    {
+        NSUInteger nextIndex = startIndex + 1;
+        while (nextIndex < headerContents.length) {
+            unichar c = [headerContents characterAtIndex:nextIndex];
+            
+            if (c == quotedChar) {
+                lastIndex = nextIndex;
+                break;
+            }
+            
+            nextIndex++;
+        }
+    }
+    
+    return lastIndex;
+}
+
++ (NSString *)extractBearerChallenge:(NSString *)headerContents
+{
+    NSRange range = [headerContents rangeOfString:@"Bearer "];
+    
+    if (range.location == NSNotFound)
+    {
+        return nil;
+    }
+    
+    NSUInteger nextIndex = range.location + range.length;
+    NSUInteger lastChallengeIndex = NSNotFound;
+    
+    BOOL possibleEndOfChallenge = NO;
+    BOOL nonSpaceOrEqualCharacterDetected = NO;
+    BOOL spaceCharacterDetected = NO;
+    
+    while (nextIndex < headerContents.length)
+    {
+        unichar c = [headerContents characterAtIndex:nextIndex];
+        
+        // Start of a quaoted string, lets get last index of it and continue iteration.
+        if (c == '"' || c == '\'')
+        {
+            nextIndex = [self quotedStringLastIndex:headerContents startIndex:nextIndex];
+            lastChallengeIndex = nextIndex;
+            nextIndex++;
+            continue;
+        }
+        
+        if (c == ',')
+        {
+            if (possibleEndOfChallenge)
+            {
+                // Next challenge found.
+                possibleEndOfChallenge = NO;
+                break;
+            }
+            
+            possibleEndOfChallenge = YES;
+            nonSpaceOrEqualCharacterDetected = NO;
+            spaceCharacterDetected = NO;
+        }
+        
+        if (!possibleEndOfChallenge)
+        {
+            lastChallengeIndex = nextIndex;
+        }
+        
+        if (c != ' ' && c != ',')
+        {
+            nonSpaceOrEqualCharacterDetected = YES;
+        }
+        
+        if (possibleEndOfChallenge && nonSpaceOrEqualCharacterDetected && c == ' ')
+        {
+            spaceCharacterDetected = YES;
+        }
+        
+        if (possibleEndOfChallenge && nonSpaceOrEqualCharacterDetected && c == '=')
+        {
+            // Next parameter found.
+            possibleEndOfChallenge = NO;
+            nonSpaceOrEqualCharacterDetected = NO;
+            spaceCharacterDetected = NO;
+            lastChallengeIndex = nextIndex;
+        }
+        
+        if (possibleEndOfChallenge && nonSpaceOrEqualCharacterDetected && spaceCharacterDetected && c != ',' && c != ' ' && c != ' ')
+        {
+            // Next challenge found.
+            possibleEndOfChallenge = NO;
+            break;
+        }
+        
+        nextIndex++;
+    }
+    
+    if (possibleEndOfChallenge)
+    {
+        // There is a ',' at the end of the string that is not followed by a param or a chellenge.
+        // That is not allowed.
+        return nil;
+    }
+    
+    NSUInteger length = lastChallengeIndex + 1 - range.location;
+    NSString *result = [headerContents substringWithRange:NSMakeRange(range.location, length)];
+    
+    return result;
 }
 
 @end
