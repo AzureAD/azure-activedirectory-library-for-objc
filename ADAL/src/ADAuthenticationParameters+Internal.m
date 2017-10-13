@@ -237,7 +237,7 @@ NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
     NSUInteger lastChallengeIndex = NSNotFound;
     
     BOOL possibleEndOfChallenge = NO;
-    BOOL nonSpaceOrEqualCharacterDetected = NO;
+    BOOL paramOrTokenNameDetected = NO;
     BOOL spaceCharacterDetected = NO;
     
     while (nextIndex < headerContents.length)
@@ -263,7 +263,7 @@ NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
             }
             
             possibleEndOfChallenge = YES;
-            nonSpaceOrEqualCharacterDetected = NO;
+            paramOrTokenNameDetected = NO;
             spaceCharacterDetected = NO;
         }
         
@@ -272,26 +272,26 @@ NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
             lastChallengeIndex = nextIndex;
         }
         
-        if (c != ' ' && c != ',')
+        if (c != ' ' && c != ',' && c != '=')
         {
-            nonSpaceOrEqualCharacterDetected = YES;
+            paramOrTokenNameDetected = YES;
         }
         
-        if (possibleEndOfChallenge && nonSpaceOrEqualCharacterDetected && c == ' ')
+        if (possibleEndOfChallenge && paramOrTokenNameDetected && c == ' ')
         {
             spaceCharacterDetected = YES;
         }
         
-        if (possibleEndOfChallenge && nonSpaceOrEqualCharacterDetected && c == '=')
+        if (possibleEndOfChallenge && paramOrTokenNameDetected && c == '=')
         {
             // Next parameter found.
             possibleEndOfChallenge = NO;
-            nonSpaceOrEqualCharacterDetected = NO;
+            paramOrTokenNameDetected = NO;
             spaceCharacterDetected = NO;
             lastChallengeIndex = nextIndex;
         }
         
-        if (possibleEndOfChallenge && nonSpaceOrEqualCharacterDetected && spaceCharacterDetected && c != ',' && c != ' ' && c != ' ')
+        if (possibleEndOfChallenge && paramOrTokenNameDetected && spaceCharacterDetected && c != ',' && c != ' ' && c != '=')
         {
             // Next challenge found.
             possibleEndOfChallenge = NO;
