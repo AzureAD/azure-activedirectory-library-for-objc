@@ -224,6 +224,14 @@ NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
     return lastIndex;
 }
 
++ (BOOL)isSpecialCharacter:(unichar)character
+{
+    NSSet *set = [[NSSet alloc] initWithObjects:@",", @" ", @"=", @"'", @"\"", nil];
+    NSString *string = [[NSString alloc] initWithCharacters:&character length:1];
+    
+    return [set containsObject:string];
+}
+
 + (NSString *)extractBearerChallenge:(NSString *)headerContents
 {
     NSRange range = [headerContents rangeOfString:@"Bearer "];
@@ -272,7 +280,7 @@ NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
             lastChallengeIndex = nextIndex;
         }
         
-        if (c != ' ' && c != ',' && c != '=')
+        if (![self isSpecialCharacter:c])
         {
             paramOrTokenNameDetected = YES;
         }
@@ -291,7 +299,7 @@ NSString* const ExtractionExpression = @"([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
             lastChallengeIndex = nextIndex;
         }
         
-        if (possibleEndOfChallenge && paramOrTokenNameDetected && spaceCharacterDetected && c != ',' && c != ' ' && c != '=')
+        if (possibleEndOfChallenge && paramOrTokenNameDetected && spaceCharacterDetected && ![self isSpecialCharacter:c])
         {
             // Next challenge found.
             possibleEndOfChallenge = NO;
