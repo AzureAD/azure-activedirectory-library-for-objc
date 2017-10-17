@@ -587,4 +587,17 @@
     XCTAssertNotNil(error);
 }
 
+- (void)testExtractChallengeParameters_whenBearerWithoutParameters_shouldReturnErrorAndNilParameters
+{
+    NSDictionary *parameters = nil;
+    ADAuthenticationError *error = nil;
+    NSString *challengeString = @"Basic realm=\"https://contoso.com/\", Bearer, TFS-Federated";
+    
+    parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
+                                                                  error:&error];
+    
+    XCTAssertNil(parameters);
+    XCTAssertNotNil(error);
+}
+
 @end
