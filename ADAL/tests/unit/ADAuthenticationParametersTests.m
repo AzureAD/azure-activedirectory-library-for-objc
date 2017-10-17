@@ -415,6 +415,16 @@
     XCTAssertNil(parameters);
 }
 
+-(void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerSpaceSomethingEqualQuoteBarQuoteCommaSpace_shouldReturnErrorAndNilParameters
+{
+    ADAuthenticationError *error;
+    
+    NSDictionary *parameters = [ADAuthenticationParameters extractChallengeParameters:@"Bearer something=\"bar\", " error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertNil(parameters);
+}
+
 - (void)testExtractChallengeParameters_whenHeaderContentsStartsWithBearerMultipleSpacesAuthorizationUri_shouldReturnParametersAndNilError
 {
     ADAuthenticationError *error;
@@ -554,7 +564,7 @@
 {
     NSDictionary *parameters = nil;
     ADAuthenticationError *error = nil;
-    NSString *challengeString = @"Badger bearer=\"https://contoso.com/\", Bearer authorization_uri=\"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\"";
+    NSString *challengeString = @"Badger Bearer =\"https://contoso.com/\", Bearer authorization_uri=\"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\"";
     
     parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
                                                                   error:&error];
