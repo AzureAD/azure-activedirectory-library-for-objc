@@ -574,4 +574,17 @@
     XCTAssertEqualObjects(parameters, @{ @"authorization_uri" : @"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47" });
 }
 
+- (void)testExtractChallengeParameters_whenMultipleBearerChallendges_shouldReturnErrorAndNilParameters
+{
+    NSDictionary *parameters = nil;
+    ADAuthenticationError *error = nil;
+    NSString *challengeString = @"Basic realm=\"https://contoso.com/\", Bearer authorization_uri=\"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47\", TFS-Federated, Bearer something=\"bar\"";
+    
+    parameters = [ADAuthenticationParameters extractChallengeParameters:challengeString
+                                                                  error:&error];
+    
+    XCTAssertNil(parameters);
+    XCTAssertNotNil(error);
+}
+
 @end

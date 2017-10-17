@@ -96,8 +96,9 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
 + (NSDictionary *)extractChallengeParameters:(NSString *)headerContents
                                        error:(ADAuthenticationError * __autoreleasing *)error;
 {
-    NSMutableArray *items = [self extractItems:headerContents];
+    NSMutableArray<NSString *> *items = [self extractItems:headerContents];
     
+    // Find start index of bearer and verify that there is only 1 bearer challendge in the string.
     NSInteger bearerStartIndex = NSNotFound;
     for (int i = 0; i < items.count; i++)
     {
@@ -105,6 +106,14 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
         NSRange range = [item rangeOfString:BearerWithParamExpression options:NSRegularExpressionSearch];
         if (range.location != NSNotFound)
         {
+            if (bearerStartIndex != NSNotFound)
+            {
+                // Bearer was alredy found, this one is 2nd bearere in the string.
+                // That's not allowed. Reset index and break cycle.
+                bearerStartIndex = NSNotFound;
+                break;
+            }
+            
             // Remove 'Bearer'.
             NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:BearerSchemaNameExpression options:NSRegularExpressionCaseInsensitive error:nil];
             NSString *param = [regex stringByReplacingMatchesInString:item options:0 range:NSMakeRange(0, [item length]) withTemplate:@""];
@@ -114,10 +123,10 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
             
             // Save bearer's start index.
             bearerStartIndex = i;
-            break;
         }
     }
     
+    // Bearer was not found.
     if (bearerStartIndex == NSNotFound)
     {
         *error = [self invalidHeader:headerContents];
@@ -186,7 +195,6 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
     }
     
     // Check for invalid parameters/state.
-    
     if (leftIndex == rightIndex)
     {
         // Comma was not followed by a text -- invalid header.
