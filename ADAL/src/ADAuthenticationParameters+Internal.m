@@ -37,9 +37,7 @@ NSString* const ConnectionError = @"Connection error: %@";
 NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Unauthorized (401) HTTP status code is expected, but the actual status code is %d";
 const unichar Quote = '\"';
-//The regular expression that matches the Bearer contents:
-NSString* const BearerWithParamExpression = @"\\s*Bearer\\s+([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"";
-NSString* const BearerSchemaNameExpression = @"\\s*Bearer\\s+";
+// Bearer's parameters extration regex.
 NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"\\s*";
 
 @implementation ADAuthenticationParameters (Internal)
@@ -103,7 +101,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
     for (int i = 0; i < items.count; i++)
     {
         NSString *item = items[i];
-        NSRange range = [item rangeOfString:BearerWithParamExpression options:NSRegularExpressionSearch];
+        NSRange range = [item rangeOfString:@"\\s*Bearer\\s+([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"" options:NSRegularExpressionSearch];
         if (range.location != NSNotFound)
         {
             if (bearerStartIndex != NSNotFound)
@@ -115,7 +113,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
             }
             
             // Remove 'Bearer'.
-            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:BearerSchemaNameExpression options:NSRegularExpressionCaseInsensitive error:nil];
+            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\s*Bearer\\s+" options:NSRegularExpressionCaseInsensitive error:nil];
             NSString *param = [regex stringByReplacingMatchesInString:item options:0 range:NSMakeRange(0, [item length]) withTemplate:@""];
             
             // Save cleared param.
@@ -237,9 +235,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
 + (BOOL)isParameter:(NSString *)string
 {
     NSRange range = [string rangeOfString:ExtractionExpression options:NSRegularExpressionSearch];
-    BOOL result = range.location == 0;
-    
-    return result;
+    return range.location == 0;
 }
 
 + (NSMutableDictionary *)extractParameters:(NSString *)string
