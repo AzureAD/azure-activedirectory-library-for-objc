@@ -184,10 +184,10 @@
 }
 
 
-#define FILL_FIELD(_FIELD, _KEY) \
+#define FILL_FIELD(_FIELD, _KEY, _CLASS) \
 { \
     id _val = [responseDictionary valueForKey:_KEY]; \
-    if (_val) \
+    if (_val && [_val isKindOfClass:_CLASS]) \
     { \
         self._FIELD = _val; \
     } \
@@ -208,13 +208,13 @@
     [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
     [responseDictionary removeObjectForKey:OAUTH2_ID_TOKEN];
     
-    FILL_FIELD(authority, OAUTH2_AUTHORITY);
-    FILL_FIELD(resource, OAUTH2_RESOURCE);
-    FILL_FIELD(clientId, OAUTH2_CLIENT_ID);
-    FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN);
-    FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN);
-    FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE);
-    FILL_FIELD(familyId, ADAL_CLIENT_FAMILY_ID);
+    FILL_FIELD(authority, OAUTH2_AUTHORITY, [NSString class]);
+    FILL_FIELD(resource, OAUTH2_RESOURCE, [NSString class]);
+    FILL_FIELD(clientId, OAUTH2_CLIENT_ID, [NSString class]);
+    FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN, [NSString class]);
+    FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN, [NSString class]);
+    FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE, [NSString class]);
+    FILL_FIELD(familyId, ADAL_CLIENT_FAMILY_ID, [NSString class]);
     
     [self fillExpiration:responseDictionary];
     

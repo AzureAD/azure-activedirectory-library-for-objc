@@ -168,6 +168,7 @@ static NSUInteger s_currentProfileIdx = 0;
     self.validateAuthority = validate ? [validate boolValue] : YES;
     NSNumber* enableBroker = [settings objectForKey:@"enableBroker"];
     self.enableBroker = [enableBroker boolValue];
+    self.extraQueryParameters = [settings objectForKey:@"EQP"];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppProfileChangedNotification object:self];
 }
