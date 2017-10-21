@@ -53,6 +53,12 @@
 + (nonnull ADTelemetry*)sharedInstance;
 
 /*!
+ Set to YES to allow events possibly containing Personally Identifiable Information (PII) to be
+ sent to dispatcher.
+ */
+@property (nonatomic) BOOL piiEnabled;
+
+/*!
     Register a telemetry dispatcher for receiving telemetry events.
     @param dispatcher            An instance of ADDispatcher implementation.
     @param aggregationRequired   If set NO, all telemetry events collected by ADAL will be dispatched;

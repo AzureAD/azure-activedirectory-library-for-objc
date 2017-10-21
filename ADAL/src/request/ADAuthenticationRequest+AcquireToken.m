@@ -55,24 +55,20 @@
     
     __block NSString* log = [NSString stringWithFormat:@"##### BEGIN acquireToken%@ (authority = %@, resource = %@, clientId = %@, idtype = %@) #####",
                              _silent ? @"Silent" : @"", _requestParams.authority, _requestParams.resource, _requestParams.clientId, [_requestParams.identifier typeAsString]];
-    AD_LOG_INFO_F(log, _requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
+    AD_LOG_INFO(_requestParams.correlationId, nil, YES, @"userId = %@", _requestParams.identifier.userId);
     
     ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
     {
-        NSString* finalLog = nil;
         if (result.status == AD_SUCCEEDED)
         {
-            finalLog = [NSString stringWithFormat:@"##### END %@ succeeded. #####", log];
+            AD_LOG_INFO(result.correlationId, nil, NO, @"##### END %@ succeeded. #####", log);
         }
         else
         {
             ADAuthenticationError* error = result.error;
-            finalLog = [NSString stringWithFormat:@"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@} #####",
-                        log, error.domain, (long)error.code, error.protocolCode, error.errorDetails];
+            AD_LOG_INFO(result.correlationId, nil, NO, @"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ ", log, error.domain, (long)error.code, error.protocolCode);
+            AD_LOG_INFO(result.correlationId, nil, YES, @"errorDetails: %@ ", error.errorDetails);
         }
-        
-        
-        AD_LOG_INFO(finalLog, result.correlationId, nil);
         
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_API_EVENT
                                                                        context:self];
@@ -461,7 +457,8 @@
 {
     HANDLE_ARGUMENT(code, [_requestParams correlationId]);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", [_requestParams correlationId], @"Requesting token by authorization code for resource: %@", [_requestParams resource]);
+    
+    AD_LOG_VERBOSE(_requestParams.correlationId, nil, NO, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:

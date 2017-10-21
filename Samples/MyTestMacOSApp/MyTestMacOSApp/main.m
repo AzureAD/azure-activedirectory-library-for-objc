@@ -27,10 +27,10 @@
 
 int main(int argc, const char * argv[])
 {
-    [ADLogger setLevel:ADAL_LOG_LEVEL_INFO];
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, NSInteger errorCode, NSDictionary *userInfo) {
-        NSLog(@"%@ - %@", message, additionalInfo);
-    }];
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii, NSInteger __unused errorCode, NSDictionary __unused *userInfo)
+     {
+         NSLog(@"%@", message);
+     }];
     
     return NSApplicationMain(argc, argv);
 }
