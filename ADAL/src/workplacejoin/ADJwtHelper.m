@@ -98,7 +98,7 @@
     
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes))
     {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR context:self message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil correlationId:nil userInfo:nil];
+        AD_LOG_ERROR(ADAL_LOG_LEVEL_ERROR, nil, nil, NO, @"Could not compute SHA265 hash.");
         
         free(hashBytes);
         free(signedHashBytes);
@@ -119,7 +119,7 @@
     
     if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(@"Failed to sign JWT", status, nil, nil);
+        AD_LOG_ERROR(status, nil, nil, NO, @"Failed to sign JWT");
         free(hashBytes);
         free(signedHashBytes);
         return nil;
@@ -144,7 +144,8 @@
                                                          error:&error];
     if (!jsonData)
     {
-        AD_LOG_ERROR(([NSString stringWithFormat:@"Got an error: %@", error]), error.code, nil, nil);
+        AD_LOG_ERROR(error.code, nil, nil, YES, @"Got an error: %@", error);
+        
         return nil;
     }
 

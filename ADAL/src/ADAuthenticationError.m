@@ -95,19 +95,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     if (!quiet)
     {
         NSString* codeStr = [self getStringForErrorCode:code domain:domain];
-        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\" Details: \"%@\"", domain, codeStr, protocolCode, details];
-        NSDictionary* logDict = nil;
-        if (correlationId)
-        {
-            logDict = @{ @"error" : self,
-                         @"correlationId" : correlationId };
-        }
-        else
-        {
-            logDict = @{ @"error" : self };
-        }
-        
-        AD_LOG_ERROR_DICT(message, code, correlationId, logDict, nil);
+        AD_LOG_ERROR(code, correlationId, nil, NO, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\"", domain, codeStr, protocolCode);
+        AD_LOG_ERROR(code, correlationId, nil, YES, @"Error details: %@", details);
     }
     
     return self;

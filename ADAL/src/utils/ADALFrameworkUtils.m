@@ -55,7 +55,7 @@ static NSString *_resourcePath = nil;
     dispatch_once( &predicate, ^{
         
         NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-        AD_LOG_VERBOSE_F(@"Resources Loading", nil, @"Attempting to load resources from: %@", mainBundlePath);
+        AD_LOG_VERBOSE(nil, nil, YES, @"Resources Loading - Attempting to load resources from: %@", mainBundlePath);
         NSString* frameworkBundlePath = nil;
         
         if ( _resourcePath != nil )
@@ -76,7 +76,7 @@ static NSString *_resourcePath = nil;
         bundle = [NSBundle bundleForClass:[ADALFrameworkUtils class]];
         if (!bundle)
         {
-            AD_LOG_INFO_F(@"Resource Loading", nil, @"Failed to load framework bundle. Application main bundle will be attempted.");
+            AD_LOG_INFO(nil, nil, NO, @"Resource Loading - Failed to load framework bundle. Application main bundle will be attempted.");
         }
     });
     

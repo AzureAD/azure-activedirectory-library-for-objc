@@ -155,7 +155,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
-    AD_LOG_INFO(@"Handling PKeyAuth Challenge", nil, nil);
+    AD_LOG_INFO(nil, nil, NO, @"Handling PKeyAuth Challenge.");
     
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
@@ -250,14 +250,16 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)webAuthDidFinishLoad:(NSURL*)url
 {
-    AD_LOG_VERBOSE_F(@"-webAuthDidFinishLoad:", _requestParams.correlationId, @"host: %@", url.host);
+    AD_LOG_VERBOSE(_requestParams.correlationId, nil, NO, @"-webAuthDidFinishLoad host: %@", url.host);
+    
     [self stopSpinner];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(@"-webAuthShouldStartLoadRequest:", _requestParams.correlationId, @"host: %@", request.URL.host);
+    AD_LOG_VERBOSE(_requestParams.correlationId, nil, NO, @"-webAuthShouldStartLoadRequest host: %@", request.URL.host);
+    
     if([ADNTLMHandler isChallengeCancelled])
     {
         _complete = YES;
@@ -290,7 +292,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         }
         else
         {
-            AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
+            AD_LOG_ERROR(AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil, NO, @"unable to redirect to browser from extension");
         }
 #else // !TARGET_OS_IPHONE
         [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURL]];
@@ -336,7 +338,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     // redirecting to non-https url is not allowed
     if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_SERVER_NON_HTTPS_REDIRECT, nil, nil);
+        AD_LOG_ERROR(AD_ERROR_SERVER_NON_HTTPS_REDIRECT, nil, nil, NO, @"Server is redirecting to a non-https url");
         _complete = YES;
         ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_requestParams.correlationId];
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
@@ -355,7 +357,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // The user cancelled authentication
 - (void)webAuthDidCancel
 {
-    AD_LOG_INFO(@"-webAuthDidCancel", _requestParams.correlationId, nil);
+    AD_LOG_INFO(_requestParams.correlationId, nil, NO, @"-webAuthDidCancel");
     
     // Dispatch the completion block
     
@@ -366,7 +368,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication completed at the end URL
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
-    AD_LOG_INFO_F(@"-webAuthDidCompleteWithURL:", _requestParams.correlationId, @"%@", endURL);
+    AD_LOG_INFO(_requestParams.correlationId, nil, NO, @"-webAuthDidCompleteWithURL: %@", endURL);
 
     [self endWebAuthenticationWithError:nil orURL:endURL];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
@@ -412,7 +414,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if (error)
     {
-        AD_LOG_ERROR_F(@"-webAuthDidFailWithError:", error.code, _requestParams.correlationId, @"error: %@", error);
+        AD_LOG_ERROR(error.code, _requestParams.correlationId, nil, NO, @"-webAuthDidFailWithError: %@", error);
 
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
                                                             object:self
@@ -437,7 +439,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (_complete == YES)
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
-        AD_LOG_VERBOSE(@"Expected error", _requestParams.correlationId, [error localizedDescription]);
+        AD_LOG_VERBOSE(_requestParams.correlationId, nil, NO, @"Expected error %@", error.localizedDescription);
         return;
     }
     
@@ -486,7 +488,8 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
-    AD_LOG_ERROR_F(@"Application is cancelling current web auth session.", error.code, _requestParams.correlationId, @"error = %@", error);
+    AD_LOG_ERROR(error.code, _requestParams.correlationId, nil, NO, @"Application is cancelling current web auth session. error = %@", error);
+    
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 

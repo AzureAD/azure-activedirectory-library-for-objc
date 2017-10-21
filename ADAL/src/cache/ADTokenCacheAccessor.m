@@ -245,7 +245,7 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN(@"Told to update cache to an invalid token cache item", [context correlationId], nil);
+            AD_LOG_WARN(nil, nil, NO, @"Told to update cache to an invalid token cache item.");
             return;
         }
         
@@ -282,7 +282,8 @@
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing multi-resource refresh token for authority: %@", _authority);
+        AD_LOG_VERBOSE(correlationId, nil, NO, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        
         [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
         //If the server returned a multi-resource refresh token, we break
@@ -324,7 +325,8 @@
         }
     }
     
-    AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing access token for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, nil, NO, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
+    
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     [self addOrUpdateItem:cacheItem context:context error:nil];
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
@@ -402,7 +404,8 @@
         return;
     }
     
-    AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, nil, NO, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
+    
     //update tombstone property before update the tombstone in cache
     [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
                                @"errorDetails" : [error errorDetails],
