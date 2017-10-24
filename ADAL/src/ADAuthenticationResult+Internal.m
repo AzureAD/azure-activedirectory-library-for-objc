@@ -222,7 +222,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     // common. If the intended tenant was something other then common then the access token may
     // be bad, so clear it out. We will force a token refresh later.
     NSArray *pathComponents = [[NSURL URLWithString:item.authority] pathComponents];
-    NSString *tenant = pathComponents.count > 1 ? pathComponents[1] : nil;
+    NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
     BOOL fValidTenant = response[@"vt"] != nil || [tenant isEqualToString:@"common"];
     if (!fValidTenant)
     {
