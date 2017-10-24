@@ -39,6 +39,7 @@
 #import "ADTelemetryTestDispatcher.h"
 #import "ADUserIdentifier.h"
 #import "ADTestAuthenticationViewController.h"
+#import "ADAuthorityValidation.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -67,6 +68,7 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
+    [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
 }
 
 - (void)tearDown
@@ -147,6 +149,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         XCTAssertNil(result.authority);
          ADTAssertContains(result.error.errorDetails, @"clientId");
          
          [expectation fulfill];
@@ -164,6 +167,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         XCTAssertNil(result.authority);
          ADTAssertContains(result.error.errorDetails, @"clientId");
          
          [expectation fulfill];
@@ -187,6 +191,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -211,6 +216,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"extraQueryParameters");
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -318,6 +324,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, broadRefreshToken);
          XCTAssertEqualObjects(result.accessToken, anotherAccessToken);
          XCTAssertEqualObjects(result.correlationId, correlationId);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -363,6 +370,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNil(result.error);
         XCTAssertNotNil(result.tokenCacheItem);
         XCTAssertEqualObjects(result.tokenCacheItem, item);
+        XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
         
         [expectation fulfill];
     }];
@@ -403,6 +411,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.error);
          XCTAssertNil(result.tokenCacheItem);
          XCTAssertEqual(result.error.code, AD_ERROR_CACHE_MULTIPLE_USERS);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -466,6 +475,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNil(result.error);
          XCTAssertNotNil(result.tokenCacheItem);
          XCTAssertEqualObjects(result.tokenCacheItem, item);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -490,6 +500,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
     }];
@@ -517,6 +528,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertNotNil(result.tokenCacheItem);
          XCTAssertEqualObjects(result.tokenCacheItem, item);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -547,6 +559,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -585,6 +598,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -638,6 +652,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -668,6 +683,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -772,6 +788,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.tokenCacheItem);
          XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
          XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -845,6 +862,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.tokenCacheItem);
          XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
          XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -924,6 +942,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_FAILED);
         XCTAssertNotNil(result.error);
+        XCTAssertNil(result.authority);
         
         [expectation fulfill];
     }];
@@ -960,6 +979,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_FAILED);
         XCTAssertNotNil(result.error);
+        XCTAssertNil(result.authority);
         
         [expectation fulfill];
     }];
@@ -1169,6 +1189,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNotNil(result.tokenCacheItem);
         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+        XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
         [expectation fulfill];
     }];
 
@@ -1239,6 +1260,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          [expectation fulfill];
      }];
     
@@ -1332,6 +1354,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          [expectation fulfill];
      }];
     
@@ -1410,6 +1433,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertEqualObjects(result.accessToken, @"new access token");
         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+        XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
         [expectation fulfill];
     }];
     
@@ -1478,6 +1502,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.accessToken, @"new access token");
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          [expectation fulfill];
      }];
     
@@ -1527,6 +1552,14 @@ const int sAsyncContextTimeout = 10;
     // Sign in a user without an idtoken coming back
 }
 
+- (void)testInstanceAwareSignIn
+{
+    // TODO: Requires testing auth code flow
+    
+    // Pass instance_aware=true as extra query parameter and make sure correct
+    // token endpoint is used and token is cached with correct authority url
+}
+
 - (void)testResilencyTokenReturn
 {
     ADAuthenticationError* error = nil;
@@ -1557,6 +1590,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -1617,6 +1651,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNil(result.error);
          XCTAssertTrue(result.extendedLifeTimeToken);
          XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"access token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -1760,6 +1795,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];
@@ -1793,6 +1829,7 @@ const int sAsyncContextTimeout = 10;
      {
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          
          [expectation fulfill];
      }];
@@ -1834,6 +1871,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER);
+         XCTAssertNil(result.authority);
          
          [expectation fulfill];
      }];

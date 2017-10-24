@@ -52,14 +52,20 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 // Cache - AAD
 
 /*!
- Validates an authority.
+ Checks an authority.
+ For AAD, if metadata exists for an endpoint, we’ll want to retrieve that regardless of
+ whether authority validation is turned on.
  
  @param requestParams        Request parameters
+ @param validateAuthority    authority validation check
  @param completionBlock      The block to execute upon completion.
-
+ 
  */
-- (void)validateAuthority:(ADRequestParameters*)requestParams
-          completionBlock:(ADAuthorityValidationCallback)completionBlock;
+- (void)checkAuthority:(ADRequestParameters*)requestParams
+     validateAuthority:(BOOL)validateAuthority
+       completionBlock:(ADAuthorityValidationCallback)completionBlock;
+
+- (void)addInvalidAuthority:(NSString *)authority;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
                           context:(id<ADRequestContext>)context;

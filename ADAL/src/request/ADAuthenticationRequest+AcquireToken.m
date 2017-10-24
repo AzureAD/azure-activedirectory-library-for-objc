@@ -145,23 +145,19 @@
         return;
     }
     
-    if (!_context.validateAuthority)
-    {
-        [self validatedAcquireToken:wrappedCallback];
-        return;
-    }
-    
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
     ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
-    [authorityValidation validateAuthority:_requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:_requestParams
+                      validateAuthority:_context.validateAuthority
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION
                                                                         context:_requestParams];
          [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_VALUE_YES:AD_TELEMETRY_VALUE_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+         
          if (error)
          {
              wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
@@ -170,8 +166,7 @@
          {
              [self validatedAcquireToken:wrappedCallback];
          }
-     }];
-    
+     }];    
 }
 
 - (BOOL)checkExtraQueryParameters
@@ -415,6 +410,7 @@
              
              ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+             
              [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? AD_TELEMETRY_VALUE_CANCELLED:AD_TELEMETRY_VALUE_FAILED];
              [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
              completionBlock(result);
@@ -431,7 +427,9 @@
                  NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
                  if (!brokerRequestURL)
                  {
-                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                     ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+                     [result setCloudAuthority:_cloudAuthority];
+                     completionBlock(result);
                      return;
                  }
                  
@@ -462,6 +460,7 @@
                                                               refreshToken:nil
                                                                    context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
+                          [result setCloudAuthority:_cloudAuthority];
                       }
                       completionBlock(result);
                   }];
