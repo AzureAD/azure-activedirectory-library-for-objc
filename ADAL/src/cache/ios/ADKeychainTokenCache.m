@@ -451,6 +451,35 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     return deleteSuccessful;
 }
 
+- (BOOL)removeAllForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
+{
+    AD_LOG_WARN_DICT_F(([NSString stringWithFormat:@"Removing all items for user %@", userId]), nil,
+                       (@{ @"operation" : @"removeAllForUserId:clientId:", @"userId" : userId }),
+                       nil);
+
+    BOOL deleteSuccessful = YES;
+    NSArray *items = [self allItems:nil];
+
+    ADAuthenticationError *adError = nil;
+
+    for (ADTokenCacheItem *item in items)
+    {
+        if ([userId isEqualToString:[[item userInformation] userId]])
+        {
+            [self removeItem:item error:&adError];
+            if (adError)
+            {
+                deleteSuccessful = NO;
+                if (error)
+                {
+                    *error = adError;
+                }
+            }
+        }
+    }
+    return deleteSuccessful;
+}
+
 - (BOOL)cleanTombstoneIfNecessary
 {
     //Check whether it is time to clean tombstones
