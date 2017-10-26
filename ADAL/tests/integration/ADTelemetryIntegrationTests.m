@@ -47,14 +47,18 @@
 
 @implementation ADTelemetryTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
     _receivedEvents = [NSMutableArray array];
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     _receivedEvents = nil;
     [super tearDown];
+    
+    [ADTelemetry sharedInstance].piiEnabled = NO;
 }
 
 - (void)setupADTelemetryDispatcherWithAggregationRequired:(BOOL)aggregationRequired
@@ -528,6 +532,42 @@
     XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.server_sub_error_code"], @"10");
     XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.rt_age"], @"85");
     XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
+}
+
+- (void)test_telemetryPiiRules_whenPiiEnabledNo_shouldSetPiiFieldsToEmpty
+{
+    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
+    NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    ADTelemetryDefaultEvent *event = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
+                                        requestId:requestId
+                                    correlationId:[NSUUID UUID]];
+    [event setProperty:AD_TELEMETRY_KEY_USER_ID value:@"id1234"];
+    [ADTelemetry sharedInstance].piiEnabled = NO;
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    
+    [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
+    
+    NSDictionary *dictionary = [_receivedEvents firstObject];
+    XCTAssertNotNil(dictionary);
+    XCTAssertEqualObjects([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], @"");
+}
+
+- (void)test_telemetryPiiRules_whenPiiEnabledYes_shouldNotChangePiiFields
+{
+    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
+    NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    ADTelemetryDefaultEvent *event = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
+                                                                         requestId:requestId
+                                                                     correlationId:[NSUUID UUID]];
+    [event setProperty:AD_TELEMETRY_KEY_USER_ID value:@"id1234"];
+    [ADTelemetry sharedInstance].piiEnabled = YES;
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    
+    [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
+    
+    NSDictionary *dictionary = [_receivedEvents firstObject];
+    XCTAssertNotNil(dictionary);
+    XCTAssertEqualObjects([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], @"id1234");
 }
 
 @end
