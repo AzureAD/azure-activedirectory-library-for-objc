@@ -399,12 +399,10 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     
     for (ADTokenCacheItem * item in items)
     {
-        if ([clientId isEqualToString:[item clientId] ])
+        if ([clientId isEqualToString:[item clientId]]
+            && ![self removeItem:item error:error])
         {
-            if (![self removeItem:item error:error])
-            {
-                return NO;
-            }
+            return NO;
         }
     }
     return YES;
@@ -423,12 +421,10 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     for (ADTokenCacheItem * item in items)
     {
         if ([userId isEqualToString:[[item userInformation] userId]]
-            && [clientId isEqualToString:[item clientId]])
+            && [clientId isEqualToString:[item clientId]]
+            && ![self removeItem:item error:error])
         {
-            if (![self removeItem:item error:error])
-            {
-                return NO;
-            }
+            return NO;
         }
     }
     return YES;
@@ -443,12 +439,10 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
     for (ADTokenCacheItem *item in items)
     {
-        if ([userId isEqualToString:[[item userInformation] userId]])
+        if ([userId isEqualToString:[[item userInformation] userId]]
+            && ![self removeItem:item error:error])
         {
-            if (![self removeItem:item error:error])
-            {
-                return NO;
-            }
+            return NO;
         }
     }
     return YES;
