@@ -549,7 +549,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertEqualObjects([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], @"");
+    XCTAssertNil([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledYes_shouldNotChangePiiFields
