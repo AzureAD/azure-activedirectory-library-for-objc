@@ -28,10 +28,12 @@ import traceback
 import sys
 import re
 import os
+import device_guids
 
 from timeit import default_timer as timer
 
-ios_sim_dest = "-destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'"
+ios_sim_device = "iPhone 6"
+ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=latest'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "ADAL.xcworkspace"
@@ -113,6 +115,7 @@ class BuildTarget:
 			self.workspace = default_workspace
 		self.scheme = target["scheme"]
 		self.dependencies = target.get("dependencies")
+		self.device_guid = None
 		self.operations = target["operations"]
 		self.platform = target["platform"]
 		self.build_settings = None
@@ -154,11 +157,14 @@ class BuildTarget:
 		"""
 		Retrieve the build settings from xcodebuild and return thm in a dictionary
 		"""
+		
+		print "Retrieving Build Settings for " + self.name
 		if (self.build_settings != None) :
 			return self.build_settings
 		
 		command = self.xcodebuild_command(None, False)
 		command += " -showBuildSettings"
+		print command
 		
 		start = timer()
         
@@ -216,7 +222,15 @@ class BuildTarget:
 			sys.stdout.write(str(self.coverage) + "%" + ColorValues.END + "\n")
 			
 		return 0
+	
+	def get_device_guid(self) :
+		if (self.platform == "iOS") :
+			return device_guids.get_ios(ios_sim_device)
 		
+		if (self.platform == "Mac") :
+			return device_guids.get_mac()
+		
+		raise Exception("Unsupported platform: \"" + "\", valid platforms are \"iOS\" and \"Mac\"")
 	
 	def do_codecov(self) :
 		"""
@@ -224,21 +238,19 @@ class BuildTarget:
 		print out an error if it is below the minimum requirement
 		"""
 		build_settings = self.get_build_settings();
-		objroot = build_settings["OBJROOT"]
+		build_dir = build_settings["BUILD_DIR"]
+		derived_dir = os.path.normpath(build_dir + "/..")
+		device_guid = self.get_device_guid();
 		
-		# Starting in Xcocde 9 they add ".noindex" to the intermediates, but the code coverage folder is not in that folder
-		if (objroot.endswith(".noindex")) :
-			objroot = objroot[0:len(objroot) - 8]
-		codecov_dir = objroot + "/CodeCoverage"
 		executable_path = build_settings["EXECUTABLE_PATH"]
 		config = build_settings["CONFIGURATION"]
 		platform_name = build_settings.get("EFFECTIVE_PLATFORM_NAME")
 		if (platform_name == None) :
 			platform_name = ""
 		
-		command = "xcrun llvm-cov report -instr-profile Coverage.profdata -arch=\"x86_64\" -use-color Products/" + config + platform_name + "/" + executable_path
+		command = "xcrun llvm-cov report -instr-profile ProfileData/" + device_guid + "/Coverage.profdata -arch=\"x86_64\" -use-color Products/" + config + platform_name + "/" + executable_path
 		print command
-		p = subprocess.Popen(command, cwd = codecov_dir, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+		p = subprocess.Popen(command, cwd = derived_dir, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 		
 		output = p.communicate()
 		
@@ -305,9 +317,8 @@ for spec in target_specifiers :
 if (clean) :
 	derived_folders = set()
 	for target in targets :
-		objroot = target.get_build_settings()["OBJROOT"]
-		trailing = "/Build/Intermediates"
-		derived_dir = objroot[:-len(trailing)]
+		build_dir = target.get_build_settings()["BUILD_DIR"]
+		derived_dir = os.path.normpath(build_dir + "/../..")
 		derived_folders.add(derived_dir)
 		print derived_dir
 	
