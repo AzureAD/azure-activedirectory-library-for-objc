@@ -178,7 +178,7 @@ static NSString* const s_delimiter = @"|";
         for (ADDefaultDispatcher *dispatcher in _dispatchers)
         {
             for (NSString *propertyName in [event.propertyMap allKeys]) {
-                BOOL isPii = [[ADTelemetryPiiRules sharedInstance] isPii:propertyName];
+                BOOL isPii = [ADTelemetryPiiRules isPii:propertyName];
                 if (isPii && !self.piiEnabled) {
                     [event deleteProperty:propertyName];
                 }

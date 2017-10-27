@@ -25,8 +25,6 @@
 
 @interface ADTelemetryPiiRules : NSObject
 
-+ (ADTelemetryPiiRules *)sharedInstance;
-
-- (BOOL)isPii:(NSString *)propertyName;
++ (BOOL)isPii:(NSString *)propertyName;
 
 @end

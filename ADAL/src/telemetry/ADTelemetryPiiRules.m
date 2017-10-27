@@ -24,49 +24,26 @@
 #import "ADTelemetryPiiRules.h"
 #import "ADTelemetryEventStrings.h"
 
-@interface ADTelemetryPiiRules()
-
-@property (nonatomic) NSDictionary *piiRules;
-
-@end
+static NSDictionary *_piiRules;
 
 @implementation ADTelemetryPiiRules
 
-#pragma mark - Public
-
-+ (ADTelemetryPiiRules *)sharedInstance
++ (void)initialize
 {
-    static dispatch_once_t onceToken;
-    static id instance;
-    
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
-    
-    return instance;
+    _piiRules = @{AD_TELEMETRY_KEY_USER_ID: @YES};
 }
 
-- (BOOL)isPii:(NSString *)propertyName
+#pragma mark - Public
+
++ (BOOL)isPii:(NSString *)propertyName
 {
-    NSNumber *value = self.piiRules[propertyName];
+    NSNumber *value = _piiRules[propertyName];
     if (value)
     {
         return [value boolValue];
     }
     
     return NO;
-}
-
-#pragma mark - Private
-
-- (NSDictionary *)piiRules
-{
-    if (!_piiRules)
-    {
-        _piiRules = @{ AD_TELEMETRY_KEY_USER_ID: @YES};
-    }
-    
-    return _piiRules;
 }
 
 @end
