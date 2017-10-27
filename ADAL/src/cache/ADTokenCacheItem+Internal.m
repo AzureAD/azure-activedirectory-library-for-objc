@@ -255,8 +255,10 @@
 {
     if (_tombstone)
     {
-        [ADLogger log:level context:self errorCode:0 correlationId:correlationId userInfo:nil isPii:YES format:@"%@", _tombstone];
-        [ADLogger log:level context:self errorCode:0 correlationId:correlationId userInfo:nil isPii:NO format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
+        [ADLogger log:level context:self errorCode:0 correlationId:correlationId userInfo:nil isPii:YES
+               format:@"%@", _tombstone];
+        [ADLogger log:level context:self errorCode:0 correlationId:correlationId userInfo:nil isPii:NO
+               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
         
         return;
     }
@@ -285,8 +287,9 @@
         tokenMessage = [NSString stringWithFormat:@"%@ %@", message, tokenMessage];
     }
     
-    [ADLogger log:level context:self errorCode:0 correlationId:correlationId userInfo:nil isPii:YES format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}", tokenMessage,
-     _resource, _clientId, _authority, _userInformation.userId];
+    [ADLogger log:level context:self errorCode:0 correlationId:correlationId userInfo:nil isPii:YES
+           format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
+     tokenMessage, _resource, _clientId, _authority, _userInformation.userId];
 }
 
 - (BOOL)isExtendedLifetimeValid
