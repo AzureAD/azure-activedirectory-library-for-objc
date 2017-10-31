@@ -78,7 +78,9 @@ def get_mac() :
 	if (get_mac.guid != None) :
 		return get_mac.guid
 	
-	get_mac.guid = subprocess.check_output("system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }'", shell=True)
-	return get_mac.guid
+	guid = subprocess.check_output("system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }'", shell=True)
+	guid = guid.strip()
+	get_mac.guid = guid
+	return guid
 
 get_mac.guid = None
