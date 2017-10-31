@@ -28,17 +28,29 @@
 
 #define FIRST_ARG(ARG,...) ARG
 
-#define AD_LOG_ERROR(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_ERROR, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+#define AD_LOG_ERROR(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_ERROR, _correlationId, NO, _fmt, ##__VA_ARGS__)
 
-#define AD_LOG_WARN(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_WARN, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+#define AD_LOG_ERROR_PII(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_ERROR, _correlationId, YES, _fmt, ##__VA_ARGS__)
 
-#define AD_LOG_INFO(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_INFO, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+#define AD_LOG_WARN(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_WARN, _correlationId, NO, _fmt, ##__VA_ARGS__)
 
-#define AD_LOG_VERBOSE(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+#define AD_LOG_WARN_PII(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_WARN, _correlationId, YES, _fmt, ##__VA_ARGS__)
+
+#define AD_LOG_INFO(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_INFO, _correlationId, NO, _fmt, ##__VA_ARGS__)
+
+#define AD_LOG_INFO_PII(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_INFO, _correlationId, YES, _fmt, ##__VA_ARGS__)
+
+#define AD_LOG_VERBOSE(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _correlationId, NO, _fmt, ##__VA_ARGS__)
+
+#define AD_LOG_VERBOSE_PII(_correlationId, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _correlationId, YES, _fmt, ##__VA_ARGS__)
 
 #ifndef DebugLog
 #ifdef DEBUG

@@ -245,7 +245,7 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN(nil, NO, @"Told to update cache to an invalid token cache item.");
+            AD_LOG_WARN(nil, @"Told to update cache to an invalid token cache item.");
             return;
         }
         
@@ -282,7 +282,7 @@
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE(correlationId, NO, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
         
         [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
@@ -325,7 +325,7 @@
         }
     }
     
-    AD_LOG_VERBOSE(correlationId, NO, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
     
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     [self addOrUpdateItem:cacheItem context:context error:nil];
@@ -404,7 +404,7 @@
         return;
     }
     
-    AD_LOG_VERBOSE(correlationId, NO, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
     
     //update tombstone property before update the tombstone in cache
     [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],

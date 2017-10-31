@@ -170,7 +170,7 @@
     CHECK_TYPE(RequiredDisplayableId);
     
     // If it didn't match against a known type return default, but log an error
-    AD_LOG_ERROR(nil, NO, @"Did not recognize type \"%@\"", type);
+    AD_LOG_ERROR(nil, @"Did not recognize type \"%@\"", type);
     
     return DEFAULT_USER_TYPE;
 }
