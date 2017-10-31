@@ -54,7 +54,7 @@
 
 /*!
  Set to YES to allow events possibly containing Personally Identifiable Information (PII) to be
- sent to dispatcher.
+ sent to dispatcher. By default it is NO.
  */
 @property (nonatomic) BOOL piiEnabled;
 
