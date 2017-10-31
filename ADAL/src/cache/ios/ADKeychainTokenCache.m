@@ -395,28 +395,17 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     AD_LOG_WARN_DICT(([NSString stringWithFormat:@"Removing all items for client <%@>", clientId]), nil,
                      (@{ @"operation" : @"removeAllForClientId:", @"clientId" : clientId }), nil);
     
-    BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
-    
-    ADAuthenticationError* adError = nil;
     
     for (ADTokenCacheItem * item in items)
     {
-        if ([clientId isEqualToString:[item clientId] ])
+        if ([clientId isEqualToString:[item clientId]]
+            && ![self removeItem:item error:error])
         {
-            [self removeItem:item error:&adError];
-            if (adError)
-            {
-                deleteSuccessful = NO;
-                
-                if (error)
-                {
-                    *error = adError;
-                }
-            }
+            return NO;
         }
     }
-    return deleteSuccessful;
+    return YES;
 }
 
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
@@ -427,28 +416,36 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                        (@{ @"operation" : @"removeAllForUserId:clientId:", @"clientId" : clientId, @"userId" : userId }),
                        @"userId: %@", userId);
     
-    BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
-    
-    ADAuthenticationError* adError = nil;
     
     for (ADTokenCacheItem * item in items)
     {
         if ([userId isEqualToString:[[item userInformation] userId]]
-            && [clientId isEqualToString:[item clientId]])
+            && [clientId isEqualToString:[item clientId]]
+            && ![self removeItem:item error:error])
         {
-            [self removeItem:item error:&adError];
-            if (adError)
-            {
-                deleteSuccessful = NO;
-                if (error)
-                {
-                    *error = adError;
-                }
-            }
+            return NO;
         }
     }
-    return deleteSuccessful;
+    return YES;
+}
+
+- (BOOL)removeAllForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
+{
+    AD_LOG_WARN_DICT(([NSString stringWithFormat:@"Removing all items for user <%@>", userId]), nil,
+                     (@{ @"operation" : @"removeAllForUserId:", @"userId" : userId }), nil);
+
+    NSArray *items = [self allItems:nil];
+
+    for (ADTokenCacheItem *item in items)
+    {
+        if ([userId isEqualToString:[[item userInformation] userId]]
+            && ![self removeItem:item error:error])
+        {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (BOOL)cleanTombstoneIfNecessary
