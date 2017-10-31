@@ -4,7 +4,7 @@ import subprocess
 import platform
 import os
 
-def get_guid(device) :
+def get_guid_i(device) :
 	device_regex = re.compile("[A-Za-z0-9 ]+ ?(?:\\(([0-9.]+)\\))? \\[([A-F0-9-]+)\\]")
 	version_regex = re.compile("([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?")
 	
@@ -55,35 +55,36 @@ def get_guid(device) :
 			latest_os_device = match.group(2)
 			latest_os_version = version_tuple
 	
-	device_guid = latest_os_device
-	
 	return latest_os_device
 
-def get_ios(device) :
-	if (get_ios.guid != None) :
-		return get_ios.guid
-	
-	get_ios.guid = get_guid(device)
-	if (get_ios.guid == None) :
-		print "Failed to find GUID for iOS Simulator: \"" + device + "\""
-		subprocess.call("instruments -s devices")
-		raise Exception("Failed to get device GUID")
-		
-	return get_ios.guid
+def get_guid(device) :
+	guid = get_guid_i(device)
+	if (guid == None) :
+		print_failure(device)
+	return guid
 
-get_ios.guid = None
+def print_failure(device) :
+	print "Failed to find GUID for device : " + device
+	subprocess.call("instruments -s devices", shell=True)
+	raise Exception("Failed to get device GUID")
+
+def get_ios(device) :
+	if (device in get_ios.guid) :
+		return get_ios.guid[device]
+	
+	guid = get_guid(device)
+	get_ios.guid[device] = guid
+	return guid
+
+get_ios.guid = {}
 
 def get_mac() :
 	if (get_mac.guid != None) :
 		return get_mac.guid
 	
 	device = subprocess.check_output("hostname -s", shell=True).strip()
-	get_mac.guid = get_guid(device)
-	if (get_mac.guid == None) :
-		print "Failed to find GUID for Mac \"" + device + "\""
-		subprocess.call("instruments -s devices")
-		raise Exception("Failed to get device GUID")
-	
-	return get_mac.guid
+	guid = get_guid(device)
+	get_mac.guid = guid
+	return guid
 
 get_mac.guid = None
