@@ -433,7 +433,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (BOOL)removeAllForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
 {
     AD_LOG_WARN_DICT(([NSString stringWithFormat:@"Removing all items for user <%@>", userId]), nil,
-                     (@{ @"operation" : @"removeAllForClientId:", @"userId" : userId }), nil);
+                     (@{ @"operation" : @"removeAllForUserId:", @"userId" : userId }), nil);
 
     NSArray *items = [self allItems:nil];
 
