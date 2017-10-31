@@ -28,10 +28,6 @@ def get_guid_i(device) :
 		if (match == None) : 
 			continue
 		
-		# If it's Mac OS then there is no leading version # and we can just return it
-		if (match.group(1) == None) :
-			return match.group(2)
-		
 		version_match = version_regex.match(match.group(1))
 		
 		minor_version = version_match.group(3)
@@ -82,9 +78,7 @@ def get_mac() :
 	if (get_mac.guid != None) :
 		return get_mac.guid
 	
-	device = subprocess.check_output("hostname -s", shell=True).strip()
-	guid = get_guid(device)
-	get_mac.guid = guid
-	return guid
+	get_mac.guid = subprocess.check_output("system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }'", shell=True)
+	return get_mac.guid
 
 get_mac.guid = None
