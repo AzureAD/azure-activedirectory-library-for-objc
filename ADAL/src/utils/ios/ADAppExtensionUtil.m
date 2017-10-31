@@ -31,7 +31,7 @@
 
     if (mainBundlePath.length == 0)
     {
-        AD_LOG_ERROR(AD_ERROR_UNEXPECTED, nil, nil, NO, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
+        AD_LOG_ERROR(AD_ERROR_UNEXPECTED, nil, NO, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
         
         return NO;
     }

@@ -50,7 +50,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 @synthesize logComponent = _logComponent;
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(AD_FAILED, nil, nil, YES, @#_X " must not be nil!"); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(AD_FAILED, nil, YES, @#_X " must not be nil!"); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
@@ -121,7 +121,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 #define CHECK_REQUEST_STARTED { \
     if (_requestStarted) { \
-        AD_LOG_WARN(nil, nil, NO, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__); \
+        AD_LOG_WARN(nil, NO, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__); \
         return; \
     } \
 }

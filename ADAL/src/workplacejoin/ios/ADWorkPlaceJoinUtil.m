@@ -74,7 +74,7 @@
     NSString* sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
 #endif
     
-    AD_LOG_VERBOSE(nil, nil, NO, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
+    AD_LOG_VERBOSE(nil, NO, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
     
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;

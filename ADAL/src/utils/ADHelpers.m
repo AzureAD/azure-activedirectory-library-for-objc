@@ -327,13 +327,13 @@
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        AD_LOG_WARN(nil, nil, NO, @"The authority is not a valid URL %@", authority);
+        AD_LOG_WARN(nil, NO, @"The authority is not a valid URL %@", authority);
         return nil;
     }
     NSString* scheme = url.scheme;
     if (![scheme isEqualToString:@"https"])
     {
-        AD_LOG_WARN(nil, nil, NO, @"Non HTTPS protocol for the authority %@", authority);
+        AD_LOG_WARN(nil, NO, @"Non HTTPS protocol for the authority %@", authority);
         return nil;
     }
     

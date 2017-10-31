@@ -49,7 +49,7 @@
 {
     [self ensureRequest];
     NSUUID* correlationId = [_requestParams correlationId];
-    AD_LOG_INFO(correlationId, nil, NO, @"Requesting token from SAML Assertion. resource: %@, clientId: %@", _requestParams.resource, _requestParams.clientId);
+    AD_LOG_INFO(correlationId, NO, @"Requesting token from SAML Assertion. resource: %@, clientId: %@", _requestParams.resource, _requestParams.clientId);
     
     NSData *encodeData = [_samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64String = [encodeData base64EncodedStringWithOptions:0];

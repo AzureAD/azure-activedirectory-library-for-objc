@@ -59,7 +59,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         *error = nil;
     }
     
-    AD_LOG_VERBOSE(context.correlationId, nil, NO, @"Attempting to get WPJ registration information");
+    AD_LOG_VERBOSE(context.correlationId, NO, @"Attempting to get WPJ registration information");
     
     [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer context:context error:&adError];
     if (adError)
@@ -68,7 +68,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR(adError.code, context.correlationId, nil, NO, @"Failed to retrieve WPJ certificate.");
+        AD_LOG_ERROR(adError.code, context.correlationId, NO, @"Failed to retrieve WPJ certificate.");
         goto _error;
     }
     
@@ -83,7 +83,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
     // Get the private key
-    AD_LOG_VERBOSE(context.correlationId, nil, NO, @"Retrieving WPJ private key reference.");
+    AD_LOG_VERBOSE(context.correlationId, NO, @"Retrieving WPJ private key reference.");
     
     privateKey = [self copyPrivateKeyRefForIdentifier:kADALPrivateKeyIdentifier context:context error:&adError];
     if (adError)
@@ -92,7 +92,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR(adError.code, context.correlationId, nil, NO, @"Failed to retrieve WPJ private key reference.");
+        AD_LOG_ERROR(adError.code, context.correlationId, NO, @"Failed to retrieve WPJ private key reference.");
         goto _error;
     }
     
@@ -164,7 +164,7 @@ _error:
             *error = adError;
         }
         
-        AD_LOG_ERROR(adError.code, context.correlationId, nil, NO, @"Failed to retrieve WPJ client certificate from keychain");
+        AD_LOG_ERROR(adError.code, context.correlationId, NO, @"Failed to retrieve WPJ client certificate from keychain");
         goto _error;
     }
     

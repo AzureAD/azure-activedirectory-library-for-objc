@@ -136,7 +136,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_VERBOSE(_reqContext(request).correlationId, nil, NO, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] handling host", [request.URL host]);
+        AD_LOG_VERBOSE(_reqContext(request).correlationId, NO, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] handling host", [request.URL host]);
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
         if (![NSURLProtocol propertyForKey:s_kADURLProtocolPropertyKey inRequest:request])
@@ -145,14 +145,14 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, nil, NO, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", [request.URL host]);
+    AD_LOG_VERBOSE(_reqContext(request).correlationId, NO, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, nil, NO, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
+    AD_LOG_VERBOSE(_reqContext(request).correlationId, NO, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
     
     return request;
 }
@@ -165,7 +165,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         _context = context;
     }
     
-    AD_LOG_VERBOSE(context.correlationId, nil, NO, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
+    AD_LOG_VERBOSE(context.correlationId, NO, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
      [ADCustomHeaderHandler applyCustomHeadersTo:request];
@@ -184,7 +184,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE(_reqContext(self.request).correlationId, nil, NO, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
+    AD_LOG_VERBOSE(_reqContext(self.request).correlationId, NO, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
     
     [_dataTask cancel];
     _dataTask = nil;
@@ -261,7 +261,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE(_context.correlationId, nil, NO, @"%@ - %@. Previous challenge failure count: %ld", @"session:task:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
+    AD_LOG_VERBOSE(_context.correlationId, NO, @"%@ - %@. Previous challenge failure count: %ld", @"session:task:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;
     Class<ADAuthMethodHandler> handler = nil;
