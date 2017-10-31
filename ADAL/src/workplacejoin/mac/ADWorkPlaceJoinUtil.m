@@ -68,7 +68,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR(adError.code, context.correlationId, NO, @"Failed to retrieve WPJ certificate.");
+        AD_LOG_ERROR(context.correlationId, NO, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)adError.code);
         goto _error;
     }
     
@@ -92,7 +92,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR(adError.code, context.correlationId, NO, @"Failed to retrieve WPJ private key reference.");
+        AD_LOG_ERROR(context.correlationId, NO, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)adError.code);
         goto _error;
     }
     
@@ -164,7 +164,7 @@ _error:
             *error = adError;
         }
         
-        AD_LOG_ERROR(adError.code, context.correlationId, NO, @"Failed to retrieve WPJ client certificate from keychain");
+        AD_LOG_ERROR(context.correlationId, NO, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)adError.code);
         goto _error;
     }
     

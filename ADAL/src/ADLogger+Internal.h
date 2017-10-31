@@ -23,22 +23,22 @@
 
 #import "ADLogger.h"
 
-#define AD_LOG(_level, _code, _correlationId, _isPii, _fmt, ...) \
-    [ADLogger log:_level context:self errorCode:_code correlationId:_correlationId isPii:_isPii format:_fmt, ##__VA_ARGS__]
+#define AD_LOG(_level, _correlationId, _isPii, _fmt, ...) \
+    [ADLogger log:_level context:self correlationId:_correlationId isPii:_isPii format:_fmt, ##__VA_ARGS__]
 
 #define FIRST_ARG(ARG,...) ARG
 
-#define AD_LOG_ERROR(_code, _correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_ERROR, _code, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+#define AD_LOG_ERROR(_correlationId, _isPii, _fmt, ...) \
+    AD_LOG(ADAL_LOG_LEVEL_ERROR, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
 
 #define AD_LOG_WARN(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_WARN, AD_ERROR_SUCCEEDED, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+    AD_LOG(ADAL_LOG_LEVEL_WARN, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
 
 #define AD_LOG_INFO(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_INFO, AD_ERROR_SUCCEEDED, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+    AD_LOG(ADAL_LOG_LEVEL_INFO, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
 
 #define AD_LOG_VERBOSE(_correlationId, _isPii, _fmt, ...) \
-    AD_LOG(ADAL_LOG_LEVEL_VERBOSE, AD_ERROR_SUCCEEDED, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
+    AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _correlationId, _isPii, _fmt, ##__VA_ARGS__)
 
 #ifndef DebugLog
 #ifdef DEBUG
@@ -68,10 +68,9 @@
 
 + (void)log:(ADAL_LOG_LEVEL)level
     context:(id)context
-  errorCode:(NSInteger)code
 correlationId:(NSUUID *)correlationId
       isPii:(BOOL)isPii
-     format:(NSString *)format, ... __attribute__((format(__NSString__, 6, 7)));
+     format:(NSString *)format, ... __attribute__((format(__NSString__, 5, 6)));
 
 /*! Logs obtaining of a token. The method does not log the actual token, only its hash.
  @param token The token to log.

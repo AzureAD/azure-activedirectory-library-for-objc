@@ -292,7 +292,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         }
         else
         {
-            AD_LOG_ERROR(AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, NO, @"unable to redirect to browser from extension");
+            AD_LOG_ERROR(_requestParams.correlationId, NO, @"unable to redirect to browser from extension");
         }
 #else // !TARGET_OS_IPHONE
         [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURL]];
@@ -338,7 +338,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     // redirecting to non-https url is not allowed
     if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_ERROR(AD_ERROR_SERVER_NON_HTTPS_REDIRECT, nil, NO, @"Server is redirecting to a non-https url");
+        AD_LOG_ERROR(nil, NO, @"Server is redirecting to a non-https url");
         _complete = YES;
         ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_requestParams.correlationId];
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
@@ -414,7 +414,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if (error)
     {
-        AD_LOG_ERROR(error.code, _requestParams.correlationId, NO, @"-webAuthDidFailWithError: %@", error);
+        AD_LOG_ERROR(_requestParams.correlationId, NO, @"-webAuthDidFailWithError: %@", error);
 
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
                                                             object:self
@@ -488,7 +488,7 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
-    AD_LOG_ERROR(error.code, _requestParams.correlationId, NO, @"Application is cancelling current web auth session. error = %@", error);
+    AD_LOG_ERROR(_requestParams.correlationId, NO, @"Application is cancelling current web auth session. error = %@", error);
     
     return [self endWebAuthenticationWithError:error orURL:nil];
 }

@@ -63,12 +63,10 @@ typedef enum
  @param  logLevel        The level of the log message
  @param  message         A short log message describing the event that occurred, this string will not contain PII.
  @param  containsPii     If the message might contain Personally Identifiable Information (PII) this will be true. Log messages possibly containing PII will not be sent to the callback unless piiEnabled is set to YES on the logger.
- @param  errorCode       An integer error code if the log message is an error.
  */
 typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
                             NSString *message,
-                            BOOL containsPii,
-                            NSInteger errorCode);
+                            BOOL containsPii);
 
 /*!
     Sets a block for the ADAL logger to use to send log messages to.

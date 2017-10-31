@@ -129,7 +129,7 @@
         case RequiredDisplayableId: return info.userId;
     }
     
-    AD_LOG_ERROR(AD_ERROR_UNEXPECTED, nil, NO, @"Unrecognized type on identifier match: %d", _type);
+    AD_LOG_ERROR(nil, NO, @"Unrecognized type on identifier match: %d", _type);
     
     return nil;
 }
@@ -170,7 +170,7 @@
     CHECK_TYPE(RequiredDisplayableId);
     
     // If it didn't match against a known type return default, but log an error
-    AD_LOG_ERROR(AD_ERROR_UNEXPECTED, nil, NO, @"Did not recognize type \"%@\"", type);
+    AD_LOG_ERROR(nil, NO, @"Did not recognize type \"%@\"", type);
     
     return DEFAULT_USER_TYPE;
 }

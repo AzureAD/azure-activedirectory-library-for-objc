@@ -131,7 +131,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     }
     else if (fReturn)
     {
-        AD_LOG_ERROR(AD_FAILED, nil, NO, @"Received broker response without a completionBlock.");
+        AD_LOG_ERROR(nil, NO, @"Received broker response without a completionBlock.");
         
         [ADWebAuthController setInterruptedBrokerResult:result];
     }

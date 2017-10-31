@@ -228,7 +228,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     // and should expect to fail soon.
     if (status != 0)
     {
-        AD_LOG_ERROR(status, nil, NO, @"Failed to grab authority cache read lock.");
+        AD_LOG_ERROR(nil, NO, @"Failed to grab authority cache read lock. Error code %d", status);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];
@@ -243,7 +243,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     int status = pthread_rwlock_wrlock(&_rwLock);
     if (status != 0)
     {
-        AD_LOG_ERROR(status, nil, NO, @"Failed to grab authority cache write lock.");
+        AD_LOG_ERROR(nil, NO, @"Failed to grab authority cache write lock. Error code %d", status);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];

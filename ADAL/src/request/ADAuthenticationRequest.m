@@ -50,7 +50,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 @synthesize logComponent = _logComponent;
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(AD_FAILED, nil, YES, @#_X " must not be nil!"); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(nil, YES, @#_X " must not be nil!"); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \

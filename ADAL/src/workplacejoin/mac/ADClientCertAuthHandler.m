@@ -125,7 +125,7 @@
     }
     else if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(status, correlationId, NO, @"Failed to find identity matching issuers with %d error.", status);
+        AD_LOG_ERROR(correlationId, NO, @"Failed to find identity matching issuers with %d error.", status);
         return nil;
     }
     
@@ -183,7 +183,7 @@
     if (status != errSecSuccess)
     {
         CFRelease(identity);
-        AD_LOG_ERROR(AD_ERROR_UNEXPECTED, correlationId, NO, @"Failed to copy certificate from identity.");
+        AD_LOG_ERROR(correlationId, NO, @"Failed to copy certificate from identity.");
         
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
         return YES;
@@ -288,7 +288,7 @@
     NSArray *sheets = _window.sheets;
     if (sheets.count < 1)
     {
-        AD_LOG_ERROR(AD_ERROR_UNEXPECTED, _correlationId, NO, @"Unable to find sheet to dismiss for client cert auth handler.");
+        AD_LOG_ERROR(_correlationId, NO, @"Unable to find sheet to dismiss for client cert auth handler.");
         return;
     }
     // It turns out the SFChooseIdentityPanel is not the real sheet that gets displayed, so telling the window to end it

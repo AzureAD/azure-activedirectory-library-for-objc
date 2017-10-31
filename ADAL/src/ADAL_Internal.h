@@ -84,7 +84,7 @@ NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - 
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(AD_ERROR_DEVELOPER_INVALID_ARGUMENT, nil, NO, @"InvalidArgumentException: %s %@", #ARG, __where); \
+        AD_LOG_ERROR(nil, NO, @"InvalidArgumentException: %s %@", #ARG, __where); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -118,7 +118,7 @@ argumentName:@#ARG correlationId:nil]; \
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(AD_ERROR_DEVELOPER_INVALID_ARGUMENT, nil, NO, @"InvalidArgumentError: %s %@", #ARG, __where); \
+        AD_LOG_ERROR(nil, NO, @"InvalidArgumentError: %s %@", #ARG, __where); \
         FILL_PARAMETER_ERROR(ARG); \
         return RET; \
     } \

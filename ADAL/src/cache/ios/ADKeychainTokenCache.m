@@ -87,7 +87,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     if (s_defaultCache)
     {
-        AD_LOG_ERROR(AD_ERROR_UNEXPECTED, nil, NO, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
+        AD_LOG_ERROR(nil, NO, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
         
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
@@ -746,7 +746,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error
 {
-    AD_LOG_ERROR(0, nil, NO, @"******** -testRemoveAll: being called in ADKeychainTokenCache. This method should NEVER be called in production code. ********");
+    AD_LOG_ERROR(nil, NO, @"******** -testRemoveAll: being called in ADKeychainTokenCache. This method should NEVER be called in production code. ********");
     @synchronized(self)
     {
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];

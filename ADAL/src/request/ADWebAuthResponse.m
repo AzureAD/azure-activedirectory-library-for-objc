@@ -331,8 +331,8 @@
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR(AD_ERROR_SERVER_WPJ_REQUIRED, _request.correlationId, NO, @"Unparseable wwwAuthHeader received.");
-        AD_LOG_ERROR(AD_ERROR_SERVER_WPJ_REQUIRED, _request.correlationId, YES, @"%@", wwwAuthHeaderValue);
+        AD_LOG_ERROR(_request.correlationId, NO, @"Unparseable wwwAuthHeader received.");
+        AD_LOG_ERROR(_request.correlationId, YES, @"%@", wwwAuthHeaderValue);
     }
     
     ADAuthenticationError* adError = nil;
@@ -380,7 +380,7 @@
     
     if (body.length == 0)
     {
-        AD_LOG_ERROR(jsonError.code, _request.correlationId, NO, @"Empty body received, expected JSON response.");
+        AD_LOG_ERROR(_request.correlationId, NO, @"Empty body received, expected JSON response. Error code: %ld", (long)jsonError.code);
     }
     else
     {
@@ -393,8 +393,8 @@
             bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[body length]];
         }
         
-        AD_LOG_ERROR(jsonError.code, _request.correlationId, NO, @"JSON deserialization error:");
-        AD_LOG_ERROR(jsonError.code, _request.correlationId, YES, @"%@ - %@", jsonError.description, bodyStr);
+        AD_LOG_ERROR(_request.correlationId, NO, @"JSON deserialization error:");
+        AD_LOG_ERROR(_request.correlationId, YES, @"%@ - %@", jsonError.description, bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];

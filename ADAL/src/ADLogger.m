@@ -131,7 +131,6 @@ static dispatch_once_t s_logOnce;
 
 + (void)log:(ADAL_LOG_LEVEL)level
     context:(id)context
-  errorCode:(NSInteger)code
 correlationId:(NSUUID*)correlationId
  isPii:(BOOL)isPii
      format:(NSString *)format, ...
@@ -205,7 +204,7 @@ correlationId:(NSUUID*)correlationId
         {
             NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
             
-            s_LogCallback(level, msg, isPii, code);
+            s_LogCallback(level, msg, isPii);
         }
     }
 }

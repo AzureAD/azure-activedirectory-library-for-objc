@@ -98,7 +98,7 @@
     
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes))
     {
-        AD_LOG_ERROR(ADAL_LOG_LEVEL_ERROR, nil, NO, @"Could not compute SHA265 hash.");
+        AD_LOG_ERROR(nil, NO, @"Could not compute SHA265 hash.");
         
         free(hashBytes);
         free(signedHashBytes);
@@ -119,7 +119,7 @@
     
     if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(status, nil, NO, @"Failed to sign JWT");
+        AD_LOG_ERROR(nil, NO, @"Failed to sign JWT %d", (int)status);
         free(hashBytes);
         free(signedHashBytes);
         return nil;
@@ -144,7 +144,7 @@
                                                          error:&error];
     if (!jsonData)
     {
-        AD_LOG_ERROR(error.code, nil, YES, @"Got an error: %@", error);
+        AD_LOG_ERROR(nil, YES, @"Got an error: %@", error);
         
         return nil;
     }
