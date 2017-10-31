@@ -261,7 +261,10 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE(_context.correlationId, @"%@ - %@. Previous challenge failure count: %ld", @"session:task:didReceiveChallenge:completionHandler", authMethod, (long)challenge.previousFailureCount);
+    AD_LOG_VERBOSE(_context.correlationId,
+                   @"%@ - %@. Previous challenge failure count: %ld",
+                   @"session:task:didReceiveChallenge:completionHandler",
+                   authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;
     Class<ADAuthMethodHandler> handler = nil;
