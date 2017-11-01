@@ -534,7 +534,7 @@
     XCTAssertEqualObjects([receivedEvent objectForKey:@"Microsoft.ADAL.spe_info"], @"I");
 }
 
-- (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationNo_shouldSetPiiFieldsToEmpty
+- (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationNo_shouldDeletePiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
