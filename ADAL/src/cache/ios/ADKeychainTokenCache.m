@@ -92,7 +92,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    AD_LOG_INFO(nil, @"Setting default keychain group to %@", keychainGroup);
+    AD_LOG_INFO(nil,@"Setting default keychain group to %@", keychainGroup);
     
     if (keychainGroup == s_defaultKeychainGroup)
     {
@@ -205,7 +205,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     else
     {
         AD_LOG_INFO(correlationId, @"Found %lu token(s) for query: %@", (unsigned long)[items count], keyCtxStr);
-        AD_LOG_INFO_PII(correlationId, @"userId: %@", userId);
+        AD_LOG_INFO(correlationId, @"userId: %@", userId);
     }
 }
 
@@ -411,7 +411,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     AD_LOG_WARN(nil, @"Removing all items for user + client <%@>", clientId);
-    AD_LOG_WARN_PII(nil, @"userid = %@", userId);
+    AD_LOG_WARN(nil, @"userid = %@", userId);
     
     NSArray* items = [self allItems:nil];
     
@@ -429,8 +429,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 - (BOOL)removeAllForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
 {
-    AD_LOG_WARN_DICT(([NSString stringWithFormat:@"Removing all items for user <%@>", userId]), nil,
-                     (@{ @"operation" : @"removeAllForUserId:", @"userId" : userId }), nil);
+    AD_LOG_WARN(nil, @"Removing all items for user.");
+    AD_LOG_WARN_PII(nil, @"userId <%@>", userId);
 
     NSArray *items = [self allItems:nil];
 
