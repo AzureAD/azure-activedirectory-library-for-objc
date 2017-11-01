@@ -77,7 +77,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     err = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
     if (err != errSecSuccess)
     {
-        AD_LOG_ERROR(err, nil, nil, NO, @"Failed to copy random bytes for broker key.");
+        AD_LOG_ERROR(nil, @"Failed to copy random bytes for broker key. Error code: %d", (int)err);
         
         UNEXPECTED_KEY_ERROR;
         free(symmetricKey);

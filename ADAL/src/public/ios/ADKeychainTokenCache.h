@@ -80,14 +80,24 @@
  Returns nil in case of error. */
 - (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
+/* Removes a token cache item from the keychain */
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
+/* Removes all token cache items for a specific client from the keychain.
+ */
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
+/* Removes all token cache items for a specific user and a specific clientId from the keychain
+ */
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                   clientId:(NSString * __nonnull)clientId
+                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+/* Removes all token cache items for a specific user from the keychain
+ */
+- (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end

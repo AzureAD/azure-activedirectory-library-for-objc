@@ -131,9 +131,7 @@ static dispatch_once_t s_logOnce;
 
 + (void)log:(ADAL_LOG_LEVEL)level
     context:(id)context
-  errorCode:(NSInteger)code
 correlationId:(NSUUID*)correlationId
-   userInfo:(NSDictionary *)userInfo
  isPii:(BOOL)isPii
      format:(NSString *)format, ...
 {
@@ -206,7 +204,7 @@ correlationId:(NSUUID*)correlationId
         {
             NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
             
-            s_LogCallback(level, msg, isPii, code, userInfo);
+            s_LogCallback(level, msg, isPii);
         }
     }
 }
@@ -225,7 +223,7 @@ correlationId:(NSUUID*)correlationId
     int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
     if (result)
     {
-        AD_LOG_WARN(nil, nil, NO, @"Cannot extract cpu type. Error: %d", result);
+        AD_LOG_WARN(nil, @"Cannot extract cpu type. Error: %d", result);
         
         return nil;
     }
@@ -317,7 +315,7 @@ correlationId:(NSUUID*)correlationId
         [logString appendFormat:@" expires on %@", expiresOn];
     }
     
-    AD_LOG_INFO(correlationId, nil, NO, @"%@", logString);
+    AD_LOG_INFO_PII(correlationId, @"%@", logString);
 }
 
 + (void)setIdValue:(NSString*)value

@@ -252,9 +252,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         if (dispatch_semaphore_wait(dsem, DISPATCH_TIME_NOW) != 0)
         {
             // Only bother logging if we have to wait on the queue.
-            AD_LOG_INFO(requestParams.correlationId, nil, NO, @"Waiting on Authority Validation Queue");
+            AD_LOG_INFO(requestParams.correlationId, @"Waiting on Authority Validation Queue");
             dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-            AD_LOG_INFO(requestParams.correlationId, nil, NO, @"Returned from Authority Validation Queue");
+            AD_LOG_INFO(requestParams.correlationId, @"Returned from Authority Validation Queue");
         }
     });
 }
@@ -338,7 +338,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache networkUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(context.correlationId, nil, NO, @"No cached preferred_network for authority");
+        AD_LOG_WARN(context.correlationId, @"No cached preferred_network for authority");
         return authority;
     }
     
@@ -356,7 +356,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache cacheUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(context.correlationId, nil, NO, @"No cached preferred_cache for authority");
+        AD_LOG_WARN(context.correlationId, @"No cached preferred_cache for authority");
         return authority;
     }
     

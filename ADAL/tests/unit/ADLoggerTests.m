@@ -67,30 +67,28 @@
 
 - (void)testLog_whenLogLevelNoMessageValidInfoValid_shouldNotThrow
 {
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil errorCode:AD_ERROR_SUCCEEDED correlationId:nil userInfo:nil isPii:NO format:@"Message"];
+    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil correlationId:nil isPii:NO format:@"Message"];
 }
 
 - (void)testLog_whenLogLevelErrorMessageNilInfoValid_shouldNotThrow
 {
-    XCTAssertNoThrow([ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil errorCode:AD_ERROR_SUCCEEDED correlationId:nil userInfo:nil isPii:NO format:nil]);
+    XCTAssertNoThrow([ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:nil]);
 }
 
 - (void)testLog_whenPiiEnabled_shouldReturnMessageInCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii, NSInteger errorCode, NSDictionary *userInfo)
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
          XCTAssertFalse(containsPii);
-         XCTAssertEqual(errorCode, AD_ERROR_SUCCEEDED);
-         XCTAssertNil(userInfo);
          
          [expectation fulfill];
      }];
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil errorCode:AD_ERROR_SUCCEEDED correlationId:nil userInfo:nil isPii:NO format:@"message"];
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -100,12 +98,12 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     expectation.inverted = YES;
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii, NSInteger __unused errorCode, NSDictionary __unused *userInfo)
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii)
      {
          [expectation fulfill];
      }];
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil errorCode:AD_ERROR_SUCCEEDED correlationId:nil userInfo:nil isPii:YES format:@"message"];
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
