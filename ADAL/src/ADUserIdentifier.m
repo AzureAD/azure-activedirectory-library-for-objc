@@ -129,7 +129,7 @@
         case RequiredDisplayableId: return info.userId;
     }
     
-    AD_LOG_ERROR(nil, NO, @"Unrecognized type on identifier match: %d", _type);
+    AD_LOG_ERROR(nil, @"Unrecognized type on identifier match: %d", _type);
     
     return nil;
 }
