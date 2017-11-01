@@ -36,6 +36,7 @@
 @end
 
 static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
+static BOOL s_piiEnabled = NO;
 static LogCallback s_LogCallback = nil;
 static BOOL s_NSLogging = YES;
 static NSString* s_OSString = @"UnkOS";
@@ -84,7 +85,6 @@ static dispatch_once_t s_logOnce;
     }
 }
 
-
 + (void)setNSLogging:(BOOL)nslogging
 {
     s_NSLogging = nslogging;
@@ -93,6 +93,16 @@ static dispatch_once_t s_logOnce;
 + (BOOL)getNSLogging
 {
     return s_NSLogging;
+}
+
++ (void)setPiiEnabled:(BOOL)piiEnabled
+{
+    s_piiEnabled = piiEnabled;
+}
+
++ (BOOL)getPiiEnabled
+{
+    return s_piiEnabled;
 }
 
 @end
@@ -119,14 +129,27 @@ static dispatch_once_t s_logOnce;
     }
 }
 
-+ (void)log:(ADAL_LOG_LEVEL)logLevel
++ (void)log:(ADAL_LOG_LEVEL)level
     context:(id)context
-    message:(NSString*)message
-  errorCode:(NSInteger)errorCode
-       info:(NSString*)info
 correlationId:(NSUUID*)correlationId
-   userInfo:(NSDictionary *)userInfo
+ isPii:(BOOL)isPii
+     format:(NSString *)format, ...
 {
+    if (isPii && !s_piiEnabled)
+    {
+        return;
+    }
+    
+    if (!format)
+    {
+        return;
+    }
+    
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
     static NSDateFormatter* s_dateFormatter = nil;
     static dispatch_once_t s_dateOnce;
     
@@ -139,15 +162,12 @@ correlationId:(NSUUID*)correlationId
     //Note that the logging should not throw, as logging is heavily used in error conditions.
     //Hence, the checks below would rather swallow the error instead of throwing and changing the
     //program logic.
-    if (logLevel <= ADAL_LOG_LEVEL_NO_LOG)
+    if (level <= ADAL_LOG_LEVEL_NO_LOG)
         return;
-    if (!message)
-        return;
-    
     
     @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
     {
-        if (!(logLevel <= s_LogLevel && (s_LogCallback || s_NSLogging)))
+        if (!(level <= s_LogLevel && (s_LogCallback || s_NSLogging)))
         {
             return;
         }
@@ -171,7 +191,7 @@ correlationId:(NSUUID*)correlationId
         NSString* dateString =  [s_dateFormatter stringFromDate:[NSDate date]];
         if (s_NSLogging)
         {
-            NSString* levelString = [self stringForLevel:logLevel];
+            NSString* levelString = [self stringForLevel:level];
             
             NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@: %@", s_OSString, dateString, correlationIdStr,
                              component, levelString, message];
@@ -183,25 +203,10 @@ correlationId:(NSUUID*)correlationId
         if (s_LogCallback)
         {
             NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
-            s_LogCallback(logLevel, msg, info, errorCode, userInfo);
+            
+            s_LogCallback(level, msg, isPii);
         }
     }
-}
-
-+ (void)log:(ADAL_LOG_LEVEL)level
-    context:(id)context
-    message:(NSString *)message
-  errorCode:(NSInteger)code
-correlationId:(NSUUID*)correlationId
-   userInfo:(NSDictionary *)userInfo
-     format:(NSString *)format, ...
-{
-    va_list args;
-    va_start(args, format);
-    NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
-    
-    [self log:level context:context message:message errorCode:code info:info correlationId:correlationId userInfo:userInfo];
 }
 
 //Extracts the CPU information according to the constants defined in
@@ -218,7 +223,8 @@ correlationId:(NSUUID*)correlationId
     int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
     if (result)
     {
-        AD_LOG_WARN_F(@"Logging", nil, @"Cannot extract cpu type. Error: %d", result);
+        AD_LOG_WARN(nil, @"Cannot extract cpu type. Error: %d", result);
+        
         return nil;
     }
     
@@ -309,7 +315,7 @@ correlationId:(NSUUID*)correlationId
         [logString appendFormat:@" expires on %@", expiresOn];
     }
     
-    AD_LOG_INFO(logString, correlationId, nil);
+    AD_LOG_INFO_PII(correlationId, @"%@", logString);
 }
 
 + (void)setIdValue:(NSString*)value
