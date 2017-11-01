@@ -81,6 +81,16 @@
     [_propertyMap setValue:value forKey:name];
 }
 
+- (void)deleteProperty:(NSString *)name
+{
+    if ([NSString adIsStringNilOrBlank:name])
+    {
+        return;
+    }
+        
+    [_propertyMap removeObjectForKey:name];
+}
+
 - (NSDictionary*)getProperties
 {
     return _propertyMap;

@@ -21,16 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADTelemetryEventInterface <NSObject>
+#import "ADTelemetryPiiRules.h"
+#import "ADTelemetryEventStrings.h"
 
-@property (readonly) NSDictionary* propertyMap;
+static NSDictionary *_piiRules;
 
-- (NSInteger)getDefaultPropertyCount;
-- (void)setProperty:(NSString*)name value:(NSString*)value;
-- (NSDictionary*)getProperties;
-- (void)setStartTime:(NSDate*)time;
-- (void)setStopTime:(NSDate*)time;
-- (void)setResponseTime:(NSTimeInterval)responseTime;
-- (void)deleteProperty:(NSString *)name;
+@implementation ADTelemetryPiiRules
+
++ (void)initialize
+{
+    _piiRules = @{AD_TELEMETRY_KEY_USER_ID: @YES};
+}
+
+#pragma mark - Public
+
++ (BOOL)isPii:(NSString *)propertyName
+{
+    NSNumber *value = _piiRules[propertyName];
+    if (value)
+    {
+        return [value boolValue];
+    }
+    
+    return NO;
+}
 
 @end

@@ -31,6 +31,8 @@
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
+		23CDA9A91FA28E6900FDD5C0 /* ADTelemetryPiiRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CDA9A71FA25F8D00FDD5C0 /* ADTelemetryPiiRules.m */; };
+		23CDA9AA1FA28E6B00FDD5C0 /* ADTelemetryPiiRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CDA9A71FA25F8D00FDD5C0 /* ADTelemetryPiiRules.m */; };
 		290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */; };
 		2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
 		2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
@@ -524,6 +526,8 @@
 		234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationContextTests.h; sourceTree = "<group>"; };
 		234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryIntegrationTests.m; sourceTree = "<group>"; };
+		23CDA9A61FA25F8D00FDD5C0 /* ADTelemetryPiiRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryPiiRules.h; sourceTree = "<group>"; };
+		23CDA9A71FA25F8D00FDD5C0 /* ADTelemetryPiiRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryPiiRules.m; sourceTree = "<group>"; };
 		290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryCollectionRules.h; sourceTree = "<group>"; };
 		290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryCollectionRules.m; sourceTree = "<group>"; };
 		29DBF6D31E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ADExtensions.h"; sourceTree = "<group>"; };
@@ -950,6 +954,8 @@
 				605C16801D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m */,
 				290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */,
 				290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */,
+				23CDA9A61FA25F8D00FDD5C0 /* ADTelemetryPiiRules.h */,
+				23CDA9A71FA25F8D00FDD5C0 /* ADTelemetryPiiRules.m */,
 			);
 			path = telemetry;
 			sourceTree = "<group>";
@@ -2139,6 +2145,7 @@
 				960E93771E296CD0008036C0 /* ADURLSessionDemux.m in Sources */,
 				9453C40F1C586456006B9E79 /* ADAuthenticationResult+Internal.m in Sources */,
 				D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */,
+				23CDA9AA1FA28E6B00FDD5C0 /* ADTelemetryPiiRules.m in Sources */,
 				9453C42F1C58646D006B9E79 /* ADAuthenticationRequest+Broker.m in Sources */,
 				B299FF1B1F22BE74004A2CB9 /* NSString+ADURLExtensions.m in Sources */,
 				9453C4181C586456006B9E79 /* ADUserInformation.m in Sources */,
@@ -2330,6 +2337,7 @@
 				D664F1A41D302B9C0017B799 /* ADTokenCache.m in Sources */,
 				D664F1A51D302B9C0017B799 /* ADBrokerHelper.m in Sources */,
 				D69A721C1D4FF68300E91DB3 /* ADTelemetryDefaultEvent.m in Sources */,
+				23CDA9A91FA28E6900FDD5C0 /* ADTelemetryPiiRules.m in Sources */,
 				D664F1A61D302B9C0017B799 /* ADCustomHeaderHandler.m in Sources */,
 				D664F1A71D302B9C0017B799 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				D664F1A81D302B9C0017B799 /* UIApplication+ADExtensions.m in Sources */,

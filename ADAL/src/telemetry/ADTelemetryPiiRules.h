@@ -21,16 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADTelemetryEventInterface <NSObject>
+#import <Foundation/Foundation.h>
 
-@property (readonly) NSDictionary* propertyMap;
+@interface ADTelemetryPiiRules : NSObject
 
-- (NSInteger)getDefaultPropertyCount;
-- (void)setProperty:(NSString*)name value:(NSString*)value;
-- (NSDictionary*)getProperties;
-- (void)setStartTime:(NSDate*)time;
-- (void)setStopTime:(NSDate*)time;
-- (void)setResponseTime:(NSTimeInterval)responseTime;
-- (void)deleteProperty:(NSString *)name;
++ (BOOL)isPii:(NSString *)propertyName;
 
 @end
