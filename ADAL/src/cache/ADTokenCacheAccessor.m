@@ -245,7 +245,7 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN(nil, @"Told to update cache to an invalid token cache item.");
+            AD_LOG_WARN([context correlationId], @"Told to update cache to an invalid token cache item.");
             return;
         }
         
