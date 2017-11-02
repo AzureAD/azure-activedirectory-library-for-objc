@@ -31,6 +31,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheItem (Internal)
 

@@ -27,6 +27,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADHelpers.h"
 #import "ADAL_Internal.h"
+#import "ADAuthenticationError.h"
 
 @implementation ADTelemetryAPIEvent
 

@@ -36,6 +36,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -54,7 +55,9 @@
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
     AD_LOG_INFO(_requestParams.correlationId, @"##### BEGIN acquireToken %@ #####", _silent ? @"Silent" : @"");
-    AD_LOG_INFO_PII(_requestParams.correlationId, @"authority = %@", _requestParams.authority);
+    
+    BOOL isKnownHost = [ADAuthorityUtils isKnownHost:_requestParams.authority];
+    AD_LOG(ADAL_LOG_LEVEL_INFO, _requestParams.correlationId, !isKnownHost, @"authority: %@", _requestParams.authority);
     AD_LOG_INFO_PII(_requestParams.correlationId, @"resource = %@", _requestParams.resource);
     AD_LOG_INFO_PII(_requestParams.correlationId, @"clientId = %@", _requestParams.clientId);
     AD_LOG_INFO(_requestParams.correlationId, @"idtype = %@", [_requestParams.identifier typeAsString]);
@@ -64,7 +67,7 @@
     {
         if (result.status == AD_SUCCEEDED)
         {
-            AD_LOG_INFO(result.correlationId, @"##### END %@ succeeded. #####");
+            AD_LOG_INFO(result.correlationId, @"##### END succeeded. #####");
         }
         else
         {
@@ -73,7 +76,7 @@
             AD_LOG_INFO_PII(result.correlationId, @"errorDetails: %@ ", error.errorDetails);
         }
         
-        AD_LOG_INFO_PII(_requestParams.correlationId, @"authority = %@", _requestParams.authority);
+        AD_LOG(ADAL_LOG_LEVEL_INFO, _requestParams.correlationId, !isKnownHost, @"authority: %@", _requestParams.authority);
         AD_LOG_INFO_PII(_requestParams.correlationId, @"resource = %@", _requestParams.resource);
         AD_LOG_INFO_PII(_requestParams.correlationId, @"clientId = %@", _requestParams.clientId);
         AD_LOG_INFO(_requestParams.correlationId, @"idtype = %@", [_requestParams.identifier typeAsString]);

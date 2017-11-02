@@ -280,7 +280,7 @@
     NSUUID* correlationId = [context correlationId];
     NSString* telemetryRequestId = [context telemetryRequestId];
     
-    NSString* savedRefreshToken = cacheOItem.refreshToken;
+    NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
         if ([ADAuthorityUtils isKnownHost:_authority])

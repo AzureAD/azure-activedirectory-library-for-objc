@@ -32,6 +32,7 @@
 #import "ADWorkplaceJoinUtil.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADAuthorityUtils.h"
 
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
@@ -208,8 +209,9 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     }
     
     AD_LOG_INFO_PII(correlationId, @"resource <%@> ", key.resource);
-    AD_LOG_INFO(correlationId, @"client <%@> ", key.clientId);
-    AD_LOG_INFO_PII(correlationId, @"authority <%@> ", key.authority);
+    AD_LOG_INFO(correlationId, @"client <%@> ", key.clientId);    
+    BOOL isKnownHost = [ADAuthorityUtils isKnownHost:key.authority];
+    AD_LOG(ADAL_LOG_LEVEL_INFO, correlationId, !isKnownHost, @"authority <%@> ", key.authority);
 }
 
 - (void)logTombstones:(NSArray *)items

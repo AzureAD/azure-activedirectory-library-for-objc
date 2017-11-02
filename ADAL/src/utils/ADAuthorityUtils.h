@@ -10,6 +10,6 @@
 
 @interface ADAuthorityUtils : NSObject
 
-+ (BOOL)isKnownHost:(NSURL *)url;
++ (BOOL)isKnownHost:(NSString *)string;
 
 @end

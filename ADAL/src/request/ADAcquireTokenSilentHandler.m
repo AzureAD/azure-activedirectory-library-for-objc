@@ -235,9 +235,9 @@
              msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
-         AD_LOG_INFO(_requestParams.correlationId, msg);
+         AD_LOG_INFO(_requestParams.correlationId, @"%@", msg);
          AD_LOG_INFO_PII(_requestParams.correlationId, @"clientId: '%@'", _requestParams.clientId);
-         AD_LOG_INFO_PII(_requestParams.correlationId, @"resource: '%@'"_requestParams.resource);
+         AD_LOG_INFO_PII(_requestParams.correlationId, @"resource: '%@'", _requestParams.resource);
          
          if ([ADAuthenticationContext isFinalResult:result])
          {

@@ -24,8 +24,14 @@ static NSSet<NSString *> *s_trustedHostList;
 
 #pragma mark - Public
 
-+ (BOOL)isKnownHost:(NSURL *)url
++ (BOOL)isKnownHost:(NSString *)string
 {
+    if ([NSString adIsStringNilOrBlank:string])
+    {
+        return NO;
+    }
+    
+    NSURL *url = [[NSURL alloc] initWithString:string];
     return [s_trustedHostList containsObject:url.host.lowercaseString];
 }
 
