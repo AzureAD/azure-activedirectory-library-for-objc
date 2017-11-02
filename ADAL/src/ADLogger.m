@@ -315,7 +315,7 @@ correlationId:(NSUUID*)correlationId
         [logString appendFormat:@" expires on %@", expiresOn];
     }
     
-    AD_LOG_INFO_PII(correlationId, @"%@", logString);
+    AD_LOG_INFO(correlationId, @"%@", logString);
 }
 
 + (void)setIdValue:(NSString*)value

@@ -416,7 +416,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if (error)
     {
-        AD_LOG_ERROR(_requestParams.correlationId, @"-webAuthDidFailWithError: %@", error);
+        AD_LOG_ERROR(_requestParams.correlationId, @"-webAuthDidFailWithError error code %ld", (long)error.code);
+        AD_LOG_ERROR_PII(_requestParams.correlationId, @"-webAuthDidFailWithError: %@", error);
 
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
                                                             object:self
@@ -490,7 +491,8 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
-    AD_LOG_ERROR(_requestParams.correlationId, @"Application is cancelling current web auth session. error = %@", error);
+    AD_LOG_ERROR(_requestParams.correlationId, @"Application is cancelling current web auth session. error code = %ld", (long)error.code);
+    AD_LOG_ERROR_PII(_requestParams.correlationId, @"Application is cancelling current web auth session. error = %@", error);
     
     return [self endWebAuthenticationWithError:error orURL:nil];
 }

@@ -197,21 +197,18 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                         userId:(NSString *)userId
                  correlationId:(NSUUID *)correlationId
 {
-    if (!items || [items count] <= 0)
+    NSString* keyCtxStr = [NSString stringWithFormat:@"(resource <%@> + client <%@> + authority <%@>)", [key resource], [key clientId], [key authority]];
+    if (!items || [items count]<=0)
     {
         //if resource is nil, this request is intending to find MRRT
-        AD_LOG_INFO(correlationId, @"No items were found for query ");
+        AD_LOG_INFO(correlationId, @"No items were found for query");
+        AD_LOG_INFO_PII(correlationId, @"No items were found for query %@", keyCtxStr);
     }
     else
     {
-        AD_LOG_INFO_PII(correlationId, @"userId: %@", userId);
         AD_LOG_INFO(correlationId, @"Found %lu token(s) for query", (unsigned long)[items count]);
+        AD_LOG_INFO_PII(correlationId, @"Found %lu token(s) for query %@ user <%@>", (unsigned long)[items count], keyCtxStr, userId);
     }
-    
-    AD_LOG_INFO_PII(correlationId, @"resource <%@> ", key.resource);
-    AD_LOG_INFO(correlationId, @"client <%@> ", key.clientId);    
-    BOOL isKnownHost = [ADAuthorityUtils isKnownHost:key.authority];
-    AD_LOG(ADAL_LOG_LEVEL_INFO, correlationId, !isKnownHost, @"authority <%@> ", key.authority);
 }
 
 - (void)logTombstones:(NSArray *)items
@@ -416,7 +413,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     AD_LOG_WARN(nil, @"Removing all items for user + client <%@>", clientId);
-    AD_LOG_WARN(nil, @"userid = %@", userId);
+    AD_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
     
     NSArray* items = [self allItems:nil];
     
@@ -435,7 +432,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (BOOL)removeAllForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
 {
     AD_LOG_WARN(nil, @"Removing all items for user.");
-    AD_LOG_WARN_PII(nil, @"userId <%@>", userId);
+    AD_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
 
     NSArray *items = [self allItems:nil];
 

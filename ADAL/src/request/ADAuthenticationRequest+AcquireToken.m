@@ -54,34 +54,31 @@
     [self ensureRequest];
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
-    AD_LOG_INFO(_requestParams.correlationId, @"##### BEGIN acquireToken %@ #####", _silent ? @"Silent" : @"");
+    NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
+    NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
+    if ([ADAuthorityUtils isKnownHost:_requestParams.authority]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority: %@", logMessage, _requestParams.authority];
+    } else {
+        logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
+    }
     
-    BOOL isKnownHost = [ADAuthorityUtils isKnownHost:_requestParams.authority];
-    AD_LOG(ADAL_LOG_LEVEL_INFO, _requestParams.correlationId, !isKnownHost, @"authority: %@", _requestParams.authority);
-    AD_LOG_INFO_PII(_requestParams.correlationId, @"resource = %@", _requestParams.resource);
-    AD_LOG_INFO_PII(_requestParams.correlationId, @"clientId = %@", _requestParams.clientId);
-    AD_LOG_INFO(_requestParams.correlationId, @"idtype = %@", [_requestParams.identifier typeAsString]);
-    AD_LOG_INFO_PII(_requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
+    AD_LOG_INFO(_requestParams.correlationId, @"##### BEGIN acquireToken %@ #####", logMessage);
+    AD_LOG_INFO_PII(_requestParams.correlationId, @"##### BEGIN acquireToken %@ %@#####", logMessage, logMessagePII);
     
     ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
     {
         if (result.status == AD_SUCCEEDED)
         {
-            AD_LOG_INFO(result.correlationId, @"##### END succeeded. #####");
+            AD_LOG_INFO(result.correlationId, @"##### END succeeded. %@ #####", logMessage);
+            AD_LOG_INFO(result.correlationId, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
         }
         else
         {
             ADAuthenticationError* error = result.error;
-            AD_LOG_INFO(result.correlationId, @"##### END failed { domain: %@ code: %ld protocolCode: %@ ", error.domain, (long)error.code, error.protocolCode);
-            AD_LOG_INFO_PII(result.correlationId, @"errorDetails: %@ ", error.errorDetails);
+            AD_LOG_INFO(result.correlationId, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
+            AD_LOG_INFO_PII(result.correlationId, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
         }
-        
-        AD_LOG(ADAL_LOG_LEVEL_INFO, _requestParams.correlationId, !isKnownHost, @"authority: %@", _requestParams.authority);
-        AD_LOG_INFO_PII(_requestParams.correlationId, @"resource = %@", _requestParams.resource);
-        AD_LOG_INFO_PII(_requestParams.correlationId, @"clientId = %@", _requestParams.clientId);
-        AD_LOG_INFO(_requestParams.correlationId, @"idtype = %@", [_requestParams.identifier typeAsString]);
-        AD_LOG_INFO_PII(_requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
-        
+
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_API_EVENT
                                                                        context:self];
         [event setApiId:apiId];
@@ -471,7 +468,7 @@
     [self ensureRequest];
     
     AD_LOG_VERBOSE(_requestParams.correlationId, @"Requesting token by authorization code");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"for resource: %@", _requestParams.resource);
+    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
