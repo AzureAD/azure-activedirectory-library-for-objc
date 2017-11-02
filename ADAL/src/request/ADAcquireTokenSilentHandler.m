@@ -126,7 +126,10 @@
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     
-    AD_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token clientId: '%@'; resource: '%@';", [_requestParams clientId], [_requestParams resource]);
+    AD_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
+    AD_LOG_INFO_PII(nil, @"clientId: '%@'", _requestParams.clientId);
+    AD_LOG_INFO_PII(nil, @"resource: '%@'", _requestParams.resource);
+    
     [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
          if (error)
@@ -232,7 +235,9 @@
              msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
-         AD_LOG_INFO(_requestParams.correlationId, @"%@ clientId: '%@'; resource: '%@';", msg, _requestParams.clientId, _requestParams.resource);
+         AD_LOG_INFO(_requestParams.correlationId, msg);
+         AD_LOG_INFO_PII(_requestParams.correlationId, @"clientId: '%@'", _requestParams.clientId);
+         AD_LOG_INFO_PII(_requestParams.correlationId, @"resource: '%@'"_requestParams.resource);
          
          if ([ADAuthenticationContext isFinalResult:result])
          {

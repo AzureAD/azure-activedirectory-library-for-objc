@@ -257,8 +257,13 @@
     {
         [ADLogger log:level context:self correlationId:correlationId isPii:YES
                format:@"%@", _tombstone];
-        [ADLogger log:level context:self correlationId:correlationId isPii:NO
-               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"\n\tresource: %@", _resource];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"\n\tclientId: %@", _clientId];
+        BOOL isKnownHost = [ADAuthorityUtils isKnownHost:_authority];
+        [ADLogger log:level context:self correlationId:correlationId isPii:!isKnownHost
+               format:@"\n\tauthority:%@\n", _authority];
         
         return;
     }

@@ -327,7 +327,8 @@
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        AD_LOG_WARN(nil, @"The authority is not a valid URL %@", authority);
+        AD_LOG_WARN(nil, @"The authority is not a valid URL");
+        AD_LOG_WARN_PII(nil, @"authority: %@", authority);
         return nil;
     }
     NSString* scheme = url.scheme;

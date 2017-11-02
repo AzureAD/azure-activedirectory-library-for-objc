@@ -92,7 +92,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    AD_LOG_INFO(nil,@"Setting default keychain group to %@", keychainGroup);
+    AD_LOG_INFO_PII(nil, @"Setting default keychain group to %@", keychainGroup);
     
     if (keychainGroup == s_defaultKeychainGroup)
     {
@@ -196,17 +196,20 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                         userId:(NSString *)userId
                  correlationId:(NSUUID *)correlationId
 {
-    NSString* keyCtxStr = [NSString stringWithFormat:@"(resource <%@> + client <%@> + authority <%@>)", [key resource], [key clientId], [key authority]];
-    if (!items || [items count]<=0)
+    if (!items || [items count] <= 0)
     {
         //if resource is nil, this request is intending to find MRRT
-        AD_LOG_INFO(correlationId, @"No items were found for query: %@", keyCtxStr);
+        AD_LOG_INFO(correlationId, @"No items were found for query ");
     }
     else
     {
-        AD_LOG_INFO(correlationId, @"Found %lu token(s) for query: %@", (unsigned long)[items count], keyCtxStr);
-        AD_LOG_INFO(correlationId, @"userId: %@", userId);
+        AD_LOG_INFO_PII(correlationId, @"userId: %@", userId);
+        AD_LOG_INFO(correlationId, @"Found %lu token(s) for query", (unsigned long)[items count]);
     }
+    
+    AD_LOG_INFO_PII(correlationId, @"resource <%@> ", key.resource);
+    AD_LOG_INFO(correlationId, @"client <%@> ", key.clientId);
+    AD_LOG_INFO_PII(correlationId, @"authority <%@> ", key.authority);
 }
 
 - (void)logTombstones:(NSArray *)items

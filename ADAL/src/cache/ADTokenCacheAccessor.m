@@ -32,6 +32,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryCacheEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -279,10 +280,16 @@
     NSUUID* correlationId = [context correlationId];
     NSString* telemetryRequestId = [context telemetryRequestId];
     
-    NSString* savedRefreshToken = cacheItem.refreshToken;
+    NSString* savedRefreshToken = cacheOItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        if ([ADAuthorityUtils isKnownHost:_authority])
+        {
+          AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        } else {
+            AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token");
+            AD_LOG_VERBOSE_PII(correlationId, @" for authority: %@", _authority);
+        }
         
         [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
@@ -325,7 +332,8 @@
         }
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token ");
+    AD_LOG_VERBOSE_PII(correlationId, @"for resource: %@", cacheItem.resource);
     
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     [self addOrUpdateItem:cacheItem context:context error:nil];
@@ -404,7 +412,8 @@
         return;
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache ");
+    AD_LOG_VERBOSE_PII(correlationId, @"for resource: %@", cacheItem.resource);
     
     //update tombstone property before update the tombstone in cache
     [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],

@@ -144,7 +144,8 @@
                                                          error:&error];
     if (!jsonData)
     {
-        AD_LOG_ERROR_PII(nil, @"Got an error: %@", error);
+        AD_LOG_ERROR(nil, @"Got an error code:", error.code);
+        AD_LOG_ERROR_PII(nil, @"error: %@", error);
         
         return nil;
     }
