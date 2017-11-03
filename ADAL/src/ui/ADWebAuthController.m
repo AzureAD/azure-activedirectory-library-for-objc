@@ -45,6 +45,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryUIEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -250,8 +251,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)webAuthDidFinishLoad:(NSURL*)url
 {
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthDidFinishLoad");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"host: %@", url.host);
+    if ([ADAuthorityUtils isKnownHost:url.absoluteString])
+    {
+        AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthDidFinishLoad host: %@", url.host);
+    }
+    else
+    {
+        AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthDidFinishLoad");
+        AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"-webAuthDidFinishLoad host: %@", url.host);
+    }
     
     [self stopSpinner];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
@@ -259,8 +267,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"host: %@", request.URL.host);
+    if ([ADAuthorityUtils isKnownHost:request.URL.absoluteString])
+    {
+        AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest host: %@", request.URL.host);
+    }
+    else
+    {
+        AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest");
+        AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest host: %@", request.URL.host);
+    }
     
     if([ADNTLMHandler isChallengeCancelled])
     {
@@ -370,7 +385,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication completed at the end URL
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
-    AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL);
+    if ([ADAuthorityUtils isKnownHost:endURL.absoluteString])
+    {
+        AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL);
+    }
+    else
+    {
+        AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL");
+        AD_LOG_INFO_PII(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL);
+    }
 
     [self endWebAuthenticationWithError:nil orURL:endURL];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
@@ -442,7 +465,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (_complete == YES)
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
-        AD_LOG_VERBOSE(_requestParams.correlationId, @"Expected error %@", error.localizedDescription);
+        AD_LOG_VERBOSE(_requestParams.correlationId, @"Expected error code %ld", (long)error.code);
+        AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Expected error %@", error.localizedDescription);
         return;
     }
     

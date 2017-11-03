@@ -32,6 +32,7 @@ static NSSet<NSString *> *s_trustedHostList;
     s_trustedHostList = [NSSet setWithObjects: @"login.windows.net",
                          @"login.chinacloudapi.cn",
                          @"login-us.microsoftonline.com",
+                         @"login.microsoftonline.us",
                          @"login.cloudgovapi.us",
                          @"login.microsoftonline.com",
                          @"login.microsoftonline.de", nil];
