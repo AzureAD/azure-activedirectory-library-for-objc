@@ -23,8 +23,16 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *const ADTrustedAuthority;
+extern NSString *const ADTrustedAuthorityUS;
+extern NSString *const ADTrustedAuthorityChina;
+extern NSString *const ADTrustedAuthorityGermany;
+extern NSString *const ADTrustedAuthorityWorldWide;
+extern NSString *const ADTrustedAuthorityUSGovernment;
+extern NSString *const ADTrustedAuthorityCloudGovApi;
+
 @interface ADAuthorityUtils : NSObject
 
-+ (BOOL)isKnownHost:(NSString *)string;
++ (BOOL)isKnownHost:(NSURL *)url;
 
 @end

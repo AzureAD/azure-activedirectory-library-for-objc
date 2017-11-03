@@ -329,7 +329,7 @@
     if (!url)
     {
         AD_LOG_WARN(nil, @"The authority is not a valid URL");
-        BOOL isKnownHost = [ADAuthorityUtils isKnownHost:authority];
+        BOOL isKnownHost = [ADAuthorityUtils isKnownHost:[authority adUrl]];
         AD_LOG(ADAL_LOG_LEVEL_WARN, nil, !isKnownHost, @" The authority is not a valid URL authority: %@", authority);
 
         return nil;

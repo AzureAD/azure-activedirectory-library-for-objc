@@ -25,29 +25,28 @@
 
 static NSSet<NSString *> *s_trustedHostList;
 
+// Trusted authorities
+NSString *const ADTrustedAuthority             = @"login.windows.net";
+NSString *const ADTrustedAuthorityUS           = @"login.microsoftonline.us";
+NSString *const ADTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const ADTrustedAuthorityGermany      = @"login.microsoftonline.de";
+NSString *const ADTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+NSString *const ADTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
+NSString *const ADTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+
 @implementation ADAuthorityUtils
 
 + (void)initialize
 {
-    s_trustedHostList = [NSSet setWithObjects: @"login.windows.net",
-                         @"login.chinacloudapi.cn",
-                         @"login-us.microsoftonline.com",
-                         @"login.microsoftonline.us",
-                         @"login.cloudgovapi.us",
-                         @"login.microsoftonline.com",
-                         @"login.microsoftonline.de", nil];
+    s_trustedHostList = [NSSet setWithObjects:ADTrustedAuthority, ADTrustedAuthorityUS,
+     ADTrustedAuthorityChina, ADTrustedAuthorityGermany,
+     ADTrustedAuthorityWorldWide, ADTrustedAuthorityUSGovernment, ADTrustedAuthorityCloudGovApi, nil];
 }
 
 #pragma mark - Public
 
-+ (BOOL)isKnownHost:(NSString *)string
++ (BOOL)isKnownHost:(NSURL *)url
 {
-    if ([NSString adIsStringNilOrBlank:string])
-    {
-        return NO;
-    }
-    
-    NSURL *url = [[NSURL alloc] initWithString:string];
     return [s_trustedHostList containsObject:url.host.lowercaseString];
 }
 

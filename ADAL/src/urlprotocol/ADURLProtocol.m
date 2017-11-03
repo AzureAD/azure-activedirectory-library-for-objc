@@ -136,7 +136,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
-        if ([ADAuthorityUtils isKnownHost:request.URL.absoluteString])
+        if ([ADAuthorityUtils isKnownHost:request.URL])
         {
             AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] handling host", [request.URL host]);
         }
@@ -155,7 +155,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         }
     }
     
-    if ([ADAuthorityUtils isKnownHost:request.URL.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:request.URL])
     {
         AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", [request.URL host]);
     }
@@ -171,7 +171,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    if ([ADAuthorityUtils isKnownHost:request.URL.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:request.URL])
     {
         AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
     }
@@ -192,7 +192,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         _context = context;
     }
     
-    if ([ADAuthorityUtils isKnownHost:self.request.URL.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:self.request.URL])
     {
         AD_LOG_VERBOSE(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
     }
@@ -219,7 +219,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    if ([ADAuthorityUtils isKnownHost:self.request.URL.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:self.request.URL])
     {
         AD_LOG_VERBOSE(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
     }

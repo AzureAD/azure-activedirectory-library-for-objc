@@ -262,7 +262,7 @@
                format:@"\n\tresource: %@", _resource];
         [ADLogger log:level context:self correlationId:correlationId isPii:YES
                format:@"\n\tclientId: %@", _clientId];
-        BOOL isKnownHost = [ADAuthorityUtils isKnownHost:_authority];
+        BOOL isKnownHost = [ADAuthorityUtils isKnownHost:[_authority adUrl]];
         [ADLogger log:level context:self correlationId:correlationId isPii:!isKnownHost
                format:@"\n\tauthority:%@\n", _authority];
         

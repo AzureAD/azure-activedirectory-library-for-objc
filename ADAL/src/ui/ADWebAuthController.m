@@ -251,7 +251,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)webAuthDidFinishLoad:(NSURL*)url
 {
-    if ([ADAuthorityUtils isKnownHost:url.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:url])
     {
         AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthDidFinishLoad host: %@", url.host);
     }
@@ -267,7 +267,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
-    if ([ADAuthorityUtils isKnownHost:request.URL.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:request.URL])
     {
         AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest host: %@", request.URL.host);
     }
@@ -385,7 +385,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication completed at the end URL
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
-    if ([ADAuthorityUtils isKnownHost:endURL.absoluteString])
+    if ([ADAuthorityUtils isKnownHost:endURL])
     {
         AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL);
     }
