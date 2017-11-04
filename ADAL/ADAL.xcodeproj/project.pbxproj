@@ -28,6 +28,8 @@
 		04AB6D4F1D9D619B007E9A83 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D4D1D9D619B007E9A83 /* Main.storyboard */; };
 		04AB6D511D9D619B007E9A83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D501D9D619B007E9A83 /* Assets.xcassets */; };
 		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
+		230E16DB1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */; };
+		230E16DC1FAD45E700ADC904 /* ADAuthorityUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */; };
 		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
@@ -524,6 +526,7 @@
 		04AB6D531D9D619B007E9A83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		04AB6D551D9D619B007E9A83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UnitTestHostApp.entitlements; sourceTree = "<group>"; };
+		230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtilsTests.m; sourceTree = "<group>"; };
 		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
 		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
 		234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
@@ -1421,6 +1424,7 @@
 				B20DC6171F0DA2E800957806 /* ADTestNSStringHelperMethods.m */,
 				B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */,
 				B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */,
+				230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */,
 				B20DC5D51F0D97C600957806 /* ios */,
 				B20DC5D81F0D97CD00957806 /* mac */,
 			);
@@ -2047,6 +2051,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				230E16DB1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m in Sources */,
 				B20DC5F31F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
 				D66A9F281F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
 				234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
@@ -2203,6 +2208,7 @@
 				D62256531F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				D66A9F2A1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
 				D66A9F1E1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
+				230E16DC1FAD45E700ADC904 /* ADAuthorityUtilsTests.m in Sources */,
 				D67D3D4F1F43B17000660F32 /* ADAadAuthorityCacheTests.m in Sources */,
 				D632B54E1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				B20DC5F41F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
