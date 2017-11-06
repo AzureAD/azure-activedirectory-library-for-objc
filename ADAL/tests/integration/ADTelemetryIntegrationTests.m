@@ -75,7 +75,9 @@
     [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:aggregationRequired];
 }
 
-- (void)testDefaultEventProperties {
+- (void)testDefaultEventProperties
+{
+    [ADTelemetry sharedInstance].piiEnabled = YES;
     
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
