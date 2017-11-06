@@ -146,17 +146,17 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem
++ (ADTokenCacheItem *)adCreateMRRTCacheItem
 {
     return [self adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
 }
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
++ (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
 {
     return [self adCreateMRRTCacheItem:userId familyId:nil];
 }
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
++ (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
                                    familyId:(NSString *)foci
 {
     // A MRRT item is just a refresh token, it doesn't have a specified resource
@@ -172,6 +172,22 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
     
     return item;
+}
+
+- (ADTokenCacheItem *)adCreateMRRTCacheItem
+{
+    return [[self class] adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
+}
+
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+{
+    return [[self class] adCreateMRRTCacheItem:userId familyId:nil];
+}
+
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+                                   familyId:(NSString *)foci
+{
+    return [[self class] adCreateMRRTCacheItem:userId familyId:foci];
 }
 
 - (ADTokenCacheItem *)adCreateFRTCacheItem
@@ -207,7 +223,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return key;
 }
 
-- (ADUserInformation *)adCreateUserInformation:(NSString*)userId
++ (ADUserInformation *)adCreateUserInformation:(NSString*)userId
 {
     NSAssert(userId, @"userId cannot be nil!");
     NSDictionary* part1_claims = @{ @"typ" : @"JWT",
@@ -237,6 +253,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     // If you're hitting this you might as well fix it before trying to run other tests.
     NSAssert(userInfo, @"Failed to create a userinfo object from a static idtoken. Something must have horribly broke,");
     return userInfo;
+}
+
+- (ADUserInformation *)adCreateUserInformation:(NSString*)userId
+{
+    return [[self class] adCreateUserInformation:userId];
 }
 
 - (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken

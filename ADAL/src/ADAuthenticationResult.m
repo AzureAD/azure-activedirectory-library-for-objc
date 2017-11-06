@@ -35,6 +35,7 @@
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
 @synthesize correlationId = _correlationId;
 @synthesize extendedLifeTimeToken = _extendedLifeTimeToken;
+@synthesize authority = _authority;
 
 - (id)init
 {
@@ -63,8 +64,8 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@, correlationId=%@)",
-            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheItem, [_correlationId UUIDString]];
+    return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@, correlationId=%@, authority=%@)",
+            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheItem, [_correlationId UUIDString], _authority];
 }
 
 @end

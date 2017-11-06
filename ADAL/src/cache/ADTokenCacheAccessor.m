@@ -87,6 +87,9 @@
                                                       userId:userId
                                                correlationId:[context correlationId]
                                                        error:&adError];
+        item.storageAuthority = item.authority;
+        item.authority = _authority;
+        
         if (item)
         {
             return item;
@@ -242,7 +245,7 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN(@"Told to update cache to an invalid token cache item", [context correlationId], nil);
+            AD_LOG_WARN([context correlationId], @"Told to update cache to an invalid token cache item.");
             return;
         }
         
@@ -279,7 +282,8 @@
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing multi-resource refresh token for authority: %@", _authority);
+        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        
         [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
         //If the server returned a multi-resource refresh token, we break
@@ -292,7 +296,7 @@
         multiRefreshTokenItem.accessToken = nil;
         multiRefreshTokenItem.resource = nil;
         multiRefreshTokenItem.expiresOn = nil;
-        [_dataSource addOrUpdateItem:multiRefreshTokenItem correlationId:correlationId error:nil];
+        [self addOrUpdateItem:multiRefreshTokenItem context:context error:nil];
         ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
         [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
@@ -310,7 +314,7 @@
             ADTokenCacheItem* frtItem = [multiRefreshTokenItem copy];
             NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
             frtItem.clientId = fociClientId;
-            [_dataSource addOrUpdateItem:frtItem correlationId:correlationId error:nil];
+            [self addOrUpdateItem:frtItem context:context error:nil];
             
             ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                                context:context];
@@ -321,15 +325,33 @@
         }
     }
     
-    AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing access token for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
+    
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
-    [_dataSource addOrUpdateItem:cacheItem correlationId:correlationId error:nil];
+    [self addOrUpdateItem:cacheItem context:context error:nil];
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
     [event setSpeInfo:cacheItem.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+}
+
+- (BOOL)addOrUpdateItem:(nonnull ADTokenCacheItem *)item
+                context:(id<ADRequestContext>)context
+                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    NSURL *oldAuthority = [NSURL URLWithString:item.authority];
+    NSURL *newAuthority = [[ADAuthorityValidation sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
+    
+    // The authority used to retrieve the item over the network can differ from the preferred authority used to
+    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
+    // it with we switch it out before saving it to cache.
+    item.authority = [newAuthority absoluteString];
+    BOOL ret = [_dataSource addOrUpdateItem:item correlationId:context.correlationId error:error];
+    item.authority = [oldAuthority absoluteString];
+    
+    return ret;
 }
 
 - (void)removeItemFromCache:(ADTokenCacheItem *)cacheItem
@@ -342,52 +364,53 @@
         return;
     }
     
-    NSUUID* correlationId = [context correlationId];
-    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
-    BOOL removed = NO;
-    //The refresh token didn't work. We need to tombstone this refresh item in the cache.
-    ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
-    if (exactKey)
-    {
-        ADTokenCacheItem* existing = [_dataSource getItemWithKey:exactKey userId:cacheItem.userInformation.userId correlationId:correlationId error:nil];
-        if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
-        {
-            AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
-            //update tombstone property before update the tombstone in cache
-            [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
-                                       @"errorDetails" : [error errorDetails],
-                                       @"protocolCode" : [error protocolCode] }];
-            [_dataSource addOrUpdateItem:existing correlationId:correlationId error:nil];
-            removed = YES;
-        }
-    }
     
-    if (!removed)
-    {
-        //Now try finding a broad refresh token in the cache and tombstone it accordingly
-        ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_authority
-                                                             resource:nil
-                                                             clientId:cacheItem.clientId
-                                                                error:nil];
-        if (broadKey)
-        {
-            ADTokenCacheItem* broadItem = [_dataSource getItemWithKey:broadKey userId:cacheItem.userInformation.userId correlationId:correlationId error:nil];
-            if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
-            {
-                AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Tombstoning multi-resource refresh token for authority: %@", _authority);
-                //update tombstone property before update the tombstone in cache
-                [broadItem makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
-                                            @"errorDetails" : [error errorDetails],
-                                            @"protocolCode" : [error protocolCode] }];
-                [_dataSource addOrUpdateItem:broadItem correlationId:correlationId error:nil];
-            }
-        }
-    }
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
                                                                        context:context];
-    
     [event setSpeInfo:cacheItem.speInfo];
+    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
+    [self removeImpl:cacheItem refreshToken:refreshToken context:context error:error];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+}
+
+- (void)removeImpl:(ADTokenCacheItem *)cacheItem
+      refreshToken:(NSString *)refreshToken
+           context:(id<ADRequestContext>)context
+             error:(ADAuthenticationError *)error
+{
+    //The refresh token didn't work. We need to tombstone this refresh item in the cache.
+    ADTokenCacheKey* cacheKey = [cacheItem extractKey:nil];
+    if (!cacheKey)
+    {
+        return;
+    }
+    
+    NSUUID* correlationId = [context correlationId];
+    
+    ADTokenCacheItem* existing = [_dataSource getItemWithKey:cacheKey
+                                                      userId:cacheItem.userInformation.userId
+                                               correlationId:correlationId
+                                                       error:nil];
+    if (!existing)
+    {
+        existing = [_dataSource getItemWithKey:[cacheKey mrrtKey]
+                                        userId:cacheItem.userInformation.userId
+                                 correlationId:correlationId
+                                         error:nil];
+    }
+    
+    if (!existing || ![refreshToken isEqualToString:existing.refreshToken])
+    {
+        return;
+    }
+    
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
+    
+    //update tombstone property before update the tombstone in cache
+    [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
+                               @"errorDetails" : [error errorDetails],
+                               @"protocolCode" : [error protocolCode] }];
+    [_dataSource addOrUpdateItem:existing correlationId:correlationId error:nil];
 }
 
 @end

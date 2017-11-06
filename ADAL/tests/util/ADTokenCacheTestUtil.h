@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,45 +15,31 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
+#import <Foundation/Foundation.h>
 
-#import "ADTestCase.h"
-#import "ADClientMetrics.h"
-#import "ADAuthorityValidation+TestUtil.h"
-
+#import "ADTokenCache.h"
 #if TARGET_OS_IPHONE
-#import "ADApplicationTestUtil.h"
+#import "ADKeychainTokenCache.h"
 #endif
 
-@implementation ADTestCase
+@protocol ADTokenCacheTestUtil
 
-- (void)setUp
-{
-    [super setUp];
-}
-
-
-- (void)tearDown
-{
-    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-    [ADTestURLSession clearResponses];
-    [[ADClientMetrics getInstance] clearMetrics];
-    [ADAuthorityValidation clearAadCache];
-    
-#if TARGET_OS_IPHONE
-    [ADApplicationTestUtil reset];
-#endif
-    
-    [super tearDown];
-}
-
-
+- (NSString *)getAT:(NSString *)authority;
+- (NSString *)getMRRT:(NSString *)authority;
+- (NSString *)getFRT:(NSString *)authority;
 
 @end
+
+@interface ADTokenCache (TestUtil) <ADTokenCacheTestUtil>
+@end
+
+#if TARGET_OS_IPHONE
+@interface ADKeychainTokenCache (TestUtil) <ADTokenCacheTestUtil>
+@end
+#endif

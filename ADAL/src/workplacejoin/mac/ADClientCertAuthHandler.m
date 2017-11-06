@@ -75,7 +75,7 @@
     ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context error:&adError];
     if (!info || ![info isWorkPlaceJoined])
     {
-        AD_LOG_INFO_F(@"Device is not workplace joined.", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
+        AD_LOG_INFO(protocol.context.correlationId, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
         
         // In other cert auth cases we send Cancel to ensure that we continue to get
         // auth challenges, however when we do that with WPJ we don't get the subsequent
@@ -89,7 +89,7 @@
         return YES;
     }
     
-    AD_LOG_INFO_F(@"Responding to WPJ cert challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
+    AD_LOG_INFO(protocol.context.correlationId, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
                                                         certificates:@[(__bridge id)info.certificate]
@@ -120,12 +120,12 @@
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &result);
     if (status == errSecItemNotFound)
     {
-        AD_LOG_INFO(@"No certificate found matching challenge", correlationId, nil);
+        AD_LOG_INFO(correlationId, @"No certificate found matching challenge");
         return nil;
     }
     else if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(([NSString stringWithFormat:@"Failed to find identity matching issuers with %d error.", status]), status, correlationId, nil);
+        AD_LOG_ERROR(correlationId, @"Failed to find identity matching issuers with %d error.", status);
         return nil;
     }
     
@@ -144,7 +144,8 @@
     
     NSUUID *correlationId = protocol.context.correlationId;
     NSString *host = challenge.protectionSpace.host;
-    AD_LOG_INFO_F(@"Attempting to handle client certificate challenge", correlationId, @"host: %@", host);
+    
+    AD_LOG_INFO(correlationId, @"Attempting to handle client certificate challenge. host: %@", host);
     
     // See if this is a challenge for the WPJ cert.
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
@@ -157,7 +158,7 @@
     SecIdentityRef identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
     if (identity != NULL)
     {
-        AD_LOG_INFO(@"Using preferred identity", correlationId, nil);
+        AD_LOG_INFO(correlationId, @"Using preferred identity");
     }
     else
     {
@@ -165,7 +166,8 @@
         identity = [self promptUserForIdentity:distinguishedNames host:host correlationId:correlationId];
         if (identity == NULL)
         {
-            AD_LOG_INFO(@"No identity returned from cert chooser", correlationId, nil);
+            AD_LOG_INFO(correlationId, @"No identity returned from cert chooser");
+            
             // If no identity comes back then we can't handle the request
             completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
             return YES;
@@ -173,7 +175,7 @@
         
         // Adding a retain count to match the retain count from SecIdentityCopyPreferred
         CFRetain(identity);
-        AD_LOG_INFO(@"Using user selected certificate", correlationId, nil);
+        AD_LOG_INFO(correlationId, @"Using user selected certificate");
     }
     
     SecCertificateRef cert = NULL;
@@ -181,12 +183,13 @@
     if (status != errSecSuccess)
     {
         CFRelease(identity);
-        AD_LOG_ERROR(@"Failed to copy certificate from identity", AD_ERROR_UNEXPECTED, correlationId, nil);
+        AD_LOG_ERROR(correlationId, @"Failed to copy certificate from identity.");
+        
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
         return YES;
     }
     
-    AD_LOG_INFO(@"Responding to cert auth challenge with certicate", correlationId, nil);
+    AD_LOG_INFO(correlationId, @"Responding to cert auth challenge with certicate");
     NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:@[(__bridge id)cert] persistence:NSURLCredentialPersistenceNone];
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     CFRelease(cert);
@@ -237,7 +240,7 @@
                                  message:(NSString *)message
 {
     _sem = dispatch_semaphore_create(0);
-    AD_LOG_INFO(@"Displaying Cert Selection Sheet", _correlationId, nil);
+    AD_LOG_INFO(_correlationId, @"Displaying Cert Selection Sheet");
     
     // This code should always be called from a network thread.
     assert(![NSThread isMainThread]);
@@ -247,7 +250,7 @@
     
     if (_returnCode != NSModalResponseOK)
     {
-        AD_LOG_INFO(@"no certificate selected", _correlationId, nil);
+        AD_LOG_INFO(_correlationId, @"no certificate selected");
         return NULL;
     }
     
@@ -281,11 +284,11 @@
     // If web auth fails while the sheet is up that usually means the connection timed out, tear
     // down the cert selection sheet.
     
-    AD_LOG_INFO(@"Aborting cert selection due to web auth failure", _correlationId, nil);
+    AD_LOG_INFO(_correlationId, @"Aborting cert selection due to web auth failure");
     NSArray *sheets = _window.sheets;
     if (sheets.count < 1)
     {
-        AD_LOG_ERROR(@"Unable to find sheet to dismiss for client cert auth handler", AD_ERROR_UNEXPECTED, _correlationId, nil);
+        AD_LOG_ERROR(_correlationId, @"Unable to find sheet to dismiss for client cert auth handler.");
         return;
     }
     // It turns out the SFChooseIdentityPanel is not the real sheet that gets displayed, so telling the window to end it

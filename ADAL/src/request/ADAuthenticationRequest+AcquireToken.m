@@ -55,24 +55,20 @@
     
     __block NSString* log = [NSString stringWithFormat:@"##### BEGIN acquireToken%@ (authority = %@, resource = %@, clientId = %@, idtype = %@) #####",
                              _silent ? @"Silent" : @"", _requestParams.authority, _requestParams.resource, _requestParams.clientId, [_requestParams.identifier typeAsString]];
-    AD_LOG_INFO_F(log, _requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
+    AD_LOG_INFO_PII(_requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
     
     ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
     {
-        NSString* finalLog = nil;
         if (result.status == AD_SUCCEEDED)
         {
-            finalLog = [NSString stringWithFormat:@"##### END %@ succeeded. #####", log];
+            AD_LOG_INFO(result.correlationId, @"##### END %@ succeeded. #####", log);
         }
         else
         {
             ADAuthenticationError* error = result.error;
-            finalLog = [NSString stringWithFormat:@"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@} #####",
-                        log, error.domain, (long)error.code, error.protocolCode, error.errorDetails];
+            AD_LOG_INFO(result.correlationId, @"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ ", log, error.domain, (long)error.code, error.protocolCode);
+            AD_LOG_INFO_PII(result.correlationId, @"errorDetails: %@ ", error.errorDetails);
         }
-        
-        
-        AD_LOG_INFO(finalLog, result.correlationId, nil);
         
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_API_EVENT
                                                                        context:self];
@@ -145,23 +141,19 @@
         return;
     }
     
-    if (!_context.validateAuthority)
-    {
-        [self validatedAcquireToken:wrappedCallback];
-        return;
-    }
-    
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
     ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
-    [authorityValidation validateAuthority:_requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:_requestParams
+                      validateAuthority:_context.validateAuthority
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION
                                                                         context:_requestParams];
          [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_VALUE_YES:AD_TELEMETRY_VALUE_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+         
          if (error)
          {
              wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
@@ -170,8 +162,7 @@
          {
              [self validatedAcquireToken:wrappedCallback];
          }
-     }];
-    
+     }];    
 }
 
 - (BOOL)checkExtraQueryParameters
@@ -401,6 +392,7 @@
              
              ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+             
              [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? AD_TELEMETRY_VALUE_CANCELLED:AD_TELEMETRY_VALUE_FAILED];
              [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
              completionBlock(result);
@@ -417,7 +409,9 @@
                  NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
                  if (!brokerRequestURL)
                  {
-                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                     ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+                     [result setCloudAuthority:_cloudAuthority];
+                     completionBlock(result);
                      return;
                  }
                  
@@ -448,6 +442,7 @@
                                                               refreshToken:nil
                                                                    context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
+                          [result setCloudAuthority:_cloudAuthority];
                       }
                       completionBlock(result);
                   }];
@@ -462,7 +457,8 @@
 {
     HANDLE_ARGUMENT(code, [_requestParams correlationId]);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", [_requestParams correlationId], @"Requesting token by authorization code for resource: %@", [_requestParams resource]);
+    
+    AD_LOG_VERBOSE(_requestParams.correlationId, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:

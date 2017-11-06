@@ -59,7 +59,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         *error = nil;
     }
     
-    AD_LOG_VERBOSE(@"Attempting to get WPJ registration information", context.correlationId, nil);
+    AD_LOG_VERBOSE(context.correlationId, @"Attempting to get WPJ registration information");
     
     [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer context:context error:&adError];
     if (adError)
@@ -68,7 +68,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ certificate and identify - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
+        AD_LOG_ERROR(context.correlationId, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)adError.code);
         goto _error;
     }
     
@@ -83,7 +83,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
     // Get the private key
-    AD_LOG_VERBOSE(@"Retrieving WPJ private key reference", context.correlationId, nil);
+    AD_LOG_VERBOSE(context.correlationId, @"Retrieving WPJ private key reference.");
     
     privateKey = [self copyPrivateKeyRefForIdentifier:kADALPrivateKeyIdentifier context:context error:&adError];
     if (adError)
@@ -92,10 +92,9 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ private key reference - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
+        AD_LOG_ERROR(context.correlationId, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)adError.code);
         goto _error;
     }
-    
     
     if (!identity || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
@@ -165,7 +164,7 @@ _error:
             *error = adError;
         }
         
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ client certificate from keychain - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
+        AD_LOG_ERROR(context.correlationId, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)adError.code);
         goto _error;
     }
     

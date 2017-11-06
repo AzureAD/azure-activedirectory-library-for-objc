@@ -137,8 +137,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 #pragma mark - Authority validation
 
-- (void)validateAuthority:(ADRequestParameters*)requestParams
-          completionBlock:(ADAuthorityValidationCallback)completionBlock
+- (void)checkAuthority:(ADRequestParameters*)requestParams
+     validateAuthority:(BOOL)validateAuthority
+       completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     NSString *upn = requestParams.identifier.userId;
     NSString *authority = requestParams.authority;
@@ -163,6 +164,12 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     // Check for AAD or ADFS
     if ([ADHelpers isADFSInstanceURL:authorityURL])
     {
+        if (!validateAuthority)
+        {
+            completionBlock(NO, nil);
+            return;
+        }
+        
         // Check for upn suffix
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
         if ([NSString adIsStringNilOrBlank:upnSuffix])
@@ -175,12 +182,24 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         }
         
         // Validate ADFS authority
-        [self validateADFSAuthority:authorityURL domain:upnSuffix requestParams:requestParams completionBlock:completionBlock];
+        [self validateADFSAuthority:authorityURL
+                             domain:upnSuffix
+                      requestParams:requestParams
+                    completionBlock:completionBlock];
     }
     else
     {
         // Validate AAD authority
-        [self validateAADAuthority:authorityURL requestParams:requestParams completionBlock:completionBlock];
+        [self validateAADAuthority:authorityURL
+                     requestParams:requestParams
+                   completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         {
+             if (!validateAuthority && error && [error.protocolCode isEqualToString:@"invalid_instance"])
+             {
+                 error = nil;
+             }
+             completionBlock(validated, error);
+         }];
     }
 }
 
@@ -233,9 +252,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         if (dispatch_semaphore_wait(dsem, DISPATCH_TIME_NOW) != 0)
         {
             // Only bother logging if we have to wait on the queue.
-            AD_LOG_INFO(@"Waiting on Authority Validation Queue", requestParams.correlationId, nil);
+            AD_LOG_INFO(requestParams.correlationId, @"Waiting on Authority Validation Queue");
             dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-            AD_LOG_INFO(@"Returned from Authority Validation Queue", requestParams.correlationId, nil);
+            AD_LOG_INFO(requestParams.correlationId, @"Returned from Authority Validation Queue");
         }
     });
 }
@@ -319,9 +338,28 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache networkUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(@"No cached preferred_network for authority", context.correlationId, nil);
+        AD_LOG_WARN(context.correlationId, @"No cached preferred_network for authority");
         return authority;
     }
+    
+    return url;
+}
+
+- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
+                        context:(id<ADRequestContext>)context
+{
+    if ([ADHelpers isADFSInstanceURL:authority])
+    {
+        return authority;
+    }
+    
+    NSURL *url = [_aadCache cacheUrlForAuthority:authority];
+    if (!url)
+    {
+        AD_LOG_WARN(context.correlationId, @"No cached preferred_cache for authority");
+        return authority;
+    }
+    
     
     return url;
 }
@@ -336,6 +374,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     return [_aadCache cacheAliasesForAuthority:authority];
 }
 
+
+- (void)addInvalidAuthority:(NSString *)authority
+{
+    [_aadCache addInvalidRecord:[NSURL URLWithString:authority] oauthError:nil context:nil];
+}
 
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority

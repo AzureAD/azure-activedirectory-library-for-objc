@@ -29,6 +29,7 @@
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADTestAuthenticationViewController.h"
+#import "ADTokenCacheTestUtil.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
 #import "ADTokenCache+Internal.h"
@@ -63,7 +64,7 @@
 
 
 
-- (void)testValidateAuthority_whenSchemeIsHttp_shouldFailWithError
+- (void)testCheckAuthority_whenSchemeIsHttp_shouldFailWithError
 {
     NSString *authority = @"http://invalidscheme.com";
     ADRequestParameters* requestParams = [ADRequestParameters new];
@@ -74,8 +75,9 @@
     [requestParams setAuthority:authority];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated, @"\"%@\" should come back invalid.", authority);
          XCTAssertNotNil(error);
@@ -86,7 +88,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testValidateAuthority_whenAuthorityUrlIsInvalid_shouldFailWithError
+- (void)testCheckAuthority_whenAuthorityUrlIsInvalid_shouldFailWithError
 {
     NSString *authority = @"https://Invalid URL 2305 8 -0238460-820-386";
     ADRequestParameters* requestParams = [ADRequestParameters new];
@@ -97,8 +99,9 @@
     [requestParams setAuthority:authority];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated, @"\"%@\" should come back invalid.", authority);
          XCTAssertNotNil(error);
@@ -110,7 +113,7 @@
 }
 
 // Tests a normal authority
-- (void)testValidateAuthority_whenAuthorityValid_shouldPass
+- (void)testCheckAuthority_whenAuthorityValid_shouldPass
 {
     NSString* authority = @"https://login.windows-ppe.net/common";
     
@@ -122,8 +125,9 @@
     [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse validAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate valid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError * error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -137,7 +141,7 @@
 }
 
 //Ensures that an invalid authority is not approved
-- (void)testValidateAuthority_whenAuthorityInvalid_shouldReturnError
+- (void)testCheckAuthority_whenAuthorityInvalid_shouldReturnError
 {
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
     
@@ -149,12 +153,44 @@
     [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError * error)
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
          XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNotNil(record);
+    XCTAssertFalse(record.validated);
+    XCTAssertNotNil(record.error);
+}
+
+//Ensures there is no error with an invalid authority if validateAuthority is turned off.
+- (void)testCheckAuthority_whenAuthorityInvalidAndNoValidation_shouldReturnNoError
+{
+    NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
+    
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
+    
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:NO
+                        completionBlock:^(BOOL validated, ADAuthenticationError * error)
+     {
+         XCTAssertFalse(validated);
+         XCTAssertNil(error);
          
          [expectation fulfill];
      }];
@@ -204,7 +240,66 @@
     XCTAssertFalse(record.validated);
 }
 
-- (void)testValidateAuthority_whenHostUnreachable_shouldFail
+- (void)testAcquireToken_whenAuthorityInvalidWithAuthorityValidationOff_shouldGetMetadataSucceed
+{
+    ADAuthenticationError* error = nil;
+    NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
+    NSString *updatedAT = @"updated-access-token";
+    NSString *updatedRT = @"updated-refresh-token";
+    
+    ADTokenCache *tokenCache = CreateMRRTTokenCache(authority, nil);
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
+                                                                        validateAuthority:NO
+                                                                                    error:&error];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    XCTAssertNotNil(context);
+    XCTAssertNil(error);
+    
+    // Network Responses
+    ADTestURLResponse *tokenResponse =
+    [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                       authority:authority
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:updatedRT
+                  newAccessToken:updatedAT
+                additionalFields:@{ @"foci" : @"1" }];
+    [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:authority],
+                                     tokenResponse]];
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         // Make sure the cache authority didn't change
+         XCTAssertEqualObjects(result.tokenCacheItem.authority, authority);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+    
+    // Make sure the cache properly updated the AT, MRRT and FRT...
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRT:authority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getAT:authority], updatedAT);
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    XCTAssertNotNil(record);
+    XCTAssertFalse(record.validated);
+}
+
+- (void)testCheckAuthority_whenHostUnreachable_shouldFail
 {
     NSString* authority = @"https://login.windows.net/contoso.com";
     
@@ -228,14 +323,15 @@
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority when server is unreachable."];
     
-    [authorityValidation validateAuthority:requestParams
-                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
-    {
-        XCTAssertFalse(validated);
-        XCTAssertNotNil(error);
-        
-        [expectation fulfill];
-    }];
+    [authorityValidation checkAuthority:requestParams
+                      validateAuthority:YES
+                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+     {
+         XCTAssertFalse(validated);
+         XCTAssertNotNil(error);
+         
+         [expectation fulfill];
+     }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -388,6 +484,53 @@
     [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
+- (void)testAcquireTokenSilent_whenDifferentPreferredNetworkValidateOff_shouldUsePreferred
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *preferredAuthority = @"https://login.contoso.net/common";
+    
+    // Network Setup
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.net",
+                              @"preferred_cache" : @"login.contoso.com",
+                              @"aliases" : @[ @"login.contoso.net", @"login.contoso.com"] } ];
+    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
+    ADTestURLResponse *tokenResponse = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                          authority:preferredAuthority
+                                                           resource:TEST_RESOURCE
+                                                           clientId:TEST_CLIENT_ID
+                                                      correlationId:TEST_CORRELATION_ID
+                                                    newRefreshToken:@"new-rt-1"
+                                                     newAccessToken:@"new-at-1"];
+    
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:nil];
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+    mrrt.authority = authority;
+    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    XCTAssertNotNil(context);
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         // Make sure the cache authority didn't change
+         XCTAssertEqualObjects(result.tokenCacheItem.authority, authority);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
 - (void)testAcquireTokenInteractive_whenDifferentPreferredNetwork_shouldUsePreferred
 {
     NSString *authority = @"https://login.contoso.com/common";
@@ -423,57 +566,93 @@
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        XCTAssertNotNil(result);
-        XCTAssertEqual(result.status, AD_SUCCEEDED);
-        [expectation2 fulfill];
-    }];
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         [expectation2 fulfill];
+     }];
     
     [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
 }
 
+static NSString *s_doNotUseRT = @"do not use me";
 
-- (void)testAcquireTokenSilent_whenDifferentPreferredCache_shouldUsePreferred
+static ADTestURLResponse *
+CreateAuthorityValidationResponse(NSString *contextAuthority,
+                                  NSString *networkAuthority,
+                                  NSString *cacheAuthority)
+{
+    NSURL *contextUrl = [NSURL URLWithString:contextAuthority];
+    NSURL *networkUrl = networkAuthority ? [NSURL URLWithString:networkAuthority] : contextUrl;
+    NSURL *cacheUrl = cacheAuthority ? [NSURL URLWithString:cacheAuthority] : contextUrl;
+    
+    NSMutableSet *aliases = [NSMutableSet new];
+    [aliases addObject:[contextUrl adHostWithPortIfNecessary]];
+    [aliases addObject:[networkUrl adHostWithPortIfNecessary]];
+    [aliases addObject:[cacheUrl adHostWithPortIfNecessary]];
+    
+    NSArray *metadata = @[ @{ @"preferred_network" : [networkUrl adHostWithPortIfNecessary],
+                              @"preferred_cache" : [cacheUrl adHostWithPortIfNecessary],
+                              @"aliases" : [aliases allObjects] } ];
+    return [ADTestAuthorityValidationResponse validAuthority:[networkUrl absoluteString] withMetadata:metadata];
+}
+
+static ADTokenCache *
+CreateMRRTTokenCache(NSString *preferredAuthority,
+                     NSString *doNotUseAuthority)
+{
+    // Cache Setup
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    
+    ADTokenCacheItem *mrrt = [XCTestCase adCreateMRRTCacheItem];
+    mrrt.authority = preferredAuthority;
+    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    
+    // Also add a MRRT in the non-preferred lcoation to ignore
+    if (doNotUseAuthority)
+    {
+        ADTokenCacheItem *otherMrrt = [XCTestCase adCreateMRRTCacheItem];
+        otherMrrt.authority = doNotUseAuthority;
+        otherMrrt.refreshToken = s_doNotUseRT;
+        [tokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
+    }
+    
+    return tokenCache;
+}
+
+static ADAuthenticationContext *
+CreateAuthContext(NSString *authority,
+                  ADTokenCache *tokenCache)
+{
+    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    return context;
+}
+
+- (void)testAcquireTokenSilent_whenNoPreferredCache_shouldWriteToPreferred
 {
     NSString *authority = @"https://login.contoso.com/common";
     NSString *preferredAuthority = @"https://login.contoso.net/common";
     NSString *updatedAT = @"updated-access-token";
     NSString *updatedRT = @"updated-refresh-token";
-    NSString *doNotUseRT = @"do not use me";
     
-    // Network Setup
-    NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.com",
-                              @"preferred_cache" : @"login.contoso.net",
-                              @"aliases" : @[ @"login.contoso.net", @"login.contoso.com"] } ];
-    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
-    ADTestURLResponse *tokenResponse = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                                                          authority:authority
-                                                           resource:TEST_RESOURCE
-                                                           clientId:TEST_CLIENT_ID
-                                                      correlationId:TEST_CORRELATION_ID
-                                                    newRefreshToken:updatedRT
-                                                     newAccessToken:updatedAT
-                                                   additionalFields:@{ @"foci" : @"1" }];
-    
+    // Network Responses
+    ADTestURLResponse *tokenResponse =
+    [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                       authority:authority
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:updatedRT
+                  newAccessToken:updatedAT
+                additionalFields:@{ @"foci" : @"1" }];
+    ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    
-    // Add an MRRT in the preferred location to use
-    ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
-    mrrt.authority = preferredAuthority;
-    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
-    
-    // Also add a MRRT in the non-preferred lcoation to ignore
-    ADTokenCacheItem *otherMrrt = [self adCreateMRRTCacheItem];
-    mrrt.refreshToken = doNotUseRT;
-    [tokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
-    
-    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
-    XCTAssertNotNil(context);
-    [context setTokenCacheStore:tokenCache];
-    [context setCorrelationId:TEST_CORRELATION_ID];
-    
+    ADTokenCache *tokenCache = CreateMRRTTokenCache(authority, nil);
+    ADAuthenticationContext *context = CreateAuthContext(authority, tokenCache);
     
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
     [context acquireTokenSilentWithResource:TEST_RESOURCE
@@ -491,6 +670,114 @@
      }];
     
     [self waitForExpectations:@[expectation] timeout:1.0];
+    
+    // Make sure the cache properly updated the AT, MRRT and FRT...
+    XCTAssertEqualObjects([tokenCache getMRRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getAT:preferredAuthority], updatedAT);
+    
+    // And that the non-preferred location did not get touched
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], TEST_REFRESH_TOKEN);
+    XCTAssertNil([tokenCache getFRT:authority]);
+    XCTAssertNil([tokenCache getAT:authority]);
+}
+
+- (void)testAcquireTokenSilent_whenDifferentPreferredCache_shouldUsePreferred
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *preferredAuthority = @"https://login.contoso.net/common";
+    NSString *updatedAT = @"updated-access-token";
+    NSString *updatedRT = @"updated-refresh-token";
+    
+    // Network Responses
+    ADTestURLResponse *tokenResponse =
+    [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                       authority:authority
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:updatedRT
+                  newAccessToken:updatedAT
+                additionalFields:@{ @"foci" : @"1" }];
+    ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADTokenCache *tokenCache = CreateMRRTTokenCache(preferredAuthority, authority);
+    ADAuthenticationContext *context = CreateAuthContext(authority, tokenCache);
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         // Make sure the cache authority didn't change
+         XCTAssertEqualObjects(result.tokenCacheItem.authority, authority);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+    
+    // Make sure the cache properly updated the AT, MRRT and FRT...
+    XCTAssertEqualObjects([tokenCache getMRRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getAT:preferredAuthority], updatedAT);
+    
+    // And that the non-preferred location did not get touched
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
+    XCTAssertNil([tokenCache getFRT:authority]);
+    XCTAssertNil([tokenCache getAT:authority]);
+}
+
+- (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldTombstoneCorrectToken
+{
+    NSString *authority = @"https://login.contoso.com/common";
+    NSString *preferredAuthority = @"https://login.contoso.net/common";
+    
+    // Network Responses
+    ADTestURLResponse *tokenResponse =
+    [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
+                          authority:authority
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+     // invalid_grant should result in ADAL tombstoning the token
+                         oauthError:@"invalid_grant"
+                      correlationId:TEST_CORRELATION_ID];
+    
+    ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADTokenCache *tokenCache = CreateMRRTTokenCache(preferredAuthority, authority);
+    ADAuthenticationContext *context = CreateAuthContext(authority, tokenCache);
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+    
+    // Make sure the cache properly updated the AT, MRRT and FRT...
+    ADTokenCacheKey *mrrtKey = [ADTokenCacheKey keyWithAuthority:preferredAuthority resource:nil clientId:TEST_CLIENT_ID error:nil];
+    ADTokenCacheItem *preferredMRRT = [tokenCache getItemsWithKey:mrrtKey userId:TEST_USER_ID correlationId:nil error:nil].firstObject;
+    XCTAssertNotNil(preferredMRRT.tombstone);
+    
+    // And that the non-preferred location did not get touched
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
+    XCTAssertNil([tokenCache getFRT:authority]);
+    XCTAssertNil([tokenCache getAT:authority]);
 }
 
 @end
+
