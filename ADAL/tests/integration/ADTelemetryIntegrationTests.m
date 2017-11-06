@@ -552,7 +552,7 @@
     XCTAssertNil([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID]);
 }
 
-- (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationNo_shouldNotChangePiiFields
+- (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationNo_shouldHashPiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -567,7 +567,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertEqualObjects([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], @"id1234");
+    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" adComputeSHA256]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldSetPiiFieldsToEmpty
@@ -589,7 +589,7 @@
     XCTAssertNil([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID]);
 }
 
-- (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationYes_shouldNotChangePiiFields
+- (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationYes_shouldHashPiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -605,7 +605,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertEqualObjects([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], @"id1234");
+    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" adComputeSHA256]);
 }
 
 @end
