@@ -28,6 +28,7 @@
 #import "ADLogger.h"
 #import "NSMutableDictionary+ADExtensions.h"
 #import "ADIpAddressHelper.h"
+#import "ADTelemetryPiiRules.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -88,6 +89,11 @@
         return;
     }
     
+    if ([ADTelemetryPiiRules isPii:name])
+    {
+        value = [value adComputeSHA256];
+    }
+
     [_propertyMap setValue:value forKey:name];
 }
 

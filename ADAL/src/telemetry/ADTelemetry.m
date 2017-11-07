@@ -183,11 +183,6 @@ static NSString* const s_delimiter = @"|";
                 BOOL isPii = [ADTelemetryPiiRules isPii:propertyName];
                 if (isPii && !self.piiEnabled) {
                     [eventCopy deleteProperty:propertyName];
-                } else if (isPii && self.piiEnabled) {
-                    NSString *value = eventCopy.propertyMap[propertyName];
-                    if (![NSString adIsStringNilOrBlank:value]) {
-                        [eventCopy setProperty:propertyName value:[value adComputeSHA256]];
-                    }
                 }
             }
             
