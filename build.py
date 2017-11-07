@@ -166,10 +166,13 @@ class BuildTarget:
 		Retrieve the build settings from xcodebuild and return thm in a dictionary
 		"""
 		
-		print "Retrieving Build Settings for " + self.name
 		if (self.build_settings != None) :
 			return self.build_settings
 		
+		print "Retrieving Build Settings for " + self.name
+		if (show_build_settings) :
+			print "travis_fold:start:" + (self.name + "_settings").replace(" ", "_")
+				
 		command = self.xcodebuild_command(None, False)
 		command += " -showBuildSettings"
 		print command
@@ -178,9 +181,8 @@ class BuildTarget:
         
 		settings_blob = subprocess.check_output(command, shell=True)
 		if (show_build_settings) :
-			print "travis_fold:start:" + (name + "_settings").replace(" ", "_")
 			print settings_blob
-			print "travis_fold:end:" + (name + "_settings").replace(" ", "_")
+			print "travis_fold:end:" + (self.name + "_settings").replace(" ", "_")
 		
 		settings_blob = settings_blob.decode("utf-8")
 		settings_blob = settings_blob.split("\n")
@@ -348,6 +350,11 @@ if (clean) :
 
 for target in targets:
 	exit_code = 0
+	
+	# If show build settings is turned on then grab the build settings at the beginning of
+	# the operation to show it at the top of the log
+	if show_build_settings :
+		target.get_build_settings()
 
 	for operation in target.operations :
 		if (exit_code != 0) :
