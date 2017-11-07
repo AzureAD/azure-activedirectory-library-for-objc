@@ -27,7 +27,6 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
 #import "NSMutableDictionary+ADExtensions.h"
-#import "ADIpAddressHelper.h"
 #import "ADTelemetryPiiRules.h"
 
 #if !TARGET_OS_IPHONE
@@ -187,10 +186,7 @@
         }
     });
     
-    NSMutableDictionary *defaultParameters = [s_defaultParameters mutableCopy];
-    [defaultParameters adSetObjectIfNotNil:[ADIpAddressHelper adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
-    
-    return defaultParameters;
+    return s_defaultParameters;
 }
 
 - (NSInteger)getDefaultPropertyCount
