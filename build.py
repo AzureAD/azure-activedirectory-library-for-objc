@@ -41,6 +41,7 @@ default_workspace = "ADAL.xcworkspace"
 default_config = "Debug"
 
 use_xcpretty = True
+show_build_settings = False
 
 class ColorValues:
 	HDR = '\033[1m'
@@ -176,6 +177,11 @@ class BuildTarget:
 		start = timer()
         
 		settings_blob = subprocess.check_output(command, shell=True)
+		if (show_build_settings) :
+			print "travis_fold:start:" + (name + "_settings").replace(" ", "_")
+			print settings_blob
+			print "travis_fold:end:" + (name + "_settings").replace(" ", "_")
+		
 		settings_blob = settings_blob.decode("utf-8")
 		settings_blob = settings_blob.split("\n")
         
@@ -310,11 +316,13 @@ clean = True
 parser = argparse.ArgumentParser(description='ADAL SDK Build Script')
 parser.add_argument('--no-clean', action='store_false', help="Skips the clean build products step")
 parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
+parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
 parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
 args = parser.parse_args()
 
 clean = args.no_clean
 use_xcpretty = args.no_xcpretty
+show_build_settings = args.show_build_settings
 
 if (args.targets != None) :
 	print "Targets specified: " + str(args.targets)

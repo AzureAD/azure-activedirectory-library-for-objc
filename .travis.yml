@@ -38,7 +38,7 @@ before_script:
 
 script:  
 # Run the ADAL build script
-  - ./build.py --no-clean --targets $BUILD_TARGETS
+  - ./build.py --no-clean --targets $BUILD_TARGETS --show-build-settings
   - sonar-scanner
 
 after_success:
