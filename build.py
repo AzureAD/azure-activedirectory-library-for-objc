@@ -365,3 +365,4 @@ if code_coverage :
 			target.print_coverage(True)
 
 sys.exit(final_status)
+
