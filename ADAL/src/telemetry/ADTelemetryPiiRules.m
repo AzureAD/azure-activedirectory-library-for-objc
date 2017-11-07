@@ -24,85 +24,30 @@
 #import "ADTelemetryPiiRules.h"
 #import "ADTelemetryEventStrings.h"
 
-static NSDictionary *_piiRules;
+static NSSet *_piiRules;
 
 @implementation ADTelemetryPiiRules
 
 + (void)initialize
 {
-    _piiRules = @{
-                  AD_TELEMETRY_KEY_AUTHORITY_TYPE: @NO,
-                  AD_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS: @NO,
-                  AD_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING: @NO,
-                  AD_TELEMETRY_KEY_PROMPT_BEHAVIOR: @NO,
-                  AD_TELEMETRY_KEY_RESULT_STATUS: @NO,
-                  AD_TELEMETRY_KEY_IDP: @NO,
-                  AD_TELEMETRY_KEY_TENANT_ID: @YES,
-                  AD_TELEMETRY_KEY_USER_ID: @YES,
-                  AD_TELEMETRY_KEY_START_TIME: @NO,
-                  AD_TELEMETRY_KEY_END_TIME: @NO,
-                  AD_TELEMETRY_KEY_RESPONSE_TIME: @NO,
-                  AD_TELEMETRY_KEY_DEVICE_ID: @YES,
-                  AD_TELEMETRY_KEY_APPLICATION_NAME: @YES,
-                  AD_TELEMETRY_KEY_APPLICATION_VERSION: @NO,
-                  AD_TELEMETRY_KEY_LOGIN_HINT: @YES,
-                  AD_TELEMETRY_KEY_BROKER_VERSION: @NO,
-                  AD_TELEMETRY_KEY_BROKER_PROTOCOL_VERSION: @NO,
-                  AD_TELEMETRY_KEY_BROKER_APP: @NO,
-                  AD_TELEMETRY_KEY_BROKER_APP_USED: @NO,
-                  AD_TELEMETRY_KEY_CLIENT_ID: @YES,
-                  AD_TELEMETRY_KEY_API_ID: @NO,
-                  AD_TELEMETRY_KEY_TOKEN_TYPE: @NO,
-                  AD_TELEMETRY_KEY_RT_STATUS: @NO,
-                  AD_TELEMETRY_KEY_MRRT_STATUS: @NO,
-                  AD_TELEMETRY_KEY_FRT_STATUS: @NO,
-                  AD_TELEMETRY_KEY_IS_SUCCESSFUL: @NO,
-                  AD_TELEMETRY_KEY_CORRELATION_ID: @NO,
-                  AD_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN: @NO,
-                  AD_TELEMETRY_KEY_API_ERROR_CODE: @NO,
-                  AD_TELEMETRY_KEY_PROTOCOL_CODE: @NO,
-                  AD_TELEMETRY_KEY_ERROR_DESCRIPTION: @YES,
-                  AD_TELEMETRY_KEY_ERROR_DOMAIN: @NO,
-                  AD_TELEMETRY_KEY_HTTP_METHOD: @NO,
-                  AD_TELEMETRY_KEY_HTTP_PATH: @YES,
-                  AD_TELEMETRY_KEY_HTTP_RESPONSE_METHOD: @NO,
-                  AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS: @YES,
-                  AD_TELEMETRY_KEY_USER_AGENT: @NO,
-                  AD_TELEMETRY_KEY_HTTP_ERROR_DOMAIN: @YES,
-                  AD_TELEMETRY_KEY_AUTHORITY: @YES,
-                  AD_TELEMETRY_KEY_GRANT_TYPE: @NO,
-                  AD_TELEMETRY_KEY_API_STATUS: @NO,
-                  AD_TELEMETRY_KEY_EVENT_NAME: @NO,
-                  AD_TELEMETRY_KEY_REQUEST_ID: @NO,
-                  AD_TELEMETRY_KEY_SPE_INFO: @NO,
-                  AD_TELEMETRY_KEY_UI_EVENT_COUNT: @NO,
-                  AD_TELEMETRY_KEY_HTTP_EVENT_COUNT: @NO,
-                  AD_TELEMETRY_KEY_CACHE_EVENT_COUNT: @NO,
-                  AD_TELEMETRY_KEY_IS_RT: @NO,
-                  AD_TELEMETRY_KEY_IS_MRRT: @NO,
-                  AD_TELEMETRY_KEY_IS_FRT: @NO,
-                  AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE: @NO,
-                  AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER: @NO,
-                  AD_TELEMETRY_KEY_OAUTH_ERROR_CODE: @NO,
-                  AD_TELEMETRY_KEY_SERVER_ERROR_CODE: @NO,
-                  AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE: @NO,
-                  AD_TELEMETRY_KEY_RT_AGE: @NO,
-                  AD_TELEMETRY_KEY_USER_CANCEL: @NO,
-                  AD_TELEMETRY_KEY_NTLM_HANDLED: @NO
-                  };
+    _piiRules = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
+                                               AD_TELEMETRY_KEY_USER_ID,
+                                               AD_TELEMETRY_KEY_DEVICE_ID,
+                                               AD_TELEMETRY_KEY_APPLICATION_NAME,
+                                               AD_TELEMETRY_KEY_LOGIN_HINT,
+                                               AD_TELEMETRY_KEY_CLIENT_ID,
+                                               AD_TELEMETRY_KEY_ERROR_DESCRIPTION,
+                                               AD_TELEMETRY_KEY_HTTP_PATH,
+                                               AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
+                                               AD_TELEMETRY_KEY_HTTP_ERROR_DOMAIN,
+                                               AD_TELEMETRY_KEY_AUTHORITY]];
 }
 
 #pragma mark - Public
 
 + (BOOL)isPii:(NSString *)propertyName
 {
-    NSNumber *value = _piiRules[propertyName];
-    if (value)
-    {
-        return [value boolValue];
-    }
-    
-    return NO;
+    return [_piiRules containsObject:propertyName];
 }
 
 @end
