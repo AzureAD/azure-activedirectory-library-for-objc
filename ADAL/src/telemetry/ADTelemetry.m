@@ -27,6 +27,7 @@
 #import "ADDefaultDispatcher.h"
 #import "ADAggregatedDispatcher.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADTelemetryPiiRules.h"
 
 static NSString* const s_delimiter = @"|";
 
@@ -165,10 +166,7 @@ static NSString* const s_delimiter = @"|";
     {
         [_eventTracking removeObjectForKey:key];
         
-        for (ADDefaultDispatcher *dispatcher in _dispatchers)
-        {
-            [dispatcher receive:requestId event:event];
-        }
+        [self dispatchEventNow:requestId event:event];
     }
 }
 
@@ -179,6 +177,13 @@ static NSString* const s_delimiter = @"|";
     {
         for (ADDefaultDispatcher *dispatcher in _dispatchers)
         {
+            for (NSString *propertyName in [event.propertyMap allKeys]) {
+                BOOL isPii = [ADTelemetryPiiRules isPii:propertyName];
+                if (isPii && !self.piiEnabled) {
+                    [event deleteProperty:propertyName];
+                }
+            }
+            
             [dispatcher receive:requestId event:event];
         }
     }

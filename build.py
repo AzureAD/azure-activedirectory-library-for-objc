@@ -59,7 +59,7 @@ target_specifiers = [
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
-		"use_sonarcube" : "true"
+#		"use_sonarcube" : "true"
 	},
 	{
 		"name" : "iOS Test App",
@@ -384,3 +384,4 @@ if code_coverage :
 			target.print_coverage(True)
 
 sys.exit(final_status)
+

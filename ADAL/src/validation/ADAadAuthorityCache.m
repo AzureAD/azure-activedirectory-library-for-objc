@@ -124,11 +124,11 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
 {
     if (metadata.count == 0)
     {
-        AD_LOG_INFO(@"No metadata returned from authority validation", context.correlationId, nil);
+        AD_LOG_INFO(context.correlationId, @"No metadata returned from authority validation");
     }
     else
     {
-        AD_LOG_INFO(@"Caching AAD Environements:", context.correlationId, nil);
+        AD_LOG_INFO(context.correlationId, @"Caching AAD Environements");
     }
     
     NSMutableArray<ADAadAuthorityCacheRecord *> *recordsToAdd = [NSMutableArray new];
@@ -168,7 +168,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
             _recordMap[alias] = record;
         }
         
-        AD_LOG_INFO(([NSString stringWithFormat:@"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases]), context.correlationId, nil);
+        AD_LOG_INFO(context.correlationId, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
     }
     
     // In case the authority we were looking for wasn't in the metadata
@@ -191,7 +191,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
                  context:(id<ADRequestContext>)context
 {
     [self getWriteLock];
-    AD_LOG_WARN(@"Caching Invalid AAD Instance", context.correlationId, nil);
+    AD_LOG_WARN(context.correlationId, @"Caching Invalid AAD Instance");
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
@@ -228,7 +228,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     // and should expect to fail soon.
     if (status != 0)
     {
-        AD_LOG_ERROR(@"Failed to grab authority cache read lock.", status, nil, nil);
+        AD_LOG_ERROR(nil, @"Failed to grab authority cache read lock. Error code %d", status);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];
@@ -243,7 +243,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     int status = pthread_rwlock_wrlock(&_rwLock);
     if (status != 0)
     {
-        AD_LOG_ERROR(@"Failed to grab authority cache write lock.", status, nil, nil);
+        AD_LOG_ERROR(nil, @"Failed to grab authority cache write lock. Error code %d", status);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];

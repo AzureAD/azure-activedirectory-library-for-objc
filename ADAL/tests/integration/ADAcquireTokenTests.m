@@ -74,6 +74,8 @@ const int sAsyncContextTimeout = 10;
 - (void)tearDown
 {
     [super tearDown];
+    
+    [ADTelemetry sharedInstance].piiEnabled = NO;
 }
 
 - (ADAuthenticationContext *)getTestAuthenticationContext
@@ -623,6 +625,7 @@ const int sAsyncContextTimeout = 10;
          [receivedEvents addObject:event];
      }];
     [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
+    [ADTelemetry sharedInstance].piiEnabled = YES;
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
@@ -1223,6 +1226,7 @@ const int sAsyncContextTimeout = 10;
          [receivedEvents addObject:event];
      }];
     [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
+    [ADTelemetry sharedInstance].piiEnabled = YES;
     
     // Simplest FRT case, the only RT available is the FRT so that would should be the one used
     ADAuthenticationError* error = nil;

@@ -21,16 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
+#import "ADTelemetryPiiRules.h"
+#import "ADTelemetryEventStrings.h"
 
-#import <ADAL/ADAL.h>
+static NSDictionary *_piiRules;
 
-int main(int argc, const char * argv[])
+@implementation ADTelemetryPiiRules
+
++ (void)initialize
 {
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
-     {
-         NSLog(@"%@", message);
-     }];
-    
-    return NSApplicationMain(argc, argv);
+    _piiRules = @{AD_TELEMETRY_KEY_USER_ID: @YES};
 }
+
+#pragma mark - Public
+
++ (BOOL)isPii:(NSString *)propertyName
+{
+    NSNumber *value = _piiRules[propertyName];
+    if (value)
+    {
+        return [value boolValue];
+    }
+    
+    return NO;
+}
+
+@end

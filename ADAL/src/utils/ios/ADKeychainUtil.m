@@ -36,7 +36,7 @@
         ADAuthenticationError* localError = nil;
         s_keychainTeamId = [self retrieveTeamIDFromKeychain:&localError];
         adError = localError;
-        AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
+        AD_LOG_INFO(nil, @"Using \"%@\" Team ID for Keychain.", s_keychainTeamId);
     });
     
     if (!s_keychainTeamId && error)

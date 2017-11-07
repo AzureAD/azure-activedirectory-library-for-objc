@@ -21,16 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
-#import <ADAL/ADAL.h>
+@interface ADTelemetryPiiRules : NSObject
 
-int main(int argc, const char * argv[])
-{
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
-     {
-         NSLog(@"%@", message);
-     }];
-    
-    return NSApplicationMain(argc, argv);
-}
++ (BOOL)isPii:(NSString *)propertyName;
+
+@end
