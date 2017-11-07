@@ -18,6 +18,15 @@ osx_image: xcode9
 #   directories:
 #      - '$HOME/.sonar/cache'
 
+env:
+    matrix:
+        - BUILD_TARGETS='ios_framework'
+        - BUILD_TARGETS='ios_test_app'
+        - BUILD_TARGETS='ios_auto_app'
+        - BUILD_TARGETS='sample_swift_app'
+        - BUILD_TARGETS='mac_framework'
+        - BUILD_TARGETS='mac_test_app'
+
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty -N
