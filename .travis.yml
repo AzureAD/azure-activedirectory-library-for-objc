@@ -1,23 +1,23 @@
-dist: trusty
+#dist: trusty
 language: objective-c
 osx_image: xcode8.3
 
 # set up SonarCube
-addons:
-  sonarcloud:
-    organization: "devex-aad"
-    token:
-      secure: "RXczf7TfFH5rveDaP5iAIet6waDOFO86uTsyM8lmUZrxwHgrwgDChimURPqCeqG9iCNuV+qDO/N7HgI1YJ+s9N2tK/zKOtd1LZFP9c6mVPHOZjY/Sy0DjhOu7XZUex0suqfQDfKJ0wkj+pcMrGfnFAyMtxtow6APk++1Oj1rOAw="
-    github_token:
-      secure: "VtiG/2Yu3I2CVKHdUnmktSd52izbqM1uKxvzNjUc+4lQsRgyMONHO7u21sLI1gnEejyknVkiN9PlprmrK1Apu77S6LocMNYLVd51Vs+38+EVOhc9nt2h9bVy4PEK2ZSaapX5r6/yo3B84qep1KHKanG/Mhwge40E3oiK/cibuVk="
-    branches:
-     - master
-     - dev
+#addons:
+#  sonarcloud:
+#    organization: "devex-aad"
+#    token:
+#      secure: "RXczf7TfFH5rveDaP5iAIet6waDOFO86uTsyM8lmUZrxwHgrwgDChimURPqCeqG9iCNuV+qDO/N7HgI1YJ+s9N2tK/zKOtd1LZFP9c6mVPHOZjY/Sy0DjhOu7XZUex0suqfQDfKJ0wkj+pcMrGfnFAyMtxtow6APk++1Oj1rOAw="
+#    github_token:
+#      secure: "VtiG/2Yu3I2CVKHdUnmktSd52izbqM1uKxvzNjUc+4lQsRgyMONHO7u21sLI1gnEejyknVkiN9PlprmrK1Apu77S6LocMNYLVd51Vs+38+EVOhc9nt2h9bVy4PEK2ZSaapX5r6/yo3B84qep1KHKanG/Mhwge40E3oiK/cibuVk="
+#    branches:
+#     - master
+#     - dev
 
-cache:
-   directories:
-      - '$HOME/.sonar/cache'
-        
+#cache:
+#   directories:
+#      - '$HOME/.sonar/cache'
+
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty -N
@@ -30,7 +30,7 @@ before_script:
 script:  
 # Run the ADAL build script
   - ./build.py --no-clean
-  - sonar-scanner
+#  - sonar-scanner
 
 after_success:
 # Run slather once to have it print out the results in the travis log
