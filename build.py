@@ -257,13 +257,10 @@ class BuildTarget:
 		derived_dir = os.path.normpath(build_dir + "/..")
 		device_guid = self.get_device_guid();
 		
+		configuration_build_dir = build_settings["CONFIGURATION_BUILD_DIR"]
 		executable_path = build_settings["EXECUTABLE_PATH"]
-		config = build_settings["CONFIGURATION"]
-		platform_name = build_settings.get("EFFECTIVE_PLATFORM_NAME")
-		if (platform_name == None) :
-			platform_name = ""
 		
-		command = "xcrun llvm-cov report -instr-profile ProfileData/" + device_guid + "/Coverage.profdata -arch=\"x86_64\" -use-color Products/" + config + platform_name + "/" + executable_path
+		command = "xcrun llvm-cov report -instr-profile ProfileData/" + device_guid + "/Coverage.profdata -arch=\"x86_64\" -use-color " + configuration_build_dir + "/" + executable_path
 		print command
 		p = subprocess.Popen(command, cwd = derived_dir, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 		
