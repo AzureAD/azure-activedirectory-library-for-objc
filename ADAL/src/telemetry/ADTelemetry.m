@@ -177,16 +177,14 @@ static NSString* const s_delimiter = @"|";
     {
         for (ADDefaultDispatcher *dispatcher in _dispatchers)
         {
-            id<ADTelemetryEventInterface>eventCopy = [event copyWithZone:nil];
-            
-            for (NSString *propertyName in [eventCopy.propertyMap allKeys]) {
+            for (NSString *propertyName in [event.propertyMap allKeys]) {
                 BOOL isPii = [ADTelemetryPiiRules isPii:propertyName];
                 if (isPii && !self.piiEnabled) {
-                    [eventCopy deleteProperty:propertyName];
+                    [event deleteProperty:propertyName];
                 }
             }
             
-            [dispatcher receive:requestId event:eventCopy];
+            [dispatcher receive:requestId event:event];
         }
     }
 }

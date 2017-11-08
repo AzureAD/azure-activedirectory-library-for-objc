@@ -45,21 +45,11 @@
     return nil;
 }
 
-- (id)initInternal
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    return self;
-}
-
 - (id)initWithName:(NSString*)eventName
          requestId:(NSString*)requestId
      correlationId:(NSUUID*)correlationId
 {
-    if (!(self = [self initInternal]))
+    if (!(self = [super init]))
     {
         return nil;
     }
@@ -229,16 +219,5 @@ void CopySerialNumber(CFStringRef *serialNumber)
     }
 }
 #endif
-
-#pragma mark - NSCopying
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    ADTelemetryDefaultEvent *event = [[self.class allocWithZone:zone] initInternal];
-    event->_propertyMap = [_propertyMap mutableCopy];
-    event->_defaultPropertyCount = _defaultPropertyCount;
-    
-    return event;
-}
 
 @end
