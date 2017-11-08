@@ -28,6 +28,7 @@ import traceback
 import sys
 import re
 import os
+import argparse
 
 from timeit import default_timer as timer
 
@@ -50,6 +51,7 @@ class ColorValues:
 target_specifiers = [
 	{
 		"name" : "iOS Framework",
+		"target" : "ios_framework",
 		"scheme" : "ADAL",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
@@ -58,18 +60,21 @@ target_specifiers = [
 	},
 	{
 		"name" : "iOS Test App",
+		"target" : "ios_test_app",
 		"scheme" : "MyTestiOSApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Automation Test App",
+		"target" : "ios_auto_app",
 		"scheme" : "ADALAutomation",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
 	{
 		"name" : "Sample Swift App",
+		"target" : "sample_swift_app",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS",
@@ -77,6 +82,7 @@ target_specifiers = [
 	},
 	{
 		"name" : "Mac Framework",
+		"target" : "mac_framework",
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
@@ -84,6 +90,7 @@ target_specifiers = [
 	},
 	{
 		"name" : "Mac Test App",
+		"target" : "mac_test_app",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
 		"platform" : "Mac"
@@ -288,18 +295,23 @@ class BuildTarget:
 
 clean = True
 
-for arg in sys.argv :
-	if (arg == "--no-clean") :
-		clean = False
-	if (arg == "--no-xcpretty") :
-		use_xcpretty = False
-#	if ("--scheme" in arg)
-		
+parser = argparse.ArgumentParser(description='ADAL SDK Build Script')
+parser.add_argument('--no-clean', action='store_false', help="Skips the clean build products step")
+parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
+parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+args = parser.parse_args()
+
+clean = args.no_clean
+use_xcpretty = args.no_xcpretty
+
+if (args.targets != None) :
+	print "Targets specified: " + str(args.targets)
 
 targets = []
 
 for spec in target_specifiers :
-	targets.append(BuildTarget(spec))
+	if (args.targets == None or spec["target"] in args.targets) :
+		targets.append(BuildTarget(spec))
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :
@@ -353,3 +365,4 @@ if code_coverage :
 			target.print_coverage(True)
 
 sys.exit(final_status)
+
