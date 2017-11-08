@@ -3,22 +3,39 @@ import re
 import subprocess
 import platform
 import os
+import sys
+
+
+def is_version_higher(orig_version, new_version) :
+	if new_version[0] > orig_version[0] :
+		return True
+	if new_version[0] < orig_version[0] :
+		return False
+	if new_version[1] > orig_version[1] :
+		return True
+	if new_version[1] < orig_version[1] :
+		return False
+	if new_version[2] > orig_version[2] :
+		return True
+	return False
 
 def get_guid_i(device) :
 	device_regex = re.compile("[A-Za-z0-9 ]+ ?(?:\\(([0-9.]+)\\))? \\[([A-F0-9-]+)\\]")
 	version_regex = re.compile("([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?")
 	
 	command = "instruments -s devices"
+	print "travis_fold:start:Devices"
 	p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 	
 	# Sometimes the hostname comes back with the proper casing, sometimes not. Using a
 	# case insensitive regex ensures we work either way
-	dev_name_regex = re.compile("^" + device, re.I)
+	dev_name_regex = re.compile("^" + device + " \\(", re.I)
 	
 	latest_os_device = None
 	latest_os_version = None
 	
 	for line in p.stdout :
+		sys.stdout.write(line)
 		if (dev_name_regex.match(line) == None) :
 			continue
 		
@@ -33,23 +50,15 @@ def get_guid_i(device) :
 		minor_version = version_match.group(3)
 		if (minor_version ==  None) :
 			minor_version = 0
-		version_tuple = (version_match.group(1), version_match.group(2), minor_version)
+		else :
+			minor_version = int(minor_version)
+		version_tuple = (int(version_match.group(1)), int(version_match.group(2)), minor_version)
 		
-		replace = False
-		if (latest_os_version == None) :
-			replace = True
-		elif (version_tuple[0] > latest_os_version[0]) :
-			replace = True
-		elif (version_tuple[0] == latest_os_version[0]) :
-			if (version_tuple[1] > latest_os_version[1]) :
-				replace = True
-			elif (version_tuple[1] == latest_os_version[1]) :
-				if (version_tuple[2] > latest_os_version[2]) :
-					replace = True
-		
-		if (replace == True) :
+		if latest_os_version == None or is_version_higher(latest_os_version, version_tuple) :
 			latest_os_device = match.group(2)
 			latest_os_version = version_tuple
+	
+	print "travis_fold:end:Devices"
 	
 	return latest_os_device
 
