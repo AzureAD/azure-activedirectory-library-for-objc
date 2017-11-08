@@ -33,6 +33,8 @@ import device_guids
 
 from timeit import default_timer as timer
 
+script_start_time = timer()
+
 ios_sim_device = "iPhone 6"
 ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=latest'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
@@ -133,6 +135,8 @@ class BuildTarget:
 		self.coverage = None
 		self.failed = False
 		self.skipped = False
+		self.start_time = None
+		self.end_time = None
 	
 	def xcodebuild_command(self, operation, xcpretty) :
 		"""
@@ -141,7 +145,13 @@ class BuildTarget:
 		command = "xcodebuild "
 		
 		if (operation != None) :
-			command += operation + " "
+		# This lets us short circuit the build step in the test operation and cuts time off the overall build
+			xcb_operation = operation
+			if (operation == "build" and "test" in self.operations) :
+				xcb_operation = "build-for-testing"
+			elif (operation == "test" and "build" in self.operations) :
+				xcb_operation = "test-without-building"
+			command += xcb_operation + " "
 		
 		if (self.project != None) :
 			command += " -project " + self.project
@@ -150,7 +160,12 @@ class BuildTarget:
 		
 		command += " -scheme \"" + self.scheme + "\" -configuration " + default_config
 		
-		if (operation == "test" and "codecov" in self.operations) :
+		# The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
+		# headers not being found. If Apple can't make this reliable then we should short circuit it out of our build
+		if (operation == "build") :
+			command += " RUN_CLANG_STATIC_ANALYZER=NO"
+		
+		if (operation != None and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
 
 		if (self.platform == "iOS") :
@@ -257,12 +272,21 @@ class BuildTarget:
 		derived_dir = os.path.normpath(build_dir + "/..")
 		device_guid = self.get_device_guid();
 		
+		profile_data_path = derived_dir + "/ProfileData/" + device_guid + "/Coverage.profdata"
+		if not os.path.isfile(profile_data_path) :
+			print ColorValues.FAIL + "Coverage data file missing! : " + profile_data_path + ColorValues.END
+			return -1
+		
 		configuration_build_dir = build_settings["CONFIGURATION_BUILD_DIR"]
 		executable_path = build_settings["EXECUTABLE_PATH"]
+		executable_file_path = configuration_build_dir + "/" + executable_path
+		if not os.path.isfile(executable_file_path) :
+			print ColorValues.FAIL + "execuable file missing! : " + profile_data_path + ColorValues.END
+			return -1
 		
-		command = "xcrun llvm-cov report -instr-profile ProfileData/" + device_guid + "/Coverage.profdata -arch=\"x86_64\" -use-color " + configuration_build_dir + "/" + executable_path
+		command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"x86_64\" -use-color " + executable_file_path
 		print command
-		p = subprocess.Popen(command, cwd = derived_dir, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+		p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 		
 		output = p.communicate()
 		
@@ -279,7 +303,6 @@ class BuildTarget:
 		cov_str = re.sub(r"[^0-9.]", "", last_line[3])
 		self.coverage = float(cov_str)
 		return self.print_coverage(False)
-		
 	
 	def do_operation(self, operation) :
 		exit_code = -1;
@@ -309,6 +332,27 @@ class BuildTarget:
 		
 		print 
 		return exit_code
+	
+	def requires_simulator(self) :
+		if self.platform is not "iOS" :
+			return False
+		if "test" in self.operations :
+			return True
+		return False
+
+def requires_simulator(targets) :
+	for target in targets :
+		if target.requires_simulator() :
+			return True
+	return False
+
+def launch_simulator() :
+	print "Booting simulator..."
+	command = "xcrun simctl boot " + device_guids.get_ios(ios_sim_device)
+	print command
+	
+	# This spawns a new process without us having to wait for it
+	subprocess.Popen(command, shell = True)
 
 clean = True
 
@@ -332,6 +376,9 @@ for spec in target_specifiers :
 	if (args.targets == None or spec["target"] in args.targets) :
 		targets.append(BuildTarget(spec))
 
+if requires_simulator(targets) :
+	launch_simulator()
+
 # start by cleaning up any derived data that might be lying around
 if (clean) :
 	derived_folders = set()
@@ -352,12 +399,16 @@ for target in targets:
 	# the operation to show it at the top of the log
 	if show_build_settings :
 		target.get_build_settings()
+		
+	target.start_time = timer()
 
 	for operation in target.operations :
 		if (exit_code != 0) :
 			break; # If one operation fails, then the others are almost certainly going to fail too
 
 		exit_code = target.do_operation(operation)
+	
+	target.end_time = timer()
 
 	# Add success/failure state to the build status dictionary
 	if (exit_code == 0) :
@@ -374,18 +425,22 @@ code_coverage = False
 # Print out the final result of each operation.
 for target in targets :
 	if (target.failed) :
-		print ColorValues.FAIL + target.name + " failed." + ColorValues.END
+		print ColorValues.FAIL + target.name + " failed." + ColorValues.END + " (" + "{0:.2f}".format(target.end_time - target.start_time) + " seconds)"
 		final_status = 1
 	else :
 		if ("codecov" in target.operations) :
 			code_coverage = True
-		print ColorValues.OK + '\033[92m' + target.name + " succeeded." + ColorValues.END
+		print ColorValues.OK + '\033[92m' + target.name + " succeeded." + ColorValues.END + " (" + "{0:.2f}".format(target.end_time - target.start_time) + " seconds)"
 
 if code_coverage :
 	print "\nCode Coverage Results:"
 	for target in targets :
 		if (target.coverage != None) :
 			target.print_coverage(True)
+
+script_end_time = timer()
+
+print "Total running time: " + "{0:.2f}".format(script_end_time - script_start_time) + " seconds"
 
 sys.exit(final_status)
 
