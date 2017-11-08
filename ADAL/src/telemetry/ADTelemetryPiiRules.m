@@ -24,13 +24,13 @@
 #import "ADTelemetryPiiRules.h"
 #import "ADTelemetryEventStrings.h"
 
-static NSSet *_piiRules;
+static NSSet *_piiFields;
 
 @implementation ADTelemetryPiiRules
 
 + (void)initialize
 {
-    _piiRules = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
+    _piiFields = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
                                                AD_TELEMETRY_KEY_USER_ID,
                                                AD_TELEMETRY_KEY_DEVICE_ID,
                                                AD_TELEMETRY_KEY_LOGIN_HINT,
@@ -46,7 +46,7 @@ static NSSet *_piiRules;
 
 + (BOOL)isPii:(NSString *)propertyName
 {
-    return [_piiRules containsObject:propertyName];
+    return [_piiFields containsObject:propertyName];
 }
 
 @end
