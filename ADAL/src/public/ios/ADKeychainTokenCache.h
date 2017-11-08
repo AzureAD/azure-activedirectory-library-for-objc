@@ -95,9 +95,9 @@
                   clientId:(NSString * __nonnull)clientId
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-/* Removes all token cache items for a specific user from the keychain
+/* Removes all token cache items for a specific user from the keychain, including tombstones
  */
-- (BOOL)removeAllForUserId:(NSString * __nonnull)userId
-                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId
+                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end

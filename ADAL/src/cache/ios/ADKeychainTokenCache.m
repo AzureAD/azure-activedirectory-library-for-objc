@@ -435,26 +435,18 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (BOOL)removeAllForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
+- (BOOL)wipeAllItemsForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
 {
     AD_LOG_WARN(nil, @"Removing all items for user.");
     AD_LOG_WARN_PII(nil, @"userId <%@>", userId);
 
-    NSArray *items = [self allItems:nil];
-    if (!items)
+    @synchronized(self)
     {
-        return NO;
+        NSMutableDictionary *query = [self queryDictionaryForKey:nil userId:userId additional:@{(id)kSecAttrAccessGroup : _sharedGroup}];
+        
+        OSStatus status = SecItemDelete((CFDictionaryRef)query);
+        return [ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error];
     }
-    
-    for (ADTokenCacheItem *item in items)
-    {
-        if ([userId isEqualToString:[[item userInformation] userId]]
-            && ![self removeItem:item error:error])
-        {
-            return NO;
-        }
-    }
-    return YES;
 }
 
 - (BOOL)cleanTombstoneIfNecessary
