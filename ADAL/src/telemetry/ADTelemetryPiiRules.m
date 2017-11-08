@@ -33,7 +33,6 @@ static NSSet *_piiRules;
     _piiRules = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
                                                AD_TELEMETRY_KEY_USER_ID,
                                                AD_TELEMETRY_KEY_DEVICE_ID,
-                                               AD_TELEMETRY_KEY_APPLICATION_NAME,
                                                AD_TELEMETRY_KEY_LOGIN_HINT,
                                                AD_TELEMETRY_KEY_CLIENT_ID,
                                                AD_TELEMETRY_KEY_ERROR_DESCRIPTION,
