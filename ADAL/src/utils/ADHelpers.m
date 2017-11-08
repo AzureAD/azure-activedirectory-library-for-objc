@@ -330,9 +330,9 @@
     {
         AD_LOG_WARN(nil, @"The authority is not a valid URL");
         if ([ADAuthorityUtils isKnownHost:[authority adUrl]]) {
-            AD_LOG_WARN(nil, @" The authority is not a valid URL authority: %@", [authority adUrl].host)
+            AD_LOG_WARN(nil, @" The authority is not a valid URL authority: %@", [authority adUrl].host);
         } else {
-            AD_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority)
+            AD_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
         }
 
         return nil;

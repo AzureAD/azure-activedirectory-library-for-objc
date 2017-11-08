@@ -157,7 +157,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     
     if ([ADAuthorityUtils isKnownHost:request.URL])
     {
-        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", [request.URL host]);
+        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
     }
     else
     {
