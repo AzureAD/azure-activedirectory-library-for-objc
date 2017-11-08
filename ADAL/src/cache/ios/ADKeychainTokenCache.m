@@ -440,13 +440,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     AD_LOG_WARN(nil, @"Removing all items for user.");
     AD_LOG_WARN_PII(nil, @"userId <%@>", userId);
 
-    @synchronized(self)
-    {
-        NSMutableDictionary *query = [self queryDictionaryForKey:nil userId:userId additional:nil];
-        
-        OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        return [ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error];
-    }
+    NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
+                             (id)kSecAttrAccount: [userId adBase64UrlEncode],
+                             (id)kSecAttrAccessGroup: _sharedGroup };
+    
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    return [ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error];    
 }
 
 - (BOOL)cleanTombstoneIfNecessary
