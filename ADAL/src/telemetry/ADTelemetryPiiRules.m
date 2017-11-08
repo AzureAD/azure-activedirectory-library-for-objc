@@ -38,7 +38,6 @@ static NSSet *_piiFields;
                                                AD_TELEMETRY_KEY_ERROR_DESCRIPTION,
                                                AD_TELEMETRY_KEY_HTTP_PATH,
                                                AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
-                                               AD_TELEMETRY_KEY_HTTP_ERROR_DOMAIN,
                                                AD_TELEMETRY_KEY_AUTHORITY]];
 }
 
