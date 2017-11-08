@@ -387,7 +387,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 {
     if ([ADAuthorityUtils isKnownHost:endURL])
     {
-        AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL);
+        AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL.host);
     }
     else
     {

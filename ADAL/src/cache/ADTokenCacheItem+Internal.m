@@ -262,9 +262,14 @@
                format:@"\n\tresource: %@", _resource];
         [ADLogger log:level context:self correlationId:correlationId isPii:YES
                format:@"\n\tclientId: %@", _clientId];
-        BOOL isKnownHost = [ADAuthorityUtils isKnownHost:[_authority adUrl]];
-        [ADLogger log:level context:self correlationId:correlationId isPii:!isKnownHost
-               format:@"\n\tauthority:%@\n", _authority];
+        
+        if ([ADAuthorityUtils isKnownHost:[_authority adUrl]]) {
+            [ADLogger log:level context:self correlationId:correlationId isPii:NO
+                   format:@"\n\tauthority:%@\n", [_authority adUrl].host];
+        } else {
+            [ADLogger log:level context:self correlationId:correlationId isPii:YES
+                   format:@"\n\tauthority:%@\n", _authority];
+        }
         
         return;
     }

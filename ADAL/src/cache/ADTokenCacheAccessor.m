@@ -285,7 +285,7 @@
     {
         if ([ADAuthorityUtils isKnownHost:[_authority adUrl]])
         {
-          AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+          AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", [_authority adUrl].host);
         } else {
             AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token");
             AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
