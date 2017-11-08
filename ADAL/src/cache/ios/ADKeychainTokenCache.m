@@ -442,7 +442,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
     @synchronized(self)
     {
-        NSMutableDictionary *query = [self queryDictionaryForKey:nil userId:userId additional:@{(id)kSecAttrAccessGroup : _sharedGroup}];
+        NSMutableDictionary *query = [self queryDictionaryForKey:nil userId:userId additional:nil];
         
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
         return [ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error];
