@@ -572,7 +572,7 @@
     ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" adComputeSHA256]);
 }
 
-- (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldSetPiiFieldsToEmpty
+- (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldDeletePiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
