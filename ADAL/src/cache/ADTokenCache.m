@@ -451,11 +451,17 @@
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
-
+    
+    if (items.count == 0)
+    {
+        return nil;
+    }
+    
     if (items.count == 1)
     {
         return items.firstObject;
     }
+
     
     ADAuthenticationError* adError =
     [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
