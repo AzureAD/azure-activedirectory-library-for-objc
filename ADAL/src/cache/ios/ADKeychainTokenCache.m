@@ -43,7 +43,7 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." TOSTRING(KEYCHAIN_VERSION);
+static NSString* const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll." TOSTRING(KEYCHAIN_VERSION);
 
 static NSString* s_defaultKeychainGroup = @"com.microsoft.adalcache";
 static ADKeychainTokenCache* s_defaultCache = nil;
@@ -165,20 +165,38 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 #pragma mark -
 #pragma mark Token Wipe
+- (NSMutableDictionary *)wipeQuery {
+    return [@{
+              (id)kSecClass                : (id)kSecClassGenericPassword,
+              (id)kSecAttrGeneric          : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
+              (id)kSecAttrAccessGroup      : _sharedGroup,
+              (id)kSecAttrAccount          : @"TokenWipe",
+              } mutableCopy];
+}
+
+- (NSString *)getStringFromDate:(NSDate *)date
+{
+    static NSDateFormatter* s_dateFormatter = nil;
+    static dispatch_once_t s_dateOnce;
+    
+    dispatch_once(&s_dateOnce, ^{
+        s_dateFormatter = [[NSDateFormatter alloc] init];
+        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSSS"];
+    });
+    
+    return [s_dateFormatter stringFromDate:date];
+}
+
+
 - (BOOL)wipeToken:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    NSMutableDictionary *query =
-    [@{
-       (id)kSecClass                : (id)kSecClassGenericPassword,
-       (id)kSecAttrGeneric          : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-       (id)kSecAttrAccessGroup      : _sharedGroup,
-       (id)kSecAttrAccount          : @"TokenWipe",
-    } mutableCopy];
+    NSMutableDictionary *query = [self wipeQuery];
     
     NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
                                 @"wipeTime" : [NSDate date]
                                 };
-    
+
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
 
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{ (id)kSecValueData:wipeData  } );
@@ -191,7 +209,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         status = SecItemAdd((CFDictionaryRef)query, NULL);
     }
     
-    // Try to delete something that doesn't exist isn't really an error
     if(status != errSecSuccess)
     {
         NSString* details = [NSString stringWithFormat:@"Failed to log wipe data with error: %d", (int)status];
@@ -210,17 +227,9 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (void)logWipeData
+- (void)logWipeData:(NSUUID *)correlationId
 {
-    NSMutableDictionary *query =
-    [@{
-       (id)kSecClass                : (id)kSecClassGenericPassword,
-       (id)kSecAttrGeneric          : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-       (id)kSecAttrAccessGroup      : _sharedGroup,
-       (id)kSecAttrAccount          : @"TokenWipe",
-       (id)kSecReturnData           : @YES
-       } mutableCopy];
-    
+    NSMutableDictionary *query = [self wipeQuery];
     CFTypeRef data = nil;
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
     
@@ -229,11 +238,16 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         NSDictionary *wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
         CFRelease(data);
         
-        NSLog(@"jason %@ %@", wipeData[@"bundleId"], wipeData[@"wipeTime"]);
+        NSString *bundleId = wipeData[@"bundleId"];
+        NSDate *wipeTime = wipeData[@"wipeTime"];
+        
+        AD_LOG_INFO(correlationId, @"Last wiped by %@ at %@", bundleId, [self getStringFromDate:wipeTime]);
+        AD_LOG_INFO_PII(correlationId, @"Last wiped by %@ at %@", bundleId, [self getStringFromDate:wipeTime]);
     }
     else
     {
-        NSLog(@"jason no wipe data available");
+        AD_LOG_INFO(correlationId, @"Failed to get a wipe data or it does not exist");
+        AD_LOG_INFO_PII(correlationId, @"Failed to get a wipe data or it does not exist for %@", _sharedGroup);
     }
     
     return;
@@ -550,7 +564,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     
     if (!items || items.count == 0)
     {
-        [self logWipeData];
+        [self logWipeData:correlationId];
     }
     
     if (!items)
@@ -595,7 +609,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     //if nothing but tombstones is found, tombstones details should be logged.
     if (!items || items.count == 0)
     {
-        [self logWipeData];
+        [self logWipeData:correlationId];
         return nil;
     }
     
@@ -703,7 +717,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         query =
         [@{
            (id)kSecClass                : (id)kSecClassGenericPassword,
-           (id)kSecAttrGeneric          : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding],
+           (id)kSecAttrGeneric          : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
            (id)kSecAttrAccessGroup      : _sharedGroup,
            (id)kSecAttrAccount          : @"TokenWipe",
            (id)kSecReturnData           : @YES
