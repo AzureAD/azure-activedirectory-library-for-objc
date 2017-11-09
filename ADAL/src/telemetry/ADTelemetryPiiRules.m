@@ -24,26 +24,28 @@
 #import "ADTelemetryPiiRules.h"
 #import "ADTelemetryEventStrings.h"
 
-static NSDictionary *_piiRules;
+static NSSet *_piiFields;
 
 @implementation ADTelemetryPiiRules
 
 + (void)initialize
 {
-    _piiRules = @{AD_TELEMETRY_KEY_USER_ID: @YES};
+    _piiFields = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
+                                               AD_TELEMETRY_KEY_USER_ID,
+                                               AD_TELEMETRY_KEY_DEVICE_ID,
+                                               AD_TELEMETRY_KEY_LOGIN_HINT,
+                                               AD_TELEMETRY_KEY_CLIENT_ID,
+                                               AD_TELEMETRY_KEY_ERROR_DESCRIPTION,
+                                               AD_TELEMETRY_KEY_HTTP_PATH,
+                                               AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
+                                               AD_TELEMETRY_KEY_AUTHORITY]];
 }
 
 #pragma mark - Public
 
 + (BOOL)isPii:(NSString *)propertyName
 {
-    NSNumber *value = _piiRules[propertyName];
-    if (value)
-    {
-        return [value boolValue];
-    }
-    
-    return NO;
+    return [_piiFields containsObject:propertyName];
 }
 
 @end

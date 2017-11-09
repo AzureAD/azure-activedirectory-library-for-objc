@@ -66,14 +66,14 @@
 
 - (void)setUserInformation:(ADUserInformation *)userInfo
 {
-    [self setProperty:AD_TELEMETRY_KEY_USER_ID value:[[userInfo userId] adComputeSHA256]];
-    [self setProperty:AD_TELEMETRY_KEY_TENANT_ID value:[[userInfo tenantId] adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_USER_ID value:[userInfo userId]];
+    [self setProperty:AD_TELEMETRY_KEY_TENANT_ID value:[userInfo tenantId]];
     [self setProperty:AD_TELEMETRY_KEY_IDP value:[userInfo identityProvider]];
 }
 
 - (void)setUserId:(NSString *)userId
 {
-    [self setProperty:AD_TELEMETRY_KEY_USER_ID value:[userId adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_USER_ID value:userId];
 }
 
 - (void)setClientId:(NSString *)clientId
