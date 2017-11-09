@@ -395,7 +395,11 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     AD_LOG_WARN(nil, @"Removing all items for client %@", clientId);
     
-    NSArray* items = [self allItems:nil];
+    NSArray* items = [self allItems:error];
+    if (!items)
+    {
+        return NO;
+    }
     
     for (ADTokenCacheItem * item in items)
     {
@@ -416,6 +420,10 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     AD_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
     
     NSArray* items = [self allItems:nil];
+    if (!items)
+    {
+        return NO;
+    }
     
     for (ADTokenCacheItem * item in items)
     {
@@ -435,7 +443,11 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     AD_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
 
     NSArray *items = [self allItems:nil];
-
+    if (!items)
+    {
+        return NO;
+    }
+    
     for (ADTokenCacheItem *item in items)
     {
         if ([userId isEqualToString:[[item userInformation] userId]]
