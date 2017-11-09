@@ -78,26 +78,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     NSArray* all = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);
-    int itemCount = 0;
-    for (ADTokenCacheItem * item in all)
-    {
-        if (![item tombstone])
-        {
-            itemCount++;
-        }
-    }
-    return itemCount;
-}
 
-/*! Count of tombstones in cache store. */
-- (long)tombstoneCount
-{
-    ADAuthenticationError* error;
-    NSArray* tombstones = [mStore allTombstones:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(tombstones);
-    
-    return [tombstones count];
+    return all.count;
 }
 
 //Verifies that the items in the cache are copied, so that the developer
@@ -180,86 +162,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 }
 
 //test [ADKeychainTokenCache removeItem:error:]
-//for the case where item contains refresh token and will be set as a tombstone.
-- (void)testItemTombstone
-{
-    XCTAssertTrue([self count] == 0, "Start empty.");
-    
-    ADAuthenticationError* error;
-    XCTAssertNotNil([mStore allItems:&error]);
-    ADAssertNoError;
-    
-    //add three items:
-    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
-    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
-    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
-    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
-    ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
-    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 3);
-    XCTAssertEqual([self tombstoneCount], 0);
-    
-    //getItemWithKey should be able to retrieve item1 from cache
-    ADTokenCacheKey* key1 = [item1 extractKey:&error];
-    ADAssertNoError;
-    ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId correlationId:nil error:&error];
-    ADAssertNoError;
-    XCTAssertEqualObjects(item1, retrievedItem1);
-    
-    //tombstone item1
-    [mStore removeItem:item1 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 2);
-    XCTAssertEqual([self tombstoneCount], 1);
-    //verify that item1 is updated
-    [self verifyCacheContainsTombstone:item1];
-    
-    //getItemWithKey is NOT able to retrieve item1 from cache because it is a tombstone,
-    //although item1 can still be retrieved using [mStore allItems]
-    key1 = [item1 extractKey:&error];
-    ADAssertNoError;
-    retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId correlationId:nil error:&error];
-    ADAssertNoError;
-    XCTAssertNil(retrievedItem1);
-    
-    //tombstone item2
-    [mStore removeItem:item2 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 2);
-    //verify that item2 is updated
-    [self verifyCacheContainsTombstone:item2];
-    
-    //tombstone an item which has already been tombstoned
-    [mStore removeItem:item2 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 2);
-    
-    //tombstone a non-exist item. Should have no change to cache
-    ADTokenCacheItem* random = [self adCreateCacheItem:@"nonexist@contoso.com"];
-    [mStore removeItem:random error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 2);
-    
-    //tombstone item3
-    [mStore removeItem:item3 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 0);
-    XCTAssertEqual([self tombstoneCount], 3);
-    //verify that item3 is updated
-    [self verifyCacheContainsTombstone:item3];
-    
-    //tombstone an item when cache is empty (except tombstones)
-    [mStore removeItem:item3 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 0);
-    XCTAssertEqual([self tombstoneCount], 3);
-}
-
-//test [ADKeychainTokenCache removeItem:error:]
 //for the case where item does not contain refresh token and will be deleted.
 - (void)testItemDelete
 {
@@ -272,7 +174,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 0);
     
     //getItemWithKey should be able to retrieve item1 from cache
     ADTokenCacheKey* key1 = [item1 extractKey:&error];
@@ -287,7 +188,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
-    XCTAssertEqual([self tombstoneCount], 0);
     
     //getItemWithKey should be able to retrieve item2 from cache
     ADTokenCacheKey* key2 = [item2 extractKey:&error];
@@ -300,14 +200,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore removeItem:item1 error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 0);
     
     //remove item2.
     //Since item2 contains refresh token, it should become a tombstone.
     [mStore removeItem:item2 error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 0);
-    XCTAssertEqual([self tombstoneCount], 1);
 }
 
 - (void)testRemoveAllForClientId
@@ -330,13 +228,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 4);
-    XCTAssertEqual([self tombstoneCount], 0);
     
     //remove all items with client ID as TEST_CLIENT_ID
     [mStore removeAllForClientId:TEST_CLIENT_ID error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 3);
     //only item4 is left in cache while the others should be tombstones
     [self verifyCacheContainsItem:item4];
 }
@@ -363,13 +259,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 4);
-    XCTAssertEqual([self tombstoneCount], 0);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
     [mStore removeAllForUserId:@"eric@contoso.com" clientId:TEST_CLIENT_ID error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
-    XCTAssertEqual([self tombstoneCount], 2);
+
     //only item3 and item4 are left in cache while the other twi should be tombstones
     [self verifyCacheContainsItem:item3];
     [self verifyCacheContainsItem:item4];
@@ -400,13 +295,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
     ADAssertNoError;
     XCTAssertEqual([self count], 4);
-    XCTAssertEqual([self tombstoneCount], 0);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
     [mStore removeAllForUserId:@"eric@contoso.com" error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
-    XCTAssertEqual([self tombstoneCount], 2);
+
     //only item3 and item4 are left in cache while the other twi should be tombstones
     [self verifyCacheContainsItem:item3];
     [self verifyCacheContainsItem:item4];
@@ -419,31 +313,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAuthenticationError* error;
     
     NSArray* all = [mStore allItems:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(all);
-    
-    ADTokenCacheItem* read = nil;
-    for(ADTokenCacheItem* i in all)
-    {
-        XCTAssertNotNil(i);
-        if ([i.userInformation.userId isEqualToString:item.userInformation.userId]
-            && [i.authority isEqualToString:item.authority]
-            && [i.resource isEqualToString:item.resource]
-            && [i.clientId isEqualToString:item.clientId])
-        {
-            read = i;
-            break;;
-        }
-    }
-    XCTAssertEqualObjects(read, item);
-}
-
-- (void)verifyCacheContainsTombstone:(ADTokenCacheItem *)item
-{
-    XCTAssertNotNil(item);
-    ADAuthenticationError* error;
-    
-    NSArray* all = [mStore allTombstones:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);
     
@@ -549,82 +418,5 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual(status, errSecSuccess);
 }
 
-//test the case where a tombstone is too old to stay in cache store
-- (void)testTombstoneAgingOut
-{
-    XCTAssertTrue([self count] == 0, "There should be no token item in cache at start.");
-    XCTAssertTrue([self tombstoneCount] == 0, "There should be no tombstone item in cache at start.");
-    
-    ADAuthenticationError* error;
-    
-    //do a clean operation, which should do the clean operation and create an entry in keychain to store the next clean time
-    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
-    XCTAssertNotNil([mStore getTombstoneCleanTime]);
-    XCTAssertEqual([self count], 0);
-    XCTAssertEqual([self tombstoneCount], 0);
-    
-    //add a tombstone which is old enough
-    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"jack@contoso.com"];
-    [item1 makeTombstone:nil];
-    [item1 setExpiresOn:[NSDate date]];// set the tombstone expire date as now
-    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
-    XCTAssertEqual([self tombstoneCount], 1);
-    XCTAssertEqual([self count], 0);
-    
-    //the following clean should have no effect as the next clean time is one day later
-    XCTAssertFalse([mStore cleanTombstoneIfNecessary]);
-    XCTAssertEqual([self tombstoneCount], 1);
-    XCTAssertEqual([self count], 0);
-    
-    //manually set the clean time and clean tombstone
-    //clean operation should be completed
-    [self activateTombstoneCleanTime];
-    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
-    //the tombstone is too old and deleted. It won't be returned. Therefore there is still one tombstone in cache store.
-    XCTAssertEqual([self tombstoneCount], 0);
-    XCTAssertEqual([self count], 0);
-
-    
-    //add the second tombstone
-    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
-    [item2 makeTombstone:nil];
-    [item2 setExpiresOn:[NSDate dateWithTimeIntervalSinceNow:3600]];// set the tombstone's expire date as 1 hour later
-    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
-    XCTAssertEqual([self tombstoneCount], 1);
-    XCTAssertEqual([self count], 0);
-    
-    //clean tombstone
-    [self activateTombstoneCleanTime];
-    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
-    //the tombstone should remain in cache after clean as it is not too old
-    XCTAssertEqual([self tombstoneCount], 1);
-    XCTAssertEqual([self count], 0);
-    
-    
-    //add another item
-    ADTokenCacheItem* item3 = [self adCreateCacheItem:@"stan@contoso.com"];
-    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
-    XCTAssertEqual([self tombstoneCount], 1);
-    XCTAssertEqual([self count], 1);
-    
-    //make item3 a tombstone. It will expire after 30 days by default.
-    [mStore removeItem:item3 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self tombstoneCount], 2);
-    XCTAssertEqual([self count], 0);
-    
-    //manually set the clean time and clean tombstone
-    [self activateTombstoneCleanTime];
-    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
-    //the tombstone is not too old and won't be deleted.
-    XCTAssertEqual([self tombstoneCount], 2);
-    XCTAssertEqual([self count], 0);
-}
-
-- (void)activateTombstoneCleanTime
-{
-    NSDate* cleanTime = [NSDate date];
-    [mStore storeTombstoneCleanTime:cleanTime];
-}
 
 @end

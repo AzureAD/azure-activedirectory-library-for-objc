@@ -228,41 +228,8 @@
     return isMRRT;
 }
 
-- (void)makeTombstone:(NSDictionary *)tombstoneEntries
-{
-    NSMutableDictionary* tombstoneDictionary = [NSMutableDictionary new];
-    
-    //avoid bundleId being nil, as it will be stored in a NSMutableDictionary
-    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-    
-    if (bundleId)
-    {
-        [tombstoneDictionary setObject:bundleId forKey:@"bundleId"];
-    }
-    
-    if (tombstoneEntries)
-    {
-        [tombstoneDictionary addEntriesFromDictionary:tombstoneEntries];
-    }
-    
-    //wipe out the refresh token
-    _refreshToken = @"<tombstone>";
-    _tombstone = tombstoneDictionary;
-    _expiresOn = [NSDate dateWithTimeIntervalSinceNow:THIRTY_DAYS_IN_SECONDS];//tombstones should be removed after 30 days
-}
-
 - (void)logMessage:(NSString*)message level:(ADAL_LOG_LEVEL)level correlationId:(NSUUID*)correlationId
 {
-    if (_tombstone)
-    {
-        [ADLogger log:level context:self correlationId:correlationId isPii:YES
-               format:@"%@", _tombstone];
-        [ADLogger log:level context:self correlationId:correlationId isPii:NO
-               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
-        
-        return;
-    }
-    
     NSString* tokenMessage = nil;
     
     if (_accessToken && _refreshToken)

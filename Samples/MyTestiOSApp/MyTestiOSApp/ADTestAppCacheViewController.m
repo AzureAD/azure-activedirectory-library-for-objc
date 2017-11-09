@@ -258,14 +258,6 @@
             [self addTokenToCacheMap:item];
         }
         
-        
-        // Add the tombstones as well
-        NSArray* allTombstones = [cache allTombstones:nil];
-        for (ADTokenCacheItem* item in allTombstones)
-        {
-            [self addTokenToCacheMap:item];
-        }
-        
         // Now that we have all the items sorted out in the dictionaries flatten it
         // out to a single list.
         _users = [[NSMutableArray alloc] initWithCapacity:_cacheMap.count];
@@ -381,11 +373,8 @@
     else
     {
         [cell setBackgroundColor:[UIColor whiteColor]];
-        if (cacheItem.item.tombstone)
-        {
-            [[cell textLabel] setTextColor:[UIColor brownColor]];
-        }
-        else if ([cacheItem.item.refreshToken isEqualToString:@"bad-refresh-token"])
+
+        if ([cacheItem.item.refreshToken isEqualToString:@"bad-refresh-token"])
         {
             [[cell textLabel] setTextColor:[UIColor yellowColor]];
         }
