@@ -136,8 +136,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] handling host", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-        AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] handling host", [request.URL host]);
+        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+        AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [request.URL host]);
         
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
@@ -148,7 +148,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     }
     
     AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", [request.URL host]);
+    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
     
     return NO;
 }
