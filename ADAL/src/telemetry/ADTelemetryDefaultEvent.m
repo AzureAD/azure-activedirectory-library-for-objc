@@ -28,6 +28,7 @@
 #import "ADLogger.h"
 #import "NSMutableDictionary+ADExtensions.h"
 #import "ADIpAddressHelper.h"
+#import "ADHelpers.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -103,7 +104,7 @@
         return;
     }
     
-    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_KEY_START_TIME];
+    [_propertyMap setValue:[ADHelpers stringFromDate:time] forKey:AD_TELEMETRY_KEY_START_TIME];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -113,27 +114,13 @@
         return;
     }
     
-    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_KEY_END_TIME];
+    [_propertyMap setValue:[ADHelpers stringFromDate:time] forKey:AD_TELEMETRY_KEY_END_TIME];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
     [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:AD_TELEMETRY_KEY_RESPONSE_TIME];
-}
-
-- (NSString*)getStringFromDate:(NSDate*)date
-{
-    static NSDateFormatter* s_dateFormatter = nil;
-    static dispatch_once_t s_dateOnce;
-    
-    dispatch_once(&s_dateOnce, ^{
-        s_dateFormatter = [[NSDateFormatter alloc] init];
-        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSSS"];
-    });
-    
-    return [s_dateFormatter stringFromDate:date];
 }
 
 + (NSDictionary*)defaultParameters

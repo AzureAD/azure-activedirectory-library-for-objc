@@ -32,6 +32,7 @@
 #import "ADWorkplaceJoinUtil.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADHelpers.h"
 
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
@@ -166,30 +167,20 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 #pragma mark -
 #pragma mark Token Wipe
 - (NSMutableDictionary *)wipeQuery {
-    return [@{
-              (id)kSecClass                : (id)kSecClassGenericPassword,
-              (id)kSecAttrGeneric          : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-              (id)kSecAttrAccessGroup      : _sharedGroup,
-              (id)kSecAttrAccount          : @"TokenWipe",
-              } mutableCopy];
-}
-
-- (NSString *)getStringFromDate:(NSDate *)date
-{
-    static NSDateFormatter* s_dateFormatter = nil;
-    static dispatch_once_t s_dateOnce;
-    
-    dispatch_once(&s_dateOnce, ^{
-        s_dateFormatter = [[NSDateFormatter alloc] init];
-        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSSS"];
+    static NSDictionary *sWipeQuery;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sWipeQuery = @{
+                       (id)kSecClass                : (id)kSecClassGenericPassword,
+                       (id)kSecAttrGeneric          : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
+                       (id)kSecAttrAccessGroup      : _sharedGroup,
+                       (id)kSecAttrAccount          : @"TokenWipe",
+                       };
     });
-    
-    return [s_dateFormatter stringFromDate:date];
+    return [sWipeQuery mutableCopy];
 }
 
-
-- (BOOL)wipeToken:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+- (BOOL)saveWipeTokenData:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     NSMutableDictionary *query = [self wipeQuery];
     
@@ -227,11 +218,18 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (void)logWipeData:(NSUUID *)correlationId
+- (void)logWipeTokenData:(NSUUID *)correlationId
 {
-    NSMutableDictionary *query = [self wipeQuery];
+    static NSDictionary *sQuery;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableDictionary *query = [self wipeQuery];
+        [query setObject:@(YES) forKey:(id)kSecReturnData];
+        sQuery = query;
+    });
+    
     CFTypeRef data = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)sQuery, &data);
     
     if (status == errSecSuccess && data)
     {
@@ -241,8 +239,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         NSString *bundleId = wipeData[@"bundleId"];
         NSDate *wipeTime = wipeData[@"wipeTime"];
         
-        AD_LOG_INFO(correlationId, @"Last wiped by %@ at %@", bundleId, [self getStringFromDate:wipeTime]);
-        AD_LOG_INFO_PII(correlationId, @"Last wiped by %@ at %@", bundleId, [self getStringFromDate:wipeTime]);
+        AD_LOG_INFO(correlationId, @"Last wiped by %@ at %@", bundleId, [ADHelpers stringFromDate:wipeTime]);
+        AD_LOG_INFO_PII(correlationId, @"Last wiped by %@ at %@", bundleId, [ADHelpers stringFromDate:wipeTime]);
     }
     else
     {
@@ -409,7 +407,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         return [ADKeychainTokenCache checkStatus:deleteStatus operation:@"delete" correlationId:nil error:error];
     }
 
-    return [self wipeToken:error];
+    return [self saveWipeTokenData:error];
 }
 
 //Interal function: delete an item from keychain;
@@ -564,7 +562,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     
     if (!items || items.count == 0)
     {
-        [self logWipeData:correlationId];
+        [self logWipeTokenData:correlationId];
     }
     
     if (!items)
@@ -609,7 +607,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     //if nothing but tombstones is found, tombstones details should be logged.
     if (!items || items.count == 0)
     {
-        [self logWipeData:correlationId];
+        [self logWipeTokenData:correlationId];
         return nil;
     }
     

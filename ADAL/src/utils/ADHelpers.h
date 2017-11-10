@@ -58,4 +58,5 @@
 + (ADAuthenticationError *)checkAuthority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId;
 
++ (NSString *)stringFromDate:(NSDate *)date;
 @end
