@@ -31,19 +31,12 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-
 #import "NSURL+ADExtensions.h"
+#import "ADAuthenticationError.h"
+#import "ADAuthorityUtils.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
-
-// Trusted authorities
-static NSString* const s_kTrustedAuthority             = @"login.windows.net";
-static NSString* const s_kTrustedAuthorityUS           = @"login.microsoftonline.us";
-static NSString* const s_kTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-static NSString* const s_kTrustedAuthorityGermany      = @"login.microsoftonline.de";
-static NSString* const s_kTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-static NSString* const s_kTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
 
 // AAD validation check constant
 static NSString* const s_kTenantDiscoveryEndpoint      = @"tenant_discovery_endpoint";
@@ -57,11 +50,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 @implementation ADAuthorityValidation
 {
     NSMutableDictionary *_validatedAdfsAuthorities;
-    NSSet *_whitelistedAADHosts;
     
     dispatch_queue_t _aadValidationQueue;
 }
-
 
 + (ADAuthorityValidation *)sharedInstance
 {
@@ -85,10 +76,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
     _aadCache = [ADAadAuthorityCache new];
-    
-    _whitelistedAADHosts = [NSSet setWithObjects:s_kTrustedAuthority, s_kTrustedAuthorityUS,
-                            s_kTrustedAuthorityChina, s_kTrustedAuthorityGermany,
-                            s_kTrustedAuthorityWorldWide, s_kTrustedAuthorityUSGovernment, nil];
     
     // A serial dispatch queue for all authority validation operations. A very common pattern is for
     // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
@@ -272,11 +259,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         return;
     }
     
-    NSString *trustedHost = s_kTrustedAuthorityWorldWide;
-    NSString *authorityHost = authority.adHostWithPortIfNecessary;
-    if ([_whitelistedAADHosts containsObject:authorityHost])
+    NSString *trustedHost = ADTrustedAuthorityWorldWide;
+    
+    if ([ADAuthorityUtils isKnownHost:authority])
     {
-        trustedHost = authorityHost;
+        trustedHost = authority.adHostWithPortIfNecessary;
     }
     
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString

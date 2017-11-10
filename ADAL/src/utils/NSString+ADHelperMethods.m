@@ -338,4 +338,9 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return toReturn;
 }
 
+- (NSURL *)adUrl
+{
+    return [[NSURL alloc] initWithString:self];
+}
+
 @end

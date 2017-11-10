@@ -22,10 +22,9 @@
 // THE SOFTWARE.
 
 #import "ADAadAuthorityCache.h"
-
 #import "NSURL+ADExtensions.h"
-
 #include <pthread.h>
+#import "ADAuthorityUtils.h"
 
 #define CHECK_CLASS_TYPE(_CHK, _CLS, _ERROR) \
     if (![_CHK isKindOfClass:[_CLS class]]) { \
@@ -167,8 +166,8 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
         {
             _recordMap[alias] = record;
         }
-        
-        AD_LOG_INFO(context.correlationId, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
+
+        AD_LOG_INFO_PII(context.correlationId, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
     }
     
     // In case the authority we were looking for wasn't in the metadata
