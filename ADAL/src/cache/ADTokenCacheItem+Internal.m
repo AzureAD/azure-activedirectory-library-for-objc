@@ -265,7 +265,7 @@
         
         if ([ADAuthorityUtils isKnownHost:[_authority adUrl]]) {
             [ADLogger log:level context:self correlationId:correlationId isPii:NO
-                   format:@"\n\tauthority:%@\n", [_authority adUrl].host];
+                   format:@"\n\tauthority:%@\n", _authority];
         } else {
             [ADLogger log:level context:self correlationId:correlationId isPii:YES
                    format:@"\n\tauthority:%@\n", _authority];

@@ -57,7 +57,7 @@
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
     if ([ADAuthorityUtils isKnownHost:[_requestParams.authority adUrl]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority: %@", logMessage, [_requestParams.authority adUrl].host];
+        logMessage = [NSString stringWithFormat:@"%@ authority: %@", logMessage, _requestParams.authority];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
