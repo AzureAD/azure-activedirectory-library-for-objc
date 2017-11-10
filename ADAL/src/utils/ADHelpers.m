@@ -31,6 +31,7 @@
 
 #import "ADOauth2Constants.h"
 #import "ADAL_Internal.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADHelpers
 
@@ -327,7 +328,9 @@
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        AD_LOG_WARN(nil, @"The authority is not a valid URL %@", authority);
+        AD_LOG_WARN(nil, @" The authority is not a valid URL authority: %@", [ADAuthorityUtils isKnownHost:[authority adUrl]] ? authority : @"unknown host");
+        AD_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
+
         return nil;
     }
     NSString* scheme = url.scheme;

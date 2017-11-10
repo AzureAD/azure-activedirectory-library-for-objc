@@ -80,6 +80,7 @@
 
     ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl context:nil];
     [request setIsGetRequest:YES];
+    AD_LOG_VERBOSE(nil, @"Starting authorization challenge request.");
     AD_LOG_VERBOSE_PII(nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {
@@ -122,7 +123,8 @@
         return nil;
     }
     
-    AD_LOG_INFO_PII(nil, @"Retrieved authenticate header %@", authenticateHeader);
+    AD_LOG_INFO(nil, @"Retrieved authenticate header");
+    AD_LOG_INFO_PII(nil, @"Retrieved authenticate header: %@", authenticateHeader);
     return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 

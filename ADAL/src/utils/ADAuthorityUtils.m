@@ -21,36 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADAuthorityUtils.h"
 
-@interface NSString (ADHelperMethods)
+static NSSet<NSString *> *s_trustedHostList;
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)adBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)adBase64UrlDecode;
+// Trusted authorities
+NSString *const ADTrustedAuthority             = @"login.windows.net";
+NSString *const ADTrustedAuthorityUS           = @"login.microsoftonline.us";
+NSString *const ADTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const ADTrustedAuthorityGermany      = @"login.microsoftonline.de";
+NSString *const ADTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+NSString *const ADTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
+NSString *const ADTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
 
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString *)string;
+@implementation ADAuthorityUtils
 
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)adTrimmedString;
++ (void)initialize
+{
+    s_trustedHostList = [NSSet setWithObjects:ADTrustedAuthority, ADTrustedAuthorityUS,
+     ADTrustedAuthorityChina, ADTrustedAuthorityGermany,
+     ADTrustedAuthorityWorldWide, ADTrustedAuthorityUSGovernment, ADTrustedAuthorityCloudGovApi, nil];
+}
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)adUrlFormDecode;
+#pragma mark - Public
 
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)adUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)adBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)adBase64UrlEncodeData:(NSData *)data;
-
-- (NSString*)adComputeSHA256;
-
-/*! Converts string to url */
-- (NSURL *)adUrl;
++ (BOOL)isKnownHost:(NSURL *)url
+{
+    return [s_trustedHostList containsObject:url.host.lowercaseString];
+}
 
 @end
