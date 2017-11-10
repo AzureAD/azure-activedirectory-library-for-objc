@@ -21,12 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import <XCTest/XCTest.h>
+#import "ADTelemetryUIEvent.h"
+#import "XCTestCase+TestHelperMethods.h"
+#import "ADTelemetryEventStrings.h"
 
-#import <Foundation/Foundation.h>
+@interface ADTelemetryUIEventTests : XCTestCase
 
-@interface ADIpAddressHelper : NSObject
+@end
 
-+ (NSString *)adDeviceIpAddress;
+@implementation ADTelemetryUIEventTests
+
+- (void)setUp
+{
+    [super setUp];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+}
+
+- (void)testSetLoginHint_whenLogingHintNotNil_shouldHashLoginHint
+{
+    ADTelemetryUIEvent *event = [[ADTelemetryUIEvent alloc] initWithName:@"testEvent"
+                                                                requestId:@"requestId"
+                                                            correlationId:[NSUUID UUID]];
+    
+    [event setLoginHint:@"eric_cartman@contoso.com"];
+    
+    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" adComputeSHA256]);
+}
 
 @end
