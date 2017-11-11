@@ -392,7 +392,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     @param  error   (Optional) In the case of an error this will be filled with the
                     error details.
  
-    @return YES if the item was successfully tombstoned/deleted or not in the cache.
+    @return YES if the item was successfully deleted or not in the cache, and the wipe data
+                   is stored successfully.
  */
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
@@ -609,7 +610,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     NSArray* items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     
-    //if nothing but tombstones is found, tombstones details should be logged.
+    //if nothing is found, last wipe details should be logged.
     if (!items || items.count == 0)
     {
         [self logWipeTokenData:correlationId];
@@ -737,13 +738,5 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     return _default;
 }
-
-
-
-
-
-
-
-
 
 @end

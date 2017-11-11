@@ -378,7 +378,6 @@
       refreshToken:(NSString *)refreshToken
            context:(id<ADRequestContext>)context
 {
-    //The refresh token didn't work. We need to tombstone this refresh item in the cache.
     ADTokenCacheKey* cacheKey = [cacheItem extractKey:nil];
     if (!cacheKey)
     {
@@ -403,9 +402,6 @@
     {
         return;
     }
-    
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache ");
-    AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
     
     [_dataSource removeItem:existing error:nil];
 }
