@@ -486,7 +486,14 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                              (id)kSecAttrAccessGroup: _sharedGroup };
     
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    return ![ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error];    
+    
+    if (![ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error])
+    {
+        return NO;
+    }
+    
+    status = [self saveWipeTokenData:error];
+    return ![ADKeychainTokenCache checkStatus:status operation:@"saving wipe data" correlationId:nil error:error];
 }
 
 @end
