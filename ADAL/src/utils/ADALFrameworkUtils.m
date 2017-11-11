@@ -55,6 +55,7 @@ static NSString *_resourcePath = nil;
     dispatch_once( &predicate, ^{
         
         NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
+        AD_LOG_VERBOSE(nil, @"Resources Loading - Attempting to load resources");
         AD_LOG_VERBOSE_PII(nil, @"Resources Loading - Attempting to load resources from: %@", mainBundlePath);
         NSString* frameworkBundlePath = nil;
         

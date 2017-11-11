@@ -331,8 +331,8 @@
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR(_request.correlationId, @"Unparseable wwwAuthHeader received.");
-        AD_LOG_ERROR_PII(_request.correlationId, @"%@", wwwAuthHeaderValue);
+        AD_LOG_ERROR(_request.correlationId, @"Unparseable wwwAuthHeader received");
+        AD_LOG_ERROR_PII(_request.correlationId, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
     }
     
     ADAuthenticationError* adError = nil;
@@ -394,7 +394,7 @@
         }
         
         AD_LOG_ERROR(_request.correlationId, @"JSON deserialization error:");
-        AD_LOG_ERROR_PII(_request.correlationId, @"%@ - %@", jsonError.description, bodyStr);
+        AD_LOG_ERROR_PII(_request.correlationId, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];
@@ -413,8 +413,8 @@
         [_responseDictionary setObject:url forKey:@"url"];
     }
     
-    AD_LOG_WARN(_request.correlationId, @"System error while making request.");
-    AD_LOG_WARN_PII(_request.correlationId, @"%@", error.description);
+    AD_LOG_WARN(_request.correlationId, @"System error while making request");
+    AD_LOG_WARN_PII(_request.correlationId, @"System error while making request %@", error.description);
 
     // System error
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error

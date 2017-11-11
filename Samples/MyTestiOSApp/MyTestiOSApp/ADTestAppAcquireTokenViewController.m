@@ -683,7 +683,7 @@
     }
     
     ADAuthenticationError *error = nil;
-    if (![[ADKeychainTokenCache defaultKeychainCache] removeAllForUserId:userId error:&error])
+    if (![[ADKeychainTokenCache defaultKeychainCache] wipeAllItemsForUserId:userId error:&error])
     {
         UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
                                                                        message:error.localizedDescription

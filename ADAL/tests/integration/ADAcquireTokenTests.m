@@ -382,6 +382,8 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testFailsWithNilUserIdAndMultipleCachedUsers
 {
+    [ADTelemetry sharedInstance].piiEnabled = YES;
+    
     // prepare and register telemetry dispatcher
     ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
