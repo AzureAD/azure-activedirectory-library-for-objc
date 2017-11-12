@@ -327,8 +327,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     [self verifyCacheContainsItem:item3];
     [self verifyCacheContainsItem:item4];
-    
-    (void)wiped;
 }
 
 - (void)verifyCacheContainsItem: (ADTokenCacheItem*) item
