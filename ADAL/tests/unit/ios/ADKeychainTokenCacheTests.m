@@ -316,8 +316,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 4);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
-    BOOL wiped = [mStore wipeAllItemsForUserId:@"eric@contoso.com" error:&error];
-    
+    XCTAssertTrue([mStore wipeAllItemsForUserId:@"eric@contoso.com" error:&error]);
     
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
