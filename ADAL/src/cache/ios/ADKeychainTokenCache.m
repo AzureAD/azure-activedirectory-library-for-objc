@@ -248,8 +248,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         AD_LOG_INFO(correlationId, @"Failed to get a wipe data or it does not exist");
         AD_LOG_INFO_PII(correlationId, @"Failed to get a wipe data or it does not exist for %@", _sharedGroup);
     }
-    
-    return;
 }
 
 
@@ -476,7 +474,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (BOOL)wipeAllItemsForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
+- (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
 {
     AD_LOG_WARN(nil, @"Removing all items for user.");
     AD_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
@@ -487,13 +485,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     
-    if (![ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error])
+    if ([ADKeychainTokenCache checkStatus:status operation:@"remove user" correlationId:nil error:error])
     {
         return NO;
     }
     
-    status = [self saveWipeTokenData:error];
-    return ![ADKeychainTokenCache checkStatus:status operation:@"saving wipe data" correlationId:nil error:error];
+    return [self saveWipeTokenData:error];
 }
 
 @end
@@ -724,14 +721,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
         [ADKeychainTokenCache checkStatus:status operation:@"remove all" correlationId:nil error:error];
         
-        //JASON
         query =
         [@{
            (id)kSecClass                : (id)kSecClassGenericPassword,
            (id)kSecAttrGeneric          : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
            (id)kSecAttrAccessGroup      : _sharedGroup,
-           (id)kSecAttrAccount          : @"TokenWipe",
-           (id)kSecReturnData           : @YES
+           (id)kSecAttrAccount          : @"TokenWipe"
            } mutableCopy];
         
         status = SecItemDelete((CFDictionaryRef)query);

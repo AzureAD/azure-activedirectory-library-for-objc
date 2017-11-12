@@ -733,7 +733,7 @@ CreateAuthContext(NSString *authority,
     XCTAssertNil([tokenCache getAT:authority]);
 }
 
-- (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldTombstoneCorrectToken
+- (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldRemoveCorrectToken
 {
     NSString *authority = @"https://login.contoso.com/common";
     NSString *preferredAuthority = @"https://login.contoso.net/common";

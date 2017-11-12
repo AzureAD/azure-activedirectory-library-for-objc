@@ -39,10 +39,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 @interface ADKeychainTokenCache (UnitTest)
 
-- (BOOL)cleanTombstoneIfNecessary;
-- (void) storeTombstoneCleanTime:(NSDate *)cleanTime;
-- (NSDate*) getTombstoneCleanTime;
-
 @end
 
 @interface ADKeychainTokenCacheTests : ADTestCase
@@ -71,7 +67,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [super tearDown];
 }
 
-/*! Count of items in cache store (not including tombstones). */
+/*! Count of items in cache store. */
 - (long)count
 {
     ADAuthenticationError* error = nil;
@@ -202,7 +198,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 1);
     
     //remove item2.
-    //Since item2 contains refresh token, it should become a tombstone.
     [mStore removeItem:item2 error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 0);
@@ -233,7 +228,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore removeAllForClientId:TEST_CLIENT_ID error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 1);
-    //only item4 is left in cache while the others should be tombstones
+    //only item4 is left in cache
     [self verifyCacheContainsItem:item4];
 }
 
@@ -265,9 +260,31 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
 
-    //only item3 and item4 are left in cache while the other twi should be tombstones
+    //only item3 and item4 are left in cache 
     [self verifyCacheContainsItem:item3];
     [self verifyCacheContainsItem:item4];
+}
+
+- (BOOL)wipeTokenDataExist
+{
+    NSDictionary *query =
+    @{
+      (id)kSecClass                : (id)kSecClassGenericPassword,
+      (id)kSecAttrGeneric          : [@"Microsoft.ADAL.WipeAll.1" dataUsingEncoding:NSUTF8StringEncoding],
+      (id)kSecAttrAccount          : @"TokenWipe",
+      (id)kSecAttrAccessGroup      : mStore.sharedGroup,
+      (id)kSecReturnAttributes     : @YES
+      };
+    
+    CFTypeRef data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
+    
+    if (status == errSecSuccess && data)
+    {
+        CFRelease(data);
+        return YES;
+    }
+    return NO;
 }
 
 - (void)testWipeAllItemsForUserId_shouldDeleteAllItems
@@ -277,6 +294,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAuthenticationError* error;
     XCTAssertNotNil([mStore allItems:&error]);
     ADAssertNoError;
+    
+    XCTAssertFalse([self wipeTokenDataExist]);
     
     //add two items with the same user ID but differnet client ID
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
@@ -297,14 +316,20 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 4);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
-    [mStore wipeAllItemsForUserId:@"eric@contoso.com" error:&error];
+    BOOL wiped = [mStore wipeAllItemsForUserId:@"eric@contoso.com" error:&error];
+    
+    
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
 
+    //check logWipeToken
+    XCTAssertTrue([self wipeTokenDataExist]);
+    
     [self verifyCacheContainsItem:item3];
     [self verifyCacheContainsItem:item4];
+    
+    (void)wiped;
 }
-
 
 - (void)verifyCacheContainsItem: (ADTokenCacheItem*) item
 {
