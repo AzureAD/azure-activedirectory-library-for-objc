@@ -167,7 +167,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 #pragma mark -
 #pragma mark Token Wipe
-- (NSMutableDictionary *)wipeQuery {
+- (NSDictionary *)wipeQuery {
     static NSDictionary *sWipeQuery;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -178,27 +178,26 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                        (id)kSecAttrAccount          : @"TokenWipe",
                        };
     });
-    return [sWipeQuery mutableCopy];
+    return sWipeQuery;
 }
 
 - (BOOL)saveWipeTokenData:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    NSMutableDictionary *query = [self wipeQuery];
-    
     NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
                                 @"wipeTime" : [NSDate date]
                                 };
 
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
 
-    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)@{ (id)kSecValueData:wipeData  } );
+    OSStatus status = SecItemUpdate((CFDictionaryRef)[self wipeQuery], (CFDictionaryRef)@{ (id)kSecValueData:wipeData  } );
     if (status == errSecItemNotFound)
     {
-        [query addEntriesFromDictionary: @{ (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-                                            (id)kSecValueData : wipeData
-                                            }];
+        NSMutableDictionary *mutableQuery = [[self wipeQuery] mutableCopy];
+        [mutableQuery addEntriesFromDictionary: @{ (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                                                   (id)kSecValueData : wipeData
+                                                   }];
          
-        status = SecItemAdd((CFDictionaryRef)query, NULL);
+        status = SecItemAdd((CFDictionaryRef)mutableQuery, NULL);
     }
     
     if(status != errSecSuccess)
@@ -224,7 +223,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     static NSDictionary *sQuery;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSMutableDictionary *query = [self wipeQuery];
+        NSMutableDictionary *query = [[self wipeQuery] mutableCopy];
         [query setObject:@(YES) forKey:(id)kSecReturnData];
         sQuery = query;
     });
