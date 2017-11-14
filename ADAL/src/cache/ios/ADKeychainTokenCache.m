@@ -412,7 +412,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 //Interal function: delete an item from keychain;
 - (OSStatus)deleteItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                 error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     ADTokenCacheKey* key = [item extractKey:error];
@@ -589,6 +589,11 @@ static ADKeychainTokenCache* s_defaultCache = nil;
             continue;
         }
         
+        // Delete tombstones generated from previous versions of ADAL
+        if (item.refreshToken != nil && [item.refreshToken isEqualToString:@"<tombstone>"]) {
+            [self deleteItem:item error:nil];
+        }
+
         [tokenItems addObject:item];
     }
     
