@@ -29,7 +29,7 @@
 #import "ADTelemetryUIEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADURLSessionDemux.h"
-
+#import "ADAuthorityUtils.h"
 
 static NSMutableDictionary *s_handlers      = nil;
 static NSString *s_endURL                   = nil;
@@ -136,7 +136,9 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] handling host", [request.URL host]);
+        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+        AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [request.URL host]);
+        
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
         if (![NSURLProtocol propertyForKey:s_kADURLProtocolPropertyKey inRequest:request])
@@ -145,14 +147,16 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", [request.URL host]);
+    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
+    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
     
     return request;
 }
@@ -165,7 +169,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         _context = context;
     }
     
-    AD_LOG_VERBOSE(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
+    AD_LOG_VERBOSE(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
+    AD_LOG_VERBOSE_PII(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
      [ADCustomHeaderHandler applyCustomHeadersTo:request];
@@ -184,7 +189,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
+    AD_LOG_VERBOSE(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
+    AD_LOG_VERBOSE_PII(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
     
     [_dataTask cancel];
     _dataTask = nil;

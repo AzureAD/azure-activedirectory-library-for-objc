@@ -32,6 +32,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryCacheEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -282,7 +283,8 @@
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", [ADAuthorityUtils isKnownHost:[_authority adUrl]] ? _authority : @"unknown host");
+        AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
         
         [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
@@ -325,7 +327,8 @@
         }
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token ");
+    AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
     
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     [self addOrUpdateItem:cacheItem context:context error:nil];
@@ -404,7 +407,8 @@
         return;
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
+    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache ");
+    AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
     
     //update tombstone property before update the tombstone in cache
     [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],

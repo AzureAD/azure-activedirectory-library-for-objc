@@ -31,6 +31,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheItem (Internal)
 
@@ -257,8 +258,18 @@
     {
         [ADLogger log:level context:self correlationId:correlationId isPii:YES
                format:@"%@", _tombstone];
-        [ADLogger log:level context:self correlationId:correlationId isPii:NO
-               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"\n\tresource: %@", _resource];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"\n\tclientId: %@", _clientId];
+        
+        if ([ADAuthorityUtils isKnownHost:[_authority adUrl]]) {
+            [ADLogger log:level context:self correlationId:correlationId isPii:NO
+                   format:@"\n\tauthority:%@\n", _authority];
+        } else {
+            [ADLogger log:level context:self correlationId:correlationId isPii:YES
+                   format:@"\n\tauthority:%@\n", _authority];
+        }
         
         return;
     }
