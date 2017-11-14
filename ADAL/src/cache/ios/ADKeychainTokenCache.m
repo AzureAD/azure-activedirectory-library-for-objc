@@ -592,6 +592,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         // Delete tombstones generated from previous versions of ADAL
         if (item.refreshToken != nil && [item.refreshToken isEqualToString:@"<tombstone>"]) {
             [self deleteItem:item error:nil];
+            continue;
         }
 
         [tokenItems addObject:item];
