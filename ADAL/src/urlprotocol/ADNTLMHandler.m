@@ -100,12 +100,14 @@ static NSURLSession *_session = nil;
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
-                 AD_LOG_INFO(nil, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
+                 AD_LOG_INFO(nil, @"NTLM credentials added");
+                 AD_LOG_INFO_PII(nil, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
              }
              else
              {
                  _challengeCancelled = YES;
-                 AD_LOG_INFO(nil, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
+                 AD_LOG_INFO(nil, @"NTLM challenge cancelled");
+                 AD_LOG_INFO_PII(nil, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
                  
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 
