@@ -75,7 +75,8 @@
     ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context error:&adError];
     if (!info || ![info isWorkPlaceJoined])
     {
-        AD_LOG_INFO(protocol.context.correlationId, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
+        AD_LOG_INFO(protocol.context.correlationId, @"Device is not workplace joined");
+        AD_LOG_INFO_PII(protocol.context.correlationId, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
         
         // In other cert auth cases we send Cancel to ensure that we continue to get
         // auth challenges, however when we do that with WPJ we don't get the subsequent
@@ -89,7 +90,8 @@
         return YES;
     }
     
-    AD_LOG_INFO(protocol.context.correlationId, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
+    AD_LOG_INFO(protocol.context.correlationId, @"Responding to WPJ cert challenge");
+    AD_LOG_INFO_PII(protocol.context.correlationId, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
                                                         certificates:@[(__bridge id)info.certificate]
@@ -145,7 +147,8 @@
     NSUUID *correlationId = protocol.context.correlationId;
     NSString *host = challenge.protectionSpace.host;
     
-    AD_LOG_INFO(correlationId, @"Attempting to handle client certificate challenge. host: %@", host);
+    AD_LOG_INFO(correlationId, @"Attempting to handle client certificate challenge");
+    AD_LOG_INFO_PII(correlationId, @"Attempting to handle client certificate challenge. host: %@", host);
     
     // See if this is a challenge for the WPJ cert.
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
