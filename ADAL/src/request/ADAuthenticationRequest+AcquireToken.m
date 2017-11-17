@@ -57,7 +57,7 @@
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
     if ([ADAuthorityUtils isKnownHost:[_requestParams.authority adUrl]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority: %@", logMessage, _requestParams.authority];
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority adUrl].host];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
@@ -70,7 +70,7 @@
         if (result.status == AD_SUCCEEDED)
         {
             AD_LOG_INFO(result.correlationId, @"##### END succeeded. %@ #####", logMessage);
-            AD_LOG_INFO(result.correlationId, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
+            AD_LOG_INFO_PII(result.correlationId, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
         }
         else
         {

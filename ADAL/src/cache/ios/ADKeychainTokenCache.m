@@ -91,7 +91,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    AD_LOG_INFO_PII(nil, @"Setting default keychain group.");
+    AD_LOG_INFO(nil, @"Setting default keychain group.");
     AD_LOG_INFO_PII(nil, @"Setting default keychain group to %@", keychainGroup);
     
     if (keychainGroup == s_defaultKeychainGroup)
@@ -429,7 +429,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    AD_LOG_WARN(nil, @"Removing all items for client %@", clientId);
+    AD_LOG_WARN(nil, @"Removing all items for client");
+    AD_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
     
     NSArray* items = [self allItems:error];
     if (!items)
