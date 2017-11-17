@@ -37,9 +37,8 @@ NSString* const ConnectionError = @"Connection error: %@";
 NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Unauthorized (401) HTTP status code is expected, but the actual status code is %d";
 const unichar Quote = '\"';
-//The regular expression that matches the Bearer contents:
-NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
-NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
+// Bearer's parameters extration regex.
+NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"\\s*";
 
 @implementation ADAuthenticationParameters (Internal)
 
@@ -95,79 +94,181 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 + (NSDictionary *)extractChallengeParameters:(NSString *)headerContents
                                        error:(ADAuthenticationError * __autoreleasing *)error;
 {
-    NSError* rgError = nil;
-    __block ADAuthenticationError* adError = nil;
+    NSMutableArray<NSString *> *items = [self extractItems:headerContents];
     
-    if ([NSString adIsStringNilOrBlank:headerContents])
+    // Find start index of bearer and verify that there is only 1 bearer challendge in the string.
+    NSInteger bearerStartIndex = NSNotFound;
+    for (int i = 0; i < items.count; i++)
     {
-        adError = [self invalidHeader:headerContents];
-    }
-    else
-    {
-        //First check that the header conforms to the protocol:
-        NSRegularExpression* overAllRegEx = [NSRegularExpression regularExpressionWithPattern:RegularExpression
-                                                                                      options:0
-                                                                                        error:&rgError];
-        if (overAllRegEx)
+        NSString *item = items[i];
+        NSRange range = [item rangeOfString:@"\\s*Bearer\\s+([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\"" options:NSRegularExpressionSearch];
+        if (range.location != NSNotFound)
         {
-            long matched = [overAllRegEx numberOfMatchesInString:headerContents options:0 range:NSMakeRange(0, headerContents.length)];
-            if (!matched)
+            if (bearerStartIndex != NSNotFound)
             {
-                adError = [self invalidHeader:headerContents];
+                // Bearer was alredy found, this one is 2nd bearere in the string.
+                // That's not allowed. Reset index and break cycle.
+                bearerStartIndex = NSNotFound;
+                break;
             }
-            else
-            {
-                //Once we know that the header is in the right format, the regex below will extract individual
-                //name-value pairs. This regex is not as exclusive, so it relies on the previous check
-                //to guarantee correctness:
-                NSRegularExpression* extractionRegEx = [NSRegularExpression regularExpressionWithPattern:ExtractionExpression
-                                                                                                 options:0
-                                                                                                   error:&rgError];
-                if (extractionRegEx)
-                {
-                    NSMutableDictionary* parameters = [NSMutableDictionary new];
-                    [extractionRegEx enumerateMatchesInString:headerContents
-                                                      options:0
-                                                        range:NSMakeRange(0, headerContents.length)
-                                                   usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
-                     {
-                         (void)flags;
-                         (void)stop;
-                         
-                         //Block executed for each name-value match:
-                         if (result.numberOfRanges != 3)//0: whole match, 1 - name group, 2 - value group
-                         {
-                             //Shouldn't happen given the explicit expressions and matches, but just in case:
-                             adError = [self invalidHeader:headerContents];
-                         }
-                         else
-                         {
-                             NSRange key = [result rangeAtIndex:1];
-                             NSRange value = [result rangeAtIndex:2];
-                             if (key.length && value.length)
-                             {
-                                 [parameters setObject:[headerContents substringWithRange:value]
-                                                forKey:[headerContents substringWithRange:key]];
-                             }
-                         }
-                     }];
-                    return parameters;
-                }
-            }
+            
+            // Remove 'Bearer'.
+            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\s*Bearer\\s+" options:NSRegularExpressionCaseInsensitive error:nil];
+            NSString *param = [regex stringByReplacingMatchesInString:item options:0 range:NSMakeRange(0, [item length]) withTemplate:@""];
+            
+            // Save cleared param.
+            items[i] = param;
+            
+            // Save bearer's start index.
+            bearerStartIndex = i;
         }
     }
     
-    if (rgError)
+    // Bearer was not found.
+    if (bearerStartIndex == NSNotFound)
     {
-        //The method below will log internally the error:
-        adError =[ADAuthenticationError errorFromNSError:rgError errorDetails:rgError.description correlationId:nil];
+        *error = [self invalidHeader:headerContents];
+        return nil;
+    }
+
+    NSMutableDictionary *parameters = [self extractParameters:items[bearerStartIndex]];
+    
+    for (NSInteger i = bearerStartIndex; i < items.count; i++)
+    {
+        NSString *item = items[i];
+        
+        if (![self isParameter:item])
+        {
+            break;
+        }
+        
+        NSMutableDictionary *nextParameters = [self extractParameters:items[i]];
+        [parameters addEntriesFromDictionary:nextParameters];
     }
     
-    if (error)
+    return parameters;
+}
+
+#pragma mark - Private
+
++ (NSMutableArray *)extractItems:(NSString *)string
+{
+    NSMutableArray *items = [NSMutableArray new];
+    
+    NSInteger rightIndex = 0;
+    NSInteger leftIndex = 0;
+    while (rightIndex < string.length)
     {
-        *error = adError;
+        unichar c = [string characterAtIndex:rightIndex];
+        
+        // Start of a quaoted string, lets get last index of it and continue iteration.
+        if (c == '"' || c == '\'')
+        {
+            rightIndex = [self quotedStringLastIndex:string startIndex:rightIndex];
+            rightIndex++;
+            continue;
+        }
+        
+        if (c == ',')
+        {
+            NSUInteger len = rightIndex - leftIndex;
+            NSRange range = NSMakeRange(leftIndex, len);
+            NSString *item = [string substringWithRange:range];
+            
+            [items addObject:item];
+            
+            leftIndex = rightIndex + 1;
+        }
+        
+        rightIndex++;
     }
-    return nil;
+    
+    if (leftIndex < rightIndex)
+    {
+        NSUInteger len = rightIndex - leftIndex;
+        NSRange range = NSMakeRange(leftIndex, len);
+        NSString *item = [string substringWithRange:range];
+        
+        [items addObject:item];
+    }
+    
+    // Check for invalid parameters/state.
+    if (leftIndex == rightIndex)
+    {
+        // Comma was not followed by a text -- invalid header.
+        return nil;
+    }
+    
+    for (NSString *item in items) {
+        if ([NSString adIsStringNilOrBlank:item]) {
+            // Blank item found -- invalid header.
+            return nil;
+        }
+    }
+    
+    return items;
+}
+
++ (NSUInteger)quotedStringLastIndex:(NSString *)headerContents startIndex:(NSUInteger)startIndex
+{
+    NSUInteger lastIndex = startIndex;
+    
+    unichar quotedChar = [headerContents characterAtIndex:startIndex];
+    if (quotedChar == '"' || quotedChar == '\'')
+    {
+        NSUInteger nextIndex = startIndex + 1;
+        while (nextIndex < headerContents.length) {
+            unichar c = [headerContents characterAtIndex:nextIndex];
+            
+            if (c == quotedChar) {
+                lastIndex = nextIndex;
+                break;
+            }
+            
+            nextIndex++;
+        }
+    }
+    
+    return lastIndex;
+}
+
++ (BOOL)isParameter:(NSString *)string
+{
+    NSRange range = [string rangeOfString:ExtractionExpression options:NSRegularExpressionSearch];
+    return range.location == 0;
+}
+
++ (NSMutableDictionary *)extractParameters:(NSString *)string
+{
+    NSMutableDictionary* parameters = [NSMutableDictionary new];
+    
+    NSRegularExpression* extractionRegEx = [NSRegularExpression regularExpressionWithPattern:ExtractionExpression
+                                                                                     options:0
+                                                                                       error:nil];
+    if (extractionRegEx)
+    {
+        
+        [extractionRegEx enumerateMatchesInString:string
+                                          options:0
+                                            range:NSMakeRange(0, string.length)
+                                       usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+         {
+             (void)flags;
+             (void)stop;
+             
+             assert(result.numberOfRanges == 3);
+             
+             NSRange key = [result rangeAtIndex:1];
+             NSRange value = [result rangeAtIndex:2];
+             if (key.length && value.length)
+             {
+                 [parameters setObject:[string substringWithRange:value]
+                                forKey:[string substringWithRange:key]];
+             }
+         }];
+    }
+    
+    return parameters;
 }
 
 @end
