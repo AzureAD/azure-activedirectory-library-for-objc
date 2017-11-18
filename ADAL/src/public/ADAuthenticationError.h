@@ -34,6 +34,11 @@ extern NSString* const ADHTTPErrorCodeDomain;
 /*! OAuth Server Errors */
 extern NSString* const ADOAuthServerErrorDomain;
 
+/*!
+ Contains all http headers returned from the http error response
+ */
+extern NSString* const ADHTTPHeadersKey;
+
 @interface ADAuthenticationError : NSError
 {
     NSString* _errorDetails;

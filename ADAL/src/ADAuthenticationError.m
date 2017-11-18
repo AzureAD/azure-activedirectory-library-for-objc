@@ -30,6 +30,8 @@ NSString* const ADKeychainErrorDomain = @"ADKeychainErrorDomain";
 NSString* const ADHTTPErrorCodeDomain = @"ADHTTPErrorCodeDomain";
 NSString* const ADOAuthServerErrorDomain = @"ADOAuthServerErrorDomain";
 
+NSString* const ADHTTPHeadersKey = @"ADHTTPHeadersKey";
+
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
 NSString* const ADCancelError = @"The user has cancelled the authorization.";
@@ -239,16 +241,19 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
-+ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
-                                    body:(NSString *)body
-                           correlationId:(NSUUID *)correlationId
++ (ADAuthenticationError *)errorFromHTTPErrorCode:(NSInteger)code
+                                             body:(NSString *)body
+                                          headers:(NSDictionary *)headers
+                                    correlationId:(NSUUID *)correlationId
 {
+    NSDictionary *userInfo = headers ? @{ADHTTPHeadersKey : headers} : nil;
+    
     return [self errorWithDomainInternal:ADHTTPErrorCodeDomain
                                     code:code
                        protocolErrorCode:nil
                             errorDetails:body
                            correlationId:correlationId
-                                userInfo:nil];
+                                userInfo:userInfo];
 }
 
 + (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode

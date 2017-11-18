@@ -124,4 +124,26 @@
     ADAssertStringEquals(error.description, @"Error with code: 42 Domain: ADAuthenticationErrorDomain ProtocolCode:some-protocol-code Details:Some details. Inner error details: Error Domain=ADAuthenticationErrorDomain Code=42 \"(null)\"");
 }
 
+#pragma mark - HTTP headers
+
+- (void)testErrorFromHTTPError_whenCodeValidBodyValidHeadersNil_shouldReturnErrorWithEmptyUserInfo
+{
+    ADAuthenticationError *error = [ADAuthenticationError errorFromHTTPErrorCode:429 body:@"test_body" headers:nil correlationId:nil];
+    XCTAssertEqual([error.userInfo count], 0);
+}
+
+- (void)testErrorFromHTTPError_whenCodeValidBodyValidHeaderPresent_shouldReturnErrorWithUserInfoAndHeaders
+{
+    NSDictionary *headers = @{@"Connection":@"Keep-Alive",
+                              @"Retry-After": @120};
+    
+    ADAuthenticationError *error = [ADAuthenticationError errorFromHTTPErrorCode:429 body:@"test_body" headers:headers correlationId:nil];
+    XCTAssertNotNil(error.userInfo);
+    
+    NSDictionary *headersDictionary = error.userInfo[ADHTTPHeadersKey];
+    XCTAssertNotNil(headersDictionary);
+    XCTAssertEqualObjects(headersDictionary[@"Retry-After"], @120);
+    XCTAssertEqualObjects(headersDictionary[@"Connection"], @"Keep-Alive");
+}
+
 @end
