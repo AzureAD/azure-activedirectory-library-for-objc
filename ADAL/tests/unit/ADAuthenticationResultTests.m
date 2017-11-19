@@ -203,26 +203,4 @@
     XCTAssertEqualObjects(result.correlationId, [[NSUUID alloc] initWithUUIDString:@"5EF4B8D0-A734-441B-887D-FBB8257C0784"]);
 }
 
-- (void)testResultFromBrokerResponse_whenErrorUserInfoPresent_shouldReturnResultWithUserInfo
-{
-    NSDictionary *userInfoDict = @{ADHTTPHeadersKey : @{@"Retry-After":@"120"}};
-    
-    NSDictionary *response = @{
-                               @"error_code" : @"429",
-                               @"error_description" : @"Broker throttled error",
-                               @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784",
-                               @"error_user_info" : userInfoDict
-                               };
-    
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:response];
-    
-    XCTAssertNotNil(result);
-    XCTAssertNotNil(result.error);
-    XCTAssertEqualObjects(result.error.errorDetails, @"Broker throttled error");
-    XCTAssertNotNil(result.error.userInfo);
-    XCTAssertEqualObjects(result.error.userInfo, userInfoDict);
-    XCTAssertEqual(result.error.code, 429);
-    XCTAssertEqualObjects(result.correlationId, [[NSUUID alloc] initWithUUIDString:@"5EF4B8D0-A734-441B-887D-FBB8257C0784"]);
-}
-
 @end
