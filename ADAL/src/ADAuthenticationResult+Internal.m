@@ -175,19 +175,21 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         protocolCode = [response valueForKey:@"code"];
     }
     
+    NSDictionary *userInfo = [response valueForKey:@"error_user_info"];
+    
     if (![NSString adIsStringNilOrBlank:protocolCode])
     {
-       
         error = [ADAuthenticationError errorFromAuthenticationError:errorCode
                                                        protocolCode:protocolCode
                                                        errorDetails:errorDetails
+                                                           userInfo:userInfo
                                                       correlationId:correlationId];
     }
     else
     {
         NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
                                                code:errorCode
-                                           userInfo:nil];
+                                           userInfo:userInfo];
         error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails correlationId:correlationId];
     }
     
