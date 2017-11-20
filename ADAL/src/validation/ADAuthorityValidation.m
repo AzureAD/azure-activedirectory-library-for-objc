@@ -31,19 +31,12 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-
 #import "NSURL+ADExtensions.h"
+#import "ADAuthenticationError.h"
+#import "ADAuthorityUtils.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
-
-// Trusted authorities
-static NSString* const s_kTrustedAuthority             = @"login.windows.net";
-static NSString* const s_kTrustedAuthorityUS           = @"login.microsoftonline.us";
-static NSString* const s_kTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-static NSString* const s_kTrustedAuthorityGermany      = @"login.microsoftonline.de";
-static NSString* const s_kTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-static NSString* const s_kTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
 
 // AAD validation check constant
 static NSString* const s_kTenantDiscoveryEndpoint      = @"tenant_discovery_endpoint";
@@ -57,11 +50,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 @implementation ADAuthorityValidation
 {
     NSMutableDictionary *_validatedAdfsAuthorities;
-    NSSet *_whitelistedAADHosts;
     
     dispatch_queue_t _aadValidationQueue;
 }
-
 
 + (ADAuthorityValidation *)sharedInstance
 {
@@ -85,10 +76,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
     _aadCache = [ADAadAuthorityCache new];
-    
-    _whitelistedAADHosts = [NSSet setWithObjects:s_kTrustedAuthority, s_kTrustedAuthorityUS,
-                            s_kTrustedAuthorityChina, s_kTrustedAuthorityGermany,
-                            s_kTrustedAuthorityWorldWide, s_kTrustedAuthorityUSGovernment, nil];
     
     // A serial dispatch queue for all authority validation operations. A very common pattern is for
     // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
@@ -252,9 +239,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         if (dispatch_semaphore_wait(dsem, DISPATCH_TIME_NOW) != 0)
         {
             // Only bother logging if we have to wait on the queue.
-            AD_LOG_INFO(@"Waiting on Authority Validation Queue", requestParams.correlationId, nil);
+            AD_LOG_INFO(requestParams.correlationId, @"Waiting on Authority Validation Queue");
             dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-            AD_LOG_INFO(@"Returned from Authority Validation Queue", requestParams.correlationId, nil);
+            AD_LOG_INFO(requestParams.correlationId, @"Returned from Authority Validation Queue");
         }
     });
 }
@@ -272,11 +259,11 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         return;
     }
     
-    NSString *trustedHost = s_kTrustedAuthorityWorldWide;
-    NSString *authorityHost = authority.adHostWithPortIfNecessary;
-    if ([_whitelistedAADHosts containsObject:authorityHost])
+    NSString *trustedHost = ADTrustedAuthorityWorldWide;
+    
+    if ([ADAuthorityUtils isKnownHost:authority])
     {
-        trustedHost = authorityHost;
+        trustedHost = authority.adHostWithPortIfNecessary;
     }
     
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
@@ -338,7 +325,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache networkUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(@"No cached preferred_network for authority", context.correlationId, nil);
+        AD_LOG_WARN(context.correlationId, @"No cached preferred_network for authority");
         return authority;
     }
     
@@ -356,7 +343,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache cacheUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(@"No cached preferred_cache for authority", context.correlationId, nil);
+        AD_LOG_WARN(context.correlationId, @"No cached preferred_cache for authority");
         return authority;
     }
     

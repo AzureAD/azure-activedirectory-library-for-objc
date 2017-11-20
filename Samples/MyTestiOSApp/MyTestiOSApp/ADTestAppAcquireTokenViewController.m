@@ -35,6 +35,7 @@
 {
     UIView* _acquireSettingsView;
     UITextField* _userIdField;
+    UITextField* _extraQueryParamsField;
     UISegmentedControl* _userIdType;
     
     UISegmentedControl* _promptBehavior;
@@ -138,6 +139,11 @@
     
     _validateAuthority = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
     [layout addControl:_validateAuthority title:@"valAuth"];
+    
+    _extraQueryParamsField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
+    _extraQueryParamsField.borderStyle = UITextBorderStyleRoundedRect;
+    _extraQueryParamsField.delegate = self;
+    [layout addControl:_extraQueryParamsField title:@"EQP"];
     
     UIButton* clearCookies = [UIButton buttonWithType:UIButtonTypeSystem];
     [clearCookies setTitle:@"Clear Cookies" forState:UIControlStateNormal];
@@ -357,11 +363,9 @@
 {
     [_profileButton setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
     ADTestAppSettings* settings = [ADTestAppSettings settings];
-    NSString* defaultUser = settings.defaultUser;
-    if (![NSString adIsStringNilOrBlank:defaultUser])
-    {
-        _userIdField.text = defaultUser;
-    }
+    
+    _userIdField.text = settings.defaultUser;
+    _extraQueryParamsField.text = settings.extraQueryParameters;
     
     self.navigationController.navigationBarHidden = YES;
     _validateAuthority.selectedSegmentIndex = settings.validateAuthority ? 0 : 1;
@@ -457,7 +461,7 @@
             break;
     }
     
-    NSString* resultText = [NSString stringWithFormat:@"{\n\tstatus = %@;\n\terror = %@\n\tcorrelation ID = %@\n\ttokenCacheItem = %@\n}", resultStatus, result.error, result.correlationId, result.tokenCacheItem];
+    NSString* resultText = [NSString stringWithFormat:@"{\n\tstatus = %@;\n\terror = %@\n\tcorrelation ID = %@\n\ttokenCacheItem = %@\n\tauthority = %@\n}", resultStatus, result.error, result.correlationId, result.tokenCacheItem, result.authority];
     
     [_resultView setText:resultText];
     
@@ -485,6 +489,8 @@
     NSString* resource = [settings resource];
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
+    NSString* extraQueryParameters = _extraQueryParamsField.text;
+    
     ADUserIdentifier* identifier = [self identifier];
     ADCredentialsType credType = [self credType];
     
@@ -521,7 +527,7 @@
                           redirectUri:redirectUri
                        promptBehavior:[self promptBehavior]
                        userIdentifier:identifier
-                 extraQueryParameters:nil
+                 extraQueryParameters:extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
     {
         if (fBlockHit)

@@ -28,16 +28,22 @@ import traceback
 import sys
 import re
 import os
+import argparse
+import device_guids
 
 from timeit import default_timer as timer
 
-ios_sim_dest = "-destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'"
+script_start_time = timer()
+
+ios_sim_device = "iPhone 6"
+ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=latest'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "ADAL.xcworkspace"
 default_config = "Debug"
 
 use_xcpretty = True
+show_build_settings = False
 
 class ColorValues:
 	HDR = '\033[1m'
@@ -50,26 +56,30 @@ class ColorValues:
 target_specifiers = [
 	{
 		"name" : "iOS Framework",
+		"target" : "ios_framework",
 		"scheme" : "ADAL",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
-		"use_sonarcube" : "true"
+#		"use_sonarcube" : "true"
 	},
 	{
 		"name" : "iOS Test App",
+		"target" : "ios_test_app",
 		"scheme" : "MyTestiOSApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Automation Test App",
+		"target" : "ios_auto_app",
 		"scheme" : "ADALAutomation",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
 	{
 		"name" : "Sample Swift App",
+		"target" : "sample_swift_app",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS",
@@ -77,6 +87,7 @@ target_specifiers = [
 	},
 	{
 		"name" : "Mac Framework",
+		"target" : "mac_framework",
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
@@ -84,6 +95,7 @@ target_specifiers = [
 	},
 	{
 		"name" : "Mac Test App",
+		"target" : "mac_test_app",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
 		"platform" : "Mac"
@@ -113,6 +125,7 @@ class BuildTarget:
 			self.workspace = default_workspace
 		self.scheme = target["scheme"]
 		self.dependencies = target.get("dependencies")
+		self.device_guid = None
 		self.operations = target["operations"]
 		self.platform = target["platform"]
 		self.build_settings = None
@@ -122,6 +135,8 @@ class BuildTarget:
 		self.coverage = None
 		self.failed = False
 		self.skipped = False
+		self.start_time = None
+		self.end_time = None
 	
 	def xcodebuild_command(self, operation, xcpretty) :
 		"""
@@ -130,7 +145,13 @@ class BuildTarget:
 		command = "xcodebuild "
 		
 		if (operation != None) :
-			command += operation + " "
+		# This lets us short circuit the build step in the test operation and cuts time off the overall build
+			xcb_operation = operation
+			if (operation == "build" and "test" in self.operations) :
+				xcb_operation = "build-for-testing"
+			elif (operation == "test" and "build" in self.operations) :
+				xcb_operation = "test-without-building"
+			command += xcb_operation + " "
 		
 		if (self.project != None) :
 			command += " -project " + self.project
@@ -139,7 +160,12 @@ class BuildTarget:
 		
 		command += " -scheme \"" + self.scheme + "\" -configuration " + default_config
 		
-		if (operation == "test" and "codecov" in self.operations) :
+		# The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
+		# headers not being found. If Apple can't make this reliable then we should short circuit it out of our build
+		if (operation == "build") :
+			command += " RUN_CLANG_STATIC_ANALYZER=NO"
+		
+		if (operation != None and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
 
 		if (self.platform == "iOS") :
@@ -154,15 +180,25 @@ class BuildTarget:
 		"""
 		Retrieve the build settings from xcodebuild and return thm in a dictionary
 		"""
+		
 		if (self.build_settings != None) :
 			return self.build_settings
 		
+		print "Retrieving Build Settings for " + self.name
+		if (show_build_settings) :
+			print "travis_fold:start:" + (self.name + "_settings").replace(" ", "_")
+				
 		command = self.xcodebuild_command(None, False)
 		command += " -showBuildSettings"
+		print command
 		
 		start = timer()
         
 		settings_blob = subprocess.check_output(command, shell=True)
+		if (show_build_settings) :
+			print settings_blob
+			print "travis_fold:end:" + (self.name + "_settings").replace(" ", "_")
+		
 		settings_blob = settings_blob.decode("utf-8")
 		settings_blob = settings_blob.split("\n")
         
@@ -216,7 +252,15 @@ class BuildTarget:
 			sys.stdout.write(str(self.coverage) + "%" + ColorValues.END + "\n")
 			
 		return 0
+	
+	def get_device_guid(self) :
+		if (self.platform == "iOS") :
+			return device_guids.get_ios(ios_sim_device)
 		
+		if (self.platform == "Mac") :
+			return device_guids.get_mac()
+		
+		raise Exception("Unsupported platform: \"" + "\", valid platforms are \"iOS\" and \"Mac\"")
 	
 	def do_codecov(self) :
 		"""
@@ -224,21 +268,25 @@ class BuildTarget:
 		print out an error if it is below the minimum requirement
 		"""
 		build_settings = self.get_build_settings();
-		objroot = build_settings["OBJROOT"]
+		build_dir = build_settings["BUILD_DIR"]
+		derived_dir = os.path.normpath(build_dir + "/..")
+		device_guid = self.get_device_guid();
 		
-		# Starting in Xcocde 9 they add ".noindex" to the intermediates, but the code coverage folder is not in that folder
-		if (objroot.endswith(".noindex")) :
-			objroot = objroot[0:len(objroot) - 8]
-		codecov_dir = objroot + "/CodeCoverage"
+		profile_data_path = derived_dir + "/ProfileData/" + device_guid + "/Coverage.profdata"
+		if not os.path.isfile(profile_data_path) :
+			print ColorValues.FAIL + "Coverage data file missing! : " + profile_data_path + ColorValues.END
+			return -1
+		
+		configuration_build_dir = build_settings["CONFIGURATION_BUILD_DIR"]
 		executable_path = build_settings["EXECUTABLE_PATH"]
-		config = build_settings["CONFIGURATION"]
-		platform_name = build_settings.get("EFFECTIVE_PLATFORM_NAME")
-		if (platform_name == None) :
-			platform_name = ""
+		executable_file_path = configuration_build_dir + "/" + executable_path
+		if not os.path.isfile(executable_file_path) :
+			print ColorValues.FAIL + "execuable file missing! : " + profile_data_path + ColorValues.END
+			return -1
 		
-		command = "xcrun llvm-cov report -instr-profile Coverage.profdata -arch=\"x86_64\" -use-color Products/" + config + platform_name + "/" + executable_path
+		command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"x86_64\" -use-color " + executable_file_path
 		print command
-		p = subprocess.Popen(command, cwd = codecov_dir, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+		p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 		
 		output = p.communicate()
 		
@@ -255,7 +303,6 @@ class BuildTarget:
 		cov_str = re.sub(r"[^0-9.]", "", last_line[3])
 		self.coverage = float(cov_str)
 		return self.print_coverage(False)
-		
 	
 	def do_operation(self, operation) :
 		exit_code = -1;
@@ -285,29 +332,59 @@ class BuildTarget:
 		
 		print 
 		return exit_code
+	
+	def requires_simulator(self) :
+		if self.platform is not "iOS" :
+			return False
+		if "test" in self.operations :
+			return True
+		return False
+
+def requires_simulator(targets) :
+	for target in targets :
+		if target.requires_simulator() :
+			return True
+	return False
+
+def launch_simulator() :
+	print "Booting simulator..."
+	command = "xcrun simctl boot " + device_guids.get_ios(ios_sim_device)
+	print command
+	
+	# This spawns a new process without us having to wait for it
+	subprocess.Popen(command, shell = True)
 
 clean = True
 
-for arg in sys.argv :
-	if (arg == "--no-clean") :
-		clean = False
-	if (arg == "--no-xcpretty") :
-		use_xcpretty = False
-#	if ("--scheme" in arg)
-		
+parser = argparse.ArgumentParser(description='ADAL SDK Build Script')
+parser.add_argument('--no-clean', action='store_false', help="Skips the clean build products step")
+parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
+parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
+parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+args = parser.parse_args()
+
+clean = args.no_clean
+use_xcpretty = args.no_xcpretty
+show_build_settings = args.show_build_settings
+
+if (args.targets != None) :
+	print "Targets specified: " + str(args.targets)
 
 targets = []
 
 for spec in target_specifiers :
-	targets.append(BuildTarget(spec))
+	if (args.targets == None or spec["target"] in args.targets) :
+		targets.append(BuildTarget(spec))
+
+if requires_simulator(targets) :
+	launch_simulator()
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :
 	derived_folders = set()
 	for target in targets :
-		objroot = target.get_build_settings()["OBJROOT"]
-		trailing = "/Build/Intermediates"
-		derived_dir = objroot[:-len(trailing)]
+		build_dir = target.get_build_settings()["BUILD_DIR"]
+		derived_dir = os.path.normpath(build_dir + "/../..")
 		derived_folders.add(derived_dir)
 		print derived_dir
 	
@@ -317,12 +394,21 @@ if (clean) :
 
 for target in targets:
 	exit_code = 0
+	
+	# If show build settings is turned on then grab the build settings at the beginning of
+	# the operation to show it at the top of the log
+	if show_build_settings :
+		target.get_build_settings()
+		
+	target.start_time = timer()
 
 	for operation in target.operations :
 		if (exit_code != 0) :
 			break; # If one operation fails, then the others are almost certainly going to fail too
 
 		exit_code = target.do_operation(operation)
+	
+	target.end_time = timer()
 
 	# Add success/failure state to the build status dictionary
 	if (exit_code == 0) :
@@ -339,12 +425,12 @@ code_coverage = False
 # Print out the final result of each operation.
 for target in targets :
 	if (target.failed) :
-		print ColorValues.FAIL + target.name + " failed." + ColorValues.END
+		print ColorValues.FAIL + target.name + " failed." + ColorValues.END + " (" + "{0:.2f}".format(target.end_time - target.start_time) + " seconds)"
 		final_status = 1
 	else :
 		if ("codecov" in target.operations) :
 			code_coverage = True
-		print ColorValues.OK + '\033[92m' + target.name + " succeeded." + ColorValues.END
+		print ColorValues.OK + '\033[92m' + target.name + " succeeded." + ColorValues.END + " (" + "{0:.2f}".format(target.end_time - target.start_time) + " seconds)"
 
 if code_coverage :
 	print "\nCode Coverage Results:"
@@ -352,4 +438,9 @@ if code_coverage :
 		if (target.coverage != None) :
 			target.print_coverage(True)
 
+script_end_time = timer()
+
+print "Total running time: " + "{0:.2f}".format(script_end_time - script_start_time) + " seconds"
+
 sys.exit(final_status)
+

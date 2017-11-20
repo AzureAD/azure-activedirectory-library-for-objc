@@ -21,37 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import "ADTelemetryPiiRules.h"
+#import "ADTelemetryEventStrings.h"
 
-@interface ADTestAppAcquireTokenWindowController : NSWindowController
+static NSSet *_piiFields;
+
+@implementation ADTelemetryPiiRules
+
++ (void)initialize
 {
-    IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
-    
-    IBOutlet NSView* _acquireSettingsView;
-    IBOutlet NSTextField* _userIdField;
-    IBOutlet NSTextView* _resultView;
-    IBOutlet NSSegmentedControl* _validateAuthority;
-    IBOutlet NSSegmentedControl* _webViewType;
-    
-    IBOutlet NSPopUpButton* _profiles;
-    
-    IBOutlet NSTextField* _authority;
-    IBOutlet NSTextField* _clientId;
-    IBOutlet NSTextField* _redirectUri;
-    IBOutlet NSTextField* _resource;
-    
-    IBOutlet NSTextField* _extraQueryParamsField;
-    
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
-    
-    BOOL _userIdEdited;
+    _piiFields = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
+                                               AD_TELEMETRY_KEY_USER_ID,
+                                               AD_TELEMETRY_KEY_DEVICE_ID,
+                                               AD_TELEMETRY_KEY_LOGIN_HINT,
+                                               AD_TELEMETRY_KEY_CLIENT_ID,
+                                               AD_TELEMETRY_KEY_ERROR_DESCRIPTION,
+                                               AD_TELEMETRY_KEY_HTTP_PATH,
+                                               AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
+                                               AD_TELEMETRY_KEY_AUTHORITY]];
 }
 
-+ (void)showWindow;
+#pragma mark - Public
+
++ (BOOL)isPii:(NSString *)propertyName
+{
+    return [_piiFields containsObject:propertyName];
+}
 
 @end

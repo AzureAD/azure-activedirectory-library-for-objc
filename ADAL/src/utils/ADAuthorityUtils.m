@@ -21,37 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import "ADAuthorityUtils.h"
 
-@interface ADTestAppAcquireTokenWindowController : NSWindowController
+static NSSet<NSString *> *s_trustedHostList;
+
+// Trusted authorities
+NSString *const ADTrustedAuthority             = @"login.windows.net";
+NSString *const ADTrustedAuthorityUS           = @"login.microsoftonline.us";
+NSString *const ADTrustedAuthorityChina        = @"login.chinacloudapi.cn";
+NSString *const ADTrustedAuthorityGermany      = @"login.microsoftonline.de";
+NSString *const ADTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
+NSString *const ADTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
+NSString *const ADTrustedAuthorityCloudGovApi  = @"login.cloudgovapi.us";
+
+@implementation ADAuthorityUtils
+
++ (void)initialize
 {
-    IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
-    
-    IBOutlet NSView* _acquireSettingsView;
-    IBOutlet NSTextField* _userIdField;
-    IBOutlet NSTextView* _resultView;
-    IBOutlet NSSegmentedControl* _validateAuthority;
-    IBOutlet NSSegmentedControl* _webViewType;
-    
-    IBOutlet NSPopUpButton* _profiles;
-    
-    IBOutlet NSTextField* _authority;
-    IBOutlet NSTextField* _clientId;
-    IBOutlet NSTextField* _redirectUri;
-    IBOutlet NSTextField* _resource;
-    
-    IBOutlet NSTextField* _extraQueryParamsField;
-    
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
-    
-    BOOL _userIdEdited;
+    s_trustedHostList = [NSSet setWithObjects:ADTrustedAuthority, ADTrustedAuthorityUS,
+     ADTrustedAuthorityChina, ADTrustedAuthorityGermany,
+     ADTrustedAuthorityWorldWide, ADTrustedAuthorityUSGovernment, ADTrustedAuthorityCloudGovApi, nil];
 }
 
-+ (void)showWindow;
+#pragma mark - Public
+
++ (BOOL)isKnownHost:(NSURL *)url
+{
+    return [s_trustedHostList containsObject:url.host.lowercaseString];
+}
 
 @end

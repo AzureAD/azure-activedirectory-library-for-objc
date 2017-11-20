@@ -44,6 +44,7 @@
     [super tearDown];
     
     [ADLogger setNSLogging:self.enableNSLogging];
+    [ADLogger setLogCallBack:nil];
 }
 
 #pragma mark - setNSLogging
@@ -66,17 +67,45 @@
 
 - (void)testLog_whenLogLevelNoMessageValidInfoValid_shouldNotThrow
 {
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
+    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil correlationId:nil isPii:NO format:@"Message"];
 }
 
 - (void)testLog_whenLogLevelErrorMessageNilInfoValid_shouldNotThrow
 {
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" correlationId:nil userInfo:nil];
+    XCTAssertNoThrow([ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:nil]);
 }
 
-- (void)testLog_whenLogLevelErrorMessageValidInfoNil_shouldNotThrow
+- (void)testLog_whenPiiEnabled_shouldReturnMessageInCallback
 {
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil correlationId:nil userInfo:nil];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
+    
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+     {
+         XCTAssertNotNil(message);
+         XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
+         XCTAssertFalse(containsPii);
+         
+         [expectation fulfill];
+     }];
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testLog_whenPiiNotEnabled_shouldNotInvokeCallback
+{
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
+    expectation.inverted = YES;
+    
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii)
+     {
+         [expectation fulfill];
+     }];
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end

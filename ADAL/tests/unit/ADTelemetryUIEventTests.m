@@ -21,37 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import <XCTest/XCTest.h>
+#import "ADTelemetryUIEvent.h"
+#import "XCTestCase+TestHelperMethods.h"
+#import "ADTelemetryEventStrings.h"
 
-@interface ADTestAppAcquireTokenWindowController : NSWindowController
+@interface ADTelemetryUIEventTests : XCTestCase
+
+@end
+
+@implementation ADTelemetryUIEventTests
+
+- (void)setUp
 {
-    IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
-    
-    IBOutlet NSView* _acquireSettingsView;
-    IBOutlet NSTextField* _userIdField;
-    IBOutlet NSTextView* _resultView;
-    IBOutlet NSSegmentedControl* _validateAuthority;
-    IBOutlet NSSegmentedControl* _webViewType;
-    
-    IBOutlet NSPopUpButton* _profiles;
-    
-    IBOutlet NSTextField* _authority;
-    IBOutlet NSTextField* _clientId;
-    IBOutlet NSTextField* _redirectUri;
-    IBOutlet NSTextField* _resource;
-    
-    IBOutlet NSTextField* _extraQueryParamsField;
-    
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
-    
-    BOOL _userIdEdited;
+    [super setUp];
 }
 
-+ (void)showWindow;
+- (void)tearDown
+{
+    [super tearDown];
+}
+
+- (void)testSetLoginHint_whenLogingHintNotNil_shouldHashLoginHint
+{
+    ADTelemetryUIEvent *event = [[ADTelemetryUIEvent alloc] initWithName:@"testEvent"
+                                                                requestId:@"requestId"
+                                                            correlationId:[NSUUID UUID]];
+    
+    [event setLoginHint:@"eric_cartman@contoso.com"];
+    
+    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" adComputeSHA256]);
+}
 
 @end

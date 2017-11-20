@@ -36,6 +36,7 @@ extern NSString *ADTestAppProfileChangedNotification;
 @property NSString* defaultUser;
 @property BOOL validateAuthority;
 @property BOOL enableBroker;
+@property NSString* extraQueryParameters;
 
 + (ADTestAppSettings*)settings;
 + (NSUInteger)numberOfProfiles;

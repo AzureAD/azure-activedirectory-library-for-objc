@@ -50,4 +50,7 @@
 
 - (NSString*)adComputeSHA256;
 
+/*! Converts string to url */
+- (NSURL *)adUrl;
+
 @end
