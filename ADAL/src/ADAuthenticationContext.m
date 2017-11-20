@@ -250,7 +250,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setLogComponent:_logComponent];
 
 #define CHECK_STRING_ARG_BLOCK(_arg) \
-    if ([NSString adIsStringNilOrBlank:_arg]) { \
+    if ([NSString msidIsStringNilOrBlank:_arg]) { \
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@#_arg " cannot be nil" correlationId:_correlationId]; \
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]); \
         return; \

@@ -25,7 +25,6 @@
 #import "ADWebAuthResponse.h"
 #import "ADWorkplaceJoinConstants.h"
 #import "ADClientMetrics.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADOAuth2Constants.h"
 #import "ADWebResponse.h"
 #import "ADPkeyAuthHelper.h"
@@ -63,12 +62,12 @@
 {
     if ([self isGetRequest] && [_requestDictionary allKeys].count > 0)
     {
-        NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
+        NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary msidURLFormEncode]];
         _requestURL = [NSURL URLWithString:newURL];
     }
     else
     {
-        [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+        [self setBody:[[_requestDictionary msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
     }
     
     _startTime = [NSDate new];

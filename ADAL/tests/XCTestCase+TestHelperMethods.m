@@ -23,7 +23,6 @@
 
 #import "ADAL_Internal.h"
 #import "ADLogger.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationContext.h"
@@ -37,7 +36,7 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
-#import "NSDictionary+ADTestUtil.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -60,7 +59,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertNotNil(error.domain, "Error domain is nil.");
     XCTAssertEqual(error.domain, ADAuthenticationErrorDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
-    XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
+    XCTAssertFalse([NSString msidIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
     BOOL found = [error.errorDetails containsString:argument];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
@@ -111,7 +110,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.refreshToken = TEST_REFRESH_TOKEN;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -137,7 +136,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.refreshToken = nil;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -166,7 +165,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.clientId = TEST_CLIENT_ID;
     item.refreshToken = TEST_REFRESH_TOKEN;
     item.familyId = foci;
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -205,7 +204,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.clientId = [NSString stringWithFormat:@"foci-%@", foci];
     item.familyId = foci;
     item.refreshToken = @"family refresh token";
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -245,8 +244,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
     

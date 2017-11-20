@@ -1,0 +1,12 @@
+//
+//  adal__testhostapp__ios.xcconfig
+//
+
+#include "adal__common__ios.xcconfig"
+
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+CODE_SIGN_ENTITLEMENTS = UnitTestHostApp/UnitTestHostApp.entitlements;
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.unittesthost;
+PRODUCT_NAME = UnitTestHost;
+EXECUTABLE_PREFIX = app
+INFOPLIST_FILE = UnitTestHostApp/Info.plist;

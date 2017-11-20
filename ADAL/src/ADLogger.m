@@ -41,10 +41,6 @@ static LogCallback s_LogCallback = nil;
 static BOOL s_NSLogging = YES;
 static NSString* s_OSString = @"UnkOS";
 
-static NSMutableDictionary* s_adalId = nil;
-
-static dispatch_once_t s_logOnce;
-
 @implementation ADLogger
 
 + (void)initialize
@@ -209,67 +205,6 @@ correlationId:(NSUUID*)correlationId
     }
 }
 
-//Extracts the CPU information according to the constants defined in
-//machine.h file. The method prints minimal information - only if 32 or
-//64 bit CPU architecture is being used.
-+ (NSString*)getCPUInfo
-{
-    size_t structSize;
-    cpu_type_t cpuType;
-    structSize = sizeof(cpuType);
-    
-    //Extract the CPU type. E.g. x86. See machine.h for details
-    //See sysctl.h for details.
-    int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
-    if (result)
-    {
-        AD_LOG_WARN(nil, @"Cannot extract cpu type. Error: %d", result);
-        
-        return nil;
-    }
-    
-    return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
-}
-
-+ (NSDictionary*)adalId
-{
-    dispatch_once(&s_logOnce, ^{
-#if TARGET_OS_IPHONE
-        //iOS:
-        UIDevice* device = [UIDevice currentDevice];
-        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         ADAL_ID_PLATFORM:@"iOS",
-                                         ADAL_ID_VERSION:[ADLogger getAdalVersion],
-                                         ADAL_ID_OS_VER:device.systemVersion,
-                                         ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
-                                         }];
-#else
-        NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         ADAL_ID_PLATFORM:@"OSX",
-                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
-                                         ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
-                                         }];
-#endif
-        NSString* CPUVer = [self getCPUInfo];
-        if (![NSString adIsStringNilOrBlank:CPUVer])
-        {
-            [result setObject:CPUVer forKey:ADAL_ID_CPU];
-        }
-        
-        s_adalId = result;
-    });
-    
-    return s_adalId;
-}
-
-+ (void)setAdalVersion:(NSString*)version
-{
-    [s_adalId setObject:version forKey:ADAL_ID_VERSION];
-}
-
 + (NSString*)getHash:(NSString*)input
 {
     if (!input)
@@ -316,14 +251,6 @@ correlationId:(NSUUID*)correlationId
     }
     
     AD_LOG_INFO_PII(correlationId, @"%@", logString);
-}
-
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key
-{
-    [self adalId];
-    
-    [s_adalId setObject:value forKey:key];
 }
 
 @end

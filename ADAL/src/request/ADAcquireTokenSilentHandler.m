@@ -116,7 +116,7 @@
                         nil];
     }
     
-    if (![NSString adIsStringNilOrBlank:[_requestParams resource]])
+    if (![NSString msidIsStringNilOrBlank:[_requestParams resource]])
     {
         [request_data setObject:[_requestParams resource] forKey:OAUTH2_RESOURCE];
     }
@@ -167,11 +167,11 @@
 {
     NSString* grantType = @"refresh_token";
     
-    NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
+    NSString* ctx = [[[NSUUID UUID] UUIDString] msidComputeSHA256];
     NSDictionary *header = @{
                              @"alg" : @"HS256",
                              @"typ" : @"JWT",
-                             @"ctx" : [ADHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
+                             @"ctx" : [ADHelpers convertBase64UrlStringToBase64NSString:[ctx msidBase64UrlEncode]]
                              };
     
     NSInteger iat = round([[NSDate date] timeIntervalSince1970]);

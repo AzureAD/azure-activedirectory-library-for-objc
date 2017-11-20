@@ -69,7 +69,7 @@ static NSDictionary *s_eventPropertiesDictionary;
 - (void)receive:(NSString *)requestId
           event:(id<ADTelemetryEventInterface>)event
 {
-    if ([NSString adIsStringNilOrBlank:requestId] || !event)
+    if ([NSString msidIsStringNilOrBlank:requestId] || !event)
     {
         return;
         

@@ -283,7 +283,7 @@
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token with authority host: %@", [ADAuthorityUtils isKnownHost:[_authority adUrl]] ? [_authority adUrl].host : @"unknown host");
+        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token with authority host: %@", [ADAuthorityUtils isKnownHost:[_authority msidUrl]] ? [_authority msidUrl].host : @"unknown host");
         
         AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
         

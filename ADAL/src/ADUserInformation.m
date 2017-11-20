@@ -24,7 +24,6 @@
 #import "ADUserInformation.h"
 #import "ADAL_Internal.h"
 #import "ADOAuth2Constants.h"
-#import "NSString+ADHelperMethods.h"
 
 NSString* const ID_TOKEN_SUBJECT = @"sub";
 NSString* const ID_TOKEN_TENANTID = @"tid";
@@ -60,7 +59,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         return nil;//Quick exit;
     }
-    NSString* normalized = [userId adTrimmedString].lowercaseString;
+    NSString* normalized = [userId msidTrimmedString].lowercaseString;
         
     return normalized.length ? normalized : nil;
 }
@@ -109,7 +108,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         return nil;
     }
 
-    if ([NSString adIsStringNilOrBlank:idToken])
+    if ([NSString msidIsStringNilOrBlank:idToken])
     {
         RETURN_ID_TOKEN_ERROR;
     }
@@ -126,8 +125,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     NSString* type = nil;
     for (NSString* part in parts)
     {
-        NSString* decoded = [part adBase64UrlDecode];
-        if (![NSString adIsStringNilOrBlank:decoded])
+        NSString* decoded = [part msidBase64UrlDecode];
+        if (![NSString msidIsStringNilOrBlank:decoded])
         {
             NSError* jsonError  = nil;
             id jsonObject = [NSJSONSerialization JSONObjectWithData:[decoded dataUsingEncoding:NSUTF8StringEncoding]
@@ -178,30 +177,30 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     _allClaims = allClaims;
     
     //Now attempt to extract an unique user id:
-    if (![NSString adIsStringNilOrBlank:self.upn])
+    if (![NSString msidIsStringNilOrBlank:self.upn])
     {
         _userId = self.upn;
         _userIdDisplayable = YES;
     }
-    else if (![NSString adIsStringNilOrBlank:self.eMail])
+    else if (![NSString msidIsStringNilOrBlank:self.eMail])
     {
         _userId = self.eMail;
         _userIdDisplayable = YES;
     }
-    else if (![NSString adIsStringNilOrBlank:self.subject])
+    else if (![NSString msidIsStringNilOrBlank:self.subject])
     {
         _userId = self.subject;
     }
-    else if (![NSString adIsStringNilOrBlank:self.userObjectId])
+    else if (![NSString msidIsStringNilOrBlank:self.userObjectId])
     {
         _userId = self.userObjectId;
     }
-    else if (![NSString adIsStringNilOrBlank:self.uniqueName])
+    else if (![NSString msidIsStringNilOrBlank:self.uniqueName])
     {
         _userId = self.uniqueName;
         _userIdDisplayable = YES;//This is what the server provided
     }
-    else if (![NSString adIsStringNilOrBlank:self.guestId])
+    else if (![NSString msidIsStringNilOrBlank:self.guestId])
     {
         _userId = self.guestId;
     }
@@ -211,11 +210,11 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     _userId = [self.class normalizeUserId:_userId];
     
-    if (![NSString adIsStringNilOrBlank:self.userObjectId])
+    if (![NSString msidIsStringNilOrBlank:self.userObjectId])
     {
         _uniqueId = self.userObjectId;
     }
-    else if (![NSString adIsStringNilOrBlank:self.subject])
+    else if (![NSString msidIsStringNilOrBlank:self.subject])
     {
         _uniqueId = self.subject;
     }

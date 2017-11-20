@@ -207,7 +207,7 @@
     NSDictionary* headers = webResponse.headers;
     //In most cases the correlation id is returned as a separate header
     NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-    if (![NSString adIsStringNilOrBlank:responseCorrelationId])
+    if (![NSString msidIsStringNilOrBlank:responseCorrelationId])
     {
         [_responseDictionary setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
     }
@@ -242,7 +242,7 @@
     {
         NSString *wwwAuthValue = [webResponse.headers valueForKey:kADALWwwAuthenticateHeader];
         
-        if (![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
+        if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
         {
             [self handlePKeyAuthChallenge:wwwAuthValue
                                completion:completionBlock];
@@ -307,11 +307,11 @@
     
     NSString *clientTelemetry = [webResponse headers][ADAL_CLIENT_TELEMETRY];
     
-    if (![NSString adIsStringNilOrBlank:clientTelemetry])
+    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
         NSString *speInfo = [clientTelemetry parsedClientTelemetry][AD_TELEMETRY_KEY_SPE_INFO];
         
-        if (![NSString adIsStringNilOrBlank:speInfo])
+        if (![NSString msidIsStringNilOrBlank:speInfo])
         {
             [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
         }

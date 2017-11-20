@@ -23,7 +23,6 @@
 
 #import <Foundation/Foundation.h>
 #import "ADHelpers.h"
-#import "NSString+ADHelperMethods.h"
 #import <Security/Security.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
@@ -49,7 +48,7 @@
 
 + (BOOL)isADFSInstance:(NSString *)endpoint
 {
-    if([NSString adIsStringNilOrBlank:endpoint]){
+    if([NSString msidIsStringNilOrBlank:endpoint]){
         return NO;
     }
     
@@ -72,7 +71,7 @@
 
 + (NSString *)getEndpointName:(NSString *)fullEndpoint
 {
-    if([NSString adIsStringNilOrBlank:fullEndpoint])
+    if([NSString msidIsStringNilOrBlank:fullEndpoint])
     {
         return nil;
     }
@@ -121,8 +120,8 @@
                                    symmetricKey:(NSData *)symmetricKey
 {
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
-                              [[ADHelpers JSONFromDictionary:header] adBase64UrlEncode],
-                              [[ADHelpers JSONFromDictionary:payload] adBase64UrlEncode]];
+                              [[ADHelpers JSONFromDictionary:header] msidBase64UrlEncode],
+                              [[ADHelpers JSONFromDictionary:payload] msidBase64UrlEncode]];
     
     NSData* derivedKey = [ADHelpers computeKDFInCounterMode:symmetricKey
                                                     context:[context dataUsingEncoding:NSUTF8StringEncoding]];
@@ -136,7 +135,7 @@
            [data length],
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
-    NSString* signedEncodedDataString = [NSString adBase64UrlEncodeData:signedData];
+    NSString* signedEncodedDataString = [NSString msidBase64UrlEncodeData:signedData];
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
@@ -319,16 +318,16 @@
 
 + (NSString*)canonicalizeAuthority:(NSString *)authority
 {
-    if ([NSString adIsStringNilOrBlank:authority])
+    if ([NSString msidIsStringNilOrBlank:authority])
     {
         return nil;
     }
     
-    NSString* trimmedAuthority = [[authority adTrimmedString] lowercaseString];
+    NSString* trimmedAuthority = [[authority msidTrimmedString] lowercaseString];
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        AD_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority adUrl]] ? [authority adUrl].host : @"unknown host");
+        AD_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority msidUrl]] ? [authority msidUrl].host : @"unknown host");
         AD_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
 
         return nil;
@@ -347,18 +346,18 @@
         return nil;//No path component: invalid URL
     
     NSString* tenant = [paths objectAtIndex:1];
-    if ([NSString adIsStringNilOrBlank:tenant])
+    if ([NSString msidIsStringNilOrBlank:tenant])
     {
         return nil;
     }
     
     NSString* host = url.host;
-    if ([NSString adIsStringNilOrBlank:host])
+    if ([NSString msidIsStringNilOrBlank:host])
     {
         return nil;
     }
     NSNumber* port = url.port;
-    if (port)
+    if (port != nil)
     {
         trimmedAuthority = [NSString stringWithFormat:@"%@://%@:%d/%@", scheme, host, port.intValue, tenant];
     }

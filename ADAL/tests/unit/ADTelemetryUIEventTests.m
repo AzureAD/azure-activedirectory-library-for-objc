@@ -50,7 +50,7 @@
     
     [event setLoginHint:@"eric_cartman@contoso.com"];
     
-    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" adComputeSHA256]);
+    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" msidComputeSHA256]);
 }
 
 @end

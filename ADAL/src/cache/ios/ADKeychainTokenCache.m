@@ -26,7 +26,6 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADKeychainUtil.h"
 #import "ADTokenCacheItem.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheKey.h"
 #import "ADUserInformation.h"
 #import "ADWorkplaceJoinUtil.h"
@@ -226,7 +225,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (NSString*)getTokenNameForLog:(ADTokenCacheItem *)item
 {
     NSString* tokenName = @"unknown token";
-    if (![NSString adIsStringNilOrBlank:item.accessToken])
+    if (![NSString msidIsStringNilOrBlank:item.accessToken])
     {
         if (item.isExpired)
         {
@@ -237,7 +236,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
             tokenName = @"AT";
         }
         
-        if (![NSString adIsStringNilOrBlank:item.refreshToken])
+        if (![NSString msidIsStringNilOrBlank:item.refreshToken])
         {
             [tokenName stringByAppendingString:@"+RT"];
         }
@@ -246,7 +245,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     {
         tokenName = @"FRT";
     }
-    else if (![NSString adIsStringNilOrBlank:item.refreshToken] && [NSString adIsStringNilOrBlank:item.resource])
+    else if (![NSString msidIsStringNilOrBlank:item.refreshToken] && [NSString msidIsStringNilOrBlank:item.resource])
     {
         tokenName = @"MRRT";
     }
@@ -344,7 +343,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     OSStatus deleteStatus = [self deleteItem:item error:error];
     
     //if item does not exist in cache or does not contain a refresh token, deletion is enough and should return.
-    if (deleteStatus != errSecSuccess || [NSString adIsStringNilOrBlank:item.refreshToken])
+    if (deleteStatus != errSecSuccess || [NSString msidIsStringNilOrBlank:item.refreshToken])
     {
         return [ADKeychainTokenCache checkStatus:deleteStatus operation:@"delete" correlationId:nil error:error];
     }
@@ -445,7 +444,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     AD_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
 
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount: [userId adBase64UrlEncode],
+                             (id)kSecAttrAccount: [userId msidBase64UrlEncode],
                              (id)kSecAttrAccessGroup: _sharedGroup };
     
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
@@ -548,7 +547,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 + (NSString*)getAttributeName:(NSString* )original
 {
-    return ([NSString adIsStringNilOrBlank:original]) ? s_nilKey : [original adBase64UrlEncode];
+    return ([NSString msidIsStringNilOrBlank:original]) ? s_nilKey : [original msidBase64UrlEncode];
 }
 
 // Given an item key, generates the string key used in the keychain:
@@ -559,9 +558,9 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     //with items left over from the previous versions of the library.
     return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
             s_libraryString, s_delimiter,
-            [itemKey.authority adBase64UrlEncode], s_delimiter,
+            [itemKey.authority msidBase64UrlEncode], s_delimiter,
             [self.class getAttributeName:itemKey.resource], s_delimiter,
-            [itemKey.clientId adBase64UrlEncode]
+            [itemKey.clientId msidBase64UrlEncode]
             ];
 }
 
@@ -596,7 +595,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     }
     if (userId)
     {
-        [query setObject:[userId adBase64UrlEncode]
+        [query setObject:[userId msidBase64UrlEncode]
                   forKey:(NSString*)kSecAttrAccount];
     }
     

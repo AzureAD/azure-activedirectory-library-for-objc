@@ -26,7 +26,6 @@
 #import "ADAuthenticationContext.h"
 #import "ADHelpers.h"
 #import "ADTokenCacheKey.h"
-#import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheKey
 
@@ -68,8 +67,8 @@
     // needed to ensure that the cache handles correctly same items with different
     // character case:
     authority = [ADHelpers canonicalizeAuthority:authority];
-    resource = resource.adTrimmedString.lowercaseString;
-    clientId = clientId.adTrimmedString.lowercaseString;
+    resource = resource.msidTrimmedString.lowercaseString;
+    clientId = clientId.msidTrimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     

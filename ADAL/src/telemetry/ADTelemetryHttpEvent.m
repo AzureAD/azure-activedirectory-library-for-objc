@@ -25,8 +25,6 @@
 #import "ADTelemetryHttpEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADOAuth2Constants.h"
-#import "NSString+ADHelperMethods.h"
-#import "NSDictionary+ADExtensions.h"
 #import "NSString+ADTelemetryExtensions.h"
 
 @implementation ADTelemetryHttpEvent
@@ -97,12 +95,12 @@
 
 - (void)setHttpRequestQueryParams:(NSString*)params
 {
-    if ([NSString adIsStringNilOrBlank:params])
+    if ([NSString msidIsStringNilOrBlank:params])
     {
         return;
     }
     
-    NSArray *parameterKeys = [[NSDictionary adURLFormDecode:params] allKeys];
+    NSArray *parameterKeys = [[NSDictionary msidURLFormDecode:params] allKeys];
     
     [self setProperty:AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS value:[parameterKeys componentsJoinedByString:@";"]];
 }
@@ -119,7 +117,7 @@
 
 - (void)setClientTelemetry:(NSString *)clientTelemetry
 {
-    if (![NSString adIsStringNilOrBlank:clientTelemetry])
+    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
         [_propertyMap addEntriesFromDictionary:[clientTelemetry parsedClientTelemetry]];
     }

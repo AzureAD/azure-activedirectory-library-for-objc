@@ -87,17 +87,17 @@
 
 - (void)setResource:(NSString *)resource
 {
-    _resource = [resource adTrimmedString];
+    _resource = [resource msidTrimmedString];
 }
 
 - (void)setClientId:(NSString *)clientId
 {
-    _clientId = [clientId adTrimmedString];
+    _clientId = [clientId msidTrimmedString];
 }
 
 - (void)setRedirectUri:(NSString *)redirectUri
 {
-    _redirectUri = [redirectUri adTrimmedString];
+    _redirectUri = [redirectUri msidTrimmedString];
 }
 
 @end

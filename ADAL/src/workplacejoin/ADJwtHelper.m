@@ -24,7 +24,6 @@
 #import "ADJwtHelper.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
-#import "NSString+ADHelperMethods.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <Security/Security.h>
 #import <Security/SecKey.h>
@@ -38,10 +37,10 @@
 {
     NSString* headerJSON = [ADJwtHelper JSONFromDictionary:header];
     NSString* payloadJSON = [ADJwtHelper JSONFromDictionary:payload];
-    NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON adBase64UrlEncode], [payloadJSON adBase64UrlEncode]];
+    NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON msidBase64UrlEncode], [payloadJSON msidBase64UrlEncode]];
     NSData* signedData = [ADJwtHelper sign:signingKey
                                       data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
-    NSString* signedEncodedDataString = [NSString adBase64UrlEncodeData: signedData];
+    NSString* signedEncodedDataString = [NSString msidBase64UrlEncodeData: signedData];
     
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
 }

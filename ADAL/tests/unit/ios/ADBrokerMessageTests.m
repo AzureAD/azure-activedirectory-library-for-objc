@@ -28,7 +28,6 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "ADBrokerNotificationManager.h"
 #import "ADBrokerKeyHelper.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADPkeyAuthHelper.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
@@ -113,7 +112,7 @@
       @"hash" : hash,
       };
     
-    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage msidURLFormEncode]];
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];

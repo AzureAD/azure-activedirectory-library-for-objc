@@ -31,7 +31,6 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-#import "NSURL+ADExtensions.h"
 #import "ADAuthenticationError.h"
 #import "ADAuthorityUtils.h"
 
@@ -114,7 +113,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSSet *authorities = [_validatedAdfsAuthorities objectForKey:domain];
     for (NSURL *url in authorities)
     {
-        if([url isEquivalentAuthority:authority])
+        if([url msidIsEquivalentAuthority:authority])
         {
             return YES;
         }
@@ -159,7 +158,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         // Check for upn suffix
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
-        if ([NSString adIsStringNilOrBlank:upnSuffix])
+        if ([NSString msidIsStringNilOrBlank:upnSuffix])
         {
             error = [ADAuthenticationError errorFromArgument:upnSuffix
                                                 argumentName:@"user principal name"
@@ -263,7 +262,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     if ([ADAuthorityUtils isKnownHost:authority])
     {
-        trustedHost = authority.adHostWithPortIfNecessary;
+        trustedHost = authority.msidHostWithPortIfNecessary;
     }
     
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
@@ -278,7 +277,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          }
          
          NSString *oauthError = response[@"error"];
-         if (![NSString adIsStringNilOrBlank:oauthError])
+         if (![NSString msidIsStringNilOrBlank:oauthError])
          {
              ADAuthenticationError *adError =
              [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
@@ -490,7 +489,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL isEquivalentAuthority:authority])
+            [targetURL msidIsEquivalentAuthority:authority])
         {
             return YES;
         }

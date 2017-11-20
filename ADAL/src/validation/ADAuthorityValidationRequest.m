@@ -25,7 +25,6 @@
 #import "ADAuthorityValidationRequest.h"
 #import "ADOAuth2Constants.h"
 #import "ADWebAuthRequest.h"
-#import "NSDictionary+ADExtensions.h"
 
 static NSString* const s_kApiVersionKey            = @"api-version";
 static NSString* const s_kApiVersion               = @AAD_AUTHORITY_VALIDATION_API_VERSION;
@@ -64,7 +63,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};
     NSString *endpoint = [NSString stringWithFormat:@"https://%@/%@?%@",
-                          trustedHost, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
+                          trustedHost, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data msidURLFormEncode]];
     
     return [NSURL URLWithString:endpoint];
 }

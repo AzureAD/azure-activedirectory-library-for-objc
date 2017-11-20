@@ -29,6 +29,8 @@
 #import "NSMutableDictionary+ADExtensions.h"
 #import "ADTelemetryPiiRules.h"
 
+#import "MSIDDeviceId.h"
+
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
@@ -73,14 +75,14 @@
 - (void)setProperty:(NSString*)name value:(NSString*)value
 {
     // value can be empty but not nil
-    if ([NSString adIsStringNilOrBlank:name] || !value)
+    if ([NSString msidIsStringNilOrBlank:name] || !value)
     {
         return;
     }
     
     if ([ADTelemetryPiiRules isPii:name])
     {
-        value = [value adComputeSHA256];
+        value = [value msidComputeSHA256];
     }
 
     [_propertyMap setValue:value forKey:name];
@@ -88,7 +90,7 @@
 
 - (void)deleteProperty:(NSString *)name
 {
-    if ([NSString adIsStringNilOrBlank:name])
+    if ([NSString msidIsStringNilOrBlank:name])
     {
         return;
     }
@@ -161,12 +163,12 @@
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
-        [s_defaultParameters adSetObjectIfNotNil:[deviceId adComputeSHA256] forKey:AD_TELEMETRY_KEY_DEVICE_ID];
+        [s_defaultParameters adSetObjectIfNotNil:[deviceId msidComputeSHA256] forKey:AD_TELEMETRY_KEY_DEVICE_ID];
         [s_defaultParameters adSetObjectIfNotNil:applicationName forKey:AD_TELEMETRY_KEY_APPLICATION_NAME];
         [s_defaultParameters adSetObjectIfNotNil:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]
                                             forKey:AD_TELEMETRY_KEY_APPLICATION_VERSION];
         
-        NSDictionary* adalId = [ADLogger adalId];
+        NSDictionary* adalId = [MSIDDeviceId deviceId];
         for (NSString* key in adalId)
         {
             NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@",

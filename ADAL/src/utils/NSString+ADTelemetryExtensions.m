@@ -27,13 +27,13 @@
 #define AD_CLIENT_TELEMETRY_VERSION_NUMBER @"1"
 
 #define CHECK_AND_SET_OBJ(_DICT, _OBJECT, _KEY) \
-    if (![NSString adIsStringNilOrBlank:_OBJECT]) \
+    if (![NSString msidIsStringNilOrBlank:_OBJECT]) \
     { \
         [_DICT setObject:_OBJECT forKey:_KEY]; \
     } \
 
 #define CHECK_AND_SET_OBJ_IF_NOT_ZERO(_DICT, _OBJECT, _KEY) \
-    if (![NSString adIsStringNilOrBlank:_OBJECT] && ![_OBJECT isEqualToString:@"0"]) \
+    if (![NSString msidIsStringNilOrBlank:_OBJECT] && ![_OBJECT isEqualToString:@"0"]) \
     { \
         [_DICT setObject:_OBJECT forKey:_KEY]; \
     } \
@@ -44,7 +44,7 @@
 {
     NSMutableDictionary *telemetryDict = [NSMutableDictionary dictionary];
     
-    if (![NSString adIsStringNilOrBlank:self])
+    if (![NSString msidIsStringNilOrBlank:self])
     {
         NSArray *telemetryComponents = [self componentsSeparatedByString:@","];
         
