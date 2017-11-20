@@ -48,7 +48,7 @@ typedef enum
 + (ADAL_LOG_LEVEL)getLevel;
 
 /*!
- ADAL provides logging callbacks that assist in diagnostics. There are 2 API callbacks, one for generic messages and the other for messages containing user information. If PiiEnabled is not set to YES, the returned data for logging will not contain any user information. By default the library will not return any messages with user information in them.
+ ADAL provides logging callbacks that assist in diagnostics. There is a boolean value in the logging callback that indicates whether the message contains user information. If piiEnabled is set to NO, the callback will not be triggered for log messages that contain any user information. By default the library will not return any messages with user information in them.
  @param piiEnabled     PII on/off flag.
  */
 + (void)setPiiEnabled:(BOOL)piiEnabled;
