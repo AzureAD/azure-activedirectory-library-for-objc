@@ -1,0 +1,7 @@
+//
+//  adal__integrationtest__ios.xcconfig
+//
+
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALIntegrationTests
+PRODUCT_NAME = ADAL-Integration-Tests
+WRAPPER_EXTENSION = xctest

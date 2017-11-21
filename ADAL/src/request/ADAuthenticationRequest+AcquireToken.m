@@ -35,7 +35,6 @@
 #import "ADTelemetryBrokerEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADAuthorityUtils.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
@@ -56,8 +55,8 @@
     
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
-    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority adUrl]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority adUrl].host];
+    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority msidUrl]]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority msidUrl].host];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
@@ -176,12 +175,12 @@
 
 - (BOOL)checkExtraQueryParameters
 {
-    if ([NSString adIsStringNilOrBlank:_queryParams])
+    if ([NSString msidIsStringNilOrBlank:_queryParams])
     {
         return YES;
     }
     
-    NSString* queryParams = _queryParams.adTrimmedString;
+    NSString* queryParams = _queryParams.msidTrimmedString;
     if ([queryParams hasPrefix:@"&"])
     {
         queryParams = [queryParams substringFromIndex:1];
@@ -193,13 +192,13 @@
 
 - (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
 {
-    if ([NSString adIsStringNilOrBlank:_claims])
+    if ([NSString msidIsStringNilOrBlank:_claims])
     {
         return YES;
     }
     
     // Make sure claims is not in EQP
-    NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:_queryParams];
+    NSDictionary *queryParamsDict = [NSDictionary msidURLFormDecode:_queryParams];
     if (queryParamsDict[@"claims"])
     {
         if (error)
@@ -213,7 +212,7 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _claims.adTrimmedString;
+    NSString* claimsParams = _claims.msidTrimmedString;
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
@@ -477,7 +476,7 @@
                                          [_requestParams clientId], OAUTH2_CLIENT_ID,
                                          [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                                          nil];
-    if (![NSString adIsStringNilOrBlank:_scope])
+    if (![NSString msidIsStringNilOrBlank:_scope])
     {
         [request_data setValue:_scope forKey:OAUTH2_SCOPE];
     }

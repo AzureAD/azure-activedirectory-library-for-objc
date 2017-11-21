@@ -21,13 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAL_Internal.h"
 #import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
-#import "NSString+ADHelperMethods.h"
 
 @implementation ADAuthenticationParameters
 
@@ -115,7 +113,7 @@
 {
     // Handle 401 Unauthorized using the OAuth2 Implicit Profile
     NSString  *authenticateHeader = [headers valueForKey:OAuth2_Authenticate_Header];
-    if ([NSString adIsStringNilOrBlank:authenticateHeader])
+    if ([NSString msidIsStringNilOrBlank:authenticateHeader])
     {
         NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
         [self raiseErrorWithCode:AD_ERROR_SERVER_MISSING_AUTHENTICATE_HEADER details:details error:error];

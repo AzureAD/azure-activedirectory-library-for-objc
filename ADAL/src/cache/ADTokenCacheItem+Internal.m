@@ -27,7 +27,6 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 #import "ADLogger+Internal.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTelemetryEventStrings.h"
@@ -44,7 +43,7 @@
     AD_LOG_VERBOSE(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    if (![NSString adIsStringNilOrBlank:responseId])
+    if (![NSString msidIsStringNilOrBlank:responseId])
     {
         NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
@@ -95,7 +94,7 @@
     }
     
     NSString* value = [response objectForKey:fieldToCheck];
-    if (![NSString adIsStringNilOrBlank:value])
+    if (![NSString msidIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
         return [ADAuthenticationResult resultFromTokenCacheItem:self
@@ -204,7 +203,7 @@
     
     NSMutableDictionary* responseDictionary = [response mutableCopy];
     
-    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
+    BOOL isMRRT = ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
     
     [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
     [responseDictionary removeObjectForKey:OAUTH2_ID_TOKEN];
@@ -263,9 +262,9 @@
         [ADLogger log:level context:self correlationId:correlationId isPii:YES
                format:@"\n\tclientId: %@", _clientId];
         
-        if ([ADAuthorityUtils isKnownHost:[_authority adUrl]]) {
+        if ([ADAuthorityUtils isKnownHost:[_authority msidUrl]]) {
             [ADLogger log:level context:self correlationId:correlationId isPii:NO
-                   format:@"\n\tauthority host:%@\n", [_authority adUrl].host];
+                   format:@"\n\tauthority host:%@\n", [_authority msidUrl].host];
         } else {
             [ADLogger log:level context:self correlationId:correlationId isPii:YES
                    format:@"\n\tauthority:%@\n", _authority];
@@ -308,7 +307,7 @@
     NSDate* extendedExpiresOn = [_additionalServer valueForKey:@"ext_expires_on"];
     
     //extended lifetime is only valid if it contains an access token
-    if (extendedExpiresOn && ![NSString adIsStringNilOrBlank:_accessToken])
+    if (extendedExpiresOn && ![NSString msidIsStringNilOrBlank:_accessToken])
     {
         return [extendedExpiresOn compare:[NSDate date]] == NSOrderedDescending;
     }

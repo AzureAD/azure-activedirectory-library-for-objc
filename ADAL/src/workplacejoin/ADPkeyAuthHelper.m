@@ -25,7 +25,6 @@
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "ADRegistrationInformation.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADWorkPlaceJoinUtil.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"

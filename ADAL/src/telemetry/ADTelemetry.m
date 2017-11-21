@@ -121,7 +121,7 @@ static NSString* const s_delimiter = @"|";
 - (void)startEvent:(NSString*)requestId
          eventName:(NSString*)eventName
 {
-    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName])
+    if ([NSString msidIsStringNilOrBlank:requestId] || [NSString msidIsStringNilOrBlank:eventName])
     {
         return;
     }
@@ -140,7 +140,7 @@ static NSString* const s_delimiter = @"|";
     NSDate* stopTime = [NSDate date];
     NSString* eventName = [self getPropertyFromEvent:event propertyName:AD_TELEMETRY_KEY_EVENT_NAME];
     
-    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
+    if ([NSString msidIsStringNilOrBlank:requestId] || [NSString msidIsStringNilOrBlank:eventName] || !event)
     {
         return;
     }

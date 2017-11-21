@@ -62,18 +62,9 @@
 
 @interface ADLogger (Internal)
 
-/*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
-+ (NSDictionary*)adalId;
-
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
 + (NSString*)getHash:(NSString*)input;
-
-+ (void)setAdalVersion:(NSString*)version;
-
-+ (NSString*)getAdalVersion;
-
-+ (NSString*)getCPUInfo;
 
 /*! Returns previously set callback call or nil, if the user has not set such callback. */
 + (LogCallback)getLogCallBack;
@@ -96,8 +87,5 @@ correlationId:(NSUUID *)correlationId
        expiresOn:(NSDate *)expiresOn
          context:(NSString *)context
    correlationId:(NSUUID *)correlationId;
-
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key;
 
 @end

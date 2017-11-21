@@ -20,9 +20,7 @@
 #import "ADAuthorityValidationRequest.h"
 #import "ADOAuth2Constants.h"
 
-#import "NSDictionary+ADExtensions.h"
-#import "NSDictionary+ADTestUtil.h"
-#import "NSURL+ADExtensions.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 
 #define DEFAULT_TRUSTED_HOST @"login.microsoftonline.com"

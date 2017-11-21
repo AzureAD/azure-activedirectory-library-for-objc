@@ -36,8 +36,7 @@
 #import "ADURLProtocol.h"
 #import "ADWebResponse.h"
 
-#import "NSURL+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
+#import "MSIDDeviceId.h"
 
 
 @interface ADWebRequest ()
@@ -139,7 +138,7 @@
 - (void)send
 {
     [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
-    [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
+    [_requestHeaders addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     //Correlation id:
     if (_correlationId)
     {

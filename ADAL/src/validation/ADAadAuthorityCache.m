@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAadAuthorityCache.h"
-#import "NSURL+ADExtensions.h"
 #include <pthread.h>
 #import "ADAuthorityUtils.h"
 
@@ -171,7 +170,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     }
     
     // In case the authority we were looking for wasn't in the metadata
-    NSString *authorityHost = authority.adHostWithPortIfNecessary;
+    NSString *authorityHost = authority.msidHostWithPortIfNecessary;
     if (!_recordMap[authorityHost])
     {
         __auto_type record = [ADAadAuthorityCacheRecord new];
@@ -194,7 +193,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
-    _recordMap[authority.adHostWithPortIfNecessary] = record;
+    _recordMap[authority.msidHostWithPortIfNecessary] = record;
     pthread_rwlock_unlock(&_rwLock);
 }
 
@@ -203,7 +202,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
 
 - (ADAadAuthorityCacheRecord *)checkCacheImpl:(NSURL *)authority
 {
-    __auto_type record = _recordMap[authority.adHostWithPortIfNecessary];
+    __auto_type record = _recordMap[authority.msidHostWithPortIfNecessary];
     pthread_rwlock_unlock(&_rwLock);
     
     return record;
@@ -258,7 +257,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
         return url;
     }
     
-    if ([url.adHostWithPortIfNecessary isEqualToString:preferredHost])
+    if ([url.msidHostWithPortIfNecessary isEqualToString:preferredHost])
     {
         return url;
     }
@@ -329,7 +328,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
     
     NSArray<NSString *> *aliases = record.aliases;
     NSString *cacheHost = record.cacheHost;
-    NSString *host = authority.adHostWithPortIfNecessary;
+    NSString *host = authority.msidHostWithPortIfNecessary;
     if (cacheHost)
     {
         // The cache lookup order for authorities is defined as the preferred host first

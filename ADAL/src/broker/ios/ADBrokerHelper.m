@@ -23,8 +23,6 @@
 
 #import <objc/runtime.h>
 
-#import "NSDictionary+ADExtensions.h"
-
 #import "ADBrokerHelper.h"
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
@@ -244,7 +242,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     }
     
     NSString* query = [redirectURL query];
-    NSDictionary* queryParams = [NSDictionary adURLFormDecode:query];
+    NSDictionary* queryParams = [NSDictionary msidURLFormDecode:query];
     NSString* appURLString = [queryParams objectForKey:@"app_link"];
     __block NSURL* appURL = [NSURL URLWithString:appURLString];
                         

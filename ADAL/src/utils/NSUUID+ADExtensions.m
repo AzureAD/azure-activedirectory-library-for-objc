@@ -23,13 +23,12 @@
 
 
 #import "NSUUID+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
 
 @implementation NSUUID (ADExtensions)
 
-- (NSString*)adTrimmedString
+- (NSString*)msidTrimmedString
 {
-    return [[self UUIDString] adTrimmedString];
+    return [[self UUIDString] msidTrimmedString];
 }
 
 @end

@@ -46,11 +46,13 @@
 // This is specially crafted so the name of the variable matches the full ADAL version
 #define ADAL_VERSION_VAR ADAL_VERSION_(ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH)
 
-#import "ADLogger+Internal.h"
-#import "ADErrorCodes.h"
 #import "ADAuthenticationError+Internal.h"
+#import "ADLogger+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "NSString+ADHelperMethods.h"
+
+#import "NSString+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
+#import "NSURL+MSIDExtensions.h"
 
 @class ADAuthenticationResult;
 
@@ -75,9 +77,6 @@ typedef WebView   WebViewType;
 #define WHERE \
 NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]
 
-#define ADAL_VERSION \
-NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - %@]",[ADLogger getAdalVersion]]
-
 //General macro for throwing exception named NSInvalidArgumentException
 #define THROW_ON_CONDITION_ARGUMENT(CONDITION, ARG) \
 { \
@@ -93,7 +92,7 @@ NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - 
 
 // Checks a selector NSString argument to a method for being null or empty. Throws NSException with name
 // NSInvalidArgumentException if the argument is invalid:
-#define THROW_ON_NIL_EMPTY_ARGUMENT(ARG) THROW_ON_CONDITION_ARGUMENT([NSString adIsStringNilOrBlank:ARG], ARG);
+#define THROW_ON_NIL_EMPTY_ARGUMENT(ARG) THROW_ON_CONDITION_ARGUMENT([NSString msidIsStringNilOrBlank:ARG], ARG);
 
 //Checks a selector argument for being null. Throws NSException with name NSInvalidArgumentException if
 //the argument is invalid
@@ -110,7 +109,7 @@ if (error) \
 argumentName:@#ARG correlationId:nil]; \
 }
 
-#define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString adIsStringNilOrBlank:ARG]
+#define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString msidIsStringNilOrBlank:ARG]
 #define NIL_CONDITION(ARG) (!ARG)
 
 #define RETURN_ON_INVALID_ARGUMENT(CONDITION, ARG, RET) \
@@ -150,7 +149,6 @@ argumentName:@#ARG correlationId:nil]; \
 #define API_ENTRY \
 { \
 WHERE; \
-ADAL_VERSION; \
-AD_LOG_VERBOSE(nil, @"%@ - %@", __adalVersion, __where); \
+AD_LOG_VERBOSE(nil, @"ADAL API call [Version - " ADAL_VERSION_STRING "] - %@", __where); \
 }
 

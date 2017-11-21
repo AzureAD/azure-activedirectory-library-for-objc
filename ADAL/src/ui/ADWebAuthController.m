@@ -25,7 +25,6 @@
 #import "UIApplication+ADExtensions.h"
 #import "ADAppExtensionUtil.h"
 #endif
-#import "NSDictionary+ADExtensions.h"
 
 #import "ADWebAuthController+Internal.h"
 
@@ -160,7 +159,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
-    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
     NSString* value = [ADHelpers addClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
     
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
@@ -468,7 +467,7 @@ static ADAuthenticationResult* s_result = nil;
 
 - (void)fillTelemetryUIEvent:(ADTelemetryUIEvent*)event
 {
-    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
+    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
     {
         [event setLoginHint:[_requestParams identifier].userId];
     }
@@ -559,7 +558,7 @@ static ADAuthenticationResult* s_result = nil;
     
     [ADURLProtocol registerProtocol:[endURL absoluteString] telemetryEvent:_telemetryEvent];
     
-    if(![NSString adIsStringNilOrBlank:refreshCred])
+    if(![NSString msidIsStringNilOrBlank:refreshCred])
     {
         [ADCustomHeaderHandler addCustomHeaderValue:refreshCred
                                        forHeaderKey:@"x-ms-RefreshTokenCredential"
