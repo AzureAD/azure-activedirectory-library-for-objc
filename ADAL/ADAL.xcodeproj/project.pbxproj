@@ -397,8 +397,8 @@
 		D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
-		D6D9A4611FBD4F7300EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A45F1FBD4F7300EFA430 /* MSIDDeviceId.m */; };
-		D6D9A4681FBD7B0D00EFA430 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A45F1FBD4F7300EFA430 /* MSIDDeviceId.m */; };
+		D6D9A4611FBD4F7300EFA430 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */; };
+		D6D9A4681FBD7B0D00EFA430 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */; };
 		D6D9A4691FBD7C7E00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D62600001FBD253E00EE4487 /* libIdentityTest.a */; };
 		D6D9A4721FBD7D5900EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D62600001FBD253E00EE4487 /* libIdentityTest.a */; };
 		D6D9A4751FBD7D6A00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFFE1FBD253E00EE4487 /* libIdentityTest.a */; };
@@ -942,7 +942,7 @@
 		D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLResponse.m; sourceTree = "<group>"; };
 		D6D8A83E1D4FD14100D20DE6 /* ADKeychainUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADKeychainUtil.h; sourceTree = "<group>"; };
 		D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainUtil.m; sourceTree = "<group>"; };
-		D6D9A45F1FBD4F7300EFA430 /* MSIDDeviceId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceId.m; sourceTree = "<group>"; };
+		D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
 		D6D9A4DD1FBFB45100EFA430 /* ADAL Test App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ADAL Test App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6D9A4F91FBFB47200EFA430 /* ADAL Test App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ADAL Test App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6D9A50E1FBFB58000EFA430 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -1276,7 +1276,7 @@
 				94A0BDE61D779AB0007BEB63 /* ADRequestContext.h */,
 				60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */,
 				60D2F4001D531F16008725D9 /* ADRequestParameters.m */,
-				D6D9A45F1FBD4F7300EFA430 /* MSIDDeviceId.m */,
+				D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */,
 				9453C3771C58017F006B9E79 /* broker */,
 				9453C3181C57FB91006B9E79 /* cache */,
 				9453C37F1C5820B1006B9E79 /* request */,
@@ -2645,7 +2645,7 @@
 				9453C4101C586456006B9E79 /* ADAuthenticationResult.m in Sources */,
 				9453C4091C586456006B9E79 /* ADAuthenticationContext+Internal.m in Sources */,
 				D6F0951C1CDC2BC300D28FC2 /* ADWebAuthRequest.m in Sources */,
-				D6D9A4681FBD7B0D00EFA430 /* MSIDDeviceId.m in Sources */,
+				D6D9A4681FBD7B0D00EFA430 /* MSIDVersion.m in Sources */,
 				9453C43F1C58647E006B9E79 /* ADHelpers.m in Sources */,
 				9453C4311C58646D006B9E79 /* ADAuthenticationRequest+WebRequest.m in Sources */,
 			);
@@ -2785,7 +2785,7 @@
 				2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */,
 				B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */,
-				D6D9A4611FBD4F7300EFA430 /* MSIDDeviceId.m in Sources */,
+				D6D9A4611FBD4F7300EFA430 /* MSIDVersion.m in Sources */,
 				D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */,
 				D664F1931D302B9C0017B799 /* ADWebAuthController.m in Sources */,
 				D664F1951D302B9C0017B799 /* ADBrokerKeyHelper.m in Sources */,
