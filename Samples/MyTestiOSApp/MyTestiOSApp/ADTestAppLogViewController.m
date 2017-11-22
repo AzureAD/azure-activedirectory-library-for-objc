@@ -55,11 +55,11 @@ static NSAttributedString* s_attrNewLine = nil;
     
     [self setEdgesForExtendedLayout:UIRectEdgeNone];
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode, NSDictionary *userInfo)
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
-         NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
-         [self appendNewLogLine:log];
-     }];
+        [self appendNewLogLine:message];
+    }];
+    
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     
     [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];

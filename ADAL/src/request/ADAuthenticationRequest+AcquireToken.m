@@ -36,6 +36,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -53,27 +54,31 @@
     [self ensureRequest];
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
-    __block NSString* log = [NSString stringWithFormat:@"##### BEGIN acquireToken%@ (authority = %@, resource = %@, clientId = %@, idtype = %@) #####",
-                             _silent ? @"Silent" : @"", _requestParams.authority, _requestParams.resource, _requestParams.clientId, [_requestParams.identifier typeAsString]];
-    AD_LOG_INFO_F(log, _requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
+    NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
+    NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
+    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority adUrl]]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority adUrl].host];
+    } else {
+        logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
+    }
+    
+    AD_LOG_INFO(_requestParams.correlationId, @"##### BEGIN acquireToken %@ #####", logMessage);
+    AD_LOG_INFO_PII(_requestParams.correlationId, @"##### BEGIN acquireToken %@ %@#####", logMessage, logMessagePII);
     
     ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
     {
-        NSString* finalLog = nil;
         if (result.status == AD_SUCCEEDED)
         {
-            finalLog = [NSString stringWithFormat:@"##### END %@ succeeded. #####", log];
+            AD_LOG_INFO(result.correlationId, @"##### END succeeded. %@ #####", logMessage);
+            AD_LOG_INFO_PII(result.correlationId, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
         }
         else
         {
             ADAuthenticationError* error = result.error;
-            finalLog = [NSString stringWithFormat:@"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@} #####",
-                        log, error.domain, (long)error.code, error.protocolCode, error.errorDetails];
+            AD_LOG_INFO(result.correlationId, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
+            AD_LOG_INFO_PII(result.correlationId, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
         }
-        
-        
-        AD_LOG_INFO(finalLog, result.correlationId, nil);
-        
+
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_API_EVENT
                                                                        context:self];
         [event setApiId:apiId];
@@ -475,7 +480,9 @@
 {
     HANDLE_ARGUMENT(code, [_requestParams correlationId]);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", [_requestParams correlationId], @"Requesting token by authorization code for resource: %@", [_requestParams resource]);
+    
+    AD_LOG_VERBOSE(_requestParams.correlationId, @"Requesting token by authorization code");
+    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:

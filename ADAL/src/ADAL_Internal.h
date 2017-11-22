@@ -27,7 +27,7 @@
 // through build script. Don't change its format unless changing build script as well.)
 #define ADAL_VER_HIGH       2
 #define ADAL_VER_LOW        5
-#define ADAL_VER_PATCH      1
+#define ADAL_VER_PATCH      3
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -37,8 +37,8 @@
 // Framework versions only support high and low for the double value, sadly.
 #define ADAL_VERSION_NUMBER INT_CONCAT(ADAL_VER_HIGH, ADAL_VER_LOW)
 
-#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev"
-#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev"
+#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
+#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
 
 #define ADAL_VERSION_HELPER(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
 #define ADAL_VERSION_(high, low, patch) ADAL_VERSION_HELPER(high, low, patch)
@@ -84,7 +84,7 @@ NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - 
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, nil, __where); \
+        AD_LOG_ERROR(nil, @"InvalidArgumentException: %s %@", #ARG, __where); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -118,7 +118,7 @@ argumentName:@#ARG correlationId:nil]; \
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, nil, __where); \
+        AD_LOG_ERROR(nil, @"InvalidArgumentError: %s %@", #ARG, __where); \
         FILL_PARAMETER_ERROR(ARG); \
         return RET; \
     } \
@@ -151,6 +151,6 @@ argumentName:@#ARG correlationId:nil]; \
 { \
 WHERE; \
 ADAL_VERSION; \
-AD_LOG_VERBOSE(__adalVersion, nil, __where); \
+AD_LOG_VERBOSE(nil, @"%@ - %@", __adalVersion, __where); \
 }
 

@@ -125,7 +125,10 @@
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
-    AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", nil, @"clientId: '%@'; resource: '%@';", [_requestParams clientId], [_requestParams resource]);
+    
+    AD_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
+    AD_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
+    
     [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
          if (error)
@@ -231,7 +234,8 @@
              msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
-         AD_LOG_INFO_F(msg, [_requestParams correlationId], @"clientId: '%@'; resource: '%@';", [_requestParams clientId], [_requestParams resource]);
+         AD_LOG_INFO(_requestParams.correlationId, @"%@", msg);
+         AD_LOG_INFO_PII(_requestParams.correlationId, @"%@ clientId: '%@', resource: '%@'", msg, _requestParams.clientId, _requestParams.resource);
          
          if ([ADAuthenticationContext isFinalResult:result])
          {

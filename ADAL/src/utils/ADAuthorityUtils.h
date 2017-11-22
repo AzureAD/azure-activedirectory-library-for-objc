@@ -23,34 +23,16 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSString (ADHelperMethods)
+extern NSString *const ADTrustedAuthority;
+extern NSString *const ADTrustedAuthorityUS;
+extern NSString *const ADTrustedAuthorityChina;
+extern NSString *const ADTrustedAuthorityGermany;
+extern NSString *const ADTrustedAuthorityWorldWide;
+extern NSString *const ADTrustedAuthorityUSGovernment;
+extern NSString *const ADTrustedAuthorityCloudGovApi;
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)adBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)adBase64UrlDecode;
+@interface ADAuthorityUtils : NSObject
 
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString *)string;
-
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)adTrimmedString;
-
-/*! Decodes a previously URL encoded string. */
-- (NSString *)adUrlFormDecode;
-
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)adUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)adBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)adBase64UrlEncodeData:(NSData *)data;
-
-- (NSString*)adComputeSHA256;
-
-/*! Converts string to url */
-- (NSURL *)adUrl;
++ (BOOL)isKnownHost:(NSURL *)url;
 
 @end

@@ -43,24 +43,20 @@
 
 @implementation ADAutoMainViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
 
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode, NSDictionary *userInfo) {
-        (void)errorCode;
-        (void)userInfo;
-        (void)logLevel;
-        
-        NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
-        
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
+    {
         if (_resultLogs)
         {
-            [_resultLogs appendString:log];
+            [_resultLogs appendString:message];
         }
     }];
-    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     
+    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
 }
 
 

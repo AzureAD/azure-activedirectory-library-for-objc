@@ -129,8 +129,7 @@
         case RequiredDisplayableId: return info.userId;
     }
     
-    NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", _type];
-    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil, nil);
+    AD_LOG_ERROR(nil, @"Unrecognized type on identifier match: %d", _type);
     
     return nil;
 }
@@ -171,8 +170,8 @@
     CHECK_TYPE(RequiredDisplayableId);
     
     // If it didn't match against a known type return default, but log an error
-    NSString* log = [NSString stringWithFormat:@"Did not recognize type \"%@\"", type];
-    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil, nil);
+    AD_LOG_ERROR(nil, @"Did not recognize type \"%@\"", type);
+    
     return DEFAULT_USER_TYPE;
 }
 

@@ -21,36 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "ADTelemetryUIEvent.h"
+#import "XCTestCase+TestHelperMethods.h"
+#import "ADTelemetryEventStrings.h"
 
-@interface NSString (ADHelperMethods)
+@interface ADTelemetryUIEventTests : XCTestCase
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)adBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)adBase64UrlDecode;
+@end
 
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString *)string;
+@implementation ADTelemetryUIEventTests
 
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)adTrimmedString;
+- (void)setUp
+{
+    [super setUp];
+}
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)adUrlFormDecode;
+- (void)tearDown
+{
+    [super tearDown];
+}
 
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)adUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)adBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)adBase64UrlEncodeData:(NSData *)data;
-
-- (NSString*)adComputeSHA256;
-
-/*! Converts string to url */
-- (NSURL *)adUrl;
+- (void)testSetLoginHint_whenLogingHintNotNil_shouldHashLoginHint
+{
+    ADTelemetryUIEvent *event = [[ADTelemetryUIEvent alloc] initWithName:@"testEvent"
+                                                                requestId:@"requestId"
+                                                            correlationId:[NSUUID UUID]];
+    
+    [event setLoginHint:@"eric_cartman@contoso.com"];
+    
+    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_LOGIN_HINT], [@"eric_cartman@contoso.com" adComputeSHA256]);
+}
 
 @end

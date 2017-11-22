@@ -31,6 +31,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheItem (Internal)
 
@@ -40,7 +41,7 @@
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId
 {
-    AD_LOG_VERBOSE(@"Token extraction", requestCorrelationId, @"Attempt to extract the data from the server response.");
+    AD_LOG_VERBOSE(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
     if (![NSString adIsStringNilOrBlank:responseId])
@@ -48,16 +49,16 @@
         NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
         {
-            AD_LOG_INFO_F(@"Bad correlation id", nil, @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
+            AD_LOG_INFO(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
         else if (![requestCorrelationId isEqual:responseUUID])
         {
-            AD_LOG_INFO_F(@"Correlation id mismatch", nil, @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
+            AD_LOG_INFO(requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
     }
     else
     {
-        AD_LOG_INFO_F(@"Missing correlation id", nil, @"No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
+        AD_LOG_INFO(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
 }
 
@@ -145,11 +146,11 @@
     }
     else if (expires_in || expires_on)
     {
-        AD_LOG_WARN_F(@"Unparsable time", nil, @"The response value for the access token expiration cannot be parsed: %@", expires);
+        AD_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", expires);
     }
     else
     {
-        AD_LOG_WARN(@"Missing expiration time.", nil, @"The server did not return the expiration time for the access token.");
+        AD_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
     }
     
     if (!expires)
@@ -255,23 +256,21 @@
 {
     if (_tombstone)
     {
-        NSString* tombstoneMessage = nil;
-        if (message)
-        {
-            tombstoneMessage = [NSString stringWithFormat:@"%@ tombstone : %@", message, _tombstone];
-        }
-        else
-        {
-            tombstoneMessage = [NSString stringWithFormat:@"Tombstone : %@", _tombstone];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"%@", _tombstone];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"\n\tresource: %@", _resource];
+        [ADLogger log:level context:self correlationId:correlationId isPii:YES
+               format:@"\n\tclientId: %@", _clientId];
+        
+        if ([ADAuthorityUtils isKnownHost:[_authority adUrl]]) {
+            [ADLogger log:level context:self correlationId:correlationId isPii:NO
+                   format:@"\n\tauthority host:%@\n", [_authority adUrl].host];
+        } else {
+            [ADLogger log:level context:self correlationId:correlationId isPii:YES
+                   format:@"\n\tauthority:%@\n", _authority];
         }
         
-        [ADLogger log:level
-              context:self
-              message:tombstoneMessage
-            errorCode:0
-        correlationId:correlationId
-             userInfo:_tombstone
-               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
         return;
     }
     
@@ -299,14 +298,9 @@
         tokenMessage = [NSString stringWithFormat:@"%@ %@", message, tokenMessage];
     }
     
-    [ADLogger log:level
-          context:self
-          message:tokenMessage
-        errorCode:0
-    correlationId:correlationId
-         userInfo:nil
-           format:@"{\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
-     _resource, _clientId, _authority, _userInformation.userId];
+    [ADLogger log:level context:self correlationId:correlationId isPii:YES
+           format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
+     tokenMessage, _resource, _clientId, _authority, _userInformation.userId];
 }
 
 - (BOOL)isExtendedLifetimeValid

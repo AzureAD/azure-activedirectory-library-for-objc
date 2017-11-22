@@ -1,3 +1,15 @@
+Version 2.5.3 (11.17.2017)
+-------------
+* Parse auth challenges where Bearer is not the first challenge. (#1042)
+
+Version 2.5.2 (11.06.2017)
+-------------
+* Improved SSO capabilities between different authority aliases (e.g. login.windows.net and login.microsoftonline.com) (#1060, #1061, #1069, #1079)
+* Added additional server telemetry (#1041)
+* Fixed a token persistence issue for assertion flow (#1004)
+* Added additional NSNull check, when parsing server responses (#1055)
+
+
 Version 2.5.1 (07.10.2017)
 -------------
 * Add support for applications that use the handleOpenURL:UIApplicationDelegate method for accepting URL requests (#1000)

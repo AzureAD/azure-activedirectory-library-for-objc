@@ -21,36 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADTelemetryPiiRules.h"
+#import "ADTelemetryEventStrings.h"
 
-@interface NSString (ADHelperMethods)
+static NSSet *_piiFields;
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)adBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)adBase64UrlDecode;
+@implementation ADTelemetryPiiRules
 
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString *)string;
++ (void)initialize
+{
+    _piiFields = [[NSSet alloc] initWithArray:@[AD_TELEMETRY_KEY_TENANT_ID,
+                                               AD_TELEMETRY_KEY_USER_ID,
+                                               AD_TELEMETRY_KEY_DEVICE_ID,
+                                               AD_TELEMETRY_KEY_LOGIN_HINT,
+                                               AD_TELEMETRY_KEY_CLIENT_ID,
+                                               AD_TELEMETRY_KEY_ERROR_DESCRIPTION,
+                                               AD_TELEMETRY_KEY_HTTP_PATH,
+                                               AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS,
+                                               AD_TELEMETRY_KEY_AUTHORITY]];
+}
 
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)adTrimmedString;
+#pragma mark - Public
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)adUrlFormDecode;
-
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)adUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)adBase64UrlDecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)adBase64UrlEncodeData:(NSData *)data;
-
-- (NSString*)adComputeSHA256;
-
-/*! Converts string to url */
-- (NSURL *)adUrl;
++ (BOOL)isPii:(NSString *)propertyName
+{
+    return [_piiFields containsObject:propertyName];
+}
 
 @end
