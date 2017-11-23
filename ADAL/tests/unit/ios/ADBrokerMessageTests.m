@@ -124,7 +124,7 @@
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          
          XCTAssertEqualObjects(result.tokenCacheItem.resource, @"myfakeresource");
-         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"MyFakeAccessToken");
+         XCTAssertNil(result.tokenCacheItem.accessToken);
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"MyFakeRefreshToken");
          XCTAssertEqualObjects(result.tokenCacheItem.accessTokenType, @"Bearer");
          

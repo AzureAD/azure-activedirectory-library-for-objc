@@ -192,4 +192,101 @@
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
 }
 
+- (void)testBroker_whenTenantSpecified_shouldGetNewAT
+{
+    NSString *authority = @"https://login.microsoftonline.com/contoso.net";
+    NSString *cacheAuthority = @"https://login.windows.net/contoso.net";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    NSString *brokerRT = @"i-am-a-refresh-token";
+    NSString *brokerAT = @"i-am-a-access-token";
+    NSString *updatedRT = @"updated-refresh-token";
+    NSString *updatedAT = @"updated-access-token";
+    
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+        
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          };
+        
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+        
+        NSDictionary *responseParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"client_id" : TEST_CLIENT_ID,
+          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+          @"access_token" : brokerAT,
+          @"refresh_token" : brokerRT,
+          @"foci" : @"1",
+          @"expires_in" : @"3600"
+          };
+        
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+    
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.microsoftonline.com"
+                                         withMetadata:metadata];
+    ADTestURLResponse *tokenResponse =
+    [self adResponseRefreshToken:brokerRT
+                       authority:authority
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:updatedRT
+                  newAccessToken:updatedAT
+                additionalFields:@{ @"foci" : @"1"}];
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, updatedAT);
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, updatedRT);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+    
+    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    
+    XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
+    XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRT:cacheAuthority], updatedRT);
+}
+
 @end

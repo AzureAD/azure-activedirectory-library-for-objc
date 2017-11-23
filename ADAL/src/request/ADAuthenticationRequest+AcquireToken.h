@@ -31,6 +31,8 @@
 // For use after the authority has been validated
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock;
 
+- (void)getAccessToken:(ADAuthenticationCallback)completionBlock;
+
 // Bypasses the cache and attempts to request a token from the server, generally called after
 // attempts to use cached tokens failed
 - (void)requestToken:(ADAuthenticationCallback)completionBlock;
