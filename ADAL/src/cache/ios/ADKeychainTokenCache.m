@@ -87,13 +87,13 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     if (s_defaultCache)
     {
-        AD_LOG_ERROR(nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
+        MSID_LOG_ERROR(nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
         
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    AD_LOG_INFO(nil, @"Setting default keychain group.");
-    AD_LOG_INFO_PII(nil, @"Setting default keychain group to %@", keychainGroup);
+    MSID_LOG_INFO(nil, @"Setting default keychain group.");
+    MSID_LOG_INFO_PII(nil, @"Setting default keychain group to %@", keychainGroup);
     
     if (keychainGroup == s_defaultKeychainGroup)
     {
@@ -189,7 +189,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         message:(NSString *)additionalMessage
   correlationId:(NSUUID *)correlationId
 {
-    [item logMessage:additionalMessage level:ADAL_LOG_LEVEL_VERBOSE correlationId:correlationId];
+    [item logMessage:additionalMessage level:MSIDLogLevelVerbose correlationId:correlationId];
 }
 
 - (void)logItemRetrievalStatus:(NSArray *)items
@@ -201,13 +201,13 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     if (!items || [items count]<=0)
     {
         //if resource is nil, this request is intending to find MRRT
-        AD_LOG_INFO(correlationId, @"No items were found for query");
-        AD_LOG_INFO_PII(correlationId, @"No items were found for query %@", keyCtxStr);
+        MSID_LOG_INFO_CORR(correlationId, @"No items were found for query");
+        MSID_LOG_INFO_CORR_PII(correlationId, @"No items were found for query %@", keyCtxStr);
     }
     else
     {
-        AD_LOG_INFO(correlationId, @"Found %lu token(s) for query", (unsigned long)[items count]);
-        AD_LOG_INFO_PII(correlationId, @"Found %lu token(s) for query %@ user <%@>", (unsigned long)[items count], keyCtxStr, userId);
+        MSID_LOG_INFO_CORR(correlationId, @"Found %lu token(s) for query", (unsigned long)[items count]);
+        MSID_LOG_INFO_CORR_PII(correlationId, @"Found %lu token(s) for query %@ user <%@>", (unsigned long)[items count], keyCtxStr, userId);
     }
 }
 
@@ -217,7 +217,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     {
         if (item.tombstone)
         {
-            [item logMessage:nil level:ADAL_LOG_LEVEL_WARN correlationId:nil];
+            [item logMessage:nil level:MSIDLogLevelWarning correlationId:nil];
         }
     }
 }
@@ -288,7 +288,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
     {
-        AD_LOG_WARN(nil, @"Retrieved item with key that did not have generic item data!");
+        MSID_LOG_WARN(nil, @"Retrieved item with key that did not have generic item data!");
         return nil;
     }
     @try
@@ -296,12 +296,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
         if (!item)
         {
-            AD_LOG_WARN(nil, @"Unable to decode item from data stored in keychain.");
+            MSID_LOG_WARN(nil, @"Unable to decode item from data stored in keychain.");
             return nil;
         }
         if (![item isKindOfClass:[ADTokenCacheItem class]])
         {
-            AD_LOG_WARN(nil, @"Unarchived Item was not of expected class.");
+            MSID_LOG_WARN(nil, @"Unarchived Item was not of expected class.");
             return nil;
         }
         
@@ -309,7 +309,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     }
     @catch (NSException *exception)
     {
-        AD_LOG_WARN(nil, @"Failed to deserialize data from keychain.");
+        MSID_LOG_WARN(nil, @"Failed to deserialize data from keychain.");
         return nil;
     }
 }
@@ -338,7 +338,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     
-    [item logMessage:@"Removing" level:ADAL_LOG_LEVEL_INFO correlationId:nil];
+    [item logMessage:@"Removing" level:MSIDLogLevelInfo correlationId:nil];
 
     OSStatus deleteStatus = [self deleteItem:item error:error];
     
@@ -393,8 +393,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    AD_LOG_WARN(nil, @"Removing all items for client");
-    AD_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
+    MSID_LOG_WARN(nil, @"Removing all items for client");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
     
     NSArray* items = [self allItems:error];
     if (!items)
@@ -417,8 +417,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                   clientId:(NSString * __nonnull)clientId
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    AD_LOG_WARN(nil, @"Removing all items for user");
-    AD_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
+    MSID_LOG_WARN(nil, @"Removing all items for user");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
     
     NSArray* items = [self allItems:nil];
     if (!items)
@@ -440,8 +440,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 - (BOOL)wipeAllItemsForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
 {
-    AD_LOG_WARN(nil, @"Removing all items for user.");
-    AD_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
+    MSID_LOG_WARN(nil, @"Removing all items for user.");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
 
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
                              (id)kSecAttrAccount: [userId msidBase64UrlEncode],
@@ -752,7 +752,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error
 {
-    AD_LOG_ERROR(nil, @"******** -testRemoveAll: being called in ADKeychainTokenCache. This method should NEVER be called in production code. ********");
+    MSID_LOG_ERROR(nil, @"******** -testRemoveAll: being called in ADKeychainTokenCache. This method should NEVER be called in production code. ********");
     @synchronized(self)
     {
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];

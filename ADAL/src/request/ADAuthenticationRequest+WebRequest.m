@@ -85,13 +85,13 @@
         
         if (![NSString msidIsStringNilOrBlank:authorizationServer] && ![NSString msidIsStringNilOrBlank:resource])
         {
-            AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"The authorization server returned the following state: %@", state);
+            MSID_LOG_VERBOSE_PII(_requestParams, @"The authorization server returned the following state: %@", state);
             return YES;
         }
     }
     
-    AD_LOG_WARN(_requestParams.correlationId, @"Missing or invalid state returned");
-    AD_LOG_WARN_PII(_requestParams.correlationId, @"Missing or invalid state returned state: %@", state);
+    MSID_LOG_WARN(_requestParams, @"Missing or invalid state returned");
+    MSID_LOG_WARN_PII(_requestParams, @"Missing or invalid state returned state: %@", state);
     return NO;
 }
 
@@ -176,8 +176,8 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"Requesting authorization code");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Requesting authorization code for resource: %@", _requestParams.resource);
+    MSID_LOG_VERBOSE(_requestParams, @"Requesting authorization code");
+    MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
     
     NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
     

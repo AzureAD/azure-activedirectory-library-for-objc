@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import "ADTokenCacheDataSource.h"
-#import "ADRequestContext.h"
+#import "MSIDRequestContext.h"
 
 @class ADTokenCacheAccessor;
 
-@interface ADRequestParameters : NSObject <ADRequestContext>
+@interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
     NSString* _authority;
     NSString* _resource;
@@ -48,6 +48,7 @@
 @property BOOL extendedLifetime;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
+@property (retain, nonatomic) NSString* logComponent;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
@@ -57,6 +58,7 @@
              tokenCache:(ADTokenCacheAccessor *)tokenCache
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
-     telemetryRequestId:(NSString *)telemetryRequestId;
+     telemetryRequestId:(NSString *)telemetryRequestId
+           logComponent:(NSString *)logComponent;
 
 @end

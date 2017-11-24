@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAutoRequestViewController.h"
-#import "ADLogger+Internal.h"
 
 @interface ADAutoRequestViewController ()
 

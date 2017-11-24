@@ -84,8 +84,8 @@ static NSURLSession *_session = nil;
         }
         
         // This is the NTLM challenge: use the identity to authenticate:
-        AD_LOG_INFO(nil, @"Attempting to handle NTLM challenge");
-        AD_LOG_INFO_PII(nil, @"Attempting to handle NTLM challenge host: %@", challenge.protectionSpace.host);
+        MSID_LOG_INFO(nil, @"Attempting to handle NTLM challenge");
+        MSID_LOG_INFO_PII(nil, @"Attempting to handle NTLM challenge host: %@", challenge.protectionSpace.host);
         
         [ADNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password)
          {
@@ -99,14 +99,14 @@ static NSURLSession *_session = nil;
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
-                 AD_LOG_INFO(nil, @"NTLM credentials added");
-                 AD_LOG_INFO_PII(nil, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
+                 MSID_LOG_INFO(nil, @"NTLM credentials added");
+                 MSID_LOG_INFO_PII(nil, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
              }
              else
              {
                  _challengeCancelled = YES;
-                 AD_LOG_INFO(nil, @"NTLM challenge cancelled");
-                 AD_LOG_INFO_PII(nil, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
+                 MSID_LOG_INFO(nil, @"NTLM challenge cancelled");
+                 MSID_LOG_INFO_PII(nil, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
                  
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 

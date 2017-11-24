@@ -62,11 +62,11 @@
              [_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
              
              // give the stale token as result
-             [ADLogger logToken:_extendedLifetimeAccessTokenItem.accessToken
-                      tokenType:@"AT (extended lifetime)"
-                      expiresOn:_extendedLifetimeAccessTokenItem.expiresOn
-                        context:@"Returning"
-                  correlationId:_requestParams.correlationId];
+             [[MSIDLogger sharedLogger] logToken:_extendedLifetimeAccessTokenItem.accessToken
+                                       tokenType:@"AT (extended lifetime)"
+                                   expiresOnDate:_extendedLifetimeAccessTokenItem.expiresOn
+                                    additionaLog:@"Returning"
+                                         context:_requestParams];
              
              result = [ADAuthenticationResult resultFromTokenCacheItem:_extendedLifetimeAccessTokenItem
                                              multiResourceRefreshToken:NO
@@ -87,11 +87,11 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    [ADLogger logToken:refreshToken
-             tokenType:@"RT"
-             expiresOn:nil
-               context:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _requestParams.resource]
-         correlationId:_requestParams.correlationId];
+    [[MSIDLogger sharedLogger] logToken:refreshToken
+                              tokenType:@"RT"
+                          expiresOnDate:nil
+                           additionaLog:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _requestParams.resource]
+                                context:_requestParams];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -126,8 +126,8 @@
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     
-    AD_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
-    AD_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
+    MSID_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
+    MSID_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
     
     [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
@@ -234,8 +234,8 @@
              msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
-         AD_LOG_INFO(_requestParams.correlationId, @"%@", msg);
-         AD_LOG_INFO_PII(_requestParams.correlationId, @"%@ clientId: '%@', resource: '%@'", msg, _requestParams.clientId, _requestParams.resource);
+         MSID_LOG_INFO(_requestParams, @"%@", msg);
+         MSID_LOG_INFO_PII(_requestParams, @"%@ clientId: '%@', resource: '%@'", msg, _requestParams.clientId, _requestParams.resource);
          
          if ([ADAuthenticationContext isFinalResult:result])
          {
@@ -298,11 +298,11 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken
-                 tokenType:@"AT"
-                 expiresOn:item.expiresOn
-                   context:@"Returning"
-             correlationId:_requestParams.correlationId];
+        [[MSIDLogger sharedLogger] logToken:item.accessToken
+                                  tokenType:@"AT"
+                              expiresOnDate:item.expiresOn
+                               additionaLog:@"Returning"
+                                    context:_requestParams];
         ADAuthenticationResult* result =
         [ADAuthenticationResult resultFromTokenCacheItem:item
                                multiResourceRefreshToken:NO

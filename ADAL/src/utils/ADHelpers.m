@@ -327,16 +327,16 @@
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        AD_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority msidUrl]] ? [authority msidUrl].host : @"unknown host");
-        AD_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
+        MSID_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority msidUrl]] ? [authority msidUrl].host : @"unknown host");
+        MSID_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
 
         return nil;
     }
     NSString* scheme = url.scheme;
     if (![scheme isEqualToString:@"https"])
     {
-        AD_LOG_WARN(nil, @"Non HTTPS protocol for the authority");
-        AD_LOG_WARN_PII(nil, @"Non HTTPS protocol for the authority %@", authority);
+        MSID_LOG_WARN(nil, @"Non HTTPS protocol for the authority");
+        MSID_LOG_WARN_PII(nil, @"Non HTTPS protocol for the authority %@", authority);
         return nil;
     }
     

@@ -37,7 +37,7 @@
 @synthesize acceptOnlyOKResponse = _acceptOnlyOKResponse;
 
 - (id)initWithURL:(NSURL *)url
-          context:(id<ADRequestContext>)context
+          context:(id<MSIDRequestContext>)context
 {
     self = [super initWithURL:url context:context];
     if (!self)

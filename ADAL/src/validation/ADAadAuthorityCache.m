@@ -63,7 +63,7 @@
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
-                context:(id<ADRequestContext>)context
+                context:(id<MSIDRequestContext>)context
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (metadata != nil)
@@ -78,7 +78,7 @@
     return ret;
 }
 
-static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id<ADRequestContext> context, ADAuthenticationError * __autoreleasing *error)
+static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id<MSIDRequestContext> context, ADAuthenticationError * __autoreleasing *error)
 {
     CHECK_CLASS_TYPE(host, NSString, ([NSString stringWithFormat:@"\"%@\" in JSON authority validation metadata must be %@", label, isAliases ? @"an array of strings" : @"a string"]));
     
@@ -117,16 +117,16 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
 
 - (BOOL)processImpl:(NSArray<NSDictionary *> *)metadata
           authority:(NSURL *)authority
-            context:(id<ADRequestContext>)context
+            context:(id<MSIDRequestContext>)context
               error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (metadata.count == 0)
     {
-        AD_LOG_INFO(context.correlationId, @"No metadata returned from authority validation");
+        MSID_LOG_INFO(context, @"No metadata returned from authority validation");
     }
     else
     {
-        AD_LOG_INFO(context.correlationId, @"Caching AAD Environements");
+        MSID_LOG_INFO(context, @"Caching AAD Environements");
     }
     
     NSMutableArray<ADAadAuthorityCacheRecord *> *recordsToAdd = [NSMutableArray new];
@@ -166,7 +166,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
             _recordMap[alias] = record;
         }
 
-        AD_LOG_INFO_PII(context.correlationId, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
+        MSID_LOG_INFO_PII(context, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
     }
     
     // In case the authority we were looking for wasn't in the metadata
@@ -186,10 +186,10 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
 
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(ADAuthenticationError *)oauthError
-                 context:(id<ADRequestContext>)context
+                 context:(id<MSIDRequestContext>)context
 {
     [self getWriteLock];
-    AD_LOG_WARN(context.correlationId, @"Caching Invalid AAD Instance");
+    MSID_LOG_WARN(context, @"Caching Invalid AAD Instance");
     __auto_type record = [ADAadAuthorityCacheRecord new];
     record.validated = NO;
     record.error = oauthError;
@@ -226,7 +226,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     // and should expect to fail soon.
     if (status != 0)
     {
-        AD_LOG_ERROR(nil, @"Failed to grab authority cache read lock. Error code %d", status);
+        MSID_LOG_ERROR(nil, @"Failed to grab authority cache read lock. Error code %d", status);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];
@@ -241,7 +241,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     int status = pthread_rwlock_wrlock(&_rwLock);
     if (status != 0)
     {
-        AD_LOG_ERROR(nil, @"Failed to grab authority cache write lock. Error code %d", status);
+        MSID_LOG_ERROR(nil, @"Failed to grab authority cache write lock. Error code %d", status);
         @throw [NSException exceptionWithName:@"ADALException"
                                        reason:[NSString stringWithFormat:@"Unable to get lock, error code %d", status]
                                      userInfo:nil];

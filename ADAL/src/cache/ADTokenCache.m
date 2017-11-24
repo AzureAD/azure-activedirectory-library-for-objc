@@ -41,7 +41,6 @@
 
 #import "ADTokenCache.h"
 #import "ADAuthenticationError.h"
-#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
@@ -101,7 +100,7 @@
     int err = pthread_rwlock_wrlock(&_lock);
     if (err != 0)
     {
-        AD_LOG_ERROR(nil, @"pthread_rwlock_wrlock failed in setDelegate");
+        MSID_LOG_ERROR(nil, @"pthread_rwlock_wrlock failed in setDelegate");
         return;
     }
     
@@ -130,7 +129,7 @@
     int err = pthread_rwlock_rdlock(&_lock);
     if (err != 0)
     {
-        AD_LOG_ERROR(nil, @"pthread_rwlock_rdlock failed in serialize");
+        MSID_LOG_ERROR(nil, @"pthread_rwlock_rdlock failed in serialize");
         return nil;
     }
     NSDictionary* cacheCopy = [_cache mutableCopy];
@@ -147,7 +146,7 @@
     @catch (id exception)
     {
         // This should be exceedingly rare as all of the objects in the cache we placed there.
-        AD_LOG_ERROR(nil, @"Failed to serialize the cache!");
+        MSID_LOG_ERROR(nil, @"Failed to serialize the cache!");
         return nil;
     }
 }
@@ -219,12 +218,12 @@
     {
         if (_cache)
         {
-            AD_LOG_WARN(nil, @"nil data provided to -updateCache, dropping old cache.");
+            MSID_LOG_WARN(nil, @"nil data provided to -updateCache, dropping old cache.");
             _cache = nil;
         }
         else
         {
-            AD_LOG_INFO(nil, @"No data provided for cache.");
+            MSID_LOG_INFO(nil, @"No data provided for cache.");
         }
         return YES;
     }
@@ -327,7 +326,7 @@
     int err = pthread_rwlock_wrlock(&_lock);
     if (err != 0)
     {
-        AD_LOG_ERROR(nil, @"pthread_rwlock_wrlock failed in removeItem");
+        MSID_LOG_ERROR(nil, @"pthread_rwlock_wrlock failed in removeItem");
         return NO;
     }
     BOOL result = [self removeImpl:item error:error];
@@ -477,7 +476,7 @@
         for (ADTokenCacheItem* item in items)
         {
             [item logMessage:@"Found"
-                       level:ADAL_LOG_LEVEL_WARN
+                       level:MSIDLogLevelWarning
                correlationId:correlationId];
         }
         return nil;
@@ -515,7 +514,7 @@
     int err = pthread_rwlock_wrlock(&_lock);
     if (err != 0)
     {
-        AD_LOG_ERROR(correlationId, @"pthread_rwlock_wrlock failed in addOrUpdateItem");
+        MSID_LOG_ERROR_CORR(correlationId, @"pthread_rwlock_wrlock failed in addOrUpdateItem");
         return NO;
     }
     BOOL result = [self addOrUpdateImpl:item correlationId:correlationId error:error];
@@ -594,7 +593,7 @@
     int err = pthread_rwlock_rdlock(&_lock);
     if (err != 0)
     {
-        AD_LOG_ERROR(correlationId, @"pthread_rwlock_rdlock failed in getItemsWithKey");
+        MSID_LOG_ERROR_CORR(correlationId, @"pthread_rwlock_rdlock failed in getItemsWithKey");
         return nil;
     }
     NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];

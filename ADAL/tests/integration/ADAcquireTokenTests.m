@@ -1774,7 +1774,8 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
-                                                              telemetryRequestId:nil];
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
     [req setSilent:YES];
     [req setAllowSilentRequests:YES];
@@ -1822,7 +1823,8 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
-                                                              telemetryRequestId:nil];
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
@@ -1856,7 +1858,8 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
-                                                              telemetryRequestId:nil];
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];

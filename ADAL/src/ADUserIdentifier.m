@@ -23,7 +23,6 @@
 
 
 #import "ADUserIdentifier.h"
-#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADUserInformation.h"
 
@@ -129,7 +128,7 @@
         case RequiredDisplayableId: return info.userId;
     }
     
-    AD_LOG_ERROR(nil, @"Unrecognized type on identifier match: %d", _type);
+    MSID_LOG_ERROR(nil, @"Unrecognized type on identifier match: %d", _type);
     
     return nil;
 }
@@ -170,7 +169,7 @@
     CHECK_TYPE(RequiredDisplayableId);
     
     // If it didn't match against a known type return default, but log an error
-    AD_LOG_ERROR(nil, @"Did not recognize type \"%@\"", type);
+    MSID_LOG_ERROR(nil, @"Did not recognize type \"%@\"", type);
     
     return DEFAULT_USER_TYPE;
 }

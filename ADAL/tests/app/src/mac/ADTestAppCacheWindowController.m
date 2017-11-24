@@ -26,22 +26,6 @@
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 #import "ADTestAppCache.h"
-#import "ADLogger+Internal.h"
-
-@interface NSString (ADTestApp)
-
-- (NSString *)truncatedHash;
-
-@end
-
-@implementation NSString (ADTestApp)
-
-- (NSString *)truncatedHash
-{
-    return [ADLogger getHash:self];
-}
-
-@end
 
 @interface ADTestAppCacheWindowController () <NSTableViewDelegate, NSTableViewDataSource>
 
@@ -128,7 +112,7 @@
     }
     else if ([identifier isEqualToString:@"accessToken"])
     {
-        return item.accessToken.truncatedHash;
+        return item.accessToken.msidTokenHash;
     }
     else if ([identifier isEqualToString:@"expiresOn"])
     {
@@ -141,7 +125,7 @@
         {
             return @"<bad-rt>";
         }
-        return item.refreshToken.truncatedHash;
+        return item.refreshToken.msidTokenHash;
     }
     else
     {

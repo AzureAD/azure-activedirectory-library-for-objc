@@ -68,7 +68,7 @@
 - (ADTokenCacheItem *)getItemForUser:(NSString *)userId
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
-                             context:(id<ADRequestContext>)context
+                             context:(id<MSIDRequestContext>)context
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
@@ -117,7 +117,7 @@
 - (ADTokenCacheItem *)getATRTItemForUser:(ADUserIdentifier *)identifier
                                 resource:(NSString *)resource
                                 clientId:(NSString *)clientId
-                                 context:(id<ADRequestContext>)context
+                                 context:(id<MSIDRequestContext>)context
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -138,7 +138,7 @@
  */
 - (ADTokenCacheItem *)getMRRTItemForUser:(ADUserIdentifier *)identifier
                                 clientId:(NSString *)clientId
-                                 context:(id<ADRequestContext>)context
+                                 context:(id<MSIDRequestContext>)context
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -165,7 +165,7 @@
  */
 - (ADTokenCacheItem *)getFRTItemForUser:(ADUserIdentifier *)identifier
                                familyId:(NSString *)familyId
-                                context:(id<ADRequestContext>)context
+                                context:(id<MSIDRequestContext>)context
                                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     [[ADTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
@@ -190,7 +190,7 @@
 
 - (ADTokenCacheItem*)getADFSUserTokenForResource:(NSString *)resource
                                         clientId:(NSString *)clientId
-                                         context:(id<ADRequestContext>)context
+                                         context:(id<MSIDRequestContext>)context
                                            error:(ADAuthenticationError * __autoreleasing *)error
 {
     // ADFS fix: When talking to ADFS directly we can get ATs and RTs (but not MRRTs or FRTs) without
@@ -229,7 +229,7 @@
 - (void)updateCacheToResult:(ADAuthenticationResult *)result
                   cacheItem:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
-                    context:(id<ADRequestContext>)context
+                    context:(id<MSIDRequestContext>)context
 {
     
     if(!result)
@@ -246,7 +246,7 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN([context correlationId], @"Told to update cache to an invalid token cache item.");
+            MSID_LOG_WARN(context, @"Told to update cache to an invalid token cache item.");
             return;
         }
         
@@ -275,17 +275,16 @@
 
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
                      MRRT:(BOOL)isMRRT
-                  context:(id<ADRequestContext>)context
+                  context:(id<MSIDRequestContext>)context
 {
-    NSUUID* correlationId = [context correlationId];
     NSString* telemetryRequestId = [context telemetryRequestId];
     
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing multi-resource refresh token with authority host: %@", [ADAuthorityUtils isKnownHost:[_authority msidUrl]] ? [_authority msidUrl].host : @"unknown host");
+        MSID_LOG_VERBOSE(context, @"Token cache store - Storing multi-resource refresh token with authority host: %@", [ADAuthorityUtils isKnownHost:[_authority msidUrl]] ? [_authority msidUrl].host : @"unknown host");
         
-        AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
+        MSID_LOG_VERBOSE_PII(context, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
         
         [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
@@ -328,8 +327,8 @@
         }
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Storing access token ");
-    AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
+    MSID_LOG_VERBOSE(context, @"Token cache store - Storing access token ");
+    MSID_LOG_VERBOSE_PII(context, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
     
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     [self addOrUpdateItem:cacheItem context:context error:nil];
@@ -342,7 +341,7 @@
 }
 
 - (BOOL)addOrUpdateItem:(nonnull ADTokenCacheItem *)item
-                context:(id<ADRequestContext>)context
+                context:(id<MSIDRequestContext>)context
                   error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     NSURL *oldAuthority = [NSURL URLWithString:item.authority];
@@ -360,7 +359,7 @@
 
 - (void)removeItemFromCache:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
-                    context:(id<ADRequestContext>)context
+                    context:(id<MSIDRequestContext>)context
                       error:(ADAuthenticationError *)error
 {
     if (!cacheItem && !refreshToken)
@@ -379,7 +378,7 @@
 
 - (void)removeImpl:(ADTokenCacheItem *)cacheItem
       refreshToken:(NSString *)refreshToken
-           context:(id<ADRequestContext>)context
+           context:(id<MSIDRequestContext>)context
              error:(ADAuthenticationError *)error
 {
     //The refresh token didn't work. We need to tombstone this refresh item in the cache.
@@ -408,8 +407,8 @@
         return;
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache ");
-    AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
+    MSID_LOG_VERBOSE(context, @"Token cache store - Tombstoning cache ");
+    MSID_LOG_VERBOSE_PII(context, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
     
     //update tombstone property before update the tombstone in cache
     [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetryEventInterface.h"
-#import "ADRequestContext.h"
+#import "MSIDRequestContext.h"
 
 @interface ADTelemetryDefaultEvent : NSObject <ADTelemetryEventInterface>
 {
@@ -39,6 +39,6 @@
      correlationId:(NSUUID*)correlationId;
 
 - (id)initWithName:(NSString*)eventName
-           context:(id<ADRequestContext>)requestParams;
+           context:(id<MSIDRequestContext>)requestParams;
 
 @end
