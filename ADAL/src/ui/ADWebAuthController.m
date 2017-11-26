@@ -41,9 +41,9 @@
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADUserIdentifier.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
 
 /*! Fired at the start of a resource load in the webview. */
@@ -138,7 +138,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [ADURLProtocol unregisterProtocol];
     
     [self fillTelemetryUIEvent:_telemetryEvent];
-    [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:_telemetryEvent];
+    [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:_telemetryEvent];
     
     if ( _completionBlock )
     {
@@ -465,7 +465,7 @@ static ADAuthenticationResult* s_result = nil;
 }
 #endif // TARGET_OS_IPHONE
 
-- (void)fillTelemetryUIEvent:(ADTelemetryUIEvent*)event
+- (void)fillTelemetryUIEvent:(MSIDTelemetryUIEvent*)event
 {
     if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
     {
@@ -541,8 +541,8 @@ static ADAuthenticationResult* s_result = nil;
         return;
     }
 
-    [[ADTelemetry sharedInstance] startEvent:requestParams.telemetryRequestId eventName:AD_TELEMETRY_EVENT_UI_EVENT];
-    _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:AD_TELEMETRY_EVENT_UI_EVENT
+    [[MSIDTelemetry sharedInstance] startEvent:requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                                  context:_requestParams];
     
     startURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:startURL context:requestParams];

@@ -22,16 +22,16 @@
 // THE SOFTWARE.
 
 #import "ADTelemetry.h"
-#import "ADTelemetryEventInterface.h"
+#import "MSIDTelemetryEventInterface.h"
 #import "ADAggregatedDispatcher.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADTelemetryCollectionRules.h"
 #import "ADTelemetryAPIEvent.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryHttpEvent.h"
-#import "ADTelemetryCacheEvent.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryHttpEvent.h"
+#import "MSIDTelemetryCacheEvent.h"
 #import "ADTelemetryBrokerEvent.h"
-#import "NSMutableDictionary+ADExtensions.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @implementation ADAggregatedDispatcher
 
@@ -58,7 +58,7 @@ static NSDictionary *s_eventPropertiesDictionary;
     [_dispatchLock unlock];
     
     NSMutableDictionary* aggregatedEvent = [NSMutableDictionary new];
-    for (id<ADTelemetryEventInterface> event in eventsToBeDispatched)
+    for (id<MSIDTelemetryEventInterface> event in eventsToBeDispatched)
     {
         [self addPropertiesToDictionary:aggregatedEvent event:event];
     }
@@ -67,13 +67,15 @@ static NSDictionary *s_eventPropertiesDictionary;
 }
 
 - (void)receive:(NSString *)requestId
-          event:(id<ADTelemetryEventInterface>)event
+          event:(id<MSIDTelemetryEventInterface>)event
 {
     if ([NSString msidIsStringNilOrBlank:requestId] || !event)
     {
         return;
         
     }
+    
+    [event addDefaultProperties];
     
     [_dispatchLock lock]; //make sure no one changes _objectsToBeDispatched while using it
     NSMutableArray* eventsForRequestId = [_objectsToBeDispatched objectForKey:requestId];
@@ -88,10 +90,8 @@ static NSDictionary *s_eventPropertiesDictionary;
     
 }
 
-- (void)addPropertiesToDictionary:(NSMutableDictionary*)aggregatedEvent event:(id<ADTelemetryEventInterface>)event
+- (void)addPropertiesToDictionary:(NSMutableDictionary*)aggregatedEvent event:(id<MSIDTelemetryEventInterface>)event
 {
-    [aggregatedEvent addEntriesFromDictionary:[ADTelemetryDefaultEvent defaultParameters]];
-    
     NSString *eventClassName = NSStringFromClass([event class]);
     
     NSArray* eventProperties = [s_eventPropertiesDictionary objectForKey:eventClassName];
@@ -111,7 +111,7 @@ static NSDictionary *s_eventPropertiesDictionary;
         
         if (collectionBehavior != CollectAndCount)
         {
-            [aggregatedEvent adSetObjectIfNotNil:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
+            [aggregatedEvent msidSetObjectIfNotNil:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
         }
         else
         {
@@ -128,66 +128,66 @@ static NSDictionary *s_eventPropertiesDictionary;
         s_eventPropertiesDictionary = @{
                                       NSStringFromClass([ADTelemetryAPIEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_KEY_REQUEST_ID,
-                                              AD_TELEMETRY_KEY_CORRELATION_ID,
+                                              MSID_TELEMETRY_KEY_REQUEST_ID,
+                                              MSID_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_KEY_AUTHORITY_TYPE,
-                                              AD_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS,
-                                              AD_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING,
-                                              AD_TELEMETRY_KEY_PROMPT_BEHAVIOR,
-                                              AD_TELEMETRY_KEY_RESULT_STATUS,
-                                              AD_TELEMETRY_KEY_IDP,
-                                              AD_TELEMETRY_KEY_TENANT_ID,
-                                              AD_TELEMETRY_KEY_USER_ID,
-                                              AD_TELEMETRY_KEY_RESPONSE_TIME,
-                                              AD_TELEMETRY_KEY_CLIENT_ID,
-                                              AD_TELEMETRY_KEY_API_ID,
-                                              AD_TELEMETRY_KEY_USER_CANCEL,
-                                              AD_TELEMETRY_KEY_API_ERROR_CODE,
-                                              AD_TELEMETRY_KEY_ERROR_DOMAIN,
-                                              AD_TELEMETRY_KEY_PROTOCOL_CODE,
-                                              AD_TELEMETRY_KEY_IS_SUCCESSFUL
+                                              MSID_TELEMETRY_KEY_AUTHORITY_TYPE,
+                                              MSID_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS,
+                                              MSID_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING,
+                                              MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR,
+                                              MSID_TELEMETRY_KEY_RESULT_STATUS,
+                                              MSID_TELEMETRY_KEY_IDP,
+                                              MSID_TELEMETRY_KEY_TENANT_ID,
+                                              MSID_TELEMETRY_KEY_USER_ID,
+                                              MSID_TELEMETRY_KEY_RESPONSE_TIME,
+                                              MSID_TELEMETRY_KEY_CLIENT_ID,
+                                              MSID_TELEMETRY_KEY_API_ID,
+                                              MSID_TELEMETRY_KEY_USER_CANCEL,
+                                              MSID_TELEMETRY_KEY_API_ERROR_CODE,
+                                              MSID_TELEMETRY_KEY_ERROR_DOMAIN,
+                                              MSID_TELEMETRY_KEY_PROTOCOL_CODE,
+                                              MSID_TELEMETRY_KEY_IS_SUCCESSFUL
                                               ],
-                                      NSStringFromClass([ADTelemetryUIEvent class]): @[
+                                      NSStringFromClass([MSIDTelemetryUIEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_KEY_REQUEST_ID,
-                                              AD_TELEMETRY_KEY_CORRELATION_ID,
+                                              MSID_TELEMETRY_KEY_REQUEST_ID,
+                                              MSID_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_KEY_LOGIN_HINT,
-                                              AD_TELEMETRY_KEY_NTLM_HANDLED,
-                                              AD_TELEMETRY_KEY_UI_EVENT_COUNT
+                                              MSID_TELEMETRY_KEY_LOGIN_HINT,
+                                              MSID_TELEMETRY_KEY_NTLM_HANDLED,
+                                              MSID_TELEMETRY_KEY_UI_EVENT_COUNT
                                               ],
-                                      NSStringFromClass([ADTelemetryHttpEvent class]): @[
+                                      NSStringFromClass([MSIDTelemetryHttpEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_KEY_REQUEST_ID,
-                                              AD_TELEMETRY_KEY_CORRELATION_ID,
+                                              MSID_TELEMETRY_KEY_REQUEST_ID,
+                                              MSID_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_KEY_OAUTH_ERROR_CODE,
-                                              AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
-                                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT,
-                                              AD_TELEMETRY_KEY_SERVER_ERROR_CODE,
-                                              AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
-                                              AD_TELEMETRY_KEY_RT_AGE,
-                                              AD_TELEMETRY_KEY_SPE_INFO
+                                              MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE,
+                                              MSID_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
+                                              MSID_TELEMETRY_KEY_HTTP_EVENT_COUNT,
+                                              MSID_TELEMETRY_KEY_SERVER_ERROR_CODE,
+                                              MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
+                                              MSID_TELEMETRY_KEY_RT_AGE,
+                                              MSID_TELEMETRY_KEY_SPE_INFO
                                               ],
-                                      NSStringFromClass([ADTelemetryCacheEvent class]): @[
+                                      NSStringFromClass([MSIDTelemetryCacheEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_KEY_REQUEST_ID,
-                                              AD_TELEMETRY_KEY_CORRELATION_ID,
+                                              MSID_TELEMETRY_KEY_REQUEST_ID,
+                                              MSID_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_KEY_RT_STATUS,
-                                              AD_TELEMETRY_KEY_FRT_STATUS,
-                                              AD_TELEMETRY_KEY_MRRT_STATUS,
-                                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT,
-                                              AD_TELEMETRY_KEY_SPE_INFO
+                                              MSID_TELEMETRY_KEY_RT_STATUS,
+                                              MSID_TELEMETRY_KEY_FRT_STATUS,
+                                              MSID_TELEMETRY_KEY_MRRT_STATUS,
+                                              MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT,
+                                              MSID_TELEMETRY_KEY_SPE_INFO
                                               ],
                                       NSStringFromClass([ADTelemetryBrokerEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_KEY_REQUEST_ID,
-                                              AD_TELEMETRY_KEY_CORRELATION_ID,
+                                              MSID_TELEMETRY_KEY_REQUEST_ID,
+                                              MSID_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_KEY_BROKER_APP,
-                                              AD_TELEMETRY_KEY_BROKER_VERSION
+                                              MSID_TELEMETRY_KEY_BROKER_APP,
+                                              MSID_TELEMETRY_KEY_BROKER_VERSION
                                               ],
                                       };
     }

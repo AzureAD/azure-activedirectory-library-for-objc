@@ -29,9 +29,9 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
-#import "ADTelemetryCacheEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryCacheEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheAccessor
@@ -120,15 +120,15 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
     ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:resource clientId:clientId context:context error:error];
-    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+    MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
-    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setTokenType:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
-    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
 
@@ -141,21 +141,21 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:nil clientId:clientId context:context error:error];
-    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+    MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                      requestId:[context telemetryRequestId]
                                                                  correlationId:[context correlationId]];
-    [event setTokenType:AD_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
-    [event setMRRTStatus:AD_TELEMETRY_VALUE_NOT_FOUND];
+    [event setTokenType:MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+    [event setMRRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
-        [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
-        [event setMRRTStatus:AD_TELEMETRY_VALUE_TRIED];
+        [event setIsMRRT:MSID_TELEMETRY_VALUE_YES];
+        [event setMRRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
-    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
-    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
 
@@ -168,23 +168,23 @@
                                 context:(id<MSIDRequestContext>)context
                                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-    [[ADTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     
     NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
     ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:nil clientId:fociClientId context:context error:error];
 
-    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+    MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
-    [event setFRTStatus:AD_TELEMETRY_VALUE_NOT_FOUND];
+    [event setTokenType:MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+    [event setFRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
-        [event setIsFRT:AD_TELEMETRY_VALUE_YES];
-        [event setFRTStatus:AD_TELEMETRY_VALUE_TRIED];
+        [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
+        [event setFRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
-    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
-    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
 
@@ -206,20 +206,20 @@
         return nil;
     }
 
-    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP];
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[context correlationId] error:error];
-    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
+    MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_VALUE_ADFS_TOKEN];
-    [event setRTStatus:AD_TELEMETRY_VALUE_NOT_FOUND];
+    [event setTokenType:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
+    [event setRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if ([item refreshToken])
     {
-        [event setIsRT:AD_TELEMETRY_VALUE_YES];
-        [event setRTStatus:AD_TELEMETRY_VALUE_TRIED];
+        [event setIsRT:MSID_TELEMETRY_VALUE_YES];
+        [event setRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
-    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
+    [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
-    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
 
@@ -286,7 +286,7 @@
         
         MSID_LOG_VERBOSE_PII(context, @"Token cache store - Storing multi-resource refresh token for authority: %@", _authority);
         
-        [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+        [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
         
         //If the server returned a multi-resource refresh token, we break
         //the item into two: one with the access token and no refresh token and
@@ -299,45 +299,45 @@
         multiRefreshTokenItem.resource = nil;
         multiRefreshTokenItem.expiresOn = nil;
         [self addOrUpdateItem:multiRefreshTokenItem context:context error:nil];
-        ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+        MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
-        [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
-        [event setTokenType:AD_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+        [event setIsMRRT:MSID_TELEMETRY_VALUE_YES];
+        [event setTokenType:MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
         [event setSpeInfo:multiRefreshTokenItem.speInfo];
-        [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+        [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
         // as well so we have a guaranteed spot to look for the most recent FRT.
         NSString* familyId = cacheItem.familyId;
         if (familyId)
         {
-            [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+            [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
             
             ADTokenCacheItem* frtItem = [multiRefreshTokenItem copy];
             NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
             frtItem.clientId = fociClientId;
             [self addOrUpdateItem:frtItem context:context error:nil];
             
-            ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+            MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                                context:context];
-            [event setIsFRT:AD_TELEMETRY_VALUE_YES];
-            [event setTokenType:AD_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+            [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
+            [event setTokenType:MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
             [event setSpeInfo:frtItem.speInfo];
-            [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+            [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         }
     }
     
     MSID_LOG_VERBOSE(context, @"Token cache store - Storing access token ");
     MSID_LOG_VERBOSE_PII(context, @"Token cache store - Storing access token for resource: %@", cacheItem.resource);
     
-    [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
+    [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE];
     [self addOrUpdateItem:cacheItem context:context error:nil];
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
-    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
+    MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setTokenType:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
     [event setSpeInfo:cacheItem.speInfo];
-    [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }
 
 - (BOOL)addOrUpdateItem:(nonnull ADTokenCacheItem *)item
@@ -368,12 +368,12 @@
     }
     
     
-    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
+    MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
                                                                        context:context];
     [event setSpeInfo:cacheItem.speInfo];
-    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
+    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
     [self removeImpl:cacheItem refreshToken:refreshToken context:context error:error];
-    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
 }
 
 - (void)removeImpl:(ADTokenCacheItem *)cacheItem

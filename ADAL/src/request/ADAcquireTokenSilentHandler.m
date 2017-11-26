@@ -33,9 +33,9 @@
 #import "ADHelpers.h"
 #import "ADTokenCacheAccessor.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -199,16 +199,16 @@
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
-    [[ADTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_GRANT];
+    [[MSIDTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_GRANT
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                         context:_requestParams];
-         [event setGrantType:AD_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
+         [event setGrantType:MSID_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
          [event setResultStatus:[result status]];
-         [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
+         [[MSIDTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
 
          NSString* resultStatus = @"Succeded";
          

@@ -23,12 +23,12 @@
 
 #import <XCTest/XCTest.h>
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryAPIEvent.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryHttpEvent.h"
-#import "ADTelemetryCacheEvent.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryHttpEvent.h"
+#import "MSIDTelemetryCacheEvent.h"
 #import "ADTelemetryBrokerEvent.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTestURLSession.h"
@@ -36,7 +36,7 @@
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
 #import "ADTelemetryTestDispatcher.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface ADTelemetryTests : ADTestCase
 {
@@ -405,12 +405,12 @@
     
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     
-    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                    requestId:requestId correlationId:nil];
     
     [event setClientTelemetry:@"1,111,999,200.056,I"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event];
     
@@ -433,21 +433,21 @@
     
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     
-    ADTelemetryHttpEvent* event1 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event1 setClientTelemetry:@"1,111,999,200.056,I"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event1];
     
-    ADTelemetryHttpEvent* event2 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event2 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event2 setClientTelemetry:@"1,888,777,15868,M"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event2];
     
@@ -470,21 +470,21 @@
     
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     
-    ADTelemetryHttpEvent* event1 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event1 setClientTelemetry:@"1,111,999,200.056,"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event1];
     
-    ADTelemetryHttpEvent* event2 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event2 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event2 setClientTelemetry:@"1,,,,"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event2];
     
@@ -507,19 +507,19 @@
     
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     
-    ADTelemetryHttpEvent* event1 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event1];
     
-    ADTelemetryHttpEvent* event2 = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST
+    MSIDTelemetryHttpEvent* event2 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event2 setClientTelemetry:@"1,5,10,85,I"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                       event:event2];
     
@@ -543,7 +543,7 @@
     ADTelemetryDefaultEvent *event = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
                                         requestId:requestId
                                     correlationId:[NSUUID UUID]];
-    [event setProperty:AD_TELEMETRY_KEY_USER_ID value:@"id1234"];
+    [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
     [ADTelemetry sharedInstance].piiEnabled = NO;
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     
@@ -551,7 +551,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertNil([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID]);
+    XCTAssertNil([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationNo_shouldHashPiiFields
@@ -561,7 +561,7 @@
     ADTelemetryDefaultEvent *event = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
                                                                          requestId:requestId
                                                                      correlationId:[NSUUID UUID]];
-    [event setProperty:AD_TELEMETRY_KEY_USER_ID value:@"id1234"];
+    [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
     [ADTelemetry sharedInstance].piiEnabled = YES;
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     
@@ -569,7 +569,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
+    ADAssertStringEquals([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldDeletePiiFields
@@ -579,7 +579,7 @@
     ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:@"testEvent"
                                                                  requestId:requestId
                                                              correlationId:[NSUUID UUID]];
-    [event setProperty:AD_TELEMETRY_KEY_USER_ID value:@"id1234"];
+    [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
     [ADTelemetry sharedInstance].piiEnabled = NO;
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
@@ -588,7 +588,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertNil([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID]);
+    XCTAssertNil([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationYes_shouldHashPiiFields
@@ -598,7 +598,7 @@
     ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:@"testEvent"
                                                                      requestId:requestId
                                                                  correlationId:[NSUUID UUID]];
-    [event setProperty:AD_TELEMETRY_KEY_USER_ID value:@"id1234"];
+    [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
     [ADTelemetry sharedInstance].piiEnabled = YES;
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
@@ -607,7 +607,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
+    ADAssertStringEquals([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
 }
 
 @end

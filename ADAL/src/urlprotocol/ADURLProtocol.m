@@ -26,14 +26,14 @@
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADURLSessionDemux.h"
 #import "ADAuthorityUtils.h"
 
 static NSMutableDictionary *s_handlers      = nil;
 static NSString *s_endURL                   = nil;
-static ADTelemetryUIEvent *s_telemetryEvent = nil;
+static MSIDTelemetryUIEvent *s_telemetryEvent = nil;
 
 static NSString *s_kADURLProtocolPropertyKey  = @"ADURLProtocol";
 
@@ -69,7 +69,7 @@ static id<MSIDRequestContext> _reqContext(NSURLRequest* request)
 }
 
 + (BOOL)registerProtocol:(NSString *)endURL
-          telemetryEvent:(ADTelemetryUIEvent *)telemetryEvent
+          telemetryEvent:(MSIDTelemetryUIEvent *)telemetryEvent
 {
     if (s_endURL!=endURL)
     {
@@ -294,7 +294,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     
     if ([authMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame)
     {
-        [s_telemetryEvent setNtlm:AD_TELEMETRY_VALUE_YES];
+        [s_telemetryEvent setNtlm:MSID_TELEMETRY_VALUE_YES];
     }
 }
 

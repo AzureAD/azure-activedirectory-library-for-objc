@@ -29,8 +29,8 @@
 #import "ADWorkplaceJoinConstants.h"
 #import "ADPKeyAuthHelper.h"
 #import "ADClientMetrics.h"
-#import "NSString+ADTelemetryExtensions.h"
-#import "ADTelemetryEventStrings.h"
+#import "NSString+MSIDTelemetryExtensions.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation ADWebAuthResponse
 
@@ -309,11 +309,11 @@
     
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
-        NSString *speInfo = [clientTelemetry parsedClientTelemetry][AD_TELEMETRY_KEY_SPE_INFO];
+        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
         
         if (![NSString msidIsStringNilOrBlank:speInfo])
         {
-            [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
+            [_responseDictionary setObject:speInfo forKey:MSID_TELEMETRY_KEY_SPE_INFO];
         }
     }
     

@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADTelemetryAPIEvent.h"
 #import "XCTestCase+TestHelperMethods.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface ADTelemetryAPIEventTests : ADTestCase
 
@@ -52,7 +52,7 @@
     
     [event setUserInformation:userInfo];
     
-    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_USER_ID], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+    ADAssertStringEquals([event getProperties][MSID_TELEMETRY_KEY_USER_ID], [@"eric_cartman@contoso.com" msidComputeSHA256]);
 }
 
 - (void)testSetUserInformation_whenTenantIdProvided_shouldHashTenantId
@@ -65,7 +65,7 @@
     
     [event setUserInformation:userInfo];
     
-    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_TENANT_ID], [@"6fd1f5cd-a94c-4335-889b-6c598e6d8048" msidComputeSHA256]);
+    ADAssertStringEquals([event getProperties][MSID_TELEMETRY_KEY_TENANT_ID], [@"6fd1f5cd-a94c-4335-889b-6c598e6d8048" msidComputeSHA256]);
 }
 
 - (void)testSetUserId_whenUserIdValid_shouldHashUserId
@@ -77,7 +77,7 @@
     
     [event setUserId:@"eric_cartman@contoso.com"];
     
-    ADAssertStringEquals([event getProperties][AD_TELEMETRY_KEY_USER_ID], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+    ADAssertStringEquals([event getProperties][MSID_TELEMETRY_KEY_USER_ID], [@"eric_cartman@contoso.com" msidComputeSHA256]);
 }
 
 @end
