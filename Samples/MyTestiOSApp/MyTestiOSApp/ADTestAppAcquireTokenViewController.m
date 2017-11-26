@@ -145,7 +145,7 @@
     _userIdType.selectedSegmentIndex = 0;
     [layout addControl:_userIdType title:@"idType"];
     
-    _promptBehavior = [[UISegmentedControl alloc] initWithItems:@[@"Always", @"Auto"]];
+    _promptBehavior = [[UISegmentedControl alloc] initWithItems:@[@"Always", @"Auto", @"Force"]];
     _promptBehavior.selectedSegmentIndex = 0;
     [layout addControl:_promptBehavior title:@"prompt"];
     
@@ -511,6 +511,8 @@
         return AD_PROMPT_ALWAYS;
     if ([label isEqualToString:@"Auto"])
         return AD_PROMPT_AUTO;
+    if ([label isEqualToString:@"Force"])
+        return AD_FORCE_PROMPT;
     
     @throw @"Do not recognize prompt behavior";
 }
