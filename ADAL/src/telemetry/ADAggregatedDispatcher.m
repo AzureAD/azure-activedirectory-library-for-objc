@@ -75,8 +75,6 @@ static NSDictionary *s_eventPropertiesDictionary;
         
     }
     
-    [event addDefaultProperties];
-    
     [_dispatchLock lock]; //make sure no one changes _objectsToBeDispatched while using it
     NSMutableArray* eventsForRequestId = [_objectsToBeDispatched objectForKey:requestId];
     if (!eventsForRequestId)
@@ -92,6 +90,8 @@ static NSDictionary *s_eventPropertiesDictionary;
 
 - (void)addPropertiesToDictionary:(NSMutableDictionary*)aggregatedEvent event:(id<MSIDTelemetryEventInterface>)event
 {
+    [aggregatedEvent addEntriesFromDictionary:[MSIDTelemetryBaseEvent defaultParameters]];
+    
     NSString *eventClassName = NSStringFromClass([event class]);
     
     NSArray* eventProperties = [s_eventPropertiesDictionary objectForKey:eventClassName];
@@ -100,23 +100,25 @@ static NSDictionary *s_eventPropertiesDictionary;
     {
         ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
         
+        NSString* propertyKey = TELEMETRY_KEY(propertyName);
+        
         if (collectionBehavior == CollectAndUpdate)
         {
             //erase the previous event properties only if there were any previously
-            if ([aggregatedEvent objectForKey:propertyName])
+            if ([aggregatedEvent objectForKey:propertyKey])
             {
-                [aggregatedEvent removeObjectForKey:propertyName];
+                [aggregatedEvent removeObjectForKey:propertyKey];
             }
         }
         
         if (collectionBehavior != CollectAndCount)
         {
-            [aggregatedEvent msidSetObjectIfNotNil:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
+            [aggregatedEvent msidSetObjectIfNotNil:[event propertyWithName:propertyName] forKey:propertyKey];
         }
         else
         {
-            int eventCount = [[aggregatedEvent objectForKey:propertyName] intValue];
-            [aggregatedEvent setObject:[NSString stringWithFormat:@"%d", ++eventCount] forKey:propertyName];
+            int eventCount = [[aggregatedEvent objectForKey:propertyKey] intValue];
+            [aggregatedEvent setObject:[NSString stringWithFormat:@"%d", ++eventCount] forKey:propertyKey];
         }
     }
 }

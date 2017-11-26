@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
-#import "ADTelemetryDefaultEvent.h"
+#import "MSIDTelemetryBaseEvent.h"
 #import "ADTelemetryAPIEvent.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryHttpEvent.h"
@@ -58,7 +58,7 @@
     _receivedEvents = nil;
     [super tearDown];
     
-    [ADTelemetry sharedInstance].piiEnabled = NO;
+    [MSIDTelemetry sharedInstance].piiEnabled = NO;
 }
 
 - (void)setupADTelemetryDispatcherWithAggregationRequired:(BOOL)aggregationRequired
@@ -77,19 +77,19 @@
 
 - (void)testDefaultEventProperties
 {
-    [ADTelemetry sharedInstance].piiEnabled = YES;
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
     
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent"
                                                                              requestId:requestId
                                                                          correlationId:[NSUUID UUID]]];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as we only generated one above
     XCTAssertEqual([_receivedEvents count], 1);
@@ -115,23 +115,23 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event 1
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
     // generate telemetry event 2
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
+    MSIDTelemetryBaseEvent* event2 = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent2"
                                                                           requestId:requestId
                                                                       correlationId:nil];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 2 telemetry events recorded as we generated two
     XCTAssertEqual([_receivedEvents count], 2);
@@ -147,7 +147,7 @@
     // make sure the 2nd event has customized_property, event_name, start_time and end_time
     NSDictionary* secondEvent = [_receivedEvents objectAtIndex:1];
     
-    XCTAssertEqual([secondEvent objectForKey:@"customized_property"], @"customized_value");
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.customized_property"], @"customized_value");
     XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
@@ -162,23 +162,23 @@
     NSUUID* correlationId = [NSUUID UUID];
     
     // generate telemetry event 1
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
                                                                          correlationId:correlationId]];
     
     // generate telemetry event 2
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
+    MSIDTelemetryBaseEvent* event2 = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent2"
                                                                           requestId:requestId
                                                                       correlationId:correlationId];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is on
     XCTAssertEqual([_receivedEvents count], 1);
@@ -203,23 +203,23 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
+    MSIDTelemetryBaseEvent* event2 = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent2"
                                                                           requestId:requestId
                                                                       correlationId:nil];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 2 telemetry events recorded as we generated two
     XCTAssertEqual([_receivedEvents count], 2);
@@ -228,7 +228,7 @@
     // make sure it has customized_property, event_name, start_time and end_time
     NSDictionary* firstEvent = [_receivedEvents firstObject];
     XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
-    XCTAssertEqual([firstEvent objectForKey:@"customized_property"], @"customized_value");
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.customized_property"], @"customized_value");
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
     XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
@@ -248,23 +248,23 @@
     NSUUID* correlationId = [NSUUID UUID];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
+    MSIDTelemetryBaseEvent* event2 = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent2"
                                                                           requestId:requestId
                                                                       correlationId:correlationId];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
                                                                          correlationId:correlationId]];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is ON
     XCTAssertEqual([_receivedEvents count], 1);
@@ -288,34 +288,34 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent3"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent2"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent4"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 4 telemetry events recorded as we generated four
     XCTAssertEqual([_receivedEvents count], 4);
@@ -352,34 +352,34 @@
     NSUUID* correlationId = [NSUUID UUID];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent3"
                                                                              requestId:requestId
                                                                          correlationId:correlationId]];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent2"
                                                                              requestId:requestId
                                                                          correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
                                                                          correlationId:correlationId]];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
+                                   event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent4"
                                                                              requestId:requestId
                                                                          correlationId:correlationId]];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([_receivedEvents count], 1);
@@ -403,18 +403,18 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
     
     MSIDTelemetryHttpEvent* event = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                    requestId:requestId correlationId:nil];
     
     [event setClientTelemetry:@"1,111,999,200.056,I"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([_receivedEvents count], 1);
@@ -431,15 +431,15 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
     
     MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event1 setClientTelemetry:@"1,111,999,200.056,I"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event1];
     
     MSIDTelemetryHttpEvent* event2 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
@@ -447,11 +447,11 @@
     
     [event2 setClientTelemetry:@"1,888,777,15868,M"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event2];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([_receivedEvents count], 1);
@@ -468,15 +468,15 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
     
     MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
     [event1 setClientTelemetry:@"1,111,999,200.056,"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event1];
     
     MSIDTelemetryHttpEvent* event2 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
@@ -484,11 +484,11 @@
     
     [event2 setClientTelemetry:@"1,,,,"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event2];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([_receivedEvents count], 1);
@@ -505,13 +505,13 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
     
     MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event1];
     
     MSIDTelemetryHttpEvent* event2 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
@@ -519,11 +519,11 @@
     
     [event2 setClientTelemetry:@"1,5,10,85,I"];
     
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
-    [[ADTelemetry sharedInstance] stopEvent:requestId
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                       event:event2];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([_receivedEvents count], 1);
@@ -539,15 +539,15 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationNo_shouldDeletePiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
-    NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    ADTelemetryDefaultEvent *event = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
+    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    MSIDTelemetryBaseEvent *event = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent"
                                         requestId:requestId
                                     correlationId:[NSUUID UUID]];
     [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
-    [ADTelemetry sharedInstance].piiEnabled = NO;
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    [MSIDTelemetry sharedInstance].piiEnabled = NO;
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId event:event];
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
@@ -557,34 +557,34 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationNo_shouldHashPiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
-    NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
-    ADTelemetryDefaultEvent *event = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
+    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    MSIDTelemetryBaseEvent *event = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent"
                                                                          requestId:requestId
                                                                      correlationId:[NSUUID UUID]];
     [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
-    [ADTelemetry sharedInstance].piiEnabled = YES;
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     
-    [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId event:event];
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    ADAssertStringEquals([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
+    ADAssertStringEquals([dictionary objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [@"id1234" msidComputeSHA256]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldDeletePiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
-    NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
     ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:@"testEvent"
                                                                  requestId:requestId
                                                              correlationId:[NSUUID UUID]];
     [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
-    [ADTelemetry sharedInstance].piiEnabled = NO;
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
+    [MSIDTelemetry sharedInstance].piiEnabled = NO;
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId event:event];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
@@ -594,20 +594,20 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationYes_shouldHashPiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
-    NSString *requestId = [[ADTelemetry sharedInstance] registerNewRequest];
+    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
     ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:@"testEvent"
-                                                                     requestId:requestId
-                                                                 correlationId:[NSUUID UUID]];
+                                                                 requestId:requestId
+                                                             correlationId:[NSUUID UUID]];
     [event setProperty:MSID_TELEMETRY_KEY_USER_ID value:@"id1234"];
-    [ADTelemetry sharedInstance].piiEnabled = YES;
-    [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
-    [[ADTelemetry sharedInstance] stopEvent:requestId event:event];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId event:event];
     
-    [[ADTelemetry sharedInstance] flush:requestId];
+    [[MSIDTelemetry sharedInstance] flush:requestId];
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    ADAssertStringEquals([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
+    ADAssertStringEquals([dictionary objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [@"id1234" msidComputeSHA256]);
 }
 
 @end
