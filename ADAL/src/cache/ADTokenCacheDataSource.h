@@ -80,7 +80,4 @@
 
 - (nullable NSArray*)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-/*! This internal method is only called in test code. */
-- (nullable NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __nullable __autoreleasing *__nullable)error;
-
 @end

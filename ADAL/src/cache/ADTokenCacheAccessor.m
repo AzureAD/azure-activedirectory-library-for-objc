@@ -269,8 +269,7 @@
     
     [self removeItemFromCache:cacheItem
                  refreshToken:refreshToken
-                      context:context
-                        error:result.error];
+                      context:context];
 }
 
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
@@ -361,7 +360,6 @@
 - (void)removeItemFromCache:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
                     context:(id<ADRequestContext>)context
-                      error:(ADAuthenticationError *)error
 {
     if (!cacheItem && !refreshToken)
     {
@@ -373,16 +371,14 @@
                                                                        context:context];
     [event setSpeInfo:cacheItem.speInfo];
     [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE];
-    [self removeImpl:cacheItem refreshToken:refreshToken context:context error:error];
+    [self removeImpl:cacheItem refreshToken:refreshToken context:context];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
 }
 
 - (void)removeImpl:(ADTokenCacheItem *)cacheItem
       refreshToken:(NSString *)refreshToken
            context:(id<ADRequestContext>)context
-             error:(ADAuthenticationError *)error
 {
-    //The refresh token didn't work. We need to tombstone this refresh item in the cache.
     ADTokenCacheKey* cacheKey = [cacheItem extractKey:nil];
     if (!cacheKey)
     {
@@ -408,14 +404,7 @@
         return;
     }
     
-    AD_LOG_VERBOSE(correlationId, @"Token cache store - Tombstoning cache ");
-    AD_LOG_VERBOSE_PII(correlationId, @"Token cache store - Tombstoning cache for resource: %@", cacheItem.resource);
-    
-    //update tombstone property before update the tombstone in cache
-    [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
-                               @"errorDetails" : [error errorDetails],
-                               @"protocolCode" : [error protocolCode] }];
-    [_dataSource addOrUpdateItem:existing correlationId:correlationId error:nil];
+    [_dataSource removeItem:existing error:nil];
 }
 
 @end

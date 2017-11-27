@@ -664,9 +664,6 @@ const int sAsyncContextTimeout = 10;
     
     [self waitForExpectations:@[expectation] timeout:1];
     
-    NSArray* tombstones = [context.tokenCacheStore.dataSource allTombstones:&error];
-    XCTAssertEqual(tombstones.count, 1);
-    
     // Verify that both the expired AT and the rejected MRRT are removed from the cache
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
     XCTAssertNil(error);
