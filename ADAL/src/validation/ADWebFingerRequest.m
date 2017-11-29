@@ -30,7 +30,7 @@
 
 + (void)requestWebFinger:(NSString *)authenticationEndpoint
                authority:(NSString *)authority
-                 context:(id<ADRequestContext>)context
+                 context:(id<MSIDRequestContext>)context
          completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     NSURL *url = [self urlForWebFinger:authenticationEndpoint authority:authority];

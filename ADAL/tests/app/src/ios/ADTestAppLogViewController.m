@@ -23,6 +23,7 @@
 
 #import "ADTestAppLogViewController.h"
 #import "ADTelemetry.h"
+#import "ADLogger.h"
 
 @interface ADTestAppLogViewController () <ADDispatcher>
 

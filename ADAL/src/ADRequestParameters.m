@@ -46,6 +46,7 @@
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
      telemetryRequestId:(NSString *)telemetryRequestId
+           logComponent:(NSString *)logComponent
 {
     (void)tokenCache;
     if (!(self = [super init]))
@@ -62,6 +63,7 @@
     [self setExtendedLifetime:extendedLifetime];
     [self setCorrelationId:correlationId];
     [self setTelemetryRequestId:telemetryRequestId];
+    [self setLogComponent:logComponent];
     
     return self;
 }
@@ -81,6 +83,7 @@
     parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
+    parameters->_logComponent = [_logComponent copyWithZone:zone];
     
     return parameters;
 }

@@ -80,7 +80,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
         }
         else
         {
-            AD_LOG_ERROR(nil, @"unable to add client metrics.");
+            MSID_LOG_ERROR(nil, @"unable to add client metrics.");
         }
         
         _errorToReport = nil;

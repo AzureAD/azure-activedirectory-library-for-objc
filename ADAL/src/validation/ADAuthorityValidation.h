@@ -68,9 +68,9 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 - (void)addInvalidAuthority:(NSString *)authority;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
-                          context:(id<ADRequestContext>)context;
+                          context:(id<MSIDRequestContext>)context;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-                        context:(id<ADRequestContext>)context;
+                        context:(id<MSIDRequestContext>)context;
 - (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority;
 
 @end

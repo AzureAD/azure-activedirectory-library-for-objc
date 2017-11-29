@@ -47,7 +47,7 @@
 #define ADAL_VERSION_VAR ADAL_VERSION_(ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH)
 
 #import "ADAuthenticationError+Internal.h"
-#import "ADLogger+Internal.h"
+#import "MSIDLogger+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 
 #import "NSString+MSIDExtensions.h"
@@ -83,7 +83,7 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(nil, @"InvalidArgumentException: %s %@", #ARG, __where); \
+        MSID_LOG_ERROR(nil, @"InvalidArgumentException: %s %@", #ARG, __where); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -117,7 +117,7 @@ argumentName:@#ARG correlationId:nil]; \
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(nil, @"InvalidArgumentError: %s %@", #ARG, __where); \
+        MSID_LOG_ERROR(nil, @"InvalidArgumentError: %s %@", #ARG, __where); \
         FILL_PARAMETER_ERROR(ARG); \
         return RET; \
     } \
@@ -149,6 +149,6 @@ argumentName:@#ARG correlationId:nil]; \
 #define API_ENTRY \
 { \
 WHERE; \
-AD_LOG_VERBOSE(nil, @"ADAL API call [Version - " ADAL_VERSION_STRING "] - %@", __where); \
+MSID_LOG_VERBOSE(nil, @"ADAL API call [Version - " ADAL_VERSION_STRING "] - %@", __where); \
 }
 

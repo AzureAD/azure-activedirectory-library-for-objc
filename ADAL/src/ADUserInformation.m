@@ -161,7 +161,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                     if (![ID_TOKEN_JWT_TYPE isEqualToString:type])
                     {
                         //Log it, but still try to use it as if it was a JWT token
-                        AD_LOG_WARN(nil, @"Incompatible id_token type - %@", type);
+                        MSID_LOG_WARN(nil, @"Incompatible id_token type - %@", type);
                     }
                 }
             }
@@ -171,7 +171,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     if (!type)
     {
-        AD_LOG_WARN(nil, @"The id_token type is missing. Assuming JWT type.");
+        MSID_LOG_WARN(nil, @"The id_token type is missing. Assuming JWT type.");
     }
     
     _allClaims = allClaims;

@@ -34,7 +34,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 + (void)requestMetadataWithAuthority:(NSString *)authority
                          trustedHost:(NSString *)trustedHost
-                             context:(id<ADRequestContext>)context
+                             context:(id<MSIDRequestContext>)context
                      completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock
 {
     NSURL *endpoint = [self urlForAuthorityValidation:authority trustedHost:trustedHost];

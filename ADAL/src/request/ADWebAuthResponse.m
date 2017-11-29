@@ -270,8 +270,8 @@
     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
     NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
     
-    AD_LOG_WARN(_request.correlationId, @"HTTP Error %ld", (long)webResponse.statusCode);
-    AD_LOG_WARN_PII(_request.correlationId, @"%@", errorData);
+    MSID_LOG_WARN(_request, @"HTTP Error %ld", (long)webResponse.statusCode);
+    MSID_LOG_WARN_PII(_request, @"%@", errorData);
     
     ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
                                                                      body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
@@ -331,8 +331,8 @@
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR(_request.correlationId, @"Unparseable wwwAuthHeader received");
-        AD_LOG_ERROR_PII(_request.correlationId, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
+        MSID_LOG_ERROR(_request, @"Unparseable wwwAuthHeader received");
+        MSID_LOG_ERROR_PII(_request, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
     }
     
     ADAuthenticationError* adError = nil;
@@ -380,7 +380,7 @@
     
     if (body.length == 0)
     {
-        AD_LOG_ERROR(_request.correlationId, @"Empty body received, expected JSON response. Error code: %ld", (long)jsonError.code);
+        MSID_LOG_ERROR(_request, @"Empty body received, expected JSON response. Error code: %ld", (long)jsonError.code);
     }
     else
     {
@@ -393,8 +393,8 @@
             bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[body length]];
         }
         
-        AD_LOG_ERROR(_request.correlationId, @"JSON deserialization error:");
-        AD_LOG_ERROR_PII(_request.correlationId, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
+        MSID_LOG_ERROR(_request, @"JSON deserialization error:");
+        MSID_LOG_ERROR_PII(_request, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];
@@ -413,8 +413,8 @@
         [_responseDictionary setObject:url forKey:@"url"];
     }
     
-    AD_LOG_WARN(_request.correlationId, @"System error while making request");
-    AD_LOG_WARN_PII(_request.correlationId, @"System error while making request %@", error.description);
+    MSID_LOG_WARN(_request, @"System error while making request");
+    MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
 
     // System error
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error

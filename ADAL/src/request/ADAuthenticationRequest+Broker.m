@@ -128,7 +128,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     }
     else if (fReturn)
     {
-        AD_LOG_ERROR(nil, @"Received broker response without a completionBlock.");
+        MSID_LOG_ERROR(nil, @"Received broker response without a completionBlock.");
         
         [ADWebAuthController setInterruptedBrokerResult:result];
     }
@@ -281,7 +281,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         return nil;
     }
     
-    AD_LOG_INFO(_requestParams.correlationId, @"Invoking broker for authentication");
+    MSID_LOG_INFO(_requestParams, @"Invoking broker for authentication");
 #if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:error];

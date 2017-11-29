@@ -155,7 +155,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
-    AD_LOG_INFO(nil, @"Handling PKeyAuth Challenge.");
+    MSID_LOG_INFO(nil, @"Handling PKeyAuth Challenge.");
     
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
@@ -250,8 +250,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)webAuthDidFinishLoad:(NSURL*)url
 {
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthDidFinishLoad host: %@", [ADAuthorityUtils isKnownHost:url] ? url.host : @"unknown host");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"-webAuthDidFinishLoad host: %@", url.host);
+    MSID_LOG_VERBOSE(_requestParams, @"-webAuthDidFinishLoad host: %@", [ADAuthorityUtils isKnownHost:url] ? url.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_requestParams, @"-webAuthDidFinishLoad host: %@", url.host);
     
     [self stopSpinner];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
@@ -259,8 +259,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? request.URL.host : @"unknown host");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"-webAuthShouldStartLoadRequest host: %@", request.URL.host);
+    MSID_LOG_VERBOSE(_requestParams, @"-webAuthShouldStartLoadRequest host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? request.URL.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_requestParams, @"-webAuthShouldStartLoadRequest host: %@", request.URL.host);
     
     if([ADNTLMHandler isChallengeCancelled])
     {
@@ -294,7 +294,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         }
         else
         {
-            AD_LOG_ERROR(_requestParams.correlationId, @"unable to redirect to browser from extension");
+            MSID_LOG_ERROR(_requestParams, @"unable to redirect to browser from extension");
         }
 #else // !TARGET_OS_IPHONE
         [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURL]];
@@ -340,7 +340,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     // redirecting to non-https url is not allowed
     if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_ERROR(nil, @"Server is redirecting to a non-https url");
+        MSID_LOG_ERROR(nil, @"Server is redirecting to a non-https url");
         _complete = YES;
         ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_requestParams.correlationId];
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
@@ -359,7 +359,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // The user cancelled authentication
 - (void)webAuthDidCancel
 {
-    AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCancel");
+    MSID_LOG_INFO(_requestParams, @"-webAuthDidCancel");
     
     // Dispatch the completion block
     
@@ -370,8 +370,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication completed at the end URL
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
-    AD_LOG_INFO(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", [ADAuthorityUtils isKnownHost:endURL] ? endURL.host : @"unknown host");
-    AD_LOG_INFO_PII(_requestParams.correlationId, @"-webAuthDidCompleteWithURL: %@", endURL);
+    MSID_LOG_INFO(_requestParams, @"-webAuthDidCompleteWithURL: %@", [ADAuthorityUtils isKnownHost:endURL] ? endURL.host : @"unknown host");
+    MSID_LOG_INFO_PII(_requestParams, @"-webAuthDidCompleteWithURL: %@", endURL);
 
     [self endWebAuthenticationWithError:nil orURL:endURL];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
@@ -417,8 +417,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if (error)
     {
-        AD_LOG_ERROR(_requestParams.correlationId, @"-webAuthDidFailWithError error code %ld", (long)error.code);
-        AD_LOG_ERROR_PII(_requestParams.correlationId, @"-webAuthDidFailWithError: %@", error);
+        MSID_LOG_ERROR(_requestParams, @"-webAuthDidFailWithError error code %ld", (long)error.code);
+        MSID_LOG_ERROR_PII(_requestParams, @"-webAuthDidFailWithError: %@", error);
 
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
                                                             object:self
@@ -443,8 +443,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (_complete == YES)
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
-        AD_LOG_VERBOSE(_requestParams.correlationId, @"Expected error code %ld", (long)error.code);
-        AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Expected error %@", error);
+        MSID_LOG_VERBOSE(_requestParams, @"Expected error code %ld", (long)error.code);
+        MSID_LOG_VERBOSE_PII(_requestParams, @"Expected error %@", error);
         return;
     }
     
@@ -493,8 +493,8 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
-    AD_LOG_ERROR(_requestParams.correlationId, @"Application is cancelling current web auth session. error code = %ld", (long)error.code);
-    AD_LOG_ERROR_PII(_requestParams.correlationId, @"Application is cancelling current web auth session. error = %@", error);
+    MSID_LOG_ERROR(_requestParams, @"Application is cancelling current web auth session. error code = %ld", (long)error.code);
+    MSID_LOG_ERROR_PII(_requestParams, @"Application is cancelling current web auth session. error = %@", error);
     
     return [self endWebAuthenticationWithError:error orURL:nil];
 }

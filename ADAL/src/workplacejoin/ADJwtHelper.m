@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADJwtHelper.h"
-#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <Security/Security.h>
@@ -97,7 +96,7 @@
     
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes))
     {
-        AD_LOG_ERROR(nil, @"Could not compute SHA265 hash.");
+        MSID_LOG_ERROR(nil, @"Could not compute SHA265 hash.");
         
         free(hashBytes);
         free(signedHashBytes);
@@ -118,7 +117,7 @@
     
     if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(nil, @"Failed to sign JWT %d", (int)status);
+        MSID_LOG_ERROR(nil, @"Failed to sign JWT %d", (int)status);
         free(hashBytes);
         free(signedHashBytes);
         return nil;
@@ -143,8 +142,8 @@
                                                          error:&error];
     if (!jsonData)
     {
-        AD_LOG_ERROR(nil, @"Got an error code: %ld", (long)error.code);
-        AD_LOG_ERROR_PII(nil, @"Got an error code: %ld error: %@", (long)error.code, error);
+        MSID_LOG_ERROR(nil, @"Got an error code: %ld", (long)error.code);
+        MSID_LOG_ERROR_PII(nil, @"Got an error code: %ld error: %@", (long)error.code, error);
         
         return nil;
     }

@@ -67,7 +67,7 @@
 }
 
 - (id)initWithName:(NSString*)eventName
-           context:(id<ADRequestContext>)requestParams
+           context:(id<MSIDRequestContext>)requestParams
 {
     return [self initWithName:eventName requestId:requestParams.telemetryRequestId correlationId:requestParams.correlationId];
 }

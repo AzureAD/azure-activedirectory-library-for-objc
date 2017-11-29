@@ -30,7 +30,7 @@
 
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
                             adfsType:(AdfsType)type
-                             context:(id<ADRequestContext>)context
+                             context:(id<MSIDRequestContext>)context
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     NSURL *url = [self urlForDrsDiscoveryForDomain:domain adfsType:type];
