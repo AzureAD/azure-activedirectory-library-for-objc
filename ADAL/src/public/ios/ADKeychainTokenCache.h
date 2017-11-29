@@ -95,7 +95,7 @@
                   clientId:(NSString * __nonnull)clientId
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-/* Removes all token cache items including tombstone items for a specific user from the keychain with
+/* Removes all token cache items for a specific user from the keychain with
    either com.microsoft.adalcache shared group by default or the one provided in setDefaultKeychainGroup
    method.
  */

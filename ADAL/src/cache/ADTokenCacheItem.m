@@ -83,7 +83,6 @@
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_userInformation = [_userInformation copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
-	item->_tombstone = [_tombstone mutableCopyWithZone:zone];
     item->_additionalClient = [_additionalClient mutableCopyWithZone:zone];
     item->_additionalServer = [_additionalServer copyWithZone:zone];
     
@@ -144,7 +143,6 @@
     [aCoder encodeObject:_sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:_userInformation forKey:@"userInformation"];
-	[aCoder encodeObject:_tombstone forKey:@"tombstone"];
     [aCoder encodeObject:_additionalClient forKey:@"additionalClient"];
     [aCoder encodeObject:_additionalServer forKey:@"additionalServer"];
 }
@@ -169,7 +167,6 @@
     _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
-	_tombstone = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"tombstone"];
     _additionalClient = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"additionalClient"];
     _additionalServer = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
     
@@ -209,7 +206,6 @@
     result &= [self.expiresOn isEqualToDate:rhs.expiresOn] || (self.expiresOn == rhs.expiresOn);
     result &= [self.userInformation isEqual:rhs.userInformation]  || (self.userInformation == rhs.userInformation);
     result &= [self.sessionKey isEqualToData:rhs.sessionKey] || (self.sessionKey == rhs.sessionKey);
-    result &= [self.tombstone isEqualToDictionary:rhs.tombstone] || (self.tombstone == rhs.tombstone);
     result &= [self.additionalClient isEqualToDictionary:rhs.additionalClient] || (self.additionalClient == rhs.additionalClient);
     result &= [self.additionalServer isEqualToDictionary:rhs.additionalServer] || (self.additionalServer == rhs.additionalServer);
 
@@ -282,10 +278,6 @@
     }
     _authority = [authority copy];
     [self calculateHash];
-}
-- (NSDictionary *)tombstone
-{
-    return _tombstone;
 }
 
 @end

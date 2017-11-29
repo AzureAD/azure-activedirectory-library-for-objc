@@ -397,5 +397,19 @@
     return adError;
 }
 
++ (NSString *)stringFromDate:(NSDate *)date
+{
+    static NSDateFormatter* s_dateFormatter = nil;
+    static dispatch_once_t s_dateOnce;
+    
+    dispatch_once(&s_dateOnce, ^{
+        s_dateFormatter = [[NSDateFormatter alloc] init];
+        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSSS"];
+    });
+    
+    return [s_dateFormatter stringFromDate:date];
+}
+
 
 @end

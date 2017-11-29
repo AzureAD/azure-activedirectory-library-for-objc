@@ -95,6 +95,36 @@
     return view;
 }
 
+- (UIView*)createThreeItemLayoutView:(UIView*)item1
+                               item2:(UIView*)item2
+                               item3:(UIView*)item3
+{
+    item1.translatesAutoresizingMaskIntoConstraints = NO;
+    item2.translatesAutoresizingMaskIntoConstraints = NO;
+    item3.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    UIView* view = [[UIView alloc] init];
+    view.translatesAutoresizingMaskIntoConstraints = NO;
+    [view addSubview:item1];
+    [view addSubview:item2];
+    [view addSubview:item3];
+    
+    NSDictionary* views = @{@"item1" : item1, @"item2" : item2, @"item3" : item3 };
+    NSArray* verticalConstraints1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[item1(20)]|" options:0 metrics:NULL views:views];
+    NSArray* verticalConstraints2 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[item2(20)]|" options:0 metrics:NULL views:views];
+    NSArray* verticalConstraints3 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[item3(20)]|" options:0 metrics:NULL views:views];
+    NSArray* horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[item1]-[item2]-[item3]|" options:0 metrics:NULL views:views];
+    
+    [view addConstraints:verticalConstraints1];
+    [view addConstraints:verticalConstraints2];
+    [view addConstraints:verticalConstraints3];
+    [view addConstraints:horizontalConstraints];
+    
+    
+    return view;
+}
+
+
 - (UIView*)createSettingsAndResultView
 {
     CGRect screenFrame = UIScreen.mainScreen.bounds;
@@ -115,7 +145,7 @@
     _userIdType.selectedSegmentIndex = 0;
     [layout addControl:_userIdType title:@"idType"];
     
-    _promptBehavior = [[UISegmentedControl alloc] initWithItems:@[@"Always", @"Auto"]];
+    _promptBehavior = [[UISegmentedControl alloc] initWithItems:@[@"Always", @"Auto", @"Force"]];
     _promptBehavior.selectedSegmentIndex = 0;
     [layout addControl:_promptBehavior title:@"prompt"];
     
@@ -153,7 +183,12 @@
     [clearCache setTitle:@"Clear Cache" forState:UIControlStateNormal];
     [clearCache addTarget:self action:@selector(clearCache:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIView* clearButtonsView = [self createTwoItemLayoutView:clearCookies item2:clearCache];
+    UIButton* wipeUpn = [UIButton buttonWithType:UIButtonTypeSystem];
+    [wipeUpn setTitle:@"Wipe cache" forState:UIControlStateNormal];
+    [wipeUpn addTarget:self action:@selector(wipeCache:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
     
     _resultView = [[UITextView alloc] init];
@@ -476,6 +511,8 @@
         return AD_PROMPT_ALWAYS;
     if ([label isEqualToString:@"Auto"])
         return AD_PROMPT_AUTO;
+    if ([label isEqualToString:@"Force"])
+        return AD_FORCE_PROMPT;
     
     @throw @"Do not recognize prompt behavior";
 }
@@ -631,6 +668,35 @@
     }
     
     _resultView.text = [NSString stringWithFormat:@"Cleared %lu cookies.", (unsigned long)cookies.count];
+}
+
+- (IBAction)wipeCache:(id)sender
+{
+    NSString* userId = [_userIdField text];
+    
+    if (!userId || [userId isEqualToString:@""])
+    {
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
+                                                                       message:@"Wipe cache needs a userId"
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"close" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:alert animated:YES completion:nil];
+        return;
+    }
+    
+    ADAuthenticationError *error = nil;
+    if (![[ADKeychainTokenCache defaultKeychainCache] wipeAllItemsForUserId:userId error:&error])
+    {
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
+                                                                       message:error.localizedDescription
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"close" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:alert animated:YES completion:nil];
+        return;
+    }
+    
+    _resultView.text = [NSString stringWithFormat:@"Wiped cache for %@.", userId];
+    
 }
 
 - (IBAction)changeProfile:(id)sender

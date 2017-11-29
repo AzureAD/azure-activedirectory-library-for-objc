@@ -733,7 +733,7 @@ CreateAuthContext(NSString *authority,
     XCTAssertNil([tokenCache getAT:authority]);
 }
 
-- (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldTombstoneCorrectToken
+- (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldRemoveCorrectToken
 {
     NSString *authority = @"https://login.contoso.com/common";
     NSString *preferredAuthority = @"https://login.contoso.net/common";
@@ -771,7 +771,7 @@ CreateAuthContext(NSString *authority,
     // Make sure the cache properly updated the AT, MRRT and FRT...
     ADTokenCacheKey *mrrtKey = [ADTokenCacheKey keyWithAuthority:preferredAuthority resource:nil clientId:TEST_CLIENT_ID error:nil];
     ADTokenCacheItem *preferredMRRT = [tokenCache getItemsWithKey:mrrtKey userId:TEST_USER_ID correlationId:nil error:nil].firstObject;
-    XCTAssertNotNil(preferredMRRT.tombstone);
+    XCTAssertNil(preferredMRRT);
     
     // And that the non-preferred location did not get touched
     XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
