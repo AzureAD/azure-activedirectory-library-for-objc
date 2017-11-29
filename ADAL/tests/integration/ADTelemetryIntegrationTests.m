@@ -82,7 +82,7 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent"
@@ -115,7 +115,7 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event 1
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:[[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent1"
@@ -162,7 +162,7 @@
     NSUUID* correlationId = [NSUUID UUID];
     
     // generate telemetry event 1
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[MSIDTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
@@ -203,7 +203,7 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
@@ -248,7 +248,7 @@
     NSUUID* correlationId = [NSUUID UUID];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
@@ -288,7 +288,7 @@
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
@@ -352,7 +352,7 @@
     NSUUID* correlationId = [NSUUID UUID];
     
     // generate telemetry event1 nested with event2
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
@@ -403,7 +403,7 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     
     MSIDTelemetryHttpEvent* event = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                    requestId:requestId correlationId:nil];
@@ -431,7 +431,7 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     
     MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
@@ -468,7 +468,7 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     
     MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
@@ -505,7 +505,7 @@
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
     
-    NSString* requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString* requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     
     MSIDTelemetryHttpEvent* event1 = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST
                                                                     requestId:requestId correlationId:nil];
@@ -539,7 +539,7 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationNo_shouldDeletePiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
-    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     MSIDTelemetryBaseEvent *event = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent"
                                         requestId:requestId
                                     correlationId:[NSUUID UUID]];
@@ -557,7 +557,7 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationNo_shouldHashPiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:NO];
-    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     MSIDTelemetryBaseEvent *event = [[MSIDTelemetryBaseEvent alloc] initWithName:@"testEvent"
                                                                          requestId:requestId
                                                                      correlationId:[NSUUID UUID]];
@@ -575,7 +575,7 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldDeletePiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
-    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:@"testEvent"
                                                                  requestId:requestId
                                                              correlationId:[NSUUID UUID]];
@@ -594,7 +594,7 @@
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationYes_shouldHashPiiFields
 {
     [self setupADTelemetryDispatcherWithAggregationRequired:YES];
-    NSString *requestId = [[MSIDTelemetry sharedInstance] registerNewRequest];
+    NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:@"testEvent"
                                                                  requestId:requestId
                                                              correlationId:[NSUUID UUID]];

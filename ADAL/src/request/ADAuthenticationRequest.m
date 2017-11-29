@@ -291,7 +291,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 {
     if ([_requestParams telemetryRequestId] == nil)
     {
-        [_requestParams setTelemetryRequestId:[[MSIDTelemetry sharedInstance] registerNewRequest]];
+        [_requestParams setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     }
     
     return [_requestParams telemetryRequestId];
