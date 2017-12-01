@@ -664,9 +664,6 @@ const int sAsyncContextTimeout = 10;
     
     [self waitForExpectations:@[expectation] timeout:1];
     
-    NSArray* tombstones = [context.tokenCacheStore.dataSource allTombstones:&error];
-    XCTAssertEqual(tombstones.count, 1);
-    
     // Verify that both the expired AT and the rejected MRRT are removed from the cache
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
     XCTAssertNil(error);
@@ -2035,4 +2032,51 @@ const int sAsyncContextTimeout = 10;
     
     [self waitForExpectations:@[expectation] timeout:1];
 }
+
+- (void)testMRRT_whenGetting429ThrottledResponse_shouldReturnHttpHeaders
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenWithResource"];
+    
+    // Add an MRRT to the cache
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Set up the mock connection to simulate a 429 throttled error
+    NSString* requestURLString = TEST_AUTHORITY "/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING;
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:requestURLString
+                                                    responseURLString:@"https://contoso.com"
+                                                         responseCode:429
+                                                     httpHeaderFields:@{@"Retry-After":@"120"}
+                                                     dictionaryAsJSON:nil];
+    [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
+    [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
+                                       @"client_id" : TEST_CLIENT_ID,
+                                       @"grant_type" : @"refresh_token",
+                                       @"refresh_token" : TEST_REFRESH_TOKEN }];
+    
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertNotNil(result.error.userInfo[ADHTTPHeadersKey]);
+         XCTAssertEqualObjects(result.error.userInfo[ADHTTPHeadersKey][@"Retry-After"], @"120");
+         XCTAssertNil(result.authority);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
 @end

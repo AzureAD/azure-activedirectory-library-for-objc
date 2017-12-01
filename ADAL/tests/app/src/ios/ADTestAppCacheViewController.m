@@ -89,11 +89,6 @@
     [self loadCache];
 }
 
-- (void)tombstoneTokenAtPath:(NSIndexPath*)indexPath
-{
-    // current delete implementation will tombstone MRRTs.
-    [self deleteTokenAtPath:indexPath];
-}
 
 - (void)expireTokenAtPath:(NSIndexPath*)indexPath
 {
@@ -163,15 +158,6 @@
         [self deleteTokenAtPath:indexPath];
     }];
     
-    UITableViewRowAction* tombstoneTokenAction =
-    [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal
-                                       title:@"Tombstone"
-                                     handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath)
-    {
-        [self tombstoneTokenAtPath:indexPath];
-    }];
-    [tombstoneTokenAction setBackgroundColor:[UIColor brownColor]];
-    
     UITableViewRowAction* invalidateAction =
     [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal
                                        title:@"Invalidate"
@@ -200,7 +186,7 @@
     }];
     
     _tokenRowActions = @[ deleteTokenAction, expireTokenAction ];
-    _mrrtRowActions = @[ tombstoneTokenAction, invalidateAction ];
+    _mrrtRowActions = @[ deleteTokenAction, invalidateAction ];
     _clientIdRowActions = @[ deleteAllAction ];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:ADTestAppCacheChangeNotification
@@ -256,14 +242,6 @@
         NSArray* allItems = [cache allItems:nil];
         _cacheMap = [NSMutableDictionary new];
         for (ADTokenCacheItem* item in allItems)
-        {
-            [self addTokenToCacheMap:item];
-        }
-        
-        
-        // Add the tombstones as well
-        NSArray* allTombstones = [cache allTombstones:nil];
-        for (ADTokenCacheItem* item in allTombstones)
         {
             [self addTokenToCacheMap:item];
         }
@@ -383,11 +361,8 @@
     else
     {
         [cell setBackgroundColor:[UIColor whiteColor]];
-        if (cacheItem.item.tombstone)
-        {
-            [[cell textLabel] setTextColor:[UIColor brownColor]];
-        }
-        else if ([cacheItem.item.refreshToken isEqualToString:@"bad-refresh-token"])
+
+        if ([cacheItem.item.refreshToken isEqualToString:@"bad-refresh-token"])
         {
             [[cell textLabel] setTextColor:[UIColor yellowColor]];
         }
