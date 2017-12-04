@@ -27,9 +27,6 @@
 #import "ADAuthorityValidation.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "NSDictionary+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
-#import "NSURL+ADExtensions.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "NSString+ADURLExtensions.h"
@@ -50,7 +47,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 @synthesize logComponent = _logComponent;
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(nil, @#_X " must not be nil!"); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { MSID_LOG_ERROR(nil, @#_X " must not be nil!"); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
@@ -121,7 +118,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 #define CHECK_REQUEST_STARTED { \
     if (_requestStarted) { \
-        AD_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__); \
+        MSID_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__); \
         return; \
     } \
 }

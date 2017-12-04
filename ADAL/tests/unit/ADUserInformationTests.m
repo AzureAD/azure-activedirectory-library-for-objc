@@ -76,9 +76,9 @@
 - (void)testUserInformationWithIdToken_whenUpnContainsSpaces_shouldReturnTrimmedUserId
 {
     NSDictionary *part1Claims = @{ @"typ" : @"JWT", @"alg" : @"none" };
-    NSString *p1 = [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1Claims options:0 error:nil]];
+    NSString *p1 = [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1Claims options:0 error:nil]];
     NSDictionary *idtokenClaims = @{@"upn" : @"     eric_cartman@contoso.com           ",};
-    NSString *p2 = [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtokenClaims options:0 error:nil]];
+    NSString *p2 = [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtokenClaims options:0 error:nil]];
     NSString *idtoken = [NSString stringWithFormat:@"%@.%@", p1, p2];
     
     ADUserInformation *userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
@@ -157,7 +157,7 @@
     
     error = nil;
     NSString* plainNoUserId = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"}";//Missing meaningful userID field
-    NSString* encoded = [plainNoUserId adBase64UrlEncode];
+    NSString* encoded = [plainNoUserId msidBase64UrlEncode];
     userInfo = [ADUserInformation userInformationWithIdToken:encoded error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
@@ -165,7 +165,7 @@
     
     error = nil;
     NSString* badJSON = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"unique_name\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"";//Missing closing braket '}'
-    encoded = [badJSON adBase64UrlEncode];
+    encoded = [badJSON msidBase64UrlEncode];
     userInfo = [ADUserInformation userInformationWithIdToken:encoded error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);

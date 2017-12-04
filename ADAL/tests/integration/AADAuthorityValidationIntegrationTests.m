@@ -39,8 +39,6 @@
 #import "ADWebAuthDelegate.h"
 #import "ADWebFingerRequest.h"
 
-#import "NSURL+ADExtensions.h"
-
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
@@ -587,12 +585,12 @@ CreateAuthorityValidationResponse(NSString *contextAuthority,
     NSURL *cacheUrl = cacheAuthority ? [NSURL URLWithString:cacheAuthority] : contextUrl;
     
     NSMutableSet *aliases = [NSMutableSet new];
-    [aliases addObject:[contextUrl adHostWithPortIfNecessary]];
-    [aliases addObject:[networkUrl adHostWithPortIfNecessary]];
-    [aliases addObject:[cacheUrl adHostWithPortIfNecessary]];
+    [aliases addObject:[contextUrl msidHostWithPortIfNecessary]];
+    [aliases addObject:[networkUrl msidHostWithPortIfNecessary]];
+    [aliases addObject:[cacheUrl msidHostWithPortIfNecessary]];
     
-    NSArray *metadata = @[ @{ @"preferred_network" : [networkUrl adHostWithPortIfNecessary],
-                              @"preferred_cache" : [cacheUrl adHostWithPortIfNecessary],
+    NSArray *metadata = @[ @{ @"preferred_network" : [networkUrl msidHostWithPortIfNecessary],
+                              @"preferred_cache" : [cacheUrl msidHostWithPortIfNecessary],
                               @"aliases" : [aliases allObjects] } ];
     return [ADTestAuthorityValidationResponse validAuthority:[networkUrl absoluteString] withMetadata:metadata];
 }

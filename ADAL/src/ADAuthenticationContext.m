@@ -146,6 +146,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setRedirectUri:redirectUri];
     [requestParams setTokenCache:_tokenCacheStore];
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
+    [requestParams setLogComponent:_logComponent];
 
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
@@ -250,7 +251,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setLogComponent:_logComponent];
 
 #define CHECK_STRING_ARG_BLOCK(_arg) \
-    if ([NSString adIsStringNilOrBlank:_arg]) { \
+    if ([NSString msidIsStringNilOrBlank:_arg]) { \
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@#_arg " cannot be nil" correlationId:_correlationId]; \
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]); \
         return; \

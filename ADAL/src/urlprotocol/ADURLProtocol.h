@@ -46,7 +46,7 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
 @interface ADURLProtocol : NSURLProtocol <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 {
     NSURLSessionDataTask *_dataTask;
-    id<ADRequestContext> _context;
+    id<MSIDRequestContext> _context;
 }
 
 + (void)registerHandler:(Class<ADAuthMethodHandler>)handler
@@ -56,9 +56,9 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
           telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
 + (void)unregisterProtocol;
 
-+ (void)addContext:(id<ADRequestContext>)context
++ (void)addContext:(id<MSIDRequestContext>)context
          toRequest:(NSMutableURLRequest *)request;
 
-@property (readonly) id<ADRequestContext> context;
+@property (readonly) id<MSIDRequestContext> context;
 
 @end

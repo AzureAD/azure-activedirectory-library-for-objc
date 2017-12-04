@@ -26,8 +26,6 @@
 #import "ADAuthenticationError.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
-#import "ADLogger+Internal.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTelemetryEventStrings.h"
@@ -41,24 +39,24 @@
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId
 {
-    AD_LOG_VERBOSE(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
+    MSID_LOG_VERBOSE_CORR(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    if (![NSString adIsStringNilOrBlank:responseId])
+    if (![NSString msidIsStringNilOrBlank:responseId])
     {
         NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
         {
-            AD_LOG_INFO(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
+            MSID_LOG_INFO_CORR(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
         else if (![requestCorrelationId isEqual:responseUUID])
         {
-            AD_LOG_INFO(requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
+            MSID_LOG_INFO_CORR(requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
     }
     else
     {
-        AD_LOG_INFO(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
+        MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
 }
 
@@ -95,7 +93,7 @@
     }
     
     NSString* value = [response objectForKey:fieldToCheck];
-    if (![NSString adIsStringNilOrBlank:value])
+    if (![NSString msidIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
         return [ADAuthenticationResult resultFromTokenCacheItem:self
@@ -146,11 +144,11 @@
     }
     else if (expires_in || expires_on)
     {
-        AD_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", expires);
+        MSID_LOG_WARN(nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", expires);
     }
     else
     {
-        AD_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
+        MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
     }
     
     if (!expires)
@@ -180,7 +178,7 @@
     NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
     
     [self logMessage:message
-               level:ADAL_LOG_LEVEL_INFO
+               level:MSIDLogLevelInfo
        correlationId:correlationUUID];
 }
 
@@ -204,7 +202,7 @@
     
     NSMutableDictionary* responseDictionary = [response mutableCopy];
     
-    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
+    BOOL isMRRT = ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
     
     [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
     [responseDictionary removeObjectForKey:OAUTH2_ID_TOKEN];
@@ -229,21 +227,21 @@
     return isMRRT;
 }
 
-- (void)logMessage:(NSString*)message level:(ADAL_LOG_LEVEL)level correlationId:(NSUUID*)correlationId
+- (void)logMessage:(NSString*)message level:(MSIDLogLevel)level correlationId:(NSUUID*)correlationId
 {
     NSString* tokenMessage = nil;
     
     if (_accessToken && _refreshToken)
     {
-        tokenMessage = [NSString stringWithFormat:@"AT (%@) + RT (%@) Expires: %@", [ADLogger getHash:_accessToken], [ADLogger getHash:_refreshToken], _expiresOn];
+        tokenMessage = [NSString stringWithFormat:@"AT (%@) + RT (%@) Expires: %@", [_accessToken msidTokenHash], [_refreshToken msidTokenHash], _expiresOn];
     }
     else if (_accessToken)
     {
-        tokenMessage = [NSString stringWithFormat:@"AT (%@) Expires: %@", [ADLogger getHash:_accessToken], _expiresOn];
+        tokenMessage = [NSString stringWithFormat:@"AT (%@) Expires: %@", [_accessToken msidTokenHash], _expiresOn];
     }
     else if (_refreshToken)
     {
-        tokenMessage = [NSString stringWithFormat:@"RT (%@)", [ADLogger getHash:_refreshToken]];
+        tokenMessage = [NSString stringWithFormat:@"RT (%@)", [_refreshToken msidTokenHash]];
     }
     else
     {
@@ -255,8 +253,11 @@
         tokenMessage = [NSString stringWithFormat:@"%@ %@", message, tokenMessage];
     }
     
-    [ADLogger log:level context:self correlationId:correlationId isPii:YES
-           format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
+    [[MSIDLogger sharedLogger] logLevel:level
+                                context:nil
+                          correlationId:correlationId
+                                  isPII:NO
+                                 format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
      tokenMessage, _resource, _clientId, _authority, _userInformation.userId];
 }
 
@@ -265,7 +266,7 @@
     NSDate* extendedExpiresOn = [_additionalServer valueForKey:@"ext_expires_on"];
     
     //extended lifetime is only valid if it contains an access token
-    if (extendedExpiresOn && ![NSString adIsStringNilOrBlank:_accessToken])
+    if (extendedExpiresOn && ![NSString msidIsStringNilOrBlank:_accessToken])
     {
         return [extendedExpiresOn compare:[NSDate date]] == NSOrderedDescending;
     }

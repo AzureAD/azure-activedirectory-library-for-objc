@@ -26,9 +26,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
 
-#import "NSDictionary+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
-#import "NSURL+ADTestUtil.h"
+#import "NSURL+MSIDTestUtil.h"
 
 #import "ADApplicationTestUtil.h"
 #import "ADAuthenticationContext+Internal.h"
@@ -59,7 +57,7 @@
 + (NSURL *)createV2BrokerResponse:(NSDictionary *)parameters
                       redirectUri:(NSString *)redirectUri
 {
-    NSData *payload = [[parameters adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *payload = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
     
     size_t bufferSize = [payload length] + kCCBlockSizeAES128;
@@ -88,11 +86,11 @@
     NSDictionary *message =
     @{
       @"msg_protocol_ver" : @"2",
-      @"response" :  [NSString adBase64UrlEncodeData:[NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted]],
+      @"response" :  [NSString msidBase64UrlEncodeData:[NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted]],
       @"hash" : [fingerprint uppercaseString],
       };
     
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message adURLFormEncode]]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidURLFormEncode]]];
 }
 
 - (ADAuthenticationContext *)getBrokerTestContext:(NSString *)authority
@@ -138,7 +136,7 @@
           @"claims" : @"",
           };
         
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
@@ -226,7 +224,7 @@
           @"claims" : @"",
           };
         
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         

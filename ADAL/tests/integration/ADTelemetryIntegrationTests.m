@@ -569,7 +569,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" adComputeSHA256]);
+    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledNoAggregationYes_shouldDeletePiiFields
@@ -607,7 +607,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" adComputeSHA256]);
+    ADAssertStringEquals([dictionary objectForKey:AD_TELEMETRY_KEY_USER_ID], [@"id1234" msidComputeSHA256]);
 }
 
 @end

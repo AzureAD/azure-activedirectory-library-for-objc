@@ -31,7 +31,6 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-#import "NSURL+ADExtensions.h"
 #import "ADAuthenticationError.h"
 #import "ADAuthorityUtils.h"
 
@@ -114,7 +113,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSSet *authorities = [_validatedAdfsAuthorities objectForKey:domain];
     for (NSURL *url in authorities)
     {
-        if([url isEquivalentAuthority:authority])
+        if([url msidIsEquivalentAuthority:authority])
         {
             return YES;
         }
@@ -159,7 +158,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         // Check for upn suffix
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
-        if ([NSString adIsStringNilOrBlank:upnSuffix])
+        if ([NSString msidIsStringNilOrBlank:upnSuffix])
         {
             error = [ADAuthenticationError errorFromArgument:upnSuffix
                                                 argumentName:@"user principal name"
@@ -239,9 +238,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         if (dispatch_semaphore_wait(dsem, DISPATCH_TIME_NOW) != 0)
         {
             // Only bother logging if we have to wait on the queue.
-            AD_LOG_INFO(requestParams.correlationId, @"Waiting on Authority Validation Queue");
+            MSID_LOG_INFO(requestParams, @"Waiting on Authority Validation Queue");
             dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-            AD_LOG_INFO(requestParams.correlationId, @"Returned from Authority Validation Queue");
+            MSID_LOG_INFO(requestParams, @"Returned from Authority Validation Queue");
         }
     });
 }
@@ -263,7 +262,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     if ([ADAuthorityUtils isKnownHost:authority])
     {
-        trustedHost = authority.adHostWithPortIfNecessary;
+        trustedHost = authority.msidHostWithPortIfNecessary;
     }
     
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
@@ -278,7 +277,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          }
          
          NSString *oauthError = response[@"error"];
-         if (![NSString adIsStringNilOrBlank:oauthError])
+         if (![NSString msidIsStringNilOrBlank:oauthError])
          {
              ADAuthenticationError *adError =
              [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
@@ -315,7 +314,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 #pragma mark - AAD Authority URL utilities
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority
-                          context:(id<ADRequestContext>)context
+                          context:(id<MSIDRequestContext>)context
 {
     if ([ADHelpers isADFSInstanceURL:authority])
     {
@@ -325,7 +324,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache networkUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(context.correlationId, @"No cached preferred_network for authority");
+        MSID_LOG_WARN(context, @"No cached preferred_network for authority");
         return authority;
     }
     
@@ -333,7 +332,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 }
 
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-                        context:(id<ADRequestContext>)context
+                        context:(id<MSIDRequestContext>)context
 {
     if ([ADHelpers isADFSInstanceURL:authority])
     {
@@ -343,7 +342,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *url = [_aadCache cacheUrlForAuthority:authority];
     if (!url)
     {
-        AD_LOG_WARN(context.correlationId, @"No cached preferred_cache for authority");
+        MSID_LOG_WARN(context, @"No cached preferred_cache for authority");
         return authority;
     }
     
@@ -415,7 +414,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 }
 
 - (void)requestDrsDiscovery:(NSString *)domain
-                    context:(id<ADRequestContext>)context
+                    context:(id<MSIDRequestContext>)context
             completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
@@ -443,7 +442,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 - (void)requestWebFingerValidation:(NSString *)passiveAuthEndpoint
                          authority:(NSURL *)authority
-                           context:(id<ADRequestContext>)context
+                           context:(id<MSIDRequestContext>)context
                    completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
 {
     [ADWebFingerRequest requestWebFinger:passiveAuthEndpoint
@@ -490,7 +489,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL isEquivalentAuthority:authority])
+            [targetURL msidIsEquivalentAuthority:authority])
         {
             return YES;
         }

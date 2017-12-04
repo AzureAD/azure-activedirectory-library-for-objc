@@ -1,0 +1,16 @@
+//
+//  adal__testapp.xcconfig
+//
+
+//	Because the test app uses the same internals as the library itself, it needs the library
+//	precompiled header and user search paths
+#include "adal__lib__common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp
+PRODUCT_NAME = ADAL Test App
+EXECUTABLE_PREFIX = app
+
+// Clang modules cause weird problems when rebuilding a target if it's possible that a header
+// could be found in the build products using a module lookup. For our own test apps it's
+// best to disable modules
+CLANG_ENABLE_MODULES = NO

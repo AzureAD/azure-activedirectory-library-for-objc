@@ -35,7 +35,6 @@
 #import "ADTelemetryBrokerEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADAuthorityUtils.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
@@ -56,27 +55,27 @@
     
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
-    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority adUrl]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority adUrl].host];
+    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority msidUrl]]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority msidUrl].host];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
     
-    AD_LOG_INFO(_requestParams.correlationId, @"##### BEGIN acquireToken %@ #####", logMessage);
-    AD_LOG_INFO_PII(_requestParams.correlationId, @"##### BEGIN acquireToken %@ %@#####", logMessage, logMessagePII);
+    MSID_LOG_INFO(_requestParams, @"##### BEGIN acquireToken %@ #####", logMessage);
+    MSID_LOG_INFO_PII(_requestParams, @"##### BEGIN acquireToken %@ %@#####", logMessage, logMessagePII);
     
     ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
     {
         if (result.status == AD_SUCCEEDED)
         {
-            AD_LOG_INFO(result.correlationId, @"##### END succeeded. %@ #####", logMessage);
-            AD_LOG_INFO_PII(result.correlationId, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
+            MSID_LOG_INFO(_requestParams, @"##### END succeeded. %@ #####", logMessage);
+            MSID_LOG_INFO_PII(_requestParams, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
         }
         else
         {
             ADAuthenticationError* error = result.error;
-            AD_LOG_INFO(result.correlationId, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
-            AD_LOG_INFO_PII(result.correlationId, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
+            MSID_LOG_INFO(_requestParams, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
+            MSID_LOG_INFO_PII(_requestParams, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
         }
 
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_API_EVENT
@@ -176,12 +175,12 @@
 
 - (BOOL)checkExtraQueryParameters
 {
-    if ([NSString adIsStringNilOrBlank:_queryParams])
+    if ([NSString msidIsStringNilOrBlank:_queryParams])
     {
         return YES;
     }
     
-    NSString* queryParams = _queryParams.adTrimmedString;
+    NSString* queryParams = _queryParams.msidTrimmedString;
     if ([queryParams hasPrefix:@"&"])
     {
         queryParams = [queryParams substringFromIndex:1];
@@ -193,13 +192,13 @@
 
 - (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
 {
-    if ([NSString adIsStringNilOrBlank:_claims])
+    if ([NSString msidIsStringNilOrBlank:_claims])
     {
         return YES;
     }
     
     // Make sure claims is not in EQP
-    NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:_queryParams];
+    NSDictionary *queryParamsDict = [NSDictionary msidURLFormDecode:_queryParams];
     if (queryParamsDict[@"claims"])
     {
         if (error)
@@ -213,7 +212,7 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _claims.adTrimmedString;
+    NSString* claimsParams = _claims.msidTrimmedString;
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
@@ -481,8 +480,8 @@
     HANDLE_ARGUMENT(code, [_requestParams correlationId]);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"Requesting token by authorization code");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
+    MSID_LOG_VERBOSE(_requestParams, @"Requesting token by authorization code");
+    MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -491,7 +490,7 @@
                                          [_requestParams clientId], OAUTH2_CLIENT_ID,
                                          [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                                          nil];
-    if (![NSString adIsStringNilOrBlank:_scope])
+    if (![NSString msidIsStringNilOrBlank:_scope])
     {
         [request_data setValue:_scope forKey:OAUTH2_SCOPE];
     }

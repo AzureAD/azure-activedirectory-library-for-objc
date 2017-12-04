@@ -42,11 +42,11 @@
 
 - (BOOL)processMetadata:(NSArray<NSDictionary *> *)metadata
               authority:(NSURL *)authority
-                context:(id<ADRequestContext>)context
+                context:(id<MSIDRequestContext>)context
                   error:(ADAuthenticationError * __autoreleasing *)error;
 - (void)addInvalidRecord:(NSURL *)authority
               oauthError:(ADAuthenticationError *)oauthError
-                 context:(id<ADRequestContext>)context;
+                 context:(id<MSIDRequestContext>)context;
 
 - (NSURL *)networkUrlForAuthority:(NSURL *)authority;
 - (NSURL *)cacheUrlForAuthority:(NSURL *)authority;

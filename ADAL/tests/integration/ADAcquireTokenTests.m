@@ -429,22 +429,22 @@ const int sAsyncContextTimeout = 10;
     // the following properties are expected in an aggregrated event
     NSDictionary* event = [receivedEvents firstObject];
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"121"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.request_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.correlation_id"]]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_CACHE_MULTIPLE_USERS"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
@@ -699,23 +699,23 @@ const int sAsyncContextTimeout = 10;
     // the following properties are expected for the 1st acquire token call
     NSDictionary* firstEvent = [receivedEvents firstObject];
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"8"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.request_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.correlation_id"]]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
@@ -732,23 +732,23 @@ const int sAsyncContextTimeout = 10;
     // the following properties are expected for 2nd acquire token call
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"8"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.request_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.correlation_id"]]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"], @"not_found");
@@ -1276,24 +1276,24 @@ const int sAsyncContextTimeout = 10;
     // the following properties are expected in an aggregrated event
     NSDictionary* event = [receivedEvents firstObject];
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"8"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.request_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.correlation_id"]]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.tenant_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.tenant_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"succeeded"]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.user_id"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.user_id"]]);
+    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"7"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"not_found"]);
@@ -1771,7 +1771,8 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
-                                                              telemetryRequestId:nil];
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
     [req setSilent:YES];
     [req setAllowSilentRequests:YES];
@@ -1819,7 +1820,8 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
-                                                              telemetryRequestId:nil];
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
@@ -1853,7 +1855,8 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
-                                                              telemetryRequestId:nil];
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];

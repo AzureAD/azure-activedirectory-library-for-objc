@@ -175,7 +175,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         protocolCode = [response valueForKey:@"code"];
     }
     
-    if (![NSString adIsStringNilOrBlank:protocolCode])
+    if (![NSString msidIsStringNilOrBlank:protocolCode])
     {
        
         error = [ADAuthenticationError errorFromAuthenticationError:errorCode

@@ -27,7 +27,6 @@
 #import "ADAuthorityValidation.h"
 #import "ADErrorCodes.h"
 #import "ADHelpers.h"
-#import "ADLogger+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
@@ -36,8 +35,7 @@
 #import "ADURLProtocol.h"
 #import "ADWebResponse.h"
 
-#import "NSURL+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
+#import "MSIDDeviceId.h"
 
 
 @interface ADWebRequest ()
@@ -83,7 +81,7 @@
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)requestURL
-          context:(id<ADRequestContext>)context
+          context:(id<MSIDRequestContext>)context
 {
     if (!(self = [super init]))
     {
@@ -99,6 +97,8 @@
     _correlationId     = context.correlationId;
     
     _telemetryRequestId = context.telemetryRequestId;
+    
+    _logComponent       = context.logComponent;
     
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
@@ -139,7 +139,7 @@
 - (void)send
 {
     [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
-    [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
+    [_requestHeaders addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     //Correlation id:
     if (_correlationId)
     {

@@ -30,12 +30,12 @@
 		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
 		230E16DB1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */; };
 		230E16DC1FAD45E700ADC904 /* ADAuthorityUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */; };
-		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
-		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		230E16E11FB17A2C00ADC904 /* ADTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E01FB17A2C00ADC904 /* ADTelemetryUIEventTests.m */; };
 		230E16E41FB17A7400ADC904 /* ADTelemetryAPIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */; };
 		230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */; };
 		230E16E61FB17A7D00ADC904 /* ADTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E01FB17A2C00ADC904 /* ADTelemetryUIEventTests.m */; };
+		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
+		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
@@ -84,13 +84,10 @@
 		6085CBF01DF764EB004BBF2A /* ADTelemetry.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 6004019F1D340B760020EAAB /* ADTelemetry.h */; };
 		6085CBF31DF76982004BBF2A /* ADTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = 6004019F1D340B760020EAAB /* ADTelemetry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6085CBF41DF76C3C004BBF2A /* ADTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = 6004019F1D340B760020EAAB /* ADTelemetry.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		60C351BA1DA0D588006C8435 /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 60C351B91DA0D588006C8435 /* ADAL.m */; };
 		60D2F3FF1D524F7A008725D9 /* ADRequestParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */; };
 		60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2F4001D531F16008725D9 /* ADRequestParameters.m */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
-		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
 		8B0965BD17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
-		8B0965BF17F25770002BDFB8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BE17F25770002BDFB8 /* UIKit.framework */; };
 		8B4EC4981D70BF850047CA62 /* ADAppExtensionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B4EC4971D70BF850047CA62 /* ADAppExtensionUtil.m */; };
 		8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
 		8BA729B117FE0BDA00CACB46 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA729B017FE0BDA00CACB46 /* UIKit.framework */; };
@@ -121,7 +118,6 @@
 		9453C4101C586456006B9E79 /* ADAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */; };
 		9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */; };
 		9453C4141C586456006B9E79 /* ADLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB6F181B2335004AAB0E /* ADLogger.m */; };
-		9453C4151C586456006B9E79 /* ADLogger+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9434C3361BF6B72E0095E122 /* ADLogger+Internal.h */; };
 		9453C4161C586456006B9E79 /* ADOAuth2Constants.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */; };
 		9453C4171C586456006B9E79 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
 		9453C4181C586456006B9E79 /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
@@ -160,12 +156,6 @@
 		9453C43D1C58647E006B9E79 /* ADALFrameworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */; };
 		9453C43E1C58647E006B9E79 /* ADHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3601C580157006B9E79 /* ADHelpers.h */; };
 		9453C43F1C58647E006B9E79 /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3611C580157006B9E79 /* ADHelpers.m */; };
-		9453C4421C58647E006B9E79 /* NSDictionary+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3641C580157006B9E79 /* NSDictionary+ADExtensions.h */; };
-		9453C4431C58647E006B9E79 /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */; };
-		9453C4441C58647E006B9E79 /* NSString+ADHelperMethods.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3661C580157006B9E79 /* NSString+ADHelperMethods.h */; };
-		9453C4451C58647E006B9E79 /* NSString+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3671C580157006B9E79 /* NSString+ADHelperMethods.m */; };
-		9453C4461C58647E006B9E79 /* NSURL+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3681C580157006B9E79 /* NSURL+ADExtensions.h */; };
-		9453C4471C58647E006B9E79 /* NSURL+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3691C580157006B9E79 /* NSURL+ADExtensions.m */; };
 		9453C4481C58647E006B9E79 /* NSUUID+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C36A1C580157006B9E79 /* NSUUID+ADExtensions.h */; };
 		9453C4491C58647E006B9E79 /* NSUUID+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C36B1C580157006B9E79 /* NSUUID+ADExtensions.m */; };
 		9453C44A1C586485006B9E79 /* ADRegistrationInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3011C57149A006B9E79 /* ADRegistrationInformation.h */; };
@@ -199,22 +189,15 @@
 		960E93771E296CD0008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
 		962E379B1E70E7E200DE71FE /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 962E379A1E70E7E200DE71FE /* ADAutoRequestViewController.m */; };
 		96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96AC69381E70E184008183A7 /* ADAutoResultViewController.m */; };
-		96C75D241E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
-		96C75D251E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
 		96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */; };
-		B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
 		B20DC5961F0D96A100957806 /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
 		B20DC5981F0D96A100957806 /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		B20DC59A1F0D96A100957806 /* ADTestAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */; };
-		B20DC5A31F0D96A100957806 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
-		B20DC5A41F0D96A100957806 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
-		B20DC5A51F0D96A100957806 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BE17F25770002BDFB8 /* UIKit.framework */; };
 		B20DC5A61F0D96A100957806 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		B20DC5BE1F0D96A700957806 /* ADTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */; };
-		B20DC5BF1F0D96A700957806 /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
 		B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
 		B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		B20DC5C81F0D96A700957806 /* ADTestAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */; };
@@ -229,8 +212,6 @@
 		B20DC5F81F0D998A00957806 /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E51F0D998A00957806 /* ADClientMetricsTests.m */; };
 		B20DC5F91F0D998A00957806 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E61F0D998A00957806 /* ADHelpersTests.m */; };
 		B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E61F0D998A00957806 /* ADHelpersTests.m */; };
-		B20DC5FB1F0D998A00957806 /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E71F0D998A00957806 /* ADLoggerTests.m */; };
-		B20DC5FC1F0D998A00957806 /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E71F0D998A00957806 /* ADLoggerTests.m */; };
 		B20DC5FF1F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */; };
 		B20DC6001F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */; };
 		B20DC6011F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */; };
@@ -241,16 +222,12 @@
 		B20DC6061F0D998A00957806 /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5EC1F0D998A00957806 /* ADUserInformationTests.m */; };
 		B20DC6071F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5ED1F0D998A00957806 /* ADWebAuthResponseTests.m */; };
 		B20DC6081F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5ED1F0D998A00957806 /* ADWebAuthResponseTests.m */; };
-		B20DC6091F0D998A00957806 /* NSURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5EE1F0D998A00957806 /* NSURLExtensionsTests.m */; };
-		B20DC60A1F0D998A00957806 /* NSURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC5EE1F0D998A00957806 /* NSURLExtensionsTests.m */; };
 		B20DC60F1F0D99A300957806 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
 		B20DC6101F0D99A300957806 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
 		B20DC6121F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6111F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m */; };
 		B20DC6131F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6111F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m */; };
 		B20DC6151F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6141F0D9A7600957806 /* ADAuthorityValidationTests.m */; };
 		B20DC6161F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6141F0D9A7600957806 /* ADAuthorityValidationTests.m */; };
-		B20DC6181F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6171F0DA2E800957806 /* ADTestNSStringHelperMethods.m */; };
-		B20DC6191F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6171F0DA2E800957806 /* ADTestNSStringHelperMethods.m */; };
 		B20DC61B1F0DA34B00957806 /* ADBrokerMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61A1F0DA34B00957806 /* ADBrokerMessageTests.m */; };
 		B20DC61D1F0DA39C00957806 /* ADBrokerKeyHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61C1F0DA39C00957806 /* ADBrokerKeyHelperTests.m */; };
 		B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */; };
@@ -299,7 +276,6 @@
 		D664F17C1D302B9C0017B799 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
 		D664F17D1D302B9C0017B799 /* ADWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C38B1C5820E3006B9E79 /* ADWebRequest.m */; };
 		D664F17E1D302B9C0017B799 /* ADTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C33F1C57FC2A006B9E79 /* ADTokenCacheKey.m */; };
-		D664F17F1D302B9C0017B799 /* NSString+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3671C580157006B9E79 /* NSString+ADHelperMethods.m */; };
 		D664F1801D302B9C0017B799 /* ADURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C39B1C5826F2006B9E79 /* ADURLProtocol.m */; };
 		D664F1811D302B9C0017B799 /* ADWebAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D68040321D22F686007A61AC /* ADWebAuthResponse.m */; };
 		D664F1821D302B9C0017B799 /* ADWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C35A1C580143006B9E79 /* ADWorkPlaceJoinUtil.m */; };
@@ -314,14 +290,12 @@
 		D664F18C1D302B9C0017B799 /* ADKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3741C58016D006B9E79 /* ADKeychainTokenCache.m */; };
 		D664F18D1D302B9C0017B799 /* ADALFrameworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */; };
 		D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */; };
-		D664F18F1D302B9C0017B799 /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */; };
 		D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3611C580157006B9E79 /* ADHelpers.m */; };
 		D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346118074CFA007F9F0D /* ADAuthenticationParameters.m */; };
 		D664F1931D302B9C0017B799 /* ADWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 946818A41C59B7EE00CA0378 /* ADWebAuthController.m */; };
 		D664F1951D302B9C0017B799 /* ADBrokerKeyHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C37A1C5801CB006B9E79 /* ADBrokerKeyHelper.m */; };
 		D664F1961D302B9C0017B799 /* ADAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 946818A81C59B80800CA0378 /* ADAuthenticationViewController.m */; };
 		D664F1971D302B9C0017B799 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
-		D664F1981D302B9C0017B799 /* NSURL+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3691C580157006B9E79 /* NSURL+ADExtensions.m */; };
 		D664F1991D302B9C0017B799 /* ADUserIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */; };
 		D664F19A1D302B9C0017B799 /* NSUUID+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C36B1C580157006B9E79 /* NSUUID+ADExtensions.m */; };
 		D664F19B1D302B9C0017B799 /* ADTokenCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 9424B6811CDD1B2B00729698 /* ADTokenCacheAccessor.m */; };
@@ -355,10 +329,6 @@
 		D6669FB51F1D4F51002492C5 /* ADWebFingerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */; };
 		D6669FB61F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */; };
 		D6669FB71F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */; };
-		D66A9F1C1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */; };
-		D66A9F1D1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */; };
-		D66A9F1E1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */; };
-		D66A9F1F1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */; };
 		D66A9F281F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */; };
 		D66A9F291F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */; };
 		D66A9F2A1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */; };
@@ -366,10 +336,6 @@
 		D6771E001F749CE100D0DCDC /* ADBrokerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771DFF1F749CE100D0DCDC /* ADBrokerIntegrationTests.m */; };
 		D6771E031F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */; };
 		D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */; };
-		D67D3D351F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
-		D67D3D361F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
-		D67D3D371F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
-		D67D3D381F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */; };
 		D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
 		D67D3D3C1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
 		D67D3D3D1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
@@ -384,7 +350,6 @@
 		D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */; };
 		D68040331D22F686007A61AC /* ADWebAuthResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = D68040311D22F686007A61AC /* ADWebAuthResponse.h */; };
 		D68040351D22F686007A61AC /* ADWebAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D68040321D22F686007A61AC /* ADWebAuthResponse.m */; };
-		D69A720B1D4FEC4B00E91DB3 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		D69A720C1D4FF65200E91DB3 /* ADAL.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9453C3B71C583AE6006B9E79 /* ADAL.h */; };
 		D69A720D1D4FF65200E91DB3 /* ADAuthenticationContext.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9453C3B81C583AE6006B9E79 /* ADAuthenticationContext.h */; };
 		D69A720E1D4FF65200E91DB3 /* ADAuthenticationError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9453C3B91C583AE6006B9E79 /* ADAuthenticationError.h */; };
@@ -402,12 +367,65 @@
 		D69A721A1D4FF68300E91DB3 /* ADDefaultDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401BC1D377E9F0020EAAB /* ADDefaultDispatcher.m */; };
 		D69A721B1D4FF68300E91DB3 /* ADAggregatedDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401B51D37658C0020EAAB /* ADAggregatedDispatcher.m */; };
 		D69A721C1D4FF68300E91DB3 /* ADTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401AA1D3443D30020EAAB /* ADTelemetryDefaultEvent.m */; };
-		D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */; };
+		D6CF4E8B1FC3572200CD70C5 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3CC1C583E07006B9E79 /* ADAL.framework */; };
+		D6CF4E8C1FC3575F00CD70C5 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3CC1C583E07006B9E79 /* ADAL.framework */; };
+		D6CF4EC81FC376F500CD70C5 /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 60C351B91DA0D588006C8435 /* ADAL.m */; };
+		D6CF4ECA1FC3784A00CD70C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EC91FC3784900CD70C5 /* UIKit.framework */; };
+		D6CF4ECB1FC3786400CD70C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EC91FC3784900CD70C5 /* UIKit.framework */; };
+		D6CF4ECD1FC3786B00CD70C5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECC1FC3786B00CD70C5 /* Security.framework */; };
+		D6CF4ECE1FC378BE00CD70C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EC91FC3784900CD70C5 /* UIKit.framework */; };
+		D6CF4ED01FC378C500CD70C5 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECF1FC378C500CD70C5 /* XCTest.framework */; };
+		D6CF4ED11FC378D200CD70C5 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECF1FC378C500CD70C5 /* XCTest.framework */; };
+		D6CF4ED21FC378E300CD70C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EC91FC3784900CD70C5 /* UIKit.framework */; };
+		D6CF4ED31FC378FE00CD70C5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECC1FC3786B00CD70C5 /* Security.framework */; };
+		D6CF4ED41FC3790600CD70C5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECC1FC3786B00CD70C5 /* Security.framework */; };
+		D6CF4ED51FC37A1B00CD70C5 /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 60C351B91DA0D588006C8435 /* ADAL.m */; };
+		D6CF4ED81FC37A4500CD70C5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9A5681FBFBF8100EFA430 /* Cocoa.framework */; };
+		D6CF4ED91FC37A4C00CD70C5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9A56A1FBFBF8900EFA430 /* Security.framework */; };
+		D6CF4EDB1FC37A6300CD70C5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDA1FC37A6200CD70C5 /* WebKit.framework */; };
+		D6CF4EDD1FC37A6900CD70C5 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDC1FC37A6900CD70C5 /* IOKit.framework */; };
+		D6CF4EDF1FC37A7800CD70C5 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */; };
+		D6CF4EE01FC37BC700CD70C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EC91FC3784900CD70C5 /* UIKit.framework */; };
+		D6CF4EE31FC37EE900CD70C5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECC1FC3786B00CD70C5 /* Security.framework */; };
+		D6CF4EE41FC3817D00CD70C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EC91FC3784900CD70C5 /* UIKit.framework */; };
+		D6CF4EE51FC3818600CD70C5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ECC1FC3786B00CD70C5 /* Security.framework */; };
 		D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
+		D6D9A4611FBD4F7300EFA430 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */; };
+		D6D9A4681FBD7B0D00EFA430 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */; };
+		D6D9A4691FBD7C7E00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D62600001FBD253E00EE4487 /* libIdentityTest.a */; };
+		D6D9A4721FBD7D5900EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D62600001FBD253E00EE4487 /* libIdentityTest.a */; };
+		D6D9A4751FBD7D6A00EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFFE1FBD253E00EE4487 /* libIdentityTest.a */; };
+		D6D9A4791FBD7D8000EFA430 /* libIdentityTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFFE1FBD253E00EE4487 /* libIdentityTest.a */; };
+		D6D9A47C1FBD7D9500EFA430 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFCA1FBD1B1300EE4487 /* libIdentityCore.a */; };
+		D6D9A4B81FBE6B1F00EFA430 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
+		D6D9A5471FBFB58800EFA430 /* ADTestAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5251FBFB58100EFA430 /* ADTestAppSettings.m */; };
+		D6D9A5481FBFB58800EFA430 /* ADTestAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5251FBFB58100EFA430 /* ADTestAppSettings.m */; };
+		D6D9A5491FBFB5B200EFA430 /* ADTestAppAcquireLayoutBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5271FBFB58100EFA430 /* ADTestAppAcquireLayoutBuilder.m */; };
+		D6D9A54A1FBFB5B200EFA430 /* ADTestAppProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5281FBFB58100EFA430 /* ADTestAppProfileViewController.m */; };
+		D6D9A54B1FBFB5B200EFA430 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A52F1FBFB58100EFA430 /* ADTestAppAcquireTokenViewController.m */; };
+		D6D9A54C1FBFB5B200EFA430 /* ADTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5321FBFB58100EFA430 /* ADTestAppDelegate.m */; };
+		D6D9A54D1FBFB5B200EFA430 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5351FBFB58100EFA430 /* main.m */; };
+		D6D9A54E1FBFB5B200EFA430 /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5371FBFB58100EFA430 /* ADTestAppCacheViewController.m */; };
+		D6D9A54F1FBFB5B200EFA430 /* ADTestAppSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5381FBFB58100EFA430 /* ADTestAppSettingsViewController.m */; };
+		D6D9A5501FBFB5B200EFA430 /* ADTestAppLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A53A1FBFB58100EFA430 /* ADTestAppLogViewController.m */; };
+		D6D9A5511FBFB5B900EFA430 /* ADTestAppCacheWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A53D1FBFB58100EFA430 /* ADTestAppCacheWindowController.m */; };
+		D6D9A5521FBFB5B900EFA430 /* ADTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A53F1FBFB58100EFA430 /* ADTestAppDelegate.m */; };
+		D6D9A5531FBFB5B900EFA430 /* ADTestAppAcquireTokenWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5401FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.m */; };
+		D6D9A5541FBFB5B900EFA430 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5411FBFB58100EFA430 /* main.m */; };
+		D6D9A5551FBFB5B900EFA430 /* ADTestAppCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5431FBFB58100EFA430 /* ADTestAppCache.m */; };
+		D6D9A5561FBFB61900EFA430 /* CacheWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A5211FBFB58100EFA430 /* CacheWindow.xib */; };
+		D6D9A5571FBFB61D00EFA430 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A51C1FBFB58100EFA430 /* MainMenu.xib */; };
+		D6D9A5581FBFB62100EFA430 /* AcquireTokenWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A51A1FBFB58100EFA430 /* AcquireTokenWindow.xib */; };
+		D6D9A5591FBFB62500EFA430 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A5181FBFB58000EFA430 /* Credits.rtf */; };
+		D6D9A5631FBFB96600EFA430 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
+		D6D9A5641FBFBA6000EFA430 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A5131FBFB58000EFA430 /* Images.xcassets */; };
+		D6D9A5671FBFBEE700EFA430 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; };
+		D6D9A5691FBFBF8100EFA430 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9A5681FBFBF8100EFA430 /* Cocoa.framework */; };
+		D6D9A56B1FBFBF8900EFA430 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9A56A1FBFBF8900EFA430 /* Security.framework */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
 		D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
 		D6F0951A1CDC2BC300D28FC2 /* ADWebAuthRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095181CDC2BC300D28FC2 /* ADWebAuthRequest.h */; };
@@ -445,13 +463,6 @@
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
 		};
-		B20DC5831F0D96A100957806 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D664F16A1D302B9C0017B799;
-			remoteInfo = "ADAL-core";
-		};
 		B20DC5851F0D96A100957806 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -473,6 +484,62 @@
 			remoteGlobalIDString = D664F16A1D302B9C0017B799;
 			remoteInfo = "ADAL-core";
 		};
+		D62600041FBD2D8E00EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FFD21FBD1F2B00EE4487;
+			remoteInfo = "IdentityTest iOS";
+		};
+		D62600061FBD2D9A00EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FFD21FBD1F2B00EE4487;
+			remoteInfo = "IdentityTest iOS";
+		};
+		D626FFC71FBD1B1300EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D68FB4871FBA698A005308BB;
+			remoteInfo = "IdentityCore iOS";
+		};
+		D626FFC91FBD1B1300EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D626FF5B1FBA6E9500EE4487;
+			remoteInfo = "IdentityCore Mac";
+		};
+		D626FFCB1FBD1B1300EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D626FF4A1FBA6DFC00EE4487;
+			remoteInfo = "IdentityCoreTests iOS";
+		};
+		D626FFCD1FBD1B1300EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D626FF681FBA6EDF00EE4487;
+			remoteInfo = "IdentityCoreTests Mac";
+		};
+		D626FFFD1FBD253E00EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D626FFE01FBD1F5700EE4487;
+			remoteInfo = "IdentityTest Mac";
+		};
+		D626FFFF1FBD253E00EE4487 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D626FFD31FBD1F2B00EE4487;
+			remoteInfo = "IdentityTest iOS";
+		};
 		D64C1F641DB9C65400850036 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -480,12 +547,68 @@
 			remoteGlobalIDString = D664F16A1D302B9C0017B799;
 			remoteInfo = "ADAL-core";
 		};
-		D69A72091D4FEC4200E91DB3 /* PBXContainerItemProxy */ = {
+		D6CF4E8D1FC3577100CD70C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9453C3CB1C583E07006B9E79;
+			remoteInfo = ADAL;
+		};
+		D6CF4E8F1FC3577900CD70C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9453C3CB1C583E07006B9E79;
+			remoteInfo = ADAL;
+		};
+		D6CF4EC31FC373FA00CD70C5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D664F16A1D302B9C0017B799;
 			remoteInfo = "ADAL-core";
+		};
+		D6D9A4731FBD7D6500EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FFDF1FBD1F5700EE4487;
+			remoteInfo = "IdentityTest Mac";
+		};
+		D6D9A4761FBD7D7200EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FFDF1FBD1F5700EE4487;
+			remoteInfo = "IdentityTest Mac";
+		};
+		D6D9A47A1FBD7D9100EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FF5A1FBA6E9500EE4487;
+			remoteInfo = "IdentityCore Mac";
+		};
+		D6D9A4B61FBE6B1700EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D68FB4861FBA698A005308BB;
+			remoteInfo = "IdentityCore iOS";
+		};
+		D6D9A5611FBFB95E00EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D664F16A1D302B9C0017B799;
+			remoteInfo = "ADAL-core";
+		};
+		D6D9A5651FBFBED200EFA430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
+			remoteInfo = "ADAL Mac";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -517,7 +640,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		04AB6D421D9D619B007E9A83 /* UnitTestHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04AB6D421D9D619B007E9A83 /* UnitTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04AB6D451D9D619B007E9A83 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		04AB6D471D9D619B007E9A83 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		04AB6D481D9D619B007E9A83 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -529,10 +652,10 @@
 		04AB6D551D9D619B007E9A83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UnitTestHostApp.entitlements; sourceTree = "<group>"; };
 		230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtilsTests.m; sourceTree = "<group>"; };
-		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
-		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
 		230E16E01FB17A2C00ADC904 /* ADTelemetryUIEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryUIEventTests.m; sourceTree = "<group>"; };
 		230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryAPIEventTests.m; sourceTree = "<group>"; };
+		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
+		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
 		234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationContextTests.h; sourceTree = "<group>"; };
@@ -577,7 +700,7 @@
 		60D2F4001D531F16008725D9 /* ADRequestParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRequestParameters.m; sourceTree = "<group>"; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		8B0965BA17F25770002BDFB8 /* ADAL_iOS_UTs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_iOS_UTs.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B0965BA17F25770002BDFB8 /* ADAL-Unit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Unit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965BB17F25770002BDFB8 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		8B0965BE17F25770002BDFB8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		8B0DA7DC182AD01100CF5E1E /* ADAuthenticationResult+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationResult+Internal.h"; sourceTree = "<group>"; };
@@ -608,7 +731,6 @@
 		941674431C9CCCAF00D8D52A /* ADAuthenticationError+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationError+Internal.h"; sourceTree = "<group>"; };
 		9424B6811CDD1B2B00729698 /* ADTokenCacheAccessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheAccessor.m; sourceTree = "<group>"; };
 		9424B6831CDD1B4600729698 /* ADTokenCacheDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheDataSource.h; sourceTree = "<group>"; };
-		9434C3361BF6B72E0095E122 /* ADLogger+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADLogger+Internal.h"; sourceTree = "<group>"; };
 		9453C3011C57149A006B9E79 /* ADRegistrationInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADRegistrationInformation.h; sourceTree = "<group>"; };
 		9453C3201C57FBCB006B9E79 /* UIApplication+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+ADExtensions.h"; sourceTree = "<group>"; };
 		9453C3211C57FBCB006B9E79 /* UIApplication+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+ADExtensions.m"; sourceTree = "<group>"; };
@@ -627,12 +749,6 @@
 		9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADALFrameworkUtils.m; sourceTree = "<group>"; };
 		9453C3601C580157006B9E79 /* ADHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADHelpers.h; sourceTree = "<group>"; };
 		9453C3611C580157006B9E79 /* ADHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpers.m; sourceTree = "<group>"; };
-		9453C3641C580157006B9E79 /* NSDictionary+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ADExtensions.h"; sourceTree = "<group>"; };
-		9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ADExtensions.m"; sourceTree = "<group>"; };
-		9453C3661C580157006B9E79 /* NSString+ADHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ADHelperMethods.h"; sourceTree = "<group>"; };
-		9453C3671C580157006B9E79 /* NSString+ADHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ADHelperMethods.m"; sourceTree = "<group>"; };
-		9453C3681C580157006B9E79 /* NSURL+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+ADExtensions.h"; sourceTree = "<group>"; };
-		9453C3691C580157006B9E79 /* NSURL+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+ADExtensions.m"; sourceTree = "<group>"; };
 		9453C36A1C580157006B9E79 /* NSUUID+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSUUID+ADExtensions.h"; sourceTree = "<group>"; };
 		9453C36B1C580157006B9E79 /* NSUUID+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUUID+ADExtensions.m"; sourceTree = "<group>"; };
 		9453C3741C58016D006B9E79 /* ADKeychainTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeychainTokenCache.m; path = ios/ADKeychainTokenCache.m; sourceTree = "<group>"; };
@@ -691,37 +807,25 @@
 		9453C46F1C5874CB006B9E79 /* ADBrokerHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelper.h; sourceTree = "<group>"; };
 		9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelper.m; sourceTree = "<group>"; };
 		9453C4751C58750C006B9E79 /* ADBrokerHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelper.m; sourceTree = "<group>"; };
-		946347801C644E13000A6DA1 /* adal__codecov.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__codecov.xcconfig; sourceTree = "<group>"; };
-		946347811C644E13000A6DA1 /* adal__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
-		946347821C644E13000A6DA1 /* adal__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__debug.xcconfig; sourceTree = "<group>"; };
-		946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__ios__common.xcconfig; sourceTree = "<group>"; };
-		946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__ios__framework.xcconfig; sourceTree = "<group>"; };
-		946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__ios__staticlib.xcconfig; sourceTree = "<group>"; };
-		946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__mac__common.xcconfig; sourceTree = "<group>"; };
-		946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__mac__framework.xcconfig; sourceTree = "<group>"; };
-		946347881C644E13000A6DA1 /* adal__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__release.xcconfig; sourceTree = "<group>"; };
 		946818A41C59B7EE00CA0378 /* ADWebAuthController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthController.m; sourceTree = "<group>"; };
 		946818A51C59B7EE00CA0378 /* ADWebAuthController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADWebAuthController+Internal.h"; sourceTree = "<group>"; };
 		946818A81C59B80800CA0378 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
-		94A0BDE61D779AB0007BEB63 /* ADRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADRequestContext.h; sourceTree = "<group>"; };
 		94DD18C91C5A00BC00F80C62 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
-		94DD18E11C5ACFBF00F80C62 /* ADAL_Mac_UTs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_Mac_UTs.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		94DD18E11C5ACFBF00F80C62 /* ADAL-Unit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Unit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		960E93721E296CC2008036C0 /* ADURLSessionDemux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADURLSessionDemux.h; sourceTree = "<group>"; };
 		960E93731E296CC2008036C0 /* ADURLSessionDemux.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLSessionDemux.m; sourceTree = "<group>"; };
 		962E37991E70E7E200DE71FE /* ADAutoRequestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoRequestViewController.h; sourceTree = "<group>"; };
 		962E379A1E70E7E200DE71FE /* ADAutoRequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoRequestViewController.m; sourceTree = "<group>"; };
 		96AC69371E70E184008183A7 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
 		96AC69381E70E184008183A7 /* ADAutoResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
-		96C75D221E303A8E0038D1EC /* ADTestURLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLSessionDataTask.h; sourceTree = "<group>"; };
-		96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLSessionDataTask.m; sourceTree = "<group>"; };
 		96C75D261E303DC40038D1EC /* ADTestURLSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLSession.h; sourceTree = "<group>"; };
 		96C75D271E303DC40038D1EC /* ADTestURLSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLSession.m; sourceTree = "<group>"; };
 		975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ADALAutomation.entitlements; sourceTree = "<group>"; };
 		97A522481A1A752D001D77CE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_iOS_ITs.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_Mac_ITs.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20DC5AD1F0D96A100957806 /* ADAL-Integration-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Integration-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20DC5D11F0D96A700957806 /* ADAL-Integration-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Integration-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20DC5D61F0D97C600957806 /* ADAL_iOS_UTs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_iOS_UTs-Info.plist"; sourceTree = "<group>"; };
 		B20DC5D91F0D97CD00957806 /* ADAL_Mac_UTs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_Mac_UTs-Info.plist"; sourceTree = "<group>"; };
 		B20DC5DC1F0D97DD00957806 /* ADAL_iOS_ITs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_iOS_ITs-Info.plist"; sourceTree = "<group>"; };
@@ -731,17 +835,14 @@
 		B20DC5E41F0D998A00957806 /* ADAuthenticationResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationResultTests.m; sourceTree = "<group>"; };
 		B20DC5E51F0D998A00957806 /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		B20DC5E61F0D998A00957806 /* ADHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpersTests.m; sourceTree = "<group>"; };
-		B20DC5E71F0D998A00957806 /* ADLoggerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLoggerTests.m; sourceTree = "<group>"; };
 		B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemTests.m; sourceTree = "<group>"; };
 		B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheKeyTests.m; sourceTree = "<group>"; };
 		B20DC5EB1F0D998A00957806 /* ADTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheTests.m; sourceTree = "<group>"; };
 		B20DC5EC1F0D998A00957806 /* ADUserInformationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserInformationTests.m; sourceTree = "<group>"; };
 		B20DC5ED1F0D998A00957806 /* ADWebAuthResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponseTests.m; sourceTree = "<group>"; };
-		B20DC5EE1F0D998A00957806 /* NSURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLExtensionsTests.m; sourceTree = "<group>"; };
 		B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenTests.m; sourceTree = "<group>"; };
 		B20DC6111F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AADAuthorityValidationIntegrationTests.m; sourceTree = "<group>"; };
 		B20DC6141F0D9A7600957806 /* ADAuthorityValidationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationTests.m; sourceTree = "<group>"; };
-		B20DC6171F0DA2E800957806 /* ADTestNSStringHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestNSStringHelperMethods.m; sourceTree = "<group>"; };
 		B20DC61A1F0DA34B00957806 /* ADBrokerMessageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerMessageTests.m; sourceTree = "<group>"; };
 		B20DC61C1F0DA39C00957806 /* ADBrokerKeyHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelperTests.m; sourceTree = "<group>"; };
 		B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheTests.m; sourceTree = "<group>"; };
@@ -760,6 +861,7 @@
 		D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
 		D622564F1F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAuthorityValidationResponse.h; sourceTree = "<group>"; };
 		D62256501F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAuthorityValidationResponse.m; sourceTree = "<group>"; };
+		D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = IdentityCore.xcodeproj; path = IdentityCore/IdentityCore/IdentityCore.xcodeproj; sourceTree = "<group>"; };
 		D632B54A1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthorityValidation+TestUtil.h"; sourceTree = "<group>"; };
 		D632B54B1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthorityValidation+TestUtil.m"; sourceTree = "<group>"; };
 		D632B5501F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAadAuthorityCache+TestUtil.h"; sourceTree = "<group>"; };
@@ -784,15 +886,11 @@
 		D6669FAC1F1D4F51002492C5 /* ADDrsDiscoveryRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDrsDiscoveryRequest.m; sourceTree = "<group>"; };
 		D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebFingerRequest.h; sourceTree = "<group>"; };
 		D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebFingerRequest.m; sourceTree = "<group>"; };
-		D66A9F1A1F76D05900144011 /* NSURL+ADTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+ADTestUtil.h"; sourceTree = "<group>"; };
-		D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+ADTestUtil.m"; sourceTree = "<group>"; };
 		D66A9F261F7998D300144011 /* ADTokenCacheTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheTestUtil.h; sourceTree = "<group>"; };
 		D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheTestUtil.m; sourceTree = "<group>"; };
 		D6771DFF1F749CE100D0DCDC /* ADBrokerIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADBrokerIntegrationTests.m; sourceTree = "<group>"; };
 		D6771E011F749FD800D0DCDC /* ADApplicationTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADApplicationTestUtil.h; sourceTree = "<group>"; };
 		D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADApplicationTestUtil.m; sourceTree = "<group>"; };
-		D67D3D331F382F8B00660F32 /* NSDictionary+ADTestUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ADTestUtil.h"; sourceTree = "<group>"; };
-		D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ADTestUtil.m"; sourceTree = "<group>"; };
 		D67D3D391F38502900660F32 /* ADTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestCase.h; sourceTree = "<group>"; };
 		D67D3D3A1F38502900660F32 /* ADTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestCase.m; sourceTree = "<group>"; };
 		D67D3D3F1F38538100660F32 /* ADTest.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTest.pch; sourceTree = "<group>"; };
@@ -805,10 +903,86 @@
 		D68040311D22F686007A61AC /* ADWebAuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthResponse.h; sourceTree = "<group>"; };
 		D68040321D22F686007A61AC /* ADWebAuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponse.m; sourceTree = "<group>"; };
 		D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/SecurityInterface.framework; sourceTree = DEVELOPER_DIR; };
+		D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__unittest__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__integrationtest__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EAA1FC370BF00CD70C5 /* adal__test__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__test__common__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EAB1FC370BF00CD70C5 /* adal__unittest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__unittest.xcconfig; sourceTree = "<group>"; };
+		D6CF4EAC1FC370BF00CD70C5 /* adal__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__staticlib__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EAE1FC370BF00CD70C5 /* adal__test__common__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__test__common__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__testapp__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__framework__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB11FC370BF00CD70C5 /* adal__framework__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__framework__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB21FC370C000CD70C5 /* adal__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB31FC370C000CD70C5 /* adal__integrationtest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__integrationtest.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB41FC370C000CD70C5 /* adal__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__release.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB51FC370C000CD70C5 /* adal__lib__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__lib__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__automationapp__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB71FC370C000CD70C5 /* adal__testhostapp__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__testhostapp__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB81FC370C100CD70C5 /* adal__test__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__test__common.xcconfig; sourceTree = "<group>"; };
+		D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__unittest__mac.xcconfig; sourceTree = "<group>"; };
+		D6CF4EBA1FC370C100CD70C5 /* adal__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__debug.xcconfig; sourceTree = "<group>"; };
+		D6CF4EBB1FC370C100CD70C5 /* adal__common__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__testapp__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__integrationtest__ios.xcconfig; sourceTree = "<group>"; };
+		D6CF4EC91FC3784900CD70C5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		D6CF4ECC1FC3786B00CD70C5 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		D6CF4ECF1FC378C500CD70C5 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		D6CF4ED61FC37A3E00CD70C5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		D6CF4EDA1FC37A6200CD70C5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		D6CF4EDC1FC37A6900CD70C5 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = System/Library/Frameworks/SecurityInterface.framework; sourceTree = SDKROOT; };
 		D6D4D4961F2FCD8600CC1859 /* ADTestURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLResponse.h; sourceTree = "<group>"; };
 		D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLResponse.m; sourceTree = "<group>"; };
 		D6D8A83E1D4FD14100D20DE6 /* ADKeychainUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADKeychainUtil.h; sourceTree = "<group>"; };
 		D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainUtil.m; sourceTree = "<group>"; };
+		D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDVersion.m; sourceTree = "<group>"; };
+		D6D9A4DD1FBFB45100EFA430 /* ADAL Test App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ADAL Test App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6D9A4F91FBFB47200EFA430 /* ADAL Test App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ADAL Test App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6D9A50E1FBFB58000EFA430 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D6D9A5111FBFB58000EFA430 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D6D9A5121FBFB58000EFA430 /* TestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TestApp.entitlements; sourceTree = "<group>"; };
+		D6D9A5131FBFB58000EFA430 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		D6D9A5171FBFB58000EFA430 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D6D9A5191FBFB58000EFA430 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		D6D9A51A1FBFB58100EFA430 /* AcquireTokenWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AcquireTokenWindow.xib; sourceTree = "<group>"; };
+		D6D9A51D1FBFB58100EFA430 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		D6D9A51E1FBFB58100EFA430 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D6D9A5211FBFB58100EFA430 /* CacheWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CacheWindow.xib; sourceTree = "<group>"; };
+		D6D9A5221FBFB58100EFA430 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		D6D9A5231FBFB58100EFA430 /* MyTestMacOSApp-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MyTestMacOSApp-Prefix.pch"; sourceTree = "<group>"; };
+		D6D9A5251FBFB58100EFA430 /* ADTestAppSettings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettings.m; sourceTree = "<group>"; };
+		D6D9A5271FBFB58100EFA430 /* ADTestAppAcquireLayoutBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireLayoutBuilder.m; sourceTree = "<group>"; };
+		D6D9A5281FBFB58100EFA430 /* ADTestAppProfileViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppProfileViewController.m; sourceTree = "<group>"; };
+		D6D9A52A1FBFB58100EFA430 /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		D6D9A52C1FBFB58100EFA430 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		D6D9A52D1FBFB58100EFA430 /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
+		D6D9A52E1FBFB58100EFA430 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D6D9A52F1FBFB58100EFA430 /* ADTestAppAcquireTokenViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenViewController.m; sourceTree = "<group>"; };
+		D6D9A5301FBFB58100EFA430 /* ADTestAppSettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettingsViewController.h; sourceTree = "<group>"; };
+		D6D9A5311FBFB58100EFA430 /* ADTestAppCacheViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppCacheViewController.h; sourceTree = "<group>"; };
+		D6D9A5321FBFB58100EFA430 /* ADTestAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppDelegate.m; sourceTree = "<group>"; };
+		D6D9A5331FBFB58100EFA430 /* ADTestAppLogViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppLogViewController.h; sourceTree = "<group>"; };
+		D6D9A5341FBFB58100EFA430 /* ADTestAppAcquireLayoutBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireLayoutBuilder.h; sourceTree = "<group>"; };
+		D6D9A5351FBFB58100EFA430 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		D6D9A5361FBFB58100EFA430 /* ADTestAppProfileViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppProfileViewController.h; sourceTree = "<group>"; };
+		D6D9A5371FBFB58100EFA430 /* ADTestAppCacheViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCacheViewController.m; sourceTree = "<group>"; };
+		D6D9A5381FBFB58100EFA430 /* ADTestAppSettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettingsViewController.m; sourceTree = "<group>"; };
+		D6D9A5391FBFB58100EFA430 /* ADTestAppAcquireTokenViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenViewController.h; sourceTree = "<group>"; };
+		D6D9A53A1FBFB58100EFA430 /* ADTestAppLogViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppLogViewController.m; sourceTree = "<group>"; };
+		D6D9A53B1FBFB58100EFA430 /* ADTestAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppDelegate.h; sourceTree = "<group>"; };
+		D6D9A53D1FBFB58100EFA430 /* ADTestAppCacheWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCacheWindowController.m; sourceTree = "<group>"; };
+		D6D9A53E1FBFB58100EFA430 /* ADTestAppCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppCache.h; sourceTree = "<group>"; };
+		D6D9A53F1FBFB58100EFA430 /* ADTestAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppDelegate.m; sourceTree = "<group>"; };
+		D6D9A5401FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenWindowController.m; sourceTree = "<group>"; };
+		D6D9A5411FBFB58100EFA430 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		D6D9A5421FBFB58100EFA430 /* ADTestAppCacheWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppCacheWindowController.h; sourceTree = "<group>"; };
+		D6D9A5431FBFB58100EFA430 /* ADTestAppCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCache.m; sourceTree = "<group>"; };
+		D6D9A5441FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenWindowController.h; sourceTree = "<group>"; };
+		D6D9A5451FBFB58100EFA430 /* ADTestAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppDelegate.h; sourceTree = "<group>"; };
+		D6D9A5461FBFB58100EFA430 /* ADTestAppSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettings.h; sourceTree = "<group>"; };
+		D6D9A5681FBFBF8100EFA430 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		D6D9A56A1FBFBF8900EFA430 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+Internal.h"; sourceTree = "<group>"; };
 		D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+Internal.m"; sourceTree = "<group>"; };
 		D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAcquireTokenSilentHandler.h; sourceTree = "<group>"; };
@@ -824,6 +998,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6CF4ECA1FC3784A00CD70C5 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,9 +1016,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D69A720B1D4FEC4B00E91DB3 /* libADAL-core.a in Frameworks */,
-				8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */,
-				8B0965BF17F25770002BDFB8 /* UIKit.framework in Frameworks */,
+				D6CF4ED31FC378FE00CD70C5 /* Security.framework in Frameworks */,
+				D6CF4ED01FC378C500CD70C5 /* XCTest.framework in Frameworks */,
+				D6CF4ECE1FC378BE00CD70C5 /* UIKit.framework in Frameworks */,
+				D6CF4E8B1FC3572200CD70C5 /* ADAL.framework in Frameworks */,
+				D6D9A4691FBD7C7E00EFA430 /* libIdentityTest.a in Frameworks */,
 				8B0965BD17F25770002BDFB8 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -852,6 +1029,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6CF4ECD1FC3786B00CD70C5 /* Security.framework in Frameworks */,
+				D6CF4ECB1FC3786400CD70C5 /* UIKit.framework in Frameworks */,
 				D664F1DE1D3032000017B799 /* libADAL-core.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -860,7 +1039,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */,
+				D6CF4EDF1FC37A7800CD70C5 /* SecurityInterface.framework in Frameworks */,
+				D6CF4EDD1FC37A6900CD70C5 /* IOKit.framework in Frameworks */,
+				D6CF4EDB1FC37A6300CD70C5 /* WebKit.framework in Frameworks */,
+				D6CF4ED91FC37A4C00CD70C5 /* Security.framework in Frameworks */,
+				D6CF4ED81FC37A4500CD70C5 /* Cocoa.framework in Frameworks */,
+				D6D9A47C1FBD7D9500EFA430 /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -868,6 +1052,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6D9A4751FBD7D6A00EFA430 /* libIdentityTest.a in Frameworks */,
 				94DD18E61C5ACFBF00F80C62 /* ADAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -876,9 +1061,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B20DC5A31F0D96A100957806 /* libADAL-core.a in Frameworks */,
-				B20DC5A41F0D96A100957806 /* XCTest.framework in Frameworks */,
-				B20DC5A51F0D96A100957806 /* UIKit.framework in Frameworks */,
+				D6CF4ED41FC3790600CD70C5 /* Security.framework in Frameworks */,
+				D6CF4ED21FC378E300CD70C5 /* UIKit.framework in Frameworks */,
+				D6CF4ED11FC378D200CD70C5 /* XCTest.framework in Frameworks */,
+				D6CF4E8C1FC3575F00CD70C5 /* ADAL.framework in Frameworks */,
+				D6D9A4721FBD7D5900EFA430 /* libIdentityTest.a in Frameworks */,
 				B20DC5A61F0D96A100957806 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -887,6 +1074,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6D9A4791FBD7D8000EFA430 /* libIdentityTest.a in Frameworks */,
 				B20DC5CB1F0D96A700957806 /* ADAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -895,6 +1083,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6CF4EE51FC3818600CD70C5 /* Security.framework in Frameworks */,
+				D6CF4EE41FC3817D00CD70C5 /* UIKit.framework in Frameworks */,
 				D64C1F631DB9C64E00850036 /* libADAL-core.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -903,8 +1093,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6D9A4B81FBE6B1F00EFA430 /* libIdentityCore.a in Frameworks */,
 				D664F1AE1D302B9C0017B799 /* UIKit.framework in Frameworks */,
 				D664F1AF1D302B9C0017B799 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D9A4DA1FBFB45100EFA430 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6CF4EE31FC37EE900CD70C5 /* Security.framework in Frameworks */,
+				D6CF4EE01FC37BC700CD70C5 /* UIKit.framework in Frameworks */,
+				D6D9A5631FBFB96600EFA430 /* libADAL-core.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D9A4F61FBFB47200EFA430 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A56B1FBFBF8900EFA430 /* Security.framework in Frameworks */,
+				D6D9A5691FBFBF8100EFA430 /* Cocoa.framework in Frameworks */,
+				D6D9A5671FBFBEE700EFA430 /* ADAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -972,6 +1183,7 @@
 		8B0965A117F25770002BDFB8 = {
 			isa = PBXGroup;
 			children = (
+				D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */,
 				8B0965AF17F25770002BDFB8 /* src */,
 				8B0965C317F25770002BDFB8 /* tests */,
 				9453C3151C57EE57006B9E79 /* resouces */,
@@ -989,15 +1201,17 @@
 			isa = PBXGroup;
 			children = (
 				8B0965AA17F25770002BDFB8 /* libADALiOS.a */,
-				8B0965BA17F25770002BDFB8 /* ADAL_iOS_UTs.xctest */,
+				8B0965BA17F25770002BDFB8 /* ADAL-Unit-Tests.xctest */,
 				9453C3CC1C583E07006B9E79 /* ADAL.framework */,
 				9453C3FD1C586425006B9E79 /* ADAL.framework */,
-				94DD18E11C5ACFBF00F80C62 /* ADAL_Mac_UTs.xctest */,
+				94DD18E11C5ACFBF00F80C62 /* ADAL-Unit-Tests.xctest */,
 				D664F1B41D302B9C0017B799 /* libADAL-core.a */,
-				04AB6D421D9D619B007E9A83 /* UnitTestHostApp.app */,
+				04AB6D421D9D619B007E9A83 /* UnitTestHost.app */,
 				D64C1F481DB9B05900850036 /* ADALAutomation.app */,
-				B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */,
-				B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */,
+				B20DC5AD1F0D96A100957806 /* ADAL-Integration-Tests.xctest */,
+				B20DC5D11F0D96A700957806 /* ADAL-Integration-Tests.xctest */,
+				D6D9A4DD1FBFB45100EFA430 /* ADAL Test App.app */,
+				D6D9A4F91FBFB47200EFA430 /* ADAL Test App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1005,6 +1219,15 @@
 		8B0965AC17F25770002BDFB8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */,
+				D6CF4EDC1FC37A6900CD70C5 /* IOKit.framework */,
+				D6CF4EDA1FC37A6200CD70C5 /* WebKit.framework */,
+				D6CF4ED61FC37A3E00CD70C5 /* AppKit.framework */,
+				D6CF4ECF1FC378C500CD70C5 /* XCTest.framework */,
+				D6CF4ECC1FC3786B00CD70C5 /* Security.framework */,
+				D6CF4EC91FC3784900CD70C5 /* UIKit.framework */,
+				D6D9A56A1FBFBF8900EFA430 /* Security.framework */,
+				D6D9A5681FBFBF8100EFA430 /* Cocoa.framework */,
 				D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */,
 				97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */,
 				8BA729B017FE0BDA00CACB46 /* UIKit.framework */,
@@ -1037,16 +1260,15 @@
 				8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */,
 				8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */,
 				8B92DB6F181B2335004AAB0E /* ADLogger.m */,
-				9434C3361BF6B72E0095E122 /* ADLogger+Internal.h */,
 				8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */,
 				8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */,
 				8B59893D180DE8A100744AEE /* ADUserInformation.m */,
 				97A522481A1A752D001D77CE /* ADClientMetrics.m */,
 				97A522511A1A89C4001D77CE /* ADClientMetrics.h */,
 				D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */,
-				94A0BDE61D779AB0007BEB63 /* ADRequestContext.h */,
 				60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */,
 				60D2F4001D531F16008725D9 /* ADRequestParameters.m */,
+				D6D9A45F1FBD4F7300EFA430 /* MSIDVersion.m */,
 				9453C3771C58017F006B9E79 /* broker */,
 				9453C3181C57FB91006B9E79 /* cache */,
 				9453C37F1C5820B1006B9E79 /* request */,
@@ -1063,6 +1285,7 @@
 		8B0965C317F25770002BDFB8 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				D6D9A50A1FBFB58000EFA430 /* app */,
 				04AB6D431D9D619B007E9A83 /* UnitTestHostApp */,
 				B20DC5D31F0D975A00957806 /* unit */,
 				B20DC5D41F0D976300957806 /* integration */,
@@ -1077,12 +1300,8 @@
 				6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */,
 				96C75D261E303DC40038D1EC /* ADTestURLSession.h */,
 				96C75D271E303DC40038D1EC /* ADTestURLSession.m */,
-				96C75D221E303A8E0038D1EC /* ADTestURLSessionDataTask.h */,
-				96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */,
 				D6D4D4961F2FCD8600CC1859 /* ADTestURLResponse.h */,
 				D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */,
-				D67D3D331F382F8B00660F32 /* NSDictionary+ADTestUtil.h */,
-				D67D3D341F382F8B00660F32 /* NSDictionary+ADTestUtil.m */,
 				D67D3D391F38502900660F32 /* ADTestCase.h */,
 				D67D3D3A1F38502900660F32 /* ADTestCase.m */,
 				D67D3D3F1F38538100660F32 /* ADTest.pch */,
@@ -1163,12 +1382,6 @@
 				D6D8A83E1D4FD14100D20DE6 /* ADKeychainUtil.h */,
 				9453C3601C580157006B9E79 /* ADHelpers.h */,
 				9453C3611C580157006B9E79 /* ADHelpers.m */,
-				9453C3641C580157006B9E79 /* NSDictionary+ADExtensions.h */,
-				9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */,
-				9453C3661C580157006B9E79 /* NSString+ADHelperMethods.h */,
-				9453C3671C580157006B9E79 /* NSString+ADHelperMethods.m */,
-				9453C3681C580157006B9E79 /* NSURL+ADExtensions.h */,
-				9453C3691C580157006B9E79 /* NSURL+ADExtensions.m */,
 				B299FF181F22BE32004A2CB9 /* NSString+ADURLExtensions.h */,
 				B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */,
 				9453C36A1C580157006B9E79 /* NSUUID+ADExtensions.h */,
@@ -1378,15 +1591,28 @@
 		94886EED1C63BE3800503C04 /* xcconfig */ = {
 			isa = PBXGroup;
 			children = (
-				946347821C644E13000A6DA1 /* adal__debug.xcconfig */,
-				946347801C644E13000A6DA1 /* adal__codecov.xcconfig */,
-				946347881C644E13000A6DA1 /* adal__release.xcconfig */,
-				946347811C644E13000A6DA1 /* adal__common.xcconfig */,
-				946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */,
-				946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */,
-				946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */,
-				946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */,
-				946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */,
+				D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */,
+				D6CF4EBB1FC370C100CD70C5 /* adal__common__ios.xcconfig */,
+				D6CF4EAC1FC370BF00CD70C5 /* adal__common__mac.xcconfig */,
+				D6CF4EB21FC370C000CD70C5 /* adal__common.xcconfig */,
+				D6CF4EBA1FC370C100CD70C5 /* adal__debug.xcconfig */,
+				D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */,
+				D6CF4EB11FC370BF00CD70C5 /* adal__framework__mac.xcconfig */,
+				D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */,
+				D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */,
+				D6CF4EB31FC370C000CD70C5 /* adal__integrationtest.xcconfig */,
+				D6CF4EB51FC370C000CD70C5 /* adal__lib__common.xcconfig */,
+				D6CF4EB41FC370C000CD70C5 /* adal__release.xcconfig */,
+				D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */,
+				D6CF4EAA1FC370BF00CD70C5 /* adal__test__common__ios.xcconfig */,
+				D6CF4EAE1FC370BF00CD70C5 /* adal__test__common__mac.xcconfig */,
+				D6CF4EB81FC370C100CD70C5 /* adal__test__common.xcconfig */,
+				D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */,
+				D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */,
+				D6CF4EB71FC370C000CD70C5 /* adal__testhostapp__ios.xcconfig */,
+				D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */,
+				D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */,
+				D6CF4EAB1FC370BF00CD70C5 /* adal__unittest.xcconfig */,
 			);
 			path = xcconfig;
 			sourceTree = "<group>";
@@ -1413,15 +1639,12 @@
 				B20DC5E41F0D998A00957806 /* ADAuthenticationResultTests.m */,
 				B20DC5E51F0D998A00957806 /* ADClientMetricsTests.m */,
 				B20DC5E61F0D998A00957806 /* ADHelpersTests.m */,
-				B20DC5E71F0D998A00957806 /* ADLoggerTests.m */,
 				B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */,
 				B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */,
 				B20DC5EB1F0D998A00957806 /* ADTokenCacheTests.m */,
 				B20DC5EC1F0D998A00957806 /* ADUserInformationTests.m */,
 				B20DC5ED1F0D998A00957806 /* ADWebAuthResponseTests.m */,
-				B20DC5EE1F0D998A00957806 /* NSURLExtensionsTests.m */,
 				B20DC6141F0D9A7600957806 /* ADAuthorityValidationTests.m */,
-				B20DC6171F0DA2E800957806 /* ADTestNSStringHelperMethods.m */,
 				B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */,
 				B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */,
 				230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */,
@@ -1484,6 +1707,19 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
+		D626FFC11FBD1B1300EE4487 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */,
+				D626FFCA1FBD1B1300EE4487 /* libIdentityCore.a */,
+				D62600001FBD253E00EE4487 /* libIdentityTest.a */,
+				D626FFFE1FBD253E00EE4487 /* libIdentityTest.a */,
+				D626FFCC1FBD1B1300EE4487 /* IdentityCoreTests.xctest */,
+				D626FFCE1FBD1B1300EE4487 /* IdentityCoreTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D632B5491F50AE6B001173F1 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -1492,8 +1728,6 @@
 				D632B54B1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m */,
 				D632B5501F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.h */,
 				D632B5511F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m */,
-				D66A9F1A1F76D05900144011 /* NSURL+ADTestUtil.h */,
-				D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */,
 				D66A9F261F7998D300144011 /* ADTokenCacheTestUtil.h */,
 				D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */,
 			);
@@ -1566,6 +1800,111 @@
 			path = ios;
 			sourceTree = "<group>";
 		};
+		D6D9A50A1FBFB58000EFA430 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A50B1FBFB58000EFA430 /* resources */,
+				D6D9A5241FBFB58100EFA430 /* src */,
+			);
+			path = app;
+			sourceTree = "<group>";
+		};
+		D6D9A50B1FBFB58000EFA430 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A50C1FBFB58000EFA430 /* ios */,
+				D6D9A5151FBFB58000EFA430 /* mac */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		D6D9A50C1FBFB58000EFA430 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A50D1FBFB58000EFA430 /* InfoPlist.strings */,
+				D6D9A5111FBFB58000EFA430 /* Info.plist */,
+				D6D9A5121FBFB58000EFA430 /* TestApp.entitlements */,
+				D6D9A5131FBFB58000EFA430 /* Images.xcassets */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		D6D9A5151FBFB58000EFA430 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A5161FBFB58000EFA430 /* InfoPlist.strings */,
+				D6D9A5181FBFB58000EFA430 /* Credits.rtf */,
+				D6D9A51A1FBFB58100EFA430 /* AcquireTokenWindow.xib */,
+				D6D9A51C1FBFB58100EFA430 /* MainMenu.xib */,
+				D6D9A51E1FBFB58100EFA430 /* Info.plist */,
+				D6D9A5211FBFB58100EFA430 /* CacheWindow.xib */,
+				D6D9A5221FBFB58100EFA430 /* Images.xcassets */,
+				D6D9A5231FBFB58100EFA430 /* MyTestMacOSApp-Prefix.pch */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
+		D6D9A5241FBFB58100EFA430 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A5251FBFB58100EFA430 /* ADTestAppSettings.m */,
+				D6D9A5261FBFB58100EFA430 /* ios */,
+				D6D9A53C1FBFB58100EFA430 /* mac */,
+				D6D9A5461FBFB58100EFA430 /* ADTestAppSettings.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		D6D9A5261FBFB58100EFA430 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A5271FBFB58100EFA430 /* ADTestAppAcquireLayoutBuilder.m */,
+				D6D9A5281FBFB58100EFA430 /* ADTestAppProfileViewController.m */,
+				D6D9A5291FBFB58100EFA430 /* extension */,
+				D6D9A52F1FBFB58100EFA430 /* ADTestAppAcquireTokenViewController.m */,
+				D6D9A5301FBFB58100EFA430 /* ADTestAppSettingsViewController.h */,
+				D6D9A5311FBFB58100EFA430 /* ADTestAppCacheViewController.h */,
+				D6D9A5321FBFB58100EFA430 /* ADTestAppDelegate.m */,
+				D6D9A5331FBFB58100EFA430 /* ADTestAppLogViewController.h */,
+				D6D9A5341FBFB58100EFA430 /* ADTestAppAcquireLayoutBuilder.h */,
+				D6D9A5351FBFB58100EFA430 /* main.m */,
+				D6D9A5361FBFB58100EFA430 /* ADTestAppProfileViewController.h */,
+				D6D9A5371FBFB58100EFA430 /* ADTestAppCacheViewController.m */,
+				D6D9A5381FBFB58100EFA430 /* ADTestAppSettingsViewController.m */,
+				D6D9A5391FBFB58100EFA430 /* ADTestAppAcquireTokenViewController.h */,
+				D6D9A53A1FBFB58100EFA430 /* ADTestAppLogViewController.m */,
+				D6D9A53B1FBFB58100EFA430 /* ADTestAppDelegate.h */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		D6D9A5291FBFB58100EFA430 /* extension */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A52A1FBFB58100EFA430 /* ShareViewController.m */,
+				D6D9A52B1FBFB58100EFA430 /* MainInterface.storyboard */,
+				D6D9A52D1FBFB58100EFA430 /* ShareViewController.h */,
+				D6D9A52E1FBFB58100EFA430 /* Info.plist */,
+			);
+			path = extension;
+			sourceTree = "<group>";
+		};
+		D6D9A53C1FBFB58100EFA430 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				D6D9A53D1FBFB58100EFA430 /* ADTestAppCacheWindowController.m */,
+				D6D9A53E1FBFB58100EFA430 /* ADTestAppCache.h */,
+				D6D9A53F1FBFB58100EFA430 /* ADTestAppDelegate.m */,
+				D6D9A5401FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.m */,
+				D6D9A5411FBFB58100EFA430 /* main.m */,
+				D6D9A5421FBFB58100EFA430 /* ADTestAppCacheWindowController.h */,
+				D6D9A5431FBFB58100EFA430 /* ADTestAppCache.m */,
+				D6D9A5441FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.h */,
+				D6D9A5451FBFB58100EFA430 /* ADTestAppDelegate.h */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1595,7 +1934,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9453C4461C58647E006B9E79 /* NSURL+ADExtensions.h in Headers */,
 				9453C40B1C586456006B9E79 /* ADAuthenticationParameters+Internal.h in Headers */,
 				94DD18D31C5AC8DE00F80C62 /* ADAuthenticationResult.h in Headers */,
 				6085CBF41DF76C3C004BBF2A /* ADTelemetry.h in Headers */,
@@ -1603,7 +1941,6 @@
 				9453C40E1C586456006B9E79 /* ADAuthenticationResult+Internal.h in Headers */,
 				9453C4481C58647E006B9E79 /* NSUUID+ADExtensions.h in Headers */,
 				9453C42C1C58646D006B9E79 /* ADAuthenticationRequest+AcquireToken.h in Headers */,
-				9453C4151C586456006B9E79 /* ADLogger+Internal.h in Headers */,
 				94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */,
 				94DD18D01C5AC8DE00F80C62 /* ADAuthenticationContext.h in Headers */,
 				600401B81D3766F80020EAAB /* ADTelemetryEventInterface.h in Headers */,
@@ -1640,7 +1977,6 @@
 				9453C4211C586462006B9E79 /* ADTokenCache+Internal.h in Headers */,
 				9453C44C1C586485006B9E79 /* ADPkeyAuthHelper.h in Headers */,
 				6010EDE41D47B1AC00B62072 /* ADTelemetryAPIEvent.h in Headers */,
-				9453C4421C58647E006B9E79 /* NSDictionary+ADExtensions.h in Headers */,
 				9453C43C1C58647E006B9E79 /* ADALFrameworkUtils.h in Headers */,
 				9453C4341C58646D006B9E79 /* ADWebResponse.h in Headers */,
 				D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */,
@@ -1664,7 +2000,6 @@
 				9453C4281C58646D006B9E79 /* ADAuthenticationRequest.h in Headers */,
 				6010EDF81D47B2E300B62072 /* ADTelemetryBrokerEvent.h in Headers */,
 				9453C4061C586456006B9E79 /* ADAL_Internal.h in Headers */,
-				9453C4441C58647E006B9E79 /* NSString+ADHelperMethods.h in Headers */,
 				9453C4361C586476006B9E79 /* ADCustomHeaderHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1686,7 +2021,7 @@
 			);
 			name = UnitTestHostApp;
 			productName = UnitTestHostApp;
-			productReference = 04AB6D421D9D619B007E9A83 /* UnitTestHostApp.app */;
+			productReference = 04AB6D421D9D619B007E9A83 /* UnitTestHost.app */;
 			productType = "com.apple.product-type.application";
 		};
 		8B0965A917F25770002BDFB8 /* ADALiOS */ = {
@@ -1700,6 +2035,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6CF4EC41FC373FA00CD70C5 /* PBXTargetDependency */,
 			);
 			name = ADALiOS;
 			productName = ADALiOS;
@@ -1717,17 +2053,18 @@
 			buildRules = (
 			);
 			dependencies = (
-				D69A720A1D4FEC4200E91DB3 /* PBXTargetDependency */,
+				D6CF4E901FC3577900CD70C5 /* PBXTargetDependency */,
+				D62600051FBD2D8E00EE4487 /* PBXTargetDependency */,
 				04AB6D5C1D9D61E2007E9A83 /* PBXTargetDependency */,
 			);
 			name = ADAL_iOS_UTs;
 			productName = ADALiOSTests;
-			productReference = 8B0965BA17F25770002BDFB8 /* ADAL_iOS_UTs.xctest */;
+			productReference = 8B0965BA17F25770002BDFB8 /* ADAL-Unit-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		9453C3CB1C583E07006B9E79 /* ADAL */ = {
+		9453C3CB1C583E07006B9E79 /* ADAL iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9453C3D11C583E07006B9E79 /* Build configuration list for PBXNativeTarget "ADAL" */;
+			buildConfigurationList = 9453C3D11C583E07006B9E79 /* Build configuration list for PBXNativeTarget "ADAL iOS" */;
 			buildPhases = (
 				6079EB5A1D7954EF00E95AB1 /* ShellScript */,
 				9453C3C71C583E07006B9E79 /* Sources */,
@@ -1740,7 +2077,7 @@
 			dependencies = (
 				D61000EA1D3984C20087AB81 /* PBXTargetDependency */,
 			);
-			name = ADAL;
+			name = "ADAL iOS";
 			productName = ADAL;
 			productReference = 9453C3CC1C583E07006B9E79 /* ADAL.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1758,6 +2095,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D9A47B1FBD7D9100EFA430 /* PBXTargetDependency */,
 			);
 			name = "ADAL Mac";
 			productName = "ADAL Mac";
@@ -1775,11 +2113,12 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D9A4741FBD7D6500EFA430 /* PBXTargetDependency */,
 				94DD18E81C5ACFBF00F80C62 /* PBXTargetDependency */,
 			);
 			name = ADAL_Mac_UTs;
 			productName = "ADAL Mac Tests";
-			productReference = 94DD18E11C5ACFBF00F80C62 /* ADAL_Mac_UTs.xctest */;
+			productReference = 94DD18E11C5ACFBF00F80C62 /* ADAL-Unit-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		B20DC5811F0D96A100957806 /* ADAL_iOS_ITs */ = {
@@ -1793,12 +2132,13 @@
 			buildRules = (
 			);
 			dependencies = (
-				B20DC5821F0D96A100957806 /* PBXTargetDependency */,
+				D6CF4E8E1FC3577100CD70C5 /* PBXTargetDependency */,
 				B20DC5841F0D96A100957806 /* PBXTargetDependency */,
+				D62600071FBD2D9A00EE4487 /* PBXTargetDependency */,
 			);
 			name = ADAL_iOS_ITs;
 			productName = ADALiOSTests;
-			productReference = B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */;
+			productReference = B20DC5AD1F0D96A100957806 /* ADAL-Integration-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		B20DC5AF1F0D96A700957806 /* ADAL_Mac_ITs */ = {
@@ -1812,11 +2152,12 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D9A4771FBD7D7200EFA430 /* PBXTargetDependency */,
 				B20DC5B01F0D96A700957806 /* PBXTargetDependency */,
 			);
 			name = ADAL_Mac_ITs;
 			productName = "ADAL Mac Tests";
-			productReference = B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */;
+			productReference = B20DC5D11F0D96A700957806 /* ADAL-Integration-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D64C1F471DB9B05900850036 /* ADALAutomation */ = {
@@ -1847,11 +2188,48 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6D9A4B71FBE6B1700EFA430 /* PBXTargetDependency */,
 			);
 			name = "ADAL-core";
 			productName = ADALiOS;
 			productReference = D664F1B41D302B9C0017B799 /* libADAL-core.a */;
 			productType = "com.apple.product-type.library.static";
+		};
+		D6D9A4DC1FBFB45100EFA430 /* iOSTestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6D9A4F41FBFB45200EFA430 /* Build configuration list for PBXNativeTarget "iOSTestApp" */;
+			buildPhases = (
+				D6D9A4D91FBFB45100EFA430 /* Sources */,
+				D6D9A4DA1FBFB45100EFA430 /* Frameworks */,
+				D6D9A4DB1FBFB45100EFA430 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D6D9A5621FBFB95E00EFA430 /* PBXTargetDependency */,
+			);
+			name = iOSTestApp;
+			productName = MyiOSTestApp;
+			productReference = D6D9A4DD1FBFB45100EFA430 /* ADAL Test App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D6D9A4F81FBFB47200EFA430 /* MacTestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6D9A5071FBFB47300EFA430 /* Build configuration list for PBXNativeTarget "MacTestApp" */;
+			buildPhases = (
+				D6D9A4F51FBFB47200EFA430 /* Sources */,
+				D6D9A4F61FBFB47200EFA430 /* Frameworks */,
+				D6D9A4F71FBFB47200EFA430 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D6D9A5661FBFBED200EFA430 /* PBXTargetDependency */,
+			);
+			name = MacTestApp;
+			productName = MacTestApp;
+			productReference = D6D9A4F91FBFB47200EFA430 /* ADAL Test App.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -1880,15 +2258,20 @@
 					};
 					9453C3FC1C586425006B9E79 = {
 						CreatedOnToolsVersion = 7.2;
+						ProvisioningStyle = Automatic;
 					};
 					9453C4571C5866D0006B9E79 = {
 						CreatedOnToolsVersion = 7.2;
 					};
 					94DD18E01C5ACFBF00F80C62 = {
 						CreatedOnToolsVersion = 7.2;
+						ProvisioningStyle = Automatic;
 					};
 					B20DC5811F0D96A100957806 = {
 						TestTargetID = 04AB6D411D9D619B007E9A83;
+					};
+					B20DC5AF1F0D96A700957806 = {
+						ProvisioningStyle = Automatic;
 					};
 					D64C1F471DB9B05900850036 = {
 						CreatedOnToolsVersion = 8.0;
@@ -1899,6 +2282,16 @@
 								enabled = 1;
 							};
 						};
+					};
+					D6D9A4DC1FBFB45100EFA430 = {
+						CreatedOnToolsVersion = 9.1;
+						DevelopmentTeam = UBF8T346G9;
+						ProvisioningStyle = Automatic;
+					};
+					D6D9A4F81FBFB47200EFA430 = {
+						CreatedOnToolsVersion = 9.1;
+						DevelopmentTeam = UBF8T346G9;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -1913,11 +2306,17 @@
 			mainGroup = 8B0965A117F25770002BDFB8;
 			productRefGroup = 8B0965AB17F25770002BDFB8 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D626FFC11FBD1B1300EE4487 /* Products */;
+					ProjectRef = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				8B0965A917F25770002BDFB8 /* ADALiOS */,
 				D664F16A1D302B9C0017B799 /* ADAL-core */,
-				9453C3CB1C583E07006B9E79 /* ADAL */,
+				9453C3CB1C583E07006B9E79 /* ADAL iOS */,
 				8B0965B917F25770002BDFB8 /* ADAL_iOS_UTs */,
 				B20DC5811F0D96A100957806 /* ADAL_iOS_ITs */,
 				9453C3FC1C586425006B9E79 /* ADAL Mac */,
@@ -1926,9 +2325,56 @@
 				9453C4571C5866D0006B9E79 /* Build All */,
 				04AB6D411D9D619B007E9A83 /* UnitTestHostApp */,
 				D64C1F471DB9B05900850036 /* ADALAutomation */,
+				D6D9A4DC1FBFB45100EFA430 /* iOSTestApp */,
+				D6D9A4F81FBFB47200EFA430 /* MacTestApp */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D62600001FBD253E00EE4487 /* libIdentityTest.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libIdentityTest.a;
+			remoteRef = D626FFFF1FBD253E00EE4487 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libIdentityCore.a;
+			remoteRef = D626FFC71FBD1B1300EE4487 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D626FFCA1FBD1B1300EE4487 /* libIdentityCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libIdentityCore.a;
+			remoteRef = D626FFC91FBD1B1300EE4487 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D626FFCC1FBD1B1300EE4487 /* IdentityCoreTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = IdentityCoreTests.xctest;
+			remoteRef = D626FFCB1FBD1B1300EE4487 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D626FFCE1FBD1B1300EE4487 /* IdentityCoreTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = IdentityCoreTests.xctest;
+			remoteRef = D626FFCD1FBD1B1300EE4487 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D626FFFE1FBD253E00EE4487 /* libIdentityTest.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libIdentityTest.a;
+			remoteRef = D626FFFD1FBD253E00EE4487 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		04AB6D401D9D619B007E9A83 /* Resources */ = {
@@ -1993,6 +2439,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6D9A4DB1FBFB45100EFA430 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A5641FBFBA6000EFA430 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D9A4F71FBFB47200EFA430 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A5561FBFB61900EFA430 /* CacheWindow.xib in Resources */,
+				D6D9A5581FBFB62100EFA430 /* AcquireTokenWindow.xib in Resources */,
+				D6D9A5571FBFB61D00EFA430 /* MainMenu.xib in Resources */,
+				D6D9A5591FBFB62500EFA430 /* Credits.rtf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -2045,7 +2510,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2060,12 +2524,10 @@
 				234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
 				603841A01DF9248F00D30F3D /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC5FF1F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */,
-				B20DC5FB1F0D998A00957806 /* ADLoggerTests.m in Sources */,
 				B299FF1E1F22C338004A2CB9 /* ADURLExtensionsTest.m in Sources */,
 				B20DC5F11F0D998A00957806 /* ADAuthenticationErrorTests.m in Sources */,
 				B20DC6031F0D998A00957806 /* ADTokenCacheTests.m in Sources */,
 				B20DC6051F0D998A00957806 /* ADUserInformationTests.m in Sources */,
-				96C75D241E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
 				D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */,
 				D632B5521F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
@@ -2081,18 +2543,14 @@
 				B20DC5F91F0D998A00957806 /* ADHelpersTests.m in Sources */,
 				B20DC6071F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */,
 				B2B785101F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */,
-				B20DC6181F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */,
 				B20DC5F51F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
 				B20DC61D1F0DA39C00957806 /* ADBrokerKeyHelperTests.m in Sources */,
 				B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */,
-				B20DC6091F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
 				D632B54C1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				B20DC61B1F0DA34B00957806 /* ADBrokerMessageTests.m in Sources */,
 				B20DC6011F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5F71F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
-				D66A9F1C1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
 				B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
-				D67D3D351F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2100,6 +2558,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6CF4EC81FC376F500CD70C5 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2127,9 +2586,7 @@
 				9453C4491C58647E006B9E79 /* NSUUID+ADExtensions.m in Sources */,
 				9453C40A1C586456006B9E79 /* ADAuthenticationError.m in Sources */,
 				605C16821D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m in Sources */,
-				9453C4451C58647E006B9E79 /* NSString+ADHelperMethods.m in Sources */,
 				9453C46E1C5872B0006B9E79 /* ADJwtHelper.m in Sources */,
-				9453C4471C58647E006B9E79 /* NSURL+ADExtensions.m in Sources */,
 				9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */,
 				D67D3D4C1F43A96200660F32 /* ADAadAuthorityCache.m in Sources */,
 				9453C4651C58707B006B9E79 /* ADCredentialCollectionController.m in Sources */,
@@ -2155,7 +2612,6 @@
 				9453C43B1C586476006B9E79 /* ADURLProtocol.m in Sources */,
 				9453C42D1C58646D006B9E79 /* ADAuthenticationRequest+AcquireToken.m in Sources */,
 				9453C40D1C586456006B9E79 /* ADAuthenticationParameters.m in Sources */,
-				9453C4431C58647E006B9E79 /* NSDictionary+ADExtensions.m in Sources */,
 				9453C4661C58707B006B9E79 /* ADNTLMUIPrompt.m in Sources */,
 				960E93771E296CD0008036C0 /* ADURLSessionDemux.m in Sources */,
 				9453C40F1C586456006B9E79 /* ADAuthenticationResult+Internal.m in Sources */,
@@ -2173,10 +2629,12 @@
 				9453C4351C58646D006B9E79 /* ADWebResponse.m in Sources */,
 				23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */,
 				9453C4171C586456006B9E79 /* ADOAuth2Constants.m in Sources */,
+				D6CF4ED51FC37A1B00CD70C5 /* ADAL.m in Sources */,
 				60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */,
 				9453C4101C586456006B9E79 /* ADAuthenticationResult.m in Sources */,
 				9453C4091C586456006B9E79 /* ADAuthenticationContext+Internal.m in Sources */,
 				D6F0951C1CDC2BC300D28FC2 /* ADWebAuthRequest.m in Sources */,
+				D6D9A4681FBD7B0D00EFA430 /* MSIDVersion.m in Sources */,
 				9453C43F1C58647E006B9E79 /* ADHelpers.m in Sources */,
 				9453C4311C58646D006B9E79 /* ADAuthenticationRequest+WebRequest.m in Sources */,
 			);
@@ -2189,11 +2647,9 @@
 				D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC6061F0D998A00957806 /* ADUserInformationTests.m in Sources */,
 				D632B5541F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
-				B20DC60A1F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
 				B20DC6021F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */,
 				B20DC6221F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
-				B20DC5FC1F0D998A00957806 /* ADLoggerTests.m in Sources */,
 				B20DC6001F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */,
 				B299FF1F1F22C565004A2CB9 /* ADURLExtensionsTest.m in Sources */,
 				603841A11DF9248F00D30F3D /* ADTelemetryTestDispatcher.m in Sources */,
@@ -2203,21 +2659,17 @@
 				B20DC5F81F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
 				B20DC5F61F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
 				B20DC5F21F0D998A00957806 /* ADAuthenticationErrorTests.m in Sources */,
-				96C75D251E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
 				D67D3D3D1F38502900660F32 /* ADTestCase.m in Sources */,
-				D67D3D371F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 				94DD18F51C5ACFF900F80C62 /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */,
 				B2B785111F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */,
 				D62256531F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				D66A9F2A1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
-				D66A9F1E1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
 				230E16DC1FAD45E700ADC904 /* ADAuthorityUtilsTests.m in Sources */,
 				D67D3D4F1F43B17000660F32 /* ADAadAuthorityCacheTests.m in Sources */,
 				D632B54E1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */,
 				B20DC5F41F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
-				B20DC6191F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */,
 				601BEE321C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */,
 				234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
 				B20DC6041F0D998A00957806 /* ADTokenCacheTests.m in Sources */,
@@ -2234,14 +2686,11 @@
 				B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */,
-				D66A9F1D1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
 				B20DC6121F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
-				B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */,
 				D632B54D1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC5961F0D96A100957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				D632B5531F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
-				D67D3D361F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 				D66A9F291F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
 				B20DC5981F0D96A100957806 /* ADTestURLSession.m in Sources */,
 				D67D3D471F422C3200660F32 /* ADFSAuthorityValidationIntegrationTests.m in Sources */,
@@ -2256,12 +2705,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				B20DC5BE1F0D96A700957806 /* ADTelemetryTestDispatcher.m in Sources */,
-				B20DC5BF1F0D96A700957806 /* ADTestURLSessionDataTask.m in Sources */,
 				D632B5551F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
 				D67D3D3E1F38502900660F32 /* ADTestCase.m in Sources */,
 				B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC6131F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
-				D66A9F1F1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
 				B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */,
 				D67D3D461F422C3000660F32 /* ADFSAuthorityValidationIntegrationTests.m in Sources */,
 				D66A9F2B1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
@@ -2270,7 +2717,6 @@
 				D62256541F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				B20DC6101F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
 				B20DC5C81F0D96A700957806 /* ADTestAuthenticationViewController.m in Sources */,
-				D67D3D381F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2306,7 +2752,6 @@
 				D6669FB01F1D4F51002492C5 /* ADAuthorityValidation.m in Sources */,
 				D664F17D1D302B9C0017B799 /* ADWebRequest.m in Sources */,
 				D664F17E1D302B9C0017B799 /* ADTokenCacheKey.m in Sources */,
-				D664F17F1D302B9C0017B799 /* NSString+ADHelperMethods.m in Sources */,
 				D664F1801D302B9C0017B799 /* ADURLProtocol.m in Sources */,
 				D6669FB61F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */,
 				D664F1811D302B9C0017B799 /* ADWebAuthResponse.m in Sources */,
@@ -2325,10 +2770,10 @@
 				D664F18C1D302B9C0017B799 /* ADKeychainTokenCache.m in Sources */,
 				D664F18D1D302B9C0017B799 /* ADALFrameworkUtils.m in Sources */,
 				D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */,
-				D664F18F1D302B9C0017B799 /* NSDictionary+ADExtensions.m in Sources */,
 				2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */,
 				B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */,
+				D6D9A4611FBD4F7300EFA430 /* MSIDVersion.m in Sources */,
 				D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */,
 				D664F1931D302B9C0017B799 /* ADWebAuthController.m in Sources */,
 				D664F1951D302B9C0017B799 /* ADBrokerKeyHelper.m in Sources */,
@@ -2336,7 +2781,6 @@
 				D664F1971D302B9C0017B799 /* ADAcquireTokenSilentHandler.m in Sources */,
 				8B4EC4981D70BF850047CA62 /* ADAppExtensionUtil.m in Sources */,
 				D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */,
-				D664F1981D302B9C0017B799 /* NSURL+ADExtensions.m in Sources */,
 				29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */,
 				D6669FB31F1D4F51002492C5 /* ADDrsDiscoveryRequest.m in Sources */,
 				D664F1991D302B9C0017B799 /* ADUserIdentifier.m in Sources */,
@@ -2369,6 +2813,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6D9A4D91FBFB45100EFA430 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A5501FBFB5B200EFA430 /* ADTestAppLogViewController.m in Sources */,
+				D6D9A54B1FBFB5B200EFA430 /* ADTestAppAcquireTokenViewController.m in Sources */,
+				D6D9A54E1FBFB5B200EFA430 /* ADTestAppCacheViewController.m in Sources */,
+				D6D9A54A1FBFB5B200EFA430 /* ADTestAppProfileViewController.m in Sources */,
+				D6D9A5471FBFB58800EFA430 /* ADTestAppSettings.m in Sources */,
+				D6D9A5491FBFB5B200EFA430 /* ADTestAppAcquireLayoutBuilder.m in Sources */,
+				D6D9A54D1FBFB5B200EFA430 /* main.m in Sources */,
+				D6D9A54F1FBFB5B200EFA430 /* ADTestAppSettingsViewController.m in Sources */,
+				D6D9A54C1FBFB5B200EFA430 /* ADTestAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D9A4F51FBFB47200EFA430 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6D9A5541FBFB5B900EFA430 /* main.m in Sources */,
+				D6D9A5511FBFB5B900EFA430 /* ADTestAppCacheWindowController.m in Sources */,
+				D6D9A5521FBFB5B900EFA430 /* ADTestAppDelegate.m in Sources */,
+				D6D9A5551FBFB5B900EFA430 /* ADTestAppCache.m in Sources */,
+				D6D9A5481FBFB58800EFA430 /* ADTestAppSettings.m in Sources */,
+				D6D9A5531FBFB5B900EFA430 /* ADTestAppAcquireTokenWindowController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2384,18 +2857,13 @@
 		};
 		9453C45F1C5866DB006B9E79 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 9453C3CB1C583E07006B9E79 /* ADAL */;
+			target = 9453C3CB1C583E07006B9E79 /* ADAL iOS */;
 			targetProxy = 9453C45E1C5866DB006B9E79 /* PBXContainerItemProxy */;
 		};
 		94DD18E81C5ACFBF00F80C62 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = 94DD18E71C5ACFBF00F80C62 /* PBXContainerItemProxy */;
-		};
-		B20DC5821F0D96A100957806 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
-			targetProxy = B20DC5831F0D96A100957806 /* PBXContainerItemProxy */;
 		};
 		B20DC5841F0D96A100957806 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2412,15 +2880,65 @@
 			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
 			targetProxy = D61000E91D3984C20087AB81 /* PBXContainerItemProxy */;
 		};
+		D62600051FBD2D8E00EE4487 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityTest iOS";
+			targetProxy = D62600041FBD2D8E00EE4487 /* PBXContainerItemProxy */;
+		};
+		D62600071FBD2D9A00EE4487 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityTest iOS";
+			targetProxy = D62600061FBD2D9A00EE4487 /* PBXContainerItemProxy */;
+		};
 		D64C1F651DB9C65400850036 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
 			targetProxy = D64C1F641DB9C65400850036 /* PBXContainerItemProxy */;
 		};
-		D69A720A1D4FEC4200E91DB3 /* PBXTargetDependency */ = {
+		D6CF4E8E1FC3577100CD70C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9453C3CB1C583E07006B9E79 /* ADAL iOS */;
+			targetProxy = D6CF4E8D1FC3577100CD70C5 /* PBXContainerItemProxy */;
+		};
+		D6CF4E901FC3577900CD70C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9453C3CB1C583E07006B9E79 /* ADAL iOS */;
+			targetProxy = D6CF4E8F1FC3577900CD70C5 /* PBXContainerItemProxy */;
+		};
+		D6CF4EC41FC373FA00CD70C5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
-			targetProxy = D69A72091D4FEC4200E91DB3 /* PBXContainerItemProxy */;
+			targetProxy = D6CF4EC31FC373FA00CD70C5 /* PBXContainerItemProxy */;
+		};
+		D6D9A4741FBD7D6500EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityTest Mac";
+			targetProxy = D6D9A4731FBD7D6500EFA430 /* PBXContainerItemProxy */;
+		};
+		D6D9A4771FBD7D7200EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityTest Mac";
+			targetProxy = D6D9A4761FBD7D7200EFA430 /* PBXContainerItemProxy */;
+		};
+		D6D9A47B1FBD7D9100EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityCore Mac";
+			targetProxy = D6D9A47A1FBD7D9100EFA430 /* PBXContainerItemProxy */;
+		};
+		D6D9A4B71FBE6B1700EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityCore iOS";
+			targetProxy = D6D9A4B61FBE6B1700EFA430 /* PBXContainerItemProxy */;
+		};
+		D6D9A5621FBFB95E00EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
+			targetProxy = D6D9A5611FBFB95E00EFA430 /* PBXContainerItemProxy */;
+		};
+		D6D9A5661FBFBED200EFA430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
+			targetProxy = D6D9A5651FBFBED200EFA430 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2465,373 +2983,132 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
+		D6D9A50D1FBFB58000EFA430 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D6D9A50E1FBFB58000EFA430 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		D6D9A5161FBFB58000EFA430 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D6D9A5171FBFB58000EFA430 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		D6D9A5181FBFB58000EFA430 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D6D9A5191FBFB58000EFA430 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		D6D9A51C1FBFB58100EFA430 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D6D9A51D1FBFB58100EFA430 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		D6D9A52B1FBFB58100EFA430 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D6D9A52C1FBFB58100EFA430 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		04AB6D561D9D619B007E9A83 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EB71FC370C000CD70C5 /* adal__testhostapp__ios.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = UnitTestHostApp/UnitTestHostApp.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = UnitTestHostApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.unittesthost;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		04AB6D581D9D619B007E9A83 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EB71FC370C000CD70C5 /* adal__testhostapp__ios.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = UnitTestHostApp/UnitTestHostApp.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = UnitTestHostApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.unittesthost;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		8B0965CB17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347821C644E13000A6DA1 /* adal__debug.xcconfig */;
+			baseConfigurationReference = D6CF4EBA1FC370C100CD70C5 /* adal__debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				RUN_CLANG_STATIC_ANALYZER = YES;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
 		8B0965CC17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347881C644E13000A6DA1 /* adal__release.xcconfig */;
+			baseConfigurationReference = D6CF4EB41FC370C000CD70C5 /* adal__release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				RUN_CLANG_STATIC_ANALYZER = YES;
-				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		8B0965CE17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
+			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
-				DEAD_CODE_STRIPPING = NO;
-				DSTROOT = /usr/local/lib;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = YES;
-				STRIP_INSTALLED_PRODUCT = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PRODUCT_NAME = ADALiOS;
 			};
 			name = Debug;
 		};
 		8B0965CF17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
+			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
-				DEAD_CODE_STRIPPING = NO;
-				DSTROOT = /usr/local/lib;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = YES;
-				STRIP_INSTALLED_PRODUCT = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PRODUCT_NAME = ADALiOS;
 			};
 			name = Release;
 		};
 		8B0965D117F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
+			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "tests/unit/ios/ADAL_iOS_UTs-Info.plist";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					XCTest,
-					"-ObjC",
-				);
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
 		8B0965D217F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
+			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				INFOPLIST_FILE = "tests/unit/ios/ADAL_iOS_UTs-Info.plist";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					XCTest,
-					"-ObjC",
-				);
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
 		9453C3D21C583E07006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
+			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = resources/ios/Framework/Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
 		};
 		9453C3D41C583E07006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
+			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = resources/ios/Framework/Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
 		9453C4021C586425006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */;
+			baseConfigurationReference = D6CF4EB11FC370BF00CD70C5 /* adal__framework__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_VERSION = A;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				SDKROOT = macosx;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
 		};
 		9453C4041C586425006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */;
+			baseConfigurationReference = D6CF4EB11FC370BF00CD70C5 /* adal__framework__mac.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_VERSION = A;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = macosx;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -2851,266 +3128,101 @@
 		};
 		94DD18EA1C5ACFBF00F80C62 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
+			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "tests/unit/mac/ADAL_Mac_UTs-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac-Tests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		94DD18EC1C5ACFBF00F80C62 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
+			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "tests/unit/mac/ADAL_Mac_UTs-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac-Tests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		B20DC5AA1F0D96A100957806 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
+			baseConfigurationReference = D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "tests/integration/ios/ADAL_iOS_ITs-Info.plist";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					XCTest,
-					"-ObjC",
-				);
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
 		B20DC5AC1F0D96A100957806 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
+			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				INFOPLIST_FILE = "tests/integration/ios/ADAL_iOS_ITs-Info.plist";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					XCTest,
-					"-ObjC",
-				);
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
 		B20DC5CE1F0D96A700957806 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
+			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "tests/integration/mac/ADAL_Mac_ITs-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac-Tests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		B20DC5D01F0D96A700957806 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
+			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = tests/ADTest.pch;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "tests/integration/mac/ADAL_Mac_ITs-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac-Tests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		D64C1F5C1DB9B05A00850036 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 4XAC8VP2M2;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = ADALAutomation/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.automationapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "../src/** $(inherited)";
 			};
 			name = Debug;
 		};
 		D64C1F5E1DB9B05A00850036 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 4XAC8VP2M2;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = ADALAutomation/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.automationapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "../src/** $(inherited)";
 			};
 			name = Release;
 		};
 		D664F1B11D302B9C0017B799 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
+			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				DEAD_CODE_STRIPPING = NO;
-				DSTROOT = /usr/local/lib;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = YES;
-				STRIP_INSTALLED_PRODUCT = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PRODUCT_NAME = "ADAL-core";
 			};
 			name = Debug;
 		};
 		D664F1B31D302B9C0017B799 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
+			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				DEAD_CODE_STRIPPING = NO;
-				DSTROOT = /usr/local/lib;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = YES;
-				STRIP_INSTALLED_PRODUCT = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PRODUCT_NAME = "ADAL-core";
+			};
+			name = Release;
+		};
+		D6D9A4F01FBFB45200EFA430 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D6D9A4F11FBFB45200EFA430 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D6D9A5081FBFB47300EFA430 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D6D9A5091FBFB47300EFA430 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */;
+			buildSettings = {
 			};
 			name = Release;
 		};
@@ -3153,7 +3265,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		9453C3D11C583E07006B9E79 /* Build configuration list for PBXNativeTarget "ADAL" */ = {
+		9453C3D11C583E07006B9E79 /* Build configuration list for PBXNativeTarget "ADAL iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9453C3D21C583E07006B9E79 /* Debug */,
@@ -3221,6 +3333,24 @@
 			buildConfigurations = (
 				D664F1B11D302B9C0017B799 /* Debug */,
 				D664F1B31D302B9C0017B799 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D6D9A4F41FBFB45200EFA430 /* Build configuration list for PBXNativeTarget "iOSTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6D9A4F01FBFB45200EFA430 /* Debug */,
+				D6D9A4F11FBFB45200EFA430 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D6D9A5071FBFB47300EFA430 /* Build configuration list for PBXNativeTarget "MacTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6D9A5081FBFB47300EFA430 /* Debug */,
+				D6D9A5091FBFB47300EFA430 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
