@@ -25,7 +25,7 @@
 
 @class ADAuthenticationError;
 @class ADURLProtocol;
-@class ADTelemetryUIEvent;
+@class MSIDTelemetryUIEvent;
 
 typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
 
@@ -53,7 +53,7 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
              authMethod:(NSString *)authMethod;
 
 + (BOOL)registerProtocol:(NSString*)endURL
-          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
+          telemetryEvent:(MSIDTelemetryUIEvent*)telemetryEvent;
 + (void)unregisterProtocol;
 
 + (void)addContext:(id<MSIDRequestContext>)context

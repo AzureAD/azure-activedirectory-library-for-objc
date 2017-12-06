@@ -28,7 +28,7 @@
 #import "ADAuthenticationResult+Internal.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "NSString+ADURLExtensions.h"
 
 #if TARGET_OS_IPHONE
@@ -291,7 +291,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 {
     if ([_requestParams telemetryRequestId] == nil)
     {
-        [_requestParams setTelemetryRequestId:[[ADTelemetry sharedInstance] registerNewRequest]];
+        [_requestParams setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     }
     
     return [_requestParams telemetryRequestId];

@@ -28,7 +28,7 @@
 #import "ADUserInformation.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
 
 @implementation ADTokenCacheItem (Internal)
@@ -276,7 +276,7 @@
 
 - (NSString *)speInfo
 {
-    return [_additionalServer objectForKey:AD_TELEMETRY_KEY_SPE_INFO];
+    return [_additionalServer objectForKey:MSID_TELEMETRY_KEY_SPE_INFO];
 }
 
 @end

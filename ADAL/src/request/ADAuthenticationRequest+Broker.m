@@ -33,7 +33,7 @@
 #import "ADWebAuthController+Internal.h"
 #import "ADAuthenticationResult.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryBrokerEvent.h"
 
 #import "ADOAuth2Constants.h"
