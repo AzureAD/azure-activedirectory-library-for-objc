@@ -31,14 +31,11 @@ NSString *const OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const OAUTH2_BEARER             = @"Bearer";
 NSString *const OAUTH2_CLIENT_ID          = @"client_id";
-NSString *const OAUTH2_CLIENT_SECRET      = @"client_secret";
 NSString *const OAUTH2_CODE               = @"code";
 NSString *const OAUTH2_ERROR              = @"error";
 NSString *const OAUTH2_ERROR_DESCRIPTION  = @"error_description";
 NSString *const OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const OAUTH2_GRANT_TYPE         = @"grant_type";
-NSString *const OAUTH2_PLATFORM_ID        = @"platform_id";
-NSString *const OAUTH2_REALM              = @"realm";
 NSString *const OAUTH2_REDIRECT_URI       = @"redirect_uri";
 NSString *const OAUTH2_REFRESH_TOKEN      = @"refresh_token";
 NSString *const OAUTH2_RESOURCE           = @"resource";
@@ -71,24 +68,7 @@ NSString *const BROKER_HASH_KEY                 = @"hash";
 NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";
 
 //Diagnostic traces sent to the Azure Active Directory servers:
-NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
 NSString *const ADAL_ID_VERSION           = @"x-client-Ver";
-NSString *const ADAL_ID_CPU               = @"x-client-CPU";//E.g. ARM64
-NSString *const ADAL_ID_OS_VER            = @"x-client-OS";//iOS/OSX version
-NSString *const ADAL_ID_DEVICE_MODEL      = @"x-client-DM";//E.g. iPhone
-
-//Internal constants:
-NSString *const AUTH_FAILED               = @"Authentication Failed";
-NSString *const AUTH_FAILED_ERROR_CODE    = @"Authentication Failed: %d";
-
-NSString *const AUTH_FAILED_SERVER_ERROR   = @"The Authorization Server returned an unrecognized response";
-NSString *const AUTH_FAILED_NO_STATE       = @"The Authorization Server response has no encoded state";
-NSString *const AUTH_FAILED_BAD_STATE      = @"The Authorization Server response has incorrectly encoded state";
-NSString *const AUTH_FAILED_NO_TOKEN       = @"The requested access token could not be found";
-NSString *const AUTH_FAILED_BAD_PARAMETERS = @"Incorrect parameters for authorization call";
-NSString *const AUTH_FAILED_NO_CLIENTID    = @"Unable to determine client identifier";
-NSString *const AUTH_FAILED_NO_REDIRECTURI = @"Unable to determine redirect URL";
-NSString *const AUTH_FAILED_BUSY           = @"Authorization call is already in progress";
 
 NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 
