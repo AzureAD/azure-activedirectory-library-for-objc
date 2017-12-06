@@ -68,8 +68,6 @@
  */
 - (BOOL)fillItemWithResponse:(NSDictionary*)response;
 
-- (void)makeTombstone:(NSDictionary*)tombstoneEntries;
-
 - (void)logMessage:(NSString *)message
              level:(MSIDLogLevel)level
      correlationId:(NSUUID*)correlationId;

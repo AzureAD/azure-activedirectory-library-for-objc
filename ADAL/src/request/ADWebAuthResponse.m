@@ -273,9 +273,10 @@
     MSID_LOG_WARN(_request, @"HTTP Error %ld", (long)webResponse.statusCode);
     MSID_LOG_WARN_PII(_request, @"%@", errorData);
     
-    ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
-                                                                     body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
-                                                            correlationId:_request.correlationId];
+    ADAuthenticationError* adError = [ADAuthenticationError errorFromHTTPErrorCode:webResponse.statusCode
+                                                                              body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
+                                                                           headers:webResponse.headers
+                                                                     correlationId:_request.correlationId];
     
     //Now add the information to the dictionary, so that the parser can extract it:
     [self handleADError:adError completionBlock:completionBlock];

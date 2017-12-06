@@ -238,13 +238,7 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
     {
-        [[MSIDTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
-        ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
-        [request getToken:^(ADAuthenticationResult *result)
-        {
-            ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
-                                                                           context:_requestParams];
-            [[MSIDTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+        [self getAccessToken:^(ADAuthenticationResult *result) {
             if ([ADAuthenticationContext isFinalResult:result])
             {
                 completionBlock(result);
@@ -259,6 +253,19 @@
     }
     
     [self requestToken:completionBlock];
+}
+
+- (void)getAccessToken:(ADAuthenticationCallback)completionBlock
+{
+    [[MSIDTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
+    ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
+    [request getToken:^(ADAuthenticationResult *result)
+     {
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
+                                                                        context:_requestParams];
+         [[MSIDTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+         completionBlock(result);
+     }];
 }
 
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
@@ -358,7 +365,14 @@
 #if !AD_BROKER
              [ADAuthenticationRequest releaseExclusionLock];
 #endif
-
+             
+             // If we got back a valid RT but no access token then replay the RT for a new AT
+             if (result.status == AD_SUCCEEDED && result.tokenCacheItem.accessToken == nil)
+             {
+                 [self getAccessToken:completionBlock];
+                 return;
+             }
+             
              completionBlock(result);
          }];
         return;

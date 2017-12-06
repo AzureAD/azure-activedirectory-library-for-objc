@@ -383,26 +383,7 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
-    return [self filterOutTombstones:items];
-}
-
--(NSMutableArray*)filterOutTombstones:(NSArray*) items
-{
-    if(!items)
-    {
-        return nil;
-    }
-    
-    NSMutableArray* itemsKept = [NSMutableArray new];
-    for (ADTokenCacheItem* item in items)
-    {
-        if (![item tombstone])
-        {
-            [itemsKept addObject:item];
-        }
-    }
-    return itemsKept;
+    return [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
 }
 
 @end
@@ -469,23 +450,24 @@
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
-    NSArray<ADTokenCacheItem *> * itemsExcludingTombstones = [self filterOutTombstones:items];
     
-    if (!itemsExcludingTombstones || itemsExcludingTombstones.count == 0)
+    if (items.count == 0)
     {
-        for (ADTokenCacheItem* item in items)
-        {
-            [item logMessage:@"Found"
-                       level:MSIDLogLevelWarning
-               correlationId:correlationId];
-        }
         return nil;
     }
     
-    if (itemsExcludingTombstones.count == 1)
+    for (ADTokenCacheItem* item in items)
     {
-        return itemsExcludingTombstones.firstObject;
+        [item logMessage:@"Found"
+                   level:MSIDLogLevelWarning
+           correlationId:correlationId];
     }
+    
+    if (items.count == 1)
+    {
+        return items.firstObject;
+    }
+
     
     ADAuthenticationError* adError =
     [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
@@ -604,19 +586,6 @@
     return result;
 }
 
-- (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
-{
-    NSArray* items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
-    NSMutableArray* tombstones = [NSMutableArray new];
-    for (ADTokenCacheItem* item in items)
-    {
-        if ([item tombstone])
-        {
-            [tombstones addObject:item];
-        }
-    }
-    return tombstones;
-}
 
 - (NSString *)description
 {

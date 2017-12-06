@@ -227,70 +227,8 @@
     return isMRRT;
 }
 
-- (void)makeTombstone:(NSDictionary *)tombstoneEntries
-{
-    NSMutableDictionary* tombstoneDictionary = [NSMutableDictionary new];
-    
-    //avoid bundleId being nil, as it will be stored in a NSMutableDictionary
-    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-    
-    if (bundleId)
-    {
-        [tombstoneDictionary setObject:bundleId forKey:@"bundleId"];
-    }
-    
-    if (tombstoneEntries)
-    {
-        [tombstoneDictionary addEntriesFromDictionary:tombstoneEntries];
-    }
-    
-    //wipe out the refresh token
-    _refreshToken = @"<tombstone>";
-    _tombstone = tombstoneDictionary;
-    _expiresOn = [NSDate dateWithTimeIntervalSinceNow:THIRTY_DAYS_IN_SECONDS];//tombstones should be removed after 30 days
-}
-
 - (void)logMessage:(NSString*)message level:(MSIDLogLevel)level correlationId:(NSUUID*)correlationId
 {
-    if (_tombstone)
-    {
-        [[MSIDLogger sharedLogger] logLevel:level
-                                    context:nil
-                              correlationId:correlationId
-                                      isPII:YES
-                                     format:@"%@", _tombstone];
-        
-        [[MSIDLogger sharedLogger] logLevel:level
-                                    context:nil
-                              correlationId:correlationId
-                                      isPII:YES
-                                     format:@"\n\tresource: %@", _resource];
-        
-        [[MSIDLogger sharedLogger] logLevel:level
-                                    context:nil
-                              correlationId:correlationId
-                                      isPII:YES
-                                     format:@"\n\tclientId: %@", _clientId];
-        
-        if ([ADAuthorityUtils isKnownHost:[_authority msidUrl]]) {
-            
-            [[MSIDLogger sharedLogger] logLevel:level
-                                        context:nil
-                                  correlationId:correlationId
-                                          isPII:NO
-                                         format:@"\n\tauthority host:%@\n", [_authority msidUrl].host];
-        } else {
-            
-            [[MSIDLogger sharedLogger] logLevel:level
-                                        context:nil
-                                  correlationId:correlationId
-                                          isPII:NO
-                                         format:@"\n\tauthority:%@\n", _authority];
-        }
-        
-        return;
-    }
-    
     NSString* tokenMessage = nil;
     
     if (_accessToken && _refreshToken)

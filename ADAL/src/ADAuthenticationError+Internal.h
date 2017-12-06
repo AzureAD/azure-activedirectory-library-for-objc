@@ -108,9 +108,10 @@
                                                status:(OSStatus)status
                                         correlationId:(NSUUID *)correlationId;
 
-+ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
-                                    body:(NSString *)body
-                           correlationId:(NSUUID *)correlationId;
++ (ADAuthenticationError *)errorFromHTTPErrorCode:(NSInteger)code
+                                             body:(NSString *)body
+                                          headers:(NSDictionary *)headers
+                                    correlationId:(NSUUID *)correlationId;
 
 + (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
                                 description:(NSString *)description
