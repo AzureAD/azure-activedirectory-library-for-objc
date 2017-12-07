@@ -24,7 +24,6 @@
 #import "ADAL_Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADAuthenticationError.h"
-#import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -41,7 +40,7 @@
 {
     MSID_LOG_VERBOSE_CORR(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
     
-    NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSString* responseId = [response objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
     if (![NSString msidIsStringNilOrBlank:responseId])
     {
         NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
@@ -67,7 +66,7 @@
     return [self processTokenResponse:response
                           fromRefresh:fromRefreshTokenWorkflow
                  requestCorrelationId:requestCorrelationId
-                         fieldToCheck:OAUTH2_ACCESS_TOKEN];
+                         fieldToCheck:MSID_OAUTH2_ACCESS_TOKEN];
 }
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
@@ -202,23 +201,23 @@
     
     NSMutableDictionary* responseDictionary = [response mutableCopy];
     
-    BOOL isMRRT = ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
+    BOOL isMRRT = ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:MSID_OAUTH2_RESOURCE]] && ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:MSID_OAUTH2_REFRESH_TOKEN]];
     
-    [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
-    [responseDictionary removeObjectForKey:OAUTH2_ID_TOKEN];
+    [self fillUserInformation:[responseDictionary valueForKey:MSID_OAUTH2_ID_TOKEN]];
+    [responseDictionary removeObjectForKey:MSID_OAUTH2_ID_TOKEN];
     
-    FILL_FIELD(authority, OAUTH2_AUTHORITY, [NSString class]);
-    FILL_FIELD(resource, OAUTH2_RESOURCE, [NSString class]);
-    FILL_FIELD(clientId, OAUTH2_CLIENT_ID, [NSString class]);
-    FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN, [NSString class]);
-    FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN, [NSString class]);
-    FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE, [NSString class]);
+    FILL_FIELD(authority, MSID_OAUTH2_AUTHORITY, [NSString class]);
+    FILL_FIELD(resource, MSID_OAUTH2_RESOURCE, [NSString class]);
+    FILL_FIELD(clientId, MSID_OAUTH2_CLIENT_ID, [NSString class]);
+    FILL_FIELD(accessToken, MSID_OAUTH2_ACCESS_TOKEN, [NSString class]);
+    FILL_FIELD(refreshToken, MSID_OAUTH2_REFRESH_TOKEN, [NSString class]);
+    FILL_FIELD(accessTokenType, MSID_OAUTH2_TOKEN_TYPE, [NSString class]);
     FILL_FIELD(familyId, ADAL_CLIENT_FAMILY_ID, [NSString class]);
     
     [self fillExpiration:responseDictionary];
     
     [self logMessage:@"Received"
-       correlationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]
+       correlationId:[responseDictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]
                 mrrt:isMRRT];
     
     // Store what we haven't cached to _additionalServer

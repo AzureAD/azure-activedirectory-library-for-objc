@@ -25,7 +25,6 @@
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
-#import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 
 @implementation ADAuthenticationResult (Internal)
@@ -146,16 +145,16 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 + (ADAuthenticationResult*)resultForBrokerErrorResponse:(NSDictionary*)response
 {
     NSUUID* correlationId = nil;
-    NSString* uuidString = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSString* uuidString = [response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
     if (uuidString)
     {
-        correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+        correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]];
     }
     
     // Otherwise parse out the error condition
     ADAuthenticationError* error = nil;
     
-    NSString* errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
+    NSString* errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
     if (!errorDetails)
     {
         errorDetails = @"Broker did not provide any details";
@@ -202,13 +201,13 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         return [self resultForNoBrokerResponse];
     }
     
-    if ([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    if ([response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
         return [self resultForBrokerErrorResponse:response];
     }
     
     NSUUID* correlationId =  nil;
-    NSString* correlationIdStr = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSString* correlationIdStr = [response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
     if (correlationIdStr)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];

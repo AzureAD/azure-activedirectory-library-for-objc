@@ -28,7 +28,6 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
-#import "ADOauth2Constants.h"
 #import "ADAL_Internal.h"
 #import "ADAuthorityUtils.h"
 
@@ -161,7 +160,7 @@
 + (NSData*)computeKDFInCounterMode:(NSData *)key
                            context:(NSData *)ctx
 {
-    NSData* labelData = [AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* labelData = [ADAL_AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData* mutData = [NSMutableData new];
     [mutData appendBytes:labelData.bytes length:labelData.length];
     Byte bytes[] = {0x00};

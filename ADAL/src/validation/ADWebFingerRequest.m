@@ -24,7 +24,6 @@
 
 #import "ADWebFingerRequest.h"
 #import "ADWebAuthRequest.h"
-#import "ADOAuth2Constants.h"
 
 @implementation ADWebFingerRequest
 

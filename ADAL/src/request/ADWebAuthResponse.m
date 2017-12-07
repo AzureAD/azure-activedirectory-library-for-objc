@@ -25,7 +25,6 @@
 #import "ADWebAuthResponse.h"
 #import "ADWebResponse.h"
 #import "ADWebAuthRequest.h"
-#import "ADOauth2Constants.h"
 #import "ADWorkplaceJoinConstants.h"
 #import "ADPKeyAuthHelper.h"
 #import "ADClientMetrics.h"
@@ -206,10 +205,10 @@
 {
     NSDictionary* headers = webResponse.headers;
     //In most cases the correlation id is returned as a separate header
-    NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+    NSString* responseCorrelationId = [headers objectForKey:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     if (![NSString msidIsStringNilOrBlank:responseCorrelationId])
     {
-        [_responseDictionary setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
+        [_responseDictionary setObject:responseCorrelationId forKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
     }
 }
 

@@ -33,12 +33,12 @@
 {
     if(_assertionType == AD_SAML1_1)
     {
-        return OAUTH2_SAML11_BEARER_VALUE;
+        return MSID_OAUTH2_SAML11_BEARER_VALUE;
     }
     
     if(_assertionType == AD_SAML2)
     {
-        return OAUTH2_SAML2_BEARER_VALUE;
+        return MSID_OAUTH2_SAML2_BEARER_VALUE;
     }
     
     return nil;
@@ -65,11 +65,11 @@
     }
     
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                         assertionType, OAUTH2_GRANT_TYPE,
-                                         base64String, OAUTH2_ASSERTION,
-                                         [_requestParams clientId], OAUTH2_CLIENT_ID,
-                                         [_requestParams resource], OAUTH2_RESOURCE,
-                                         OAUTH2_SCOPE_OPENID_VALUE, OAUTH2_SCOPE,
+                                         assertionType, MSID_OAUTH2_GRANT_TYPE,
+                                         base64String, MSID_OAUTH2_ASSERTION,
+                                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
+                                         [_requestParams resource], MSID_OAUTH2_RESOURCE,
+                                         MSID_OAUTH2_SCOPE_OPENID_VALUE, MSID_OAUTH2_SCOPE,
                                          nil];
     [self executeRequest:request_data
               completion:completionBlock];

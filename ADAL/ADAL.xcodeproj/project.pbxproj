@@ -96,8 +96,6 @@
 		9453C4101C586456006B9E79 /* ADAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */; };
 		9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */; };
 		9453C4141C586456006B9E79 /* ADLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB6F181B2335004AAB0E /* ADLogger.m */; };
-		9453C4161C586456006B9E79 /* ADOAuth2Constants.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */; };
-		9453C4171C586456006B9E79 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
 		9453C4181C586456006B9E79 /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
 		9453C41B1C586456006B9E79 /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
 		9453C41C1C586456006B9E79 /* ADClientMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = 97A522511A1A89C4001D77CE /* ADClientMetrics.h */; };
@@ -226,6 +224,9 @@
 		D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */; };
 		D60B653C1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */; };
 		D60B653D1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */; };
+		D61AFAAD1FD8A06D00DABBE5 /* ADALConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */; };
+		D61AFAAE1FD8A06D00DABBE5 /* ADALConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D61AFAAC1FD8A06D00DABBE5 /* ADALConstants.m */; };
+		D61AFAAF1FD8A06D00DABBE5 /* ADALConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D61AFAAC1FD8A06D00DABBE5 /* ADALConstants.m */; };
 		D62256511F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D62256501F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m */; };
 		D62256521F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D62256501F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m */; };
 		D62256531F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D62256501F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m */; };
@@ -247,7 +248,6 @@
 		D64C1F631DB9C64E00850036 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		D664F17A1D302B9C0017B799 /* ADWebAuthRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095191CDC2BC300D28FC2 /* ADWebAuthRequest.m */; };
 		D664F17B1D302B9C0017B799 /* ADNTLMUIPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4681C58709D006B9E79 /* ADNTLMUIPrompt.m */; };
-		D664F17C1D302B9C0017B799 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
 		D664F17D1D302B9C0017B799 /* ADWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C38B1C5820E3006B9E79 /* ADWebRequest.m */; };
 		D664F17E1D302B9C0017B799 /* ADTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C33F1C57FC2A006B9E79 /* ADTokenCacheKey.m */; };
 		D664F1801D302B9C0017B799 /* ADURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C39B1C5826F2006B9E79 /* ADURLProtocol.m */; };
@@ -665,8 +665,6 @@
 		8B4EC4971D70BF850047CA62 /* ADAppExtensionUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAppExtensionUtil.m; sourceTree = "<group>"; };
 		8B59893D180DE8A100744AEE /* ADUserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserInformation.m; sourceTree = "<group>"; };
 		8B5989501811A3DB00744AEE /* ADAuthenticationError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationError.m; sourceTree = "<group>"; };
-		8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADOAuth2Constants.h; sourceTree = "<group>"; };
-		8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADOAuth2Constants.m; sourceTree = "<group>"; };
 		8B92DB5D1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+TestHelperMethods.h"; sourceTree = "<group>"; };
 		8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCTestCase+TestHelperMethods.m"; sourceTree = "<group>"; };
 		8B92DB6F181B2335004AAB0E /* ADLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLogger.m; sourceTree = "<group>"; };
@@ -812,6 +810,8 @@
 		B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRegistrationInformation.m; sourceTree = "<group>"; };
 		D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
+		D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALConstants.h; sourceTree = "<group>"; };
+		D61AFAAC1FD8A06D00DABBE5 /* ADALConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALConstants.m; sourceTree = "<group>"; };
 		D622564F1F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAuthorityValidationResponse.h; sourceTree = "<group>"; };
 		D62256501F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAuthorityValidationResponse.m; sourceTree = "<group>"; };
 		D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = IdentityCore.xcodeproj; path = IdentityCore/IdentityCore/IdentityCore.xcodeproj; sourceTree = "<group>"; };
@@ -1186,6 +1186,8 @@
 				60C351B91DA0D588006C8435 /* ADAL.m */,
 				D67D3D401F38542700660F32 /* ADAL.pch */,
 				9453C3A31C583A9C006B9E79 /* ADAL_Internal.h */,
+				D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */,
+				D61AFAAC1FD8A06D00DABBE5 /* ADALConstants.m */,
 				8BB8345B18074A58007F9F0D /* ADAuthenticationContext.m */,
 				D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */,
 				D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */,
@@ -1199,8 +1201,6 @@
 				8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */,
 				8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */,
 				8B92DB6F181B2335004AAB0E /* ADLogger.m */,
-				8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */,
-				8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */,
 				8B59893D180DE8A100744AEE /* ADUserInformation.m */,
 				97A522481A1A752D001D77CE /* ADClientMetrics.m */,
 				97A522511A1A89C4001D77CE /* ADClientMetrics.h */,
@@ -1887,6 +1887,7 @@
 				9453C42A1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.h in Headers */,
 				94DD18D51C5AC8DE00F80C62 /* ADErrorCodes.h in Headers */,
 				600401C41D3D58D50020EAAB /* ADAggregatedDispatcher.h in Headers */,
+				D61AFAAD1FD8A06D00DABBE5 /* ADALConstants.h in Headers */,
 				9453C41C1C586456006B9E79 /* ADClientMetrics.h in Headers */,
 				9453C4381C586476006B9E79 /* ADNTLMHandler.h in Headers */,
 				9453C4641C58707B006B9E79 /* ADCredentialCollectionController.h in Headers */,
@@ -1920,7 +1921,6 @@
 				94DD18D41C5AC8DE00F80C62 /* ADAuthenticationSettings.h in Headers */,
 				94DD18CF1C5AC8DE00F80C62 /* ADAL.h in Headers */,
 				94DD18DA1C5AC8DE00F80C62 /* ADWebAuthController.h in Headers */,
-				9453C4161C586456006B9E79 /* ADOAuth2Constants.h in Headers */,
 				94DD18D91C5AC8DE00F80C62 /* ADUserInformation.h in Headers */,
 				9453C4281C58646D006B9E79 /* ADAuthenticationRequest.h in Headers */,
 				6010EDF81D47B2E300B62072 /* ADTelemetryBrokerEvent.h in Headers */,
@@ -2543,9 +2543,9 @@
 				9453C4331C58646D006B9E79 /* ADWebRequest.m in Sources */,
 				9453C4351C58646D006B9E79 /* ADWebResponse.m in Sources */,
 				23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */,
-				9453C4171C586456006B9E79 /* ADOAuth2Constants.m in Sources */,
 				D6CF4ED51FC37A1B00CD70C5 /* ADAL.m in Sources */,
 				60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */,
+				D61AFAAF1FD8A06D00DABBE5 /* ADALConstants.m in Sources */,
 				9453C4101C586456006B9E79 /* ADAuthenticationResult.m in Sources */,
 				9453C4091C586456006B9E79 /* ADAuthenticationContext+Internal.m in Sources */,
 				D6F0951C1CDC2BC300D28FC2 /* ADWebAuthRequest.m in Sources */,
@@ -2658,7 +2658,6 @@
 				D664F17A1D302B9C0017B799 /* ADWebAuthRequest.m in Sources */,
 				D664F17B1D302B9C0017B799 /* ADNTLMUIPrompt.m in Sources */,
 				D67D3D4B1F43A96200660F32 /* ADAadAuthorityCache.m in Sources */,
-				D664F17C1D302B9C0017B799 /* ADOAuth2Constants.m in Sources */,
 				D6669FB01F1D4F51002492C5 /* ADAuthorityValidation.m in Sources */,
 				D664F17D1D302B9C0017B799 /* ADWebRequest.m in Sources */,
 				D664F17E1D302B9C0017B799 /* ADTokenCacheKey.m in Sources */,
@@ -2682,6 +2681,7 @@
 				D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */,
 				2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */,
+				D61AFAAE1FD8A06D00DABBE5 /* ADALConstants.m in Sources */,
 				B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */,
 				D6D9A4611FBD4F7300EFA430 /* MSIDVersion.m in Sources */,
 				D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */,

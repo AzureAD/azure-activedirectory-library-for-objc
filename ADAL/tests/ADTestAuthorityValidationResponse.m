@@ -18,7 +18,6 @@
 
 #import "ADTestAuthorityValidationResponse.h"
 #import "ADAuthorityValidationRequest.h"
-#import "ADOAuth2Constants.h"
 
 #import "NSDictionary+MSIDTestUtil.h"
 
@@ -72,8 +71,8 @@
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
                                                      httpHeaderFields:@{}
-                                                     dictionaryAsJSON:@{OAUTH2_ERROR : @"invalid_instance",
-                                                                        OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
+                                                     dictionaryAsJSON:@{MSID_OAUTH2_ERROR : @"invalid_instance",
+                                                                        MSID_OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     
     return response;

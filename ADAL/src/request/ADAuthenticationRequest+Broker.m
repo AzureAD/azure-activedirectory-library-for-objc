@@ -36,8 +36,6 @@
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryBrokerEvent.h"
 
-#import "ADOAuth2Constants.h"
-
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
@@ -188,22 +186,22 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
     
-    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    if([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
         return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
     
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
     // accidentally going to the wrong app
-    NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+    NSString* hash = [queryParamsMap valueForKey:ADAL_BROKER_HASH_KEY];
     if (!hash)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_HASH_MISSING, @"Key hash is missing from the broker response", correlationId);
         return nil;
     }
     
-    NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-    NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
+    NSString* encryptedBase64Response = [queryParamsMap valueForKey:ADAL_BROKER_RESPONSE_KEY];
+    NSString* msgVer = [queryParamsMap valueForKey:ADAL_BROKER_MESSAGE_VERSION];
     NSInteger protocolVersion = 1;
     
     if (msgVer)
@@ -240,7 +238,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     [ADHelpers removeNullStringFrom:queryParamsMap];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     
-    s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
+    s_brokerAppVersion = [queryParamsMap valueForKey:ADAL_BROKER_APP_VERSION];
     
     NSString* keychainGroup = resumeDictionary[@"keychain_group"];
     if (AD_SUCCEEDED == result.status && keychainGroup)
@@ -311,7 +309,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"broker_key"     : base64UrlKey,
 #endif // TARGET_OS_IPHONE Broker Message Encryption
       @"client_version" : adalVersion,
-      BROKER_MAX_PROTOCOL_VERSION : @"2",
+      ADAL_BROKER_MAX_PROTOCOL_VERSION : @"2",
       @"extra_qp"       : _queryParams ? _queryParams : @"",
       @"claims"         : _claims ? _claims : @"",
       };
