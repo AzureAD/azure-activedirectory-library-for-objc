@@ -28,7 +28,6 @@
 #import "ADDrsDiscoveryRequest.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADHelpers.h"
-#import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
 #import "ADAuthenticationError.h"

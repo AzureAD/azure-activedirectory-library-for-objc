@@ -24,7 +24,6 @@
 #import "ADAL_Internal.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
-#import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"

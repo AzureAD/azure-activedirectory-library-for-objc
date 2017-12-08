@@ -485,14 +485,14 @@
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                         OAUTH2_AUTHORIZATION_CODE, OAUTH2_GRANT_TYPE,
-                                         code, OAUTH2_CODE,
-                                         [_requestParams clientId], OAUTH2_CLIENT_ID,
-                                         [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
+                                         MSID_OAUTH2_AUTHORIZATION_CODE, MSID_OAUTH2_GRANT_TYPE,
+                                         code, MSID_OAUTH2_CODE,
+                                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
+                                         [_requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
                                          nil];
     if (![NSString msidIsStringNilOrBlank:_scope])
     {
-        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
+        [request_data setValue:_scope forKey:MSID_OAUTH2_SCOPE];
     }
     
     [self executeRequest:request_data

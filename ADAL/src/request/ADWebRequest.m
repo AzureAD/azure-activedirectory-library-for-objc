@@ -27,7 +27,6 @@
 #import "ADAuthorityValidation.h"
 #import "ADErrorCodes.h"
 #import "ADHelpers.h"
-#import "ADOAuth2Constants.h"
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryHttpEvent.h"
@@ -145,8 +144,8 @@
     {
         [_requestHeaders addEntriesFromDictionary:
          @{
-           OAUTH2_CORRELATION_ID_REQUEST:@"true",
-           OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
+           MSID_OAUTH2_CORRELATION_ID_REQUEST:@"true",
+           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
     // If there is request data, then set the Content-Length header
@@ -256,7 +255,7 @@
     
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
-    [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
+    [event setHttpRequestIdHeader:[response.headers objectForKey:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
     if (error)
     {
         [event setHttpErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
