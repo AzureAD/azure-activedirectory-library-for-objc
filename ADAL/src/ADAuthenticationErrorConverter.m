@@ -25,8 +25,8 @@
 #import "ADAuthenticationError.h"
 #import "MSIDError.h"
 
-static NSDictionary* s_errorDomainMapping;
-static NSDictionary* s_errorCodeMapping;
+static NSDictionary *s_errorDomainMapping;
+static NSDictionary *s_errorCodeMapping;
 
 @interface ADAuthenticationError (ErrorConverterUtil)
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
