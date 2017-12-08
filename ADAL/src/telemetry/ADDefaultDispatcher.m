@@ -22,19 +22,13 @@
 // THE SOFTWARE.
 
 #import "ADTelemetry.h"
-#import "ADTelemetryEventInterface.h"
+#import "MSIDTelemetryEventInterface.h"
 #import "ADDefaultDispatcher.h"
+#import "MSIDTelemetryEventInterface.h"
 
 @implementation ADDefaultDispatcher
 
-- (id)init
-{
-    //Ensure that the appropriate init function is called. This will cause the runtime to throw.
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
-}
-
-- (id)initWithDispatcher:(id<ADDispatcher>)dispatcher
+- (instancetype)initWithDispatcher:(id<ADDispatcher>)dispatcher
 {
     self = [super init];
     if (self)
@@ -59,11 +53,13 @@
     //so here is empty
 }
 
-- (void)receive:(NSString *)requestId
-          event:(id<ADTelemetryEventInterface>)event
+- (void)receive:(__unused NSString *)requestId
+          event:(id<MSIDTelemetryEventInterface>)event
 {
-    (void)requestId;
-    NSDictionary* properties = [event getProperties];
+    [event addDefaultProperties]; // Always append default properties to each non-aggregated event in ADAL
+    
+    NSDictionary *properties = [event getProperties];
+    
     if (properties)
     {
         [_dispatcher dispatchEvent:properties];

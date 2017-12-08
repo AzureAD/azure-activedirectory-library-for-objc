@@ -46,4 +46,9 @@ static NSMutableDictionary *s_adalId = nil;
     return ADAL_VERSION_NSSTRING;
 }
 
++ (NSString *)telemetryEventPrefix
+{
+    return @"Microsoft.ADAL.";
+}
+
 @end

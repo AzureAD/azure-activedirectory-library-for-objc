@@ -29,9 +29,9 @@
 #import "ADHelpers.h"
 #import "ADOAuth2Constants.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
-#import "ADTelemetryHttpEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryHttpEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADURLProtocol.h"
 #import "ADWebResponse.h"
 
@@ -138,7 +138,7 @@
 
 - (void)send
 {
-    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
+    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [_requestHeaders addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     //Correlation id:
     if (_correlationId)
@@ -252,7 +252,7 @@
 - (void)stopTelemetryEvent:(NSError *)error
                   response:(ADWebResponse *)response
 {
-    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST requestId:_telemetryRequestId correlationId:_correlationId];
+    MSIDTelemetryHttpEvent* event = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST requestId:_telemetryRequestId correlationId:_correlationId];
     
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
@@ -267,12 +267,12 @@
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
     
-    [event setOAuthErrorCode:response];
+    [event setOAuthErrorCodeFromResponseData:response.body];
     [event setClientTelemetry:[response headers][ADAL_CLIENT_TELEMETRY]];
     
     [event setHttpRequestQueryParams:_requestURL.query];
     
-    [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
 }
 
 - (void)addToHeadersFromDictionary:(NSDictionary *)headers
