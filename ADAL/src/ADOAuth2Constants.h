@@ -31,14 +31,11 @@ extern NSString *const OAUTH2_AUTHORITY;
 extern NSString *const OAUTH2_AUTHORIZE_SUFFIX;
 extern NSString *const OAUTH2_BEARER;
 extern NSString *const OAUTH2_CLIENT_ID;
-extern NSString *const OAUTH2_CLIENT_SECRET;
 extern NSString *const OAUTH2_CODE;
 extern NSString *const OAUTH2_ERROR;
 extern NSString *const OAUTH2_ERROR_DESCRIPTION;
 extern NSString *const OAUTH2_EXPIRES_IN;
 extern NSString *const OAUTH2_GRANT_TYPE;
-extern NSString *const OAUTH2_PLATFORM_ID;
-extern NSString *const OAUTH2_REALM;
 extern NSString *const OAUTH2_REDIRECT_URI;
 extern NSString *const OAUTH2_REFRESH_TOKEN;
 extern NSString *const OAUTH2_RESOURCE;
@@ -70,25 +67,7 @@ extern NSString *const BROKER_HASH_KEY;
 extern NSString *const ADAL_CLIENT_TELEMETRY;
 
 //Diagnostic traces sent to the Azure Active Directory servers:
-extern NSString *const ADAL_ID_PLATFORM;//The ADAL platform. iOS or OSX
 extern NSString *const ADAL_ID_VERSION;
-extern NSString *const ADAL_ID_CPU;//E.g. ARM64
-extern NSString *const ADAL_ID_OS_VER;//iOS/OSX version
-extern NSString *const ADAL_ID_DEVICE_MODEL;//E.g. iPhone 5S
-
-
-extern NSString *const AUTH_FAILED; //Generic error.
-extern NSString *const AUTH_FAILED_ERROR_CODE;
-extern NSString *const AUTH_NON_PROTOCOL_ERROR; //A special error to denote that the error was not part of the protocol. E.g. a connection error.
-
-extern NSString *const AUTH_FAILED_SERVER_ERROR;
-extern NSString *const AUTH_FAILED_NO_STATE;
-extern NSString *const AUTH_FAILED_BAD_STATE;
-extern NSString *const AUTH_FAILED_NO_TOKEN;
-extern NSString *const AUTH_FAILED_BAD_PARAMETERS;
-extern NSString *const AUTH_FAILED_NO_CLIENTID;
-extern NSString *const AUTH_FAILED_NO_REDIRECTURI;
-extern NSString *const AUTH_FAILED_BUSY;
 
 extern NSString *const AAD_SECURECONVERSATION_LABEL;
 
