@@ -32,7 +32,6 @@
 #import <objc/runtime.h>
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADOAuth2Constants.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
@@ -283,15 +282,15 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:requestHeaders
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                           OAUTH2_REFRESH_TOKEN : refreshToken,
-                                           OAUTH2_RESOURCE : resource,
-                                           OAUTH2_CLIENT_ID : clientId }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                           MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
+                                           MSID_OAUTH2_RESOURCE : resource,
+                                           MSID_OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
-                       dictionaryAsJSON:@{ OAUTH2_ERROR : oauthError,
-                                           OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
+                       dictionaryAsJSON:@{ MSID_OAUTH2_ERROR : oauthError,
+                                           MSID_OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
     
     return response;
 }
@@ -396,9 +395,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders
 {
-    NSDictionary* jsonBody = @{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
-                                OAUTH2_ACCESS_TOKEN : newAccessToken,
-                                OAUTH2_RESOURCE : resource };
+    NSDictionary* jsonBody = @{ MSID_OAUTH2_REFRESH_TOKEN : newRefreshToken,
+                                MSID_OAUTH2_ACCESS_TOKEN : newAccessToken,
+                                MSID_OAUTH2_RESOURCE : resource };
     
     if (additionalFields)
     {
@@ -456,10 +455,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                           OAUTH2_REFRESH_TOKEN : oldRefreshToken,
-                                           OAUTH2_RESOURCE : resource,
-                                           OAUTH2_CLIENT_ID : clientId }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                           MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
+                                           MSID_OAUTH2_RESOURCE : resource,
+                                           MSID_OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:responseCode
                        httpHeaderFields:responseHeaders ? responseHeaders : @{}
@@ -480,10 +479,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_AUTHORIZATION_CODE,
-                                           OAUTH2_CODE : authCode,
-                                           OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                           OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_AUTHORIZATION_CODE,
+                                           MSID_OAUTH2_CODE : authCode,
+                                           MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                           MSID_OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
                       responseURLString:@"https://contoso.com"
                            responseCode:200
                        httpHeaderFields:@{}

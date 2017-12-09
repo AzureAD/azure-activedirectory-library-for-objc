@@ -54,6 +54,9 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSURL+MSIDExtensions.h"
 
+#import "MSIDOAuth2Constants.h"
+#import "ADALConstants.h"
+
 @class ADAuthenticationResult;
 
 /*! The completion block declaration. */

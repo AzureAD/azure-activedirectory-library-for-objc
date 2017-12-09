@@ -29,7 +29,6 @@
 #import "ADWebRequest.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTokenCache+Internal.h"
@@ -290,24 +289,24 @@ const int sAsyncContextTimeout = 10;
     NSString* base64Assertion = [[assertion dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
     
     NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
-    headers[OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [correlationId UUIDString];
+    headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [correlationId UUIDString];
     
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
                                                        requestHeaders:headers
-                                                    requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_SAML11_BEARER_VALUE,
-                                                                         OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE,
-                                                                         OAUTH2_RESOURCE : TEST_RESOURCE,
-                                                                         OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                                                         OAUTH2_ASSERTION : base64Assertion }
+                                                    requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_SAML11_BEARER_VALUE,
+                                                                         MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                                                         MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                                                         MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                                                         MSID_OAUTH2_ASSERTION : base64Assertion }
                                                     responseURLString:@"https://contoso.com"
                                                          responseCode:400
-                                                     httpHeaderFields:@{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] }
-                                                     dictionaryAsJSON:@{ OAUTH2_ACCESS_TOKEN : anotherAccessToken,
-                                                                         OAUTH2_REFRESH_TOKEN : broadRefreshToken,
-                                                                         OAUTH2_TOKEN_TYPE : TEST_ACCESS_TOKEN_TYPE,
-                                                                         OAUTH2_RESOURCE : TEST_RESOURCE,
-                                                                         OAUTH2_GRANT_TYPE : OAUTH2_SAML11_BEARER_VALUE,
-                                                                         OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+                                                     httpHeaderFields:@{ MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] }
+                                                     dictionaryAsJSON:@{ MSID_OAUTH2_ACCESS_TOKEN : anotherAccessToken,
+                                                                         MSID_OAUTH2_REFRESH_TOKEN : broadRefreshToken,
+                                                                         MSID_OAUTH2_TOKEN_TYPE : TEST_ACCESS_TOKEN_TYPE,
+                                                                         MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                                                         MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_SAML11_BEARER_VALUE,
+                                                                         MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE
                                                                          }];
     [ADTestURLSession addResponse:response];
     
@@ -1017,8 +1016,8 @@ const int sAsyncContextTimeout = 10;
                                                     responseURLString:@"https://contoso.com"
                                                          responseCode:500
                                                      httpHeaderFields:@{ } // maybe shoehorn correlation ID here
-                                                     dictionaryAsJSON:@{ OAUTH2_ERROR : @"server_error",
-                                                                         OAUTH2_ERROR_DESCRIPTION : @"AADSTS90036: Non-retryable error has occurred." }];
+                                                     dictionaryAsJSON:@{ MSID_OAUTH2_ERROR : @"server_error",
+                                                                         MSID_OAUTH2_ERROR_DESCRIPTION : @"AADSTS90036: Non-retryable error has occurred." }];
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
                                        @"client_id" : TEST_CLIENT_ID,

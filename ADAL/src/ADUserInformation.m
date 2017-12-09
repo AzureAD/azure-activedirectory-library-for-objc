@@ -23,20 +23,19 @@
 
 #import "ADUserInformation.h"
 #import "ADAL_Internal.h"
-#import "ADOAuth2Constants.h"
 
-NSString* const ID_TOKEN_SUBJECT = @"sub";
-NSString* const ID_TOKEN_TENANTID = @"tid";
-NSString* const ID_TOKEN_UPN = @"upn";
-NSString* const ID_TOKEN_GIVEN_NAME = @"given_name";
-NSString* const ID_TOKEN_FAMILY_NAME = @"family_name";
-NSString* const ID_TOKEN_UNIQUE_NAME = @"unique_name";
-NSString* const ID_TOKEN_EMAIL = @"email";
-NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
-NSString* const ID_TOKEN_TYPE = @"typ";
-NSString* const ID_TOKEN_JWT_TYPE = @"JWT";
-NSString* const ID_TOKEN_OBJECT_ID = @"oid";
-NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
+static NSString* const ID_TOKEN_SUBJECT = @"sub";
+static NSString* const ID_TOKEN_TENANTID = @"tid";
+static NSString* const ID_TOKEN_UPN = @"upn";
+static NSString* const ID_TOKEN_GIVEN_NAME = @"given_name";
+static NSString* const ID_TOKEN_FAMILY_NAME = @"family_name";
+static NSString* const ID_TOKEN_UNIQUE_NAME = @"unique_name";
+static NSString* const ID_TOKEN_EMAIL = @"email";
+static NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
+static NSString* const ID_TOKEN_TYPE = @"typ";
+static NSString* const ID_TOKEN_JWT_TYPE = @"JWT";
+static NSString* const ID_TOKEN_OBJECT_ID = @"oid";
+static NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 @implementation ADUserInformation
 

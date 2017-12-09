@@ -26,7 +26,6 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
-#import "ADOAuth2Constants.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserInformation.h"
 #import "ADWebAuthRequest.h"
@@ -102,7 +101,7 @@
                         _requestParams.redirectUri, @"redirect_uri",
                         _requestParams.clientId, @"client_id",
                         @"2.0", @"windows_api_version",
-                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
+                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", MSID_OAUTH2_GRANT_TYPE,
                         jwtToken, @"request",
                         nil];
         
@@ -110,19 +109,19 @@
     else
     {
         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
-                        refreshToken, OAUTH2_REFRESH_TOKEN,
-                        [_requestParams clientId], OAUTH2_CLIENT_ID,
+                        MSID_OAUTH2_REFRESH_TOKEN, MSID_OAUTH2_GRANT_TYPE,
+                        refreshToken, MSID_OAUTH2_REFRESH_TOKEN,
+                        [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
                         nil];
     }
     
     if (![NSString msidIsStringNilOrBlank:[_requestParams resource]])
     {
-        [request_data setObject:[_requestParams resource] forKey:OAUTH2_RESOURCE];
+        [request_data setObject:[_requestParams resource] forKey:MSID_OAUTH2_RESOURCE];
     }
     
     ADWebAuthRequest* webReq =
-    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
+    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     

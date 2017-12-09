@@ -34,7 +34,6 @@
 #import "ADCustomHeaderHandler.h"
 #import "ADHelpers.h"
 #import "ADNTLMHandler.h"
-#import "ADOAuth2Constants.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADURLProtocol.h"
 #import "ADWebAuthDelegate.h"
@@ -503,7 +502,7 @@ static ADAuthenticationResult* s_result = nil;
      correlationId: (NSUUID*) correlationId
 {
     return [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@",
-                                 [url absoluteString], OAUTH2_CORRELATION_ID_REQUEST_VALUE, [correlationId UUIDString]]];
+                                 [url absoluteString], MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE, [correlationId UUIDString]]];
 }
 
 - (void)start:(NSURL *)startURL
