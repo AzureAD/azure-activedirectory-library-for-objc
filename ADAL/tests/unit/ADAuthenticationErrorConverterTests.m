@@ -60,7 +60,7 @@
                                          oauthError,
                                          nil,
                                          underlyingError,
-                                         httpHeaders);
+                                         @{MSIDHTTPHeadersKey : httpHeaders});
     ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError correlationId:nil];
     
     XCTAssertNotNil(adalError);
