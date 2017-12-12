@@ -296,7 +296,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              ADAuthenticationError *adError =
              [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
                                                     protocolCode:oauthError
-                                                    errorDetails:response[@"error_details"]
+                                                    errorDetails:response[@"error_description"]
                                                    correlationId:requestParams.correlationId];
              
              // If the error is something other than invalid_instance then something wrong is happening
