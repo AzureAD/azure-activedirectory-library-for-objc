@@ -51,7 +51,6 @@ static NSDictionary *s_errorCodeMapping;
 }
 
 + (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
-                                                correlationId:(NSUUID *)correlationId
 {
     if (!msidError)
     {
@@ -86,7 +85,7 @@ static NSDictionary *s_errorCodeMapping;
                                                      code:errorCode
                                         protocolErrorCode:msidError.userInfo[MSIDOAuthErrorKey]
                                              errorDetails:msidError.userInfo[MSIDErrorDescriptionKey]
-                                            correlationId:correlationId
+                                            correlationId:msidError.userInfo[MSIDCorrelationIdKey]
                                                  userInfo:userInfo];
 }
 

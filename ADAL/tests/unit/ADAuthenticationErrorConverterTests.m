@@ -34,7 +34,6 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
 - (void)tearDown {
@@ -43,7 +42,7 @@
 }
 
 - (void)testErrorConversion_whenPassInNil_ShouldReturnNil {
-    NSError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:nil correlationId:nil];
+    NSError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:nil];
     XCTAssertNil(adalError);
 }
 
@@ -52,6 +51,7 @@
     NSString *errorDescription = @"a fake error description.";
     NSString *oauthError = @"a fake oauth error message.";
     NSError *underlyingError = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecItemNotFound userInfo:nil];
+    NSUUID *correlationId = [NSUUID UUID];
     NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
     
     NSError *msidError = MSIDCreateError(MSIDErrorDomain,
@@ -60,8 +60,9 @@
                                          oauthError,
                                          nil,
                                          underlyingError,
+                                         correlationId,
                                          @{MSIDHTTPHeadersKey : httpHeaders});
-    ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError correlationId:nil];
+    ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
     
     XCTAssertNotNil(adalError);
     XCTAssertEqualObjects(adalError.domain, ADAuthenticationErrorDomain);

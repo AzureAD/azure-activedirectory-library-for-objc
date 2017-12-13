@@ -23,7 +23,6 @@
 
 @interface ADAuthenticationErrorConverter : NSObject
 
-+ (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
-                                                correlationId:(NSUUID *)correlationId;
++ (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError;
 
 @end
