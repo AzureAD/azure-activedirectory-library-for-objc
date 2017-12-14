@@ -38,6 +38,8 @@
 		230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */; };
 		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
+		232153371FE0601D00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */; };
+		232153381FE0601E00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */; };
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
@@ -635,6 +637,7 @@
 		230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryAPIEventTests.m; sourceTree = "<group>"; };
 		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
 		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
+		232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemArchivingToMSIDTokenTests.m; sourceTree = "<group>"; };
 		234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationContextTests.h; sourceTree = "<group>"; };
@@ -1606,6 +1609,7 @@
 				234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */,
 				B20DC6111F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m */,
 				D67D3D431F3E975200660F32 /* ADFSAuthorityValidationIntegrationTests.m */,
+				232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */,
 				B20DC5DE1F0D97E400957806 /* mac */,
 				B20DC5DB1F0D97DD00957806 /* ios */,
 			);
@@ -2612,6 +2616,7 @@
 				B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */,
+				232153371FE0601D00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */,
 				B20DC6121F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
 				D632B54D1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
@@ -2633,6 +2638,7 @@
 				B20DC5BE1F0D96A700957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				D632B5551F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
 				D67D3D3E1F38502900660F32 /* ADTestCase.m in Sources */,
+				232153381FE0601E00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */,
 				B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC6131F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */,
@@ -3008,6 +3014,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
 		};
@@ -3064,6 +3071,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
 		};
@@ -3107,6 +3115,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "ADAL-core";
 			};
 			name = Debug;
@@ -3123,6 +3132,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
 		};
