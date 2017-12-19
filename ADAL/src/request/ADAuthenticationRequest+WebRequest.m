@@ -197,17 +197,17 @@
                  {
                      NSDictionary* queryParams = [end msidQueryParameters];
                      code = [queryParams objectForKey:MSID_OAUTH2_CODE];
-                     [self setCloudInstanceHostname:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_HOST_NAME]];
+                     [self setCloudInstanceHostname:[queryParams objectForKey:ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME]];
                  }
                  else
                  {
                      NSMutableDictionary *userInfoDictionary = [NSMutableDictionary dictionary];
                      NSDictionary *queryParameters = [NSDictionary msidURLFormDecode:[end query]];
-                     NSString *userName = [queryParameters valueForKey:AUTH_USERNAME_KEY];
+                     NSString *userName = [queryParameters valueForKey:ADAL_AUTH_USERNAME_KEY];
                      
                      if (![NSString msidIsStringNilOrBlank:userName])
                      {
-                         [userInfoDictionary setObject:userName forKey:AUTH_USERNAME_KEY];
+                         [userInfoDictionary setObject:userName forKey:ADAL_AUTH_USERNAME_KEY];
                      }
                      
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
