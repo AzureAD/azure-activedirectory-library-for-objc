@@ -139,10 +139,10 @@
 
 - (void)testBrokerMessage_whenBrokerKeychainError_shouldCreateErrorWithKeychainErrorDomain
 {
-    NSDictionary* resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
+    NSDictionary *resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
 
-    NSDictionary* brokerMessage =
+    NSDictionary *brokerMessage =
     @{
       @"code" : @"(null)",
       @"correlation_id" : @"EC021F91-FAD9-41C6-A7B8-BD09D050E7C0",
@@ -152,10 +152,10 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
 
-    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
-    NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
 
-    XCTestExpectation* expectation = [self expectationWithDescription:@"Broker keychain error."];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
     [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
@@ -175,10 +175,10 @@
 
 - (void)testBrokerMessage_whenBrokerHttpError_shouldCreateErrorWithHttpErrorDomain
 {
-    NSDictionary* resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
+    NSDictionary *resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
-    NSDictionary* brokerMessage =
+    NSDictionary *brokerMessage =
     @{
       @"code" : @"(null)",
       @"correlation_id" : @"EC021F91-FAD9-41C6-A7B8-BD09D050E7C0",
@@ -189,10 +189,10 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
     
-    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
-    NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
-    XCTestExpectation* expectation = [self expectationWithDescription:@"Broker http error."];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Broker http error."];
     [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
@@ -213,10 +213,10 @@
 
 - (void)testBrokerMessage_whenBrokerServerError_shouldCreateErrorWithServerErrorDomain
 {
-    NSDictionary* resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
+    NSDictionary *resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
-    NSDictionary* brokerMessage =
+    NSDictionary *brokerMessage =
     @{
       @"code" : @"Refresh token is rejected due to inactivity.",
       @"correlation_id" : @"EC021F91-FAD9-41C6-A7B8-BD09D050E7C0",
@@ -226,10 +226,10 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
     
-    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
-    NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
-    XCTestExpectation* expectation = [self expectationWithDescription:@"Broker keychain error."];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
     [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
