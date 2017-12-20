@@ -27,6 +27,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -175,20 +176,27 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         protocolCode = [response valueForKey:@"code"];
     }
     
-    if (![NSString adIsStringNilOrBlank:protocolCode])
+    // Create error object according to
+    NSString *errorDomain = [response valueForKey:@"error_domain"];
+    if ([errorDomain isEqualToString:ADKeychainErrorDomain])
     {
-       
+        error = [ADAuthenticationError keychainErrorFromOperation:@"Broker keychain access" status:(OSStatus)errorCode correlationId:correlationId];
+    }
+    else if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
+    {
+        NSDictionary *httpHeaders = [NSDictionary adURLFormDecode:[response valueForKey:@"http_headers"]];
+        error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
+    }
+    else if ([errorDomain isEqualToString:ADOAuthServerErrorDomain])
+    {
+        error = [ADAuthenticationError OAuthServerError:protocolCode description:errorDetails code:errorCode correlationId:correlationId];
+    }
+    else
+    {
         error = [ADAuthenticationError errorFromAuthenticationError:errorCode
                                                        protocolCode:protocolCode
                                                        errorDetails:errorDetails
                                                       correlationId:correlationId];
-    }
-    else
-    {
-        NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
-                                               code:errorCode
-                                           userInfo:nil];
-        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails correlationId:correlationId];
     }
     
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
