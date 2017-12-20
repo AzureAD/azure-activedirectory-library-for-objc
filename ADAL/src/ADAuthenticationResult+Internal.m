@@ -176,8 +176,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         protocolCode = [response valueForKey:@"code"];
     }
     
-    // Create error object according to
-    NSString *errorDomain = [response valueForKey:@"error_domain"];
+    // Create error object according to error_domain value.
+    // Old version of broker won't send this value, we set it to ADAuthenticationErrorDomain like before
+    NSString *errorDomain = [response valueForKey:@"error_domain"] ? [response valueForKey:@"error_domain"] : ADAuthenticationErrorDomain;
     if ([errorDomain isEqualToString:ADKeychainErrorDomain])
     {
         error = [ADAuthenticationError keychainErrorFromOperation:@"Broker keychain access" status:(OSStatus)errorCode correlationId:correlationId];
@@ -191,12 +192,20 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         error = [ADAuthenticationError OAuthServerError:protocolCode description:errorDetails code:errorCode correlationId:correlationId];
     }
-    else
+    else if ([errorDomain isEqualToString:ADAuthenticationErrorDomain])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:errorCode
                                                        protocolCode:protocolCode
                                                        errorDetails:errorDetails
                                                       correlationId:correlationId];
+    }
+    else
+    {
+        NSError* nsError = [NSError errorWithDomain:errorDomain
+                                               code:errorCode
+                                           userInfo:nil];
+        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails correlationId:correlationId];
+
     }
     
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
