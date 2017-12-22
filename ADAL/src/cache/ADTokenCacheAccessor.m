@@ -33,6 +33,7 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
+#import "MSIDAadAuthorityCache.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -71,7 +72,7 @@
                              context:(id<MSIDRequestContext>)context
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
     for (NSURL *alias in aliases)
     {
         ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:[alias absoluteString]
@@ -344,7 +345,7 @@
                   error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     NSURL *oldAuthority = [NSURL URLWithString:item.authority];
-    NSURL *newAuthority = [[ADAuthorityValidation sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store

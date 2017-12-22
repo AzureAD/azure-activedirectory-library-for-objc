@@ -33,7 +33,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADURLProtocol.h"
 #import "ADWebResponse.h"
-
+#import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
 
 
@@ -155,7 +155,7 @@
     }
     
     NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
-    requestURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:requestURL context:self];
+    requestURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:requestURL context:self];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData

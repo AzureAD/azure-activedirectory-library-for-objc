@@ -26,6 +26,7 @@
 #import "ADHelpers.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
+#import "MSIDAuthority.h"
 
 @implementation ADClientMetrics
 
@@ -59,7 +60,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 - (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
                 endpoint:(NSString *)endPoint
 {
-    if ([ADHelpers isADFSInstance:endPoint])
+    if ([MSIDAuthority isADFSInstance:endPoint])
     {
         return;
     }
@@ -97,7 +98,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
                  correlationId:(NSUUID *)correlationId
                   errorDetails:(NSString *)errorDetails
 {
-    if ([ADHelpers isADFSInstance:endpoint])
+    if ([MSIDAuthority isADFSInstance:endpoint])
     {
         return;
     }

@@ -27,6 +27,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADHelpers.h"
 #import "ADAL_Internal.h"
+#import "MSIDAuthority.h"
 
 @implementation ADTelemetryAPIEvent
 
@@ -79,7 +80,7 @@
     // set authority type
     NSString* authorityType = MSID_TELEMETRY_VALUE_AUTHORITY_AAD;
     
-    if ([ADHelpers isADFSInstance:authority])
+    if ([MSIDAuthority isADFSInstance:authority])
     {
         authorityType = MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
     }

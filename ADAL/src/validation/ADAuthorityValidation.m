@@ -34,6 +34,7 @@
 #import "ADAuthorityUtils.h"
 #import "MSIDError.h"
 #import "ADAuthenticationErrorConverter.h"
+#import "MSIDAuthority.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -75,7 +76,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
-    _aadCache = [MSIDAadAuthorityCache new];
+    _aadCache = [MSIDAadAuthorityCache sharedInstance];
     
     // A serial dispatch queue for all authority validation operations. A very common pattern is for
     // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
@@ -149,7 +150,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     // Check for AAD or ADFS
-    if ([ADHelpers isADFSInstanceURL:authorityURL])
+    if ([MSIDAuthority isADFSInstanceURL:authorityURL])
     {
         if (!validateAuthority)
         {
@@ -308,56 +309,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          completionBlock(YES, nil);
      }];
 }
-
-#pragma mark - AAD Authority URL utilities
-
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority
-                          context:(id<MSIDRequestContext>)context
-{
-    if ([ADHelpers isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
-    
-    NSURL *url = [_aadCache networkUrlForAuthority:authority];
-    if (!url)
-    {
-        MSID_LOG_WARN(context, @"No cached preferred_network for authority");
-        return authority;
-    }
-    
-    return url;
-}
-
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-                        context:(id<MSIDRequestContext>)context
-{
-    if ([ADHelpers isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
-    
-    NSURL *url = [_aadCache cacheUrlForAuthority:authority];
-    if (!url)
-    {
-        MSID_LOG_WARN(context, @"No cached preferred_cache for authority");
-        return authority;
-    }
-    
-    
-    return url;
-}
-
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
-{
-    if ([ADHelpers isADFSInstanceURL:authority])
-    {
-        return @[ authority ];
-    }
-    
-    return [_aadCache cacheAliasesForAuthority:authority];
-}
-
 
 - (void)addInvalidAuthority:(NSString *)authority
 {
