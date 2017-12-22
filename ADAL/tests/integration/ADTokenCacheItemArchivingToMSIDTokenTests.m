@@ -66,7 +66,7 @@
     XCTAssertTrue([resultToken isKindOfClass:MSIDToken.class]);
     XCTAssertNotNil(resultToken);
     XCTAssertEqualObjects(resultToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(resultToken.authority, TEST_AUTHORITY);
+    XCTAssertTrue(resultToken.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertEqualObjects(resultToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(resultToken.token, TEST_ACCESS_TOKEN);
     XCTAssertEqual(resultToken.tokenType, MSIDTokenTypeAccessToken);
@@ -100,7 +100,7 @@
     XCTAssertTrue([resultToken isKindOfClass:MSIDToken.class]);
     XCTAssertNotNil(resultToken);
     XCTAssertEqualObjects(resultToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(resultToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(resultToken.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertEqualObjects(resultToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(resultToken.token, TEST_REFRESH_TOKEN);
     XCTAssertEqual(resultToken.tokenType, MSIDTokenTypeRefreshToken);
@@ -133,7 +133,7 @@
     XCTAssertTrue([resultToken isKindOfClass:MSIDToken.class]);
     XCTAssertNotNil(resultToken);
     XCTAssertEqualObjects(resultToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(resultToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(resultToken.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertEqualObjects(resultToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(resultToken.token, TEST_REFRESH_TOKEN);
     XCTAssertEqual(resultToken.tokenType, MSIDTokenTypeRefreshToken);

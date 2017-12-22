@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAadAuthorityCache+TestUtil.h"
+#import "MSIDAadAuthorityCache+TestUtil.h"
 
 #include <pthread.h>
 
-@implementation ADAadAuthorityCache (TestUtil)
+@implementation MSIDAadAuthorityCache (TestUtil)
 
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap
+- (NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)recordMap
 {
     return _recordMap;
 }
 
-- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary
+- (void)setRecordMap:(NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)cacheDictionary
 {
     _recordMap = [cacheDictionary mutableCopy];
 }

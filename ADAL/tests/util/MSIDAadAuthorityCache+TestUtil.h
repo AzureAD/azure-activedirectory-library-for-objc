@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAadAuthorityCache.h"
+#import "MSIDAadAuthorityCache.h"
 
-@interface ADAadAuthorityCache (TestUtil)
+@interface MSIDAadAuthorityCache (TestUtil)
 
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap;
-- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
+- (NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)recordMap;
+- (void)setRecordMap:(NSDictionary<NSString *, MSIDAadAuthorityCacheRecord *> *)cacheDictionary;
 
 - (BOOL)grabReadLock;
 - (BOOL)grabWriteLock;

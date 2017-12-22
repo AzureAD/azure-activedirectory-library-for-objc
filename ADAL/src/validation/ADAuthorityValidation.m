@@ -24,7 +24,7 @@
 
 #import "ADAuthorityValidation.h"
 
-#import "ADAadAuthorityCache.h"
+#import "MSIDAadAuthorityCache.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADHelpers.h"
@@ -32,6 +32,8 @@
 #import "ADWebFingerRequest.h"
 #import "ADAuthenticationError.h"
 #import "ADAuthorityUtils.h"
+#import "MSIDError.h"
+#import "ADAuthenticationErrorConverter.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -73,7 +75,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
-    _aadCache = [ADAadAuthorityCache new];
+    _aadCache = [MSIDAadAuthorityCache new];
     
     // A serial dispatch queue for all authority validation operations. A very common pattern is for
     // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
@@ -199,10 +201,10 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    ADAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority];
     if (record)
     {
-        completionBlock(record.validated, record.error);
+        completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
         return;
     }
     
@@ -250,10 +252,10 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    ADAadAuthorityCacheRecord *record = [_aadCache checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority];
     if (record)
     {
-        completionBlock(record.validated, record.error);
+        completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:record.error]);
         return;
     }
     
@@ -278,31 +280,28 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          NSString *oauthError = response[@"error"];
          if (![NSString msidIsStringNilOrBlank:oauthError])
          {
-             ADAuthenticationError *adError =
-             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                    protocolCode:oauthError
-                                                    errorDetails:response[@"error_details"]
-                                                   correlationId:requestParams.correlationId];
+             NSError *msidError =
+             MSIDCreateError(MSIDErrorDomain, MSID_ERROR_DEVELOPER_AUTHORITY_VALIDATION, response[@"error_details"], oauthError, nil, nil, requestParams.correlationId, nil);
              
              // If the error is something other than invalid_instance then something wrong is happening
              // on the server.
              if ([oauthError isEqualToString:@"invalid_instance"])
              {
-                 [_aadCache addInvalidRecord:authority oauthError:adError context:requestParams];
+                 [_aadCache addInvalidRecord:authority oauthError:msidError context:requestParams];
              }
              
-             completionBlock(NO, adError);
+             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
          
          
-         ADAuthenticationError *adError = nil;
+         NSError *msidError = nil;
          if (![_aadCache processMetadata:response[@"metadata"]
                                authority:authority
                                  context:requestParams
-                                   error:&adError])
+                                   error:&msidError])
          {
-             completionBlock(NO, adError);
+             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
          

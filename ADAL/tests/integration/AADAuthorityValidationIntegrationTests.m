@@ -24,7 +24,7 @@
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult.h"
-#import "ADAadAuthorityCache.h"
+#import "MSIDAadAuthorityCache.h"
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"

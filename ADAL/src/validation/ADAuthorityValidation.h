@@ -25,7 +25,7 @@
 #import <Foundation/Foundation.h>
 
 @class ADAuthorityValidationResponse;
-@class ADAadAuthorityCache;
+@class MSIDAadAuthorityCache;
 
 /*! The completion block declaration. */
 typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
@@ -34,10 +34,10 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
  The class is thread-safe. */
 @interface ADAuthorityValidation : NSObject
 {
-    ADAadAuthorityCache *_aadCache;
+    MSIDAadAuthorityCache *_aadCache;
 }
 
-@property (readonly) ADAadAuthorityCache *aadCache;
+@property (readonly) MSIDAadAuthorityCache *aadCache;
 
 + (ADAuthorityValidation *)sharedInstance;
 
