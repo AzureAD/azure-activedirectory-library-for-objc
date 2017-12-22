@@ -32,6 +32,7 @@
 #import "MSIDTokenCacheKey.h"
 #import "MSIDToken.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "ADTokenCacheKey.h"
 
 @interface ADKeychainTokenCacheToMSIDKeychainTokenCacheTests : XCTestCase
 
@@ -116,6 +117,13 @@
     BOOL result = [msidKeychainTokenCache setItem:token key:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
+    
+    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:TEST_RESOURCE clientId:TEST_CLIENT_ID error:nil];
+    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
+    ADTokenCacheItem *item = [adKeychainTokenCache getItemWithKey:key userId:TEST_USER_ID correlationId:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(item);
 }
 
 @end
