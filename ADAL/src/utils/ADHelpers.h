@@ -25,9 +25,6 @@
 
 @interface ADHelpers : NSObject
 
-+ (BOOL)isADFSInstance:(NSString *)endpoint;
-+ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl;
-
 + (NSString *)getEndpointName:(NSString *)fullEndpoint;
 
 + (NSData *)convertBase64UrlStringToBase64NSData:(NSString *)base64UrlString;

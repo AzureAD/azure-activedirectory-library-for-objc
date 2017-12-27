@@ -45,29 +45,6 @@
     }
 }
 
-+ (BOOL)isADFSInstance:(NSString *)endpoint
-{
-    if([NSString msidIsStringNilOrBlank:endpoint]){
-        return NO;
-    }
-    
-    return[ADHelpers isADFSInstanceURL: [NSURL URLWithString:endpoint.lowercaseString]];
-}
-
-
-+ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
-{
-    
-    NSArray* paths = endpointUrl.pathComponents;
-    if (paths.count >= 2)
-    {
-        NSString* tenant = [paths objectAtIndex:1];
-        return [@"adfs" isEqualToString:tenant];
-    }
-    return false;
-}
-
-
 + (NSString *)getEndpointName:(NSString *)fullEndpoint
 {
     if([NSString msidIsStringNilOrBlank:fullEndpoint])

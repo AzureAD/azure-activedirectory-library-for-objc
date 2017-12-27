@@ -35,6 +35,7 @@
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryBrokerEvent.h"
+#import "MSIDAuthority.h"
 
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
@@ -263,7 +264,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
 - (BOOL)canUseBroker
 {
-    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker] && ![ADHelpers isADFSInstance:_requestParams.authority];
+    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker] && ![MSIDAuthority isADFSInstance:_requestParams.authority];
 }
 
 - (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error

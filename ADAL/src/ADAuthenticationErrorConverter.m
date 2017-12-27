@@ -47,6 +47,8 @@ static NSDictionary *s_errorCodeMapping;
     
     s_errorCodeMapping = @{
                            //sample format is like @"MSIDErrorDomain|-10000":@"-20000"
+                           @"MSIDErrorDomain|-51001":@"212",
+                           @"MSIDErrorDomain|-51002":@"101"
                            };
 }
 
