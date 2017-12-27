@@ -44,6 +44,8 @@
     [super tearDown];
 }
 
+#pragma mark - ADTokenCacheItem -> MSIDToken
+
 - (void)testDeserialize_whenAccessTokenIsValidRefreshTokenNil_shouldReturnAccessMSIDToken
 {
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
@@ -66,7 +68,7 @@
     XCTAssertTrue([resultToken isKindOfClass:MSIDToken.class]);
     XCTAssertNotNil(resultToken);
     XCTAssertEqualObjects(resultToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(resultToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(resultToken.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertEqualObjects(resultToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(resultToken.token, TEST_ACCESS_TOKEN);
     XCTAssertEqual(resultToken.tokenType, MSIDTokenTypeAccessToken);
@@ -100,7 +102,7 @@
     XCTAssertTrue([resultToken isKindOfClass:MSIDToken.class]);
     XCTAssertNotNil(resultToken);
     XCTAssertEqualObjects(resultToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(resultToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(resultToken.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertEqualObjects(resultToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(resultToken.token, TEST_REFRESH_TOKEN);
     XCTAssertEqual(resultToken.tokenType, MSIDTokenTypeRefreshToken);
@@ -133,7 +135,7 @@
     XCTAssertTrue([resultToken isKindOfClass:MSIDToken.class]);
     XCTAssertNotNil(resultToken);
     XCTAssertEqualObjects(resultToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(resultToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(resultToken.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertEqualObjects(resultToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(resultToken.token, TEST_REFRESH_TOKEN);
     XCTAssertEqual(resultToken.tokenType, MSIDTokenTypeRefreshToken);
@@ -142,6 +144,93 @@
     XCTAssertEqualObjects(resultToken.additionalServerInfo, additionalServerInfo);
     XCTAssertNil(resultToken.scopes);
     XCTAssertNil(resultToken.clientInfo);
+}
+
+#pragma mark - MSIDToken -> ADTokenCacheItem
+
+- (void)testSerialize_whenAccessMSIDToken_shouldUnarchiveAsAccessADTokenCacheItem
+{
+    MSIDToken *msidToken = [self createAccessMSIDToken];
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    NSData *data = [serializer serialize:msidToken];
+    
+    ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    XCTAssertNotNil(adToken);
+    XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
+    XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
+    XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
+    XCTAssertEqualObjects(adToken.accessToken, TEST_ACCESS_TOKEN_TYPE);
+    XCTAssertEqualObjects(adToken.accessTokenType, @"Bearer");
+    XCTAssertNil(adToken.refreshToken);
+    XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
+    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.familyId, @"familyId value");
+}
+
+- (void)testSerialize_whenRefreshMSIDToken_shouldUnarchiveAsRefreshADTokenCacheItem
+{
+    MSIDToken *msidToken = [self createRefreshMSIDToken];
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    NSData *data = [serializer serialize:msidToken];
+    
+    ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    XCTAssertNotNil(adToken);
+    XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
+    XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
+    XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
+    XCTAssertEqualObjects(adToken.refreshToken, TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(adToken.accessTokenType, @"Bearer");
+    XCTAssertNil(adToken.accessToken);
+    XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
+    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.familyId, @"familyId value");
+}
+
+#pragma mark - Private
+
+- (MSIDToken *)createAccessMSIDToken
+{
+    MSIDToken *token = [MSIDToken new];
+    [token setValue:TEST_ACCESS_TOKEN_TYPE forKey:@"token"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [token setValue:rawIdToken forKey:@"idToken"];
+    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+    [token setValue:@"familyId value" forKey:@"familyId"];
+    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
+    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
+    [token setValue:clientInfo forKey:@"clientInfo"];
+    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+    [token setValue:TEST_RESOURCE forKey:@"resource"];
+    [token setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
+    [token setValue:TEST_CLIENT_ID forKey:@"clientId"];
+    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    
+    return token;
+}
+
+- (MSIDToken *)createRefreshMSIDToken
+{
+    MSIDToken *token = [MSIDToken new];
+    [token setValue:TEST_REFRESH_TOKEN forKey:@"token"];
+    [token setValue:[[NSNumber alloc] initWithInt:MSIDTokenTypeRefreshToken] forKey:@"tokenType"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [token setValue:rawIdToken forKey:@"idToken"];
+    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+    [token setValue:@"familyId value" forKey:@"familyId"];
+    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
+    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
+    [token setValue:clientInfo forKey:@"clientInfo"];
+    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+    [token setValue:TEST_RESOURCE forKey:@"resource"];
+    [token setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
+    [token setValue:TEST_CLIENT_ID forKey:@"clientId"];
+    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    
+    return token;
 }
 
 @end
