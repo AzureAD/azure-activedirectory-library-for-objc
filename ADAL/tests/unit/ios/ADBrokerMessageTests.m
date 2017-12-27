@@ -137,6 +137,41 @@
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
 }
 
+- (void)testBrokerMessage_whenBrokerReturnsNoErrorDomain_shouldCreateErrorWithADAuthenticationErrorDomain
+{
+    NSDictionary *resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    
+    NSDictionary *brokerMessage =
+    @{
+      @"code" : @"Interaction required.",
+      @"correlation_id" : @"EC021F91-FAD9-41C6-A7B8-BD09D050E7C0",
+      @"error_code" : @"202",
+      @"error_description" : @"fake error description",
+      @"x-broker-app-ver" : @"2.1.0"
+      };
+    
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Broker no error domain."];
+    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result.error);
+         XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
+         XCTAssertEqual(result.error.code, 202);
+         XCTAssertEqualObjects(result.error.errorDetails, @"fake error description");
+         XCTAssertEqualObjects(result.error.protocolCode, @"Interaction required.");
+         
+         [expectation fulfill];
+     }];
+    
+    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl]);
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
+    XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
+}
+
 - (void)testBrokerMessage_whenBrokerKeychainError_shouldCreateErrorWithKeychainErrorDomain
 {
     NSDictionary *resumeDictionary = @{ @"redirect_uri" : @"ms-outlook://" };
@@ -161,8 +196,8 @@
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADKeychainErrorDomain);
          XCTAssertEqual(result.error.code, -25300);
-         XCTAssertEqualObjects(result.error.errorDetails, @"Keychain failed during \"Broker keychain access\" operation");
-         XCTAssertEqualObjects(result.error.protocolCode, nil); //keychain error does not has protocolCode
+         XCTAssertEqualObjects(result.error.errorDetails, @"Keychain failed during read operation");
+         XCTAssertEqualObjects(result.error.protocolCode, @"(null)");
 
          [expectation fulfill];
      }];
@@ -199,7 +234,7 @@
          XCTAssertEqualObjects(result.error.domain, ADHTTPErrorCodeDomain);
          XCTAssertEqual(result.error.code, 429);
          XCTAssertEqualObjects(result.error.errorDetails, @"(3239 bytes)");
-         XCTAssertEqualObjects(result.error.protocolCode, nil); //http error does not has protocolCode
+         XCTAssertEqualObjects(result.error.protocolCode, nil);
          XCTAssertEqualObjects(result.error.userInfo[ADHTTPHeadersKey][@"Retry-After"], @"120");
          
          [expectation fulfill];
@@ -236,7 +271,7 @@
          XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
          XCTAssertEqual(result.error.code, 202);
          XCTAssertEqualObjects(result.error.errorDetails, @"fake error description");
-         XCTAssertEqualObjects(result.error.protocolCode, @"Refresh token is rejected due to inactivity."); //keychain error does not has protocolCode
+         XCTAssertEqualObjects(result.error.protocolCode, @"Refresh token is rejected due to inactivity.");
          
          [expectation fulfill];
      }];

@@ -179,37 +179,23 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     // Create error object according to error_domain value.
     // Old version of broker won't send this value, we set it to ADAuthenticationErrorDomain like before
     NSString *errorDomain = [response valueForKey:@"error_domain"] ? [response valueForKey:@"error_domain"] : ADAuthenticationErrorDomain;
-    if ([errorDomain isEqualToString:ADKeychainErrorDomain])
-    {
-        error = [ADAuthenticationError keychainErrorFromOperation:@"Broker keychain access" status:(OSStatus)errorCode correlationId:correlationId];
-    }
-    else if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
+    
+    // Extract headers if it is http error
+    if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
     {
         NSDictionary *httpHeaders = [NSDictionary adURLFormDecode:[response valueForKey:@"http_headers"]];
         error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
     }
-    else if ([errorDomain isEqualToString:ADOAuthServerErrorDomain])
-    {
-        error = [ADAuthenticationError OAuthServerError:protocolCode description:errorDetails code:errorCode correlationId:correlationId];
-    }
-    else if ([errorDomain isEqualToString:ADAuthenticationErrorDomain])
-    {
-        error = [ADAuthenticationError errorFromAuthenticationError:errorCode
-                                                       protocolCode:protocolCode
-                                                       errorDetails:errorDetails
-                                                      correlationId:correlationId];
-    }
     else
     {
-        NSError* nsError = [NSError errorWithDomain:errorDomain
-                                               code:errorCode
-                                           userInfo:nil];
-        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails correlationId:correlationId];
-
+        error = [ADAuthenticationError errorWithDomain:errorDomain
+                                                  code:errorCode
+                                     protocolErrorCode:protocolCode
+                                          errorDetails:errorDetails
+                                         correlationId:correlationId];
     }
     
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-
 }
 
 + (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
