@@ -260,6 +260,12 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _assertionType = assertionType;
 }
 
+- (void)setRefreshToken:(NSString *)refreshToken
+{
+    CHECK_REQUEST_STARTED;
+    _refreshToken = [refreshToken copy];
+}
+
 - (void)ensureRequest
 {
     if (_requestStarted)
