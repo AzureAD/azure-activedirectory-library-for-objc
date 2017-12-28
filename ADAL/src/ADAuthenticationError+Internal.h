@@ -68,8 +68,9 @@
                               errorDetails:(NSString *)errorDetails
                              correlationId:(NSUUID *)correlationId;
 
-+ (ADAuthenticationError *)errorWithDomain:(NSErrorDomain)domain
++ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
                                       code:(NSInteger)code
+                         protocolErrorCode:(NSString *)protocolCode
                               errorDetails:(NSString *)errorDetails
                              correlationId:(NSUUID *)correlationId;
 

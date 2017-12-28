@@ -160,6 +160,20 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:error.userInfo];
 }
 
++ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
+                                      code:(NSInteger)code
+                         protocolErrorCode:(NSString *)protocolCode
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId
+{
+    return [self errorWithDomainInternal:domain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:errorDetails
+                           correlationId:correlationId
+                                userInfo:nil];
+}
+
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString *)protocolCode
                                           errorDetails:(NSString *)errorDetails
