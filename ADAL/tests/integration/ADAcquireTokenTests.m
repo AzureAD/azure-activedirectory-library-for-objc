@@ -2195,4 +2195,44 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testAcquireToken_whenRefreshTokenRejected_shouldNotDeleteTokenInCacheWithSameCacheKey
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // Add an MRRT to the cache
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Network Response to reject developer's refresh token
+    [ADTestURLSession addResponse:[self adResponseBadRefreshToken:@"refresh token from developer"
+                                                        authority:TEST_AUTHORITY
+                                                         resource:TEST_RESOURCE
+                                                         clientId:TEST_CLIENT_ID
+                                                       oauthError:@"invalid_grant"
+                                                    correlationId:TEST_CORRELATION_ID]];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         // We should fail with "invalid_grant" error
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqualObjects(result.error.protocolCode, @"invalid_grant");
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // Refresh token in cache should not be deleted because the token itself is different from
+    // the one provided by developer
+    ADTokenCacheItem *rtInCache = [context.tokenCacheStore.dataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
+    XCTAssertNotNil(rtInCache);
+}
+
 @end
