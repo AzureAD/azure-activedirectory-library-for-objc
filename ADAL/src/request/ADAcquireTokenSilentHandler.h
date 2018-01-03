@@ -45,4 +45,10 @@
 
 - (void)getToken:(ADAuthenticationCallback)completionBlock;
 
+// Obtains an access token from the passed refresh token. If "cacheItem" is passed, updates it with the additional
+// information and updates the cache
+- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
+                         cacheItem:(ADTokenCacheItem*)cacheItem
+                   completionBlock:(ADAuthenticationCallback)completionBlock;
+
 @end

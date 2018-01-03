@@ -237,6 +237,12 @@
 {
     [self ensureRequest];
     
+    if (_refreshToken)
+    {
+        [self tryRefreshToken:completionBlock];
+        return;
+    }
+    
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
     {
         [self getAccessToken:^(ADAuthenticationResult *result) {
@@ -498,6 +504,23 @@
     
     [self executeRequest:request_data
               completion:completionBlock];
+}
+
+- (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
+{
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN];
+    ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
+    [request acquireTokenByRefreshToken:_refreshToken
+                              cacheItem:[ADTokenCacheItem new]
+                        completionBlock:^(ADAuthenticationResult *result)
+     {
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN
+                                                                        context:_requestParams];
+         
+         [event setResultStatus:[result status]];
+         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+         completionBlock(result);
+     }];
 }
 
 @end
