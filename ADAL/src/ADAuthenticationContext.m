@@ -227,7 +227,13 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 + (BOOL)isResponseFromBroker:(NSString *)sourceApplication
                     response:(NSURL *)response
 {
-    return response && [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
+    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
+    
+#ifdef DOGFOOD_BROKER
+    isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
+#endif
+    
+    return response && isBroker;
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response
