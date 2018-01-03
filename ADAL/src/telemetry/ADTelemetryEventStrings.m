@@ -32,6 +32,7 @@ NSString *const AD_TELEMETRY_EVENT_LAUNCH_BROKER          = @"Microsoft.ADAL.bro
 NSString *const AD_TELEMETRY_EVENT_TOKEN_GRANT            = @"Microsoft.ADAL.token_grant";
 NSString *const AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION   = @"Microsoft.ADAL.authority_validation";
 NSString *const AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT   = @"Microsoft.ADAL.acquire_token_silent_handler";
+NSString *const AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN   = @"Microsoft.ADAL.acquire_token_by_refresh_token";
 NSString *const AD_TELEMETRY_EVENT_AUTHORIZATION_CODE     = @"Microsoft.ADAL.authorization_code";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP     = @"Microsoft.ADAL.token_cache_lookup";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE      = @"Microsoft.ADAL.token_cache_write";

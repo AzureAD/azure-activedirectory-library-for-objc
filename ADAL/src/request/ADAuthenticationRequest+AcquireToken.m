@@ -508,14 +508,16 @@
 
 - (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
 {
-    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN];
     ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
     [request acquireTokenByRefreshToken:_refreshToken
                               cacheItem:[ADTokenCacheItem new]
                         completionBlock:^(ADAuthenticationResult *result)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN
                                                                         context:_requestParams];
+         
+         [event setResultStatus:[result status]];
          [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
          completionBlock(result);
      }];
