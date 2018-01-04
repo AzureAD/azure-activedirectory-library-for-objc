@@ -24,6 +24,11 @@
 		8BA42B2717E3C150002D206E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFF17E3C150002D206E /* CoreData.framework */; };
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
+		B21E3D861FFDACBD00CFB343 /* ShibInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B21E3D851FFDACBD00CFB343 /* ShibInteractiveLoginTests.m */; };
+		B21E3D921FFDBF6500CFB343 /* PingInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B21E3D911FFDBF6500CFB343 /* PingInteractiveLoginTests.m */; };
+		B21E3D941FFDC7E100CFB343 /* ADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B21E3D931FFDC7E100CFB343 /* ADFSv3InteractiveLoginTests.m */; };
+		B22F77551FFD4F10004679CB /* ADALBaseTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B22F77541FFD4F10004679CB /* ADALBaseTest.m */; };
+		B2795BA11FFDA48A0002B764 /* AADInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2795BA01FFDA48A0002B764 /* AADInteractiveLoginTests.m */; };
 		D6119CE61DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */; };
 		D68ACD301CD42710008EFA17 /* ADTestAppProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68ACD2F1CD42710008EFA17 /* ADTestAppProfileViewController.m */; };
 		D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */; };
@@ -86,6 +91,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 8BA42AF517E3C150002D206E;
 			remoteInfo = MyTestiOSApp;
+		};
+		B22F77571FFD4F10004679CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8BA42AEE17E3C150002D206E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8BA42AF517E3C150002D206E;
+			remoteInfo = MyTestiOSApp;
+		};
+		B22F77661FFD4F10004679CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B20DC5AD1F0D96A100957806;
+			remoteInfo = ADAL_iOS_ITs;
+		};
+		B22F77681FFD4F10004679CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B20DC5D11F0D96A700957806;
+			remoteInfo = ADAL_Mac_ITs;
 		};
 		D676180D1DEF976F00EC83FB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -164,6 +190,14 @@
 		8BA42B2C17E3C150002D206E /* MyTestiOSAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MyTestiOSAppTests-Info.plist"; sourceTree = "<group>"; };
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
+		B21E3D851FFDACBD00CFB343 /* ShibInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShibInteractiveLoginTests.m; sourceTree = "<group>"; };
+		B21E3D911FFDBF6500CFB343 /* PingInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PingInteractiveLoginTests.m; sourceTree = "<group>"; };
+		B21E3D931FFDC7E100CFB343 /* ADFSv3InteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADFSv3InteractiveLoginTests.m; sourceTree = "<group>"; };
+		B22F77521FFD4F0F004679CB /* ADALiOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADALiOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B22F77541FFD4F10004679CB /* ADALBaseTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALBaseTest.m; sourceTree = "<group>"; };
+		B22F77561FFD4F10004679CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B2795BA01FFDA48A0002B764 /* AADInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AADInteractiveLoginTests.m; sourceTree = "<group>"; };
+		B2795BAC1FFDA4F20002B764 /* ADALBaseTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALBaseTest.h; sourceTree = "<group>"; };
 		D6119CE41DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireLayoutBuilder.h; sourceTree = "<group>"; };
 		D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireLayoutBuilder.m; sourceTree = "<group>"; };
 		D68ACD2E1CD42710008EFA17 /* ADTestAppProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppProfileViewController.h; sourceTree = "<group>"; };
@@ -207,6 +241,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B22F774F1FFD4F0F004679CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D6EA53A41D541011008A0BC3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -224,9 +265,11 @@
 				8B3F79F71D74F0A200F95A44 /* libADALiOS.a */,
 				8B3F79F91D74F0A200F95A44 /* libADAL-core.a */,
 				8B3F79FB1D74F0A200F95A44 /* ADAL.framework */,
-				8B3F79FD1D74F0A200F95A44 /* ADALiOSTests.xctest */,
+				8B3F79FD1D74F0A200F95A44 /* ADAL_iOS_UTs.xctest */,
+				B22F77671FFD4F10004679CB /* ADAL_iOS_ITs.xctest */,
 				8B3F79FF1D74F0A200F95A44 /* ADAL.framework */,
-				8B3F7A011D74F0A200F95A44 /* ADAL Mac Tests.xctest */,
+				8B3F7A011D74F0A200F95A44 /* ADAL_Mac_UTs.xctest */,
+				B22F77691FFD4F10004679CB /* ADAL_Mac_ITs.xctest */,
 				D676180E1DEF976F00EC83FB /* UnitTestHostApp.app */,
 				D67618101DEF976F00EC83FB /* ADALAutomation.app */,
 			);
@@ -240,6 +283,7 @@
 				8BA42B0117E3C150002D206E /* MyTestiOSApp */,
 				8BA42B2A17E3C150002D206E /* MyTestiOSAppTests */,
 				D6EA53A81D541012008A0BC3 /* adal-extension */,
+				B22F77531FFD4F10004679CB /* ADALiOSUITests */,
 				8BA42AF817E3C150002D206E /* Frameworks */,
 				8BA42AF717E3C150002D206E /* Products */,
 			);
@@ -251,6 +295,7 @@
 				8BA42AF617E3C150002D206E /* MyTestiOSApp.app */,
 				8BA42B2217E3C150002D206E /* MyTestiOSAppTests.xctest */,
 				D6EA53A71D541011008A0BC3 /* adal-extension.appex */,
+				B22F77521FFD4F0F004679CB /* ADALiOSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -323,6 +368,20 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		B22F77531FFD4F10004679CB /* ADALiOSUITests */ = {
+			isa = PBXGroup;
+			children = (
+				B2795BAC1FFDA4F20002B764 /* ADALBaseTest.h */,
+				B22F77541FFD4F10004679CB /* ADALBaseTest.m */,
+				B22F77561FFD4F10004679CB /* Info.plist */,
+				B2795BA01FFDA48A0002B764 /* AADInteractiveLoginTests.m */,
+				B21E3D851FFDACBD00CFB343 /* ShibInteractiveLoginTests.m */,
+				B21E3D911FFDBF6500CFB343 /* PingInteractiveLoginTests.m */,
+				B21E3D931FFDC7E100CFB343 /* ADFSv3InteractiveLoginTests.m */,
+			);
+			path = ADALiOSUITests;
+			sourceTree = "<group>";
+		};
 		D6EA53A81D541012008A0BC3 /* adal-extension */ = {
 			isa = PBXGroup;
 			children = (
@@ -375,6 +434,24 @@
 			productReference = 8BA42B2217E3C150002D206E /* MyTestiOSAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		B22F77511FFD4F0F004679CB /* ADALiOSUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B22F776A1FFD4F10004679CB /* Build configuration list for PBXNativeTarget "ADALiOSUITests" */;
+			buildPhases = (
+				B22F774E1FFD4F0F004679CB /* Sources */,
+				B22F774F1FFD4F0F004679CB /* Frameworks */,
+				B22F77501FFD4F0F004679CB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B22F77581FFD4F10004679CB /* PBXTargetDependency */,
+			);
+			name = ADALiOSUITests;
+			productName = ADALiOSUITests;
+			productReference = B22F77521FFD4F0F004679CB /* ADALiOSUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		D6EA53A61D541011008A0BC3 /* adal-extension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D6EA53B61D541012008A0BC3 /* Build configuration list for PBXNativeTarget "adal-extension" */;
@@ -414,6 +491,12 @@
 					8BA42B2117E3C150002D206E = {
 						TestTargetID = 8BA42AF517E3C150002D206E;
 					};
+					B22F77511FFD4F0F004679CB = {
+						CreatedOnToolsVersion = 9.0;
+						DevelopmentTeam = UBF8T346G9;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 8BA42AF517E3C150002D206E;
+					};
 					D6EA53A61D541011008A0BC3 = {
 						CreatedOnToolsVersion = 7.3.1;
 						DevelopmentTeam = UBF8T346G9;
@@ -443,6 +526,7 @@
 				8BA42AF517E3C150002D206E /* MyTestiOSApp */,
 				8BA42B2117E3C150002D206E /* MyTestiOSAppTests */,
 				D6EA53A61D541011008A0BC3 /* adal-extension */,
+				B22F77511FFD4F0F004679CB /* ADALiOSUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -469,10 +553,10 @@
 			remoteRef = 8B3F79FA1D74F0A200F95A44 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8B3F79FD1D74F0A200F95A44 /* ADALiOSTests.xctest */ = {
+		8B3F79FD1D74F0A200F95A44 /* ADAL_iOS_UTs.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = ADALiOSTests.xctest;
+			path = ADAL_iOS_UTs.xctest;
 			remoteRef = 8B3F79FC1D74F0A200F95A44 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -483,11 +567,25 @@
 			remoteRef = 8B3F79FE1D74F0A200F95A44 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8B3F7A011D74F0A200F95A44 /* ADAL Mac Tests.xctest */ = {
+		8B3F7A011D74F0A200F95A44 /* ADAL_Mac_UTs.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = "ADAL Mac Tests.xctest";
+			path = ADAL_Mac_UTs.xctest;
 			remoteRef = 8B3F7A001D74F0A200F95A44 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B22F77671FFD4F10004679CB /* ADAL_iOS_ITs.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADAL_iOS_ITs.xctest;
+			remoteRef = B22F77661FFD4F10004679CB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B22F77691FFD4F10004679CB /* ADAL_Mac_ITs.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADAL_Mac_ITs.xctest;
+			remoteRef = B22F77681FFD4F10004679CB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D676180E1DEF976F00EC83FB /* UnitTestHostApp.app */ = {
@@ -526,6 +624,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B22F77501FFD4F0F004679CB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D6EA53A51D541011008A0BC3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -561,6 +666,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B22F774E1FFD4F0F004679CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B21E3D861FFDACBD00CFB343 /* ShibInteractiveLoginTests.m in Sources */,
+				B22F77551FFD4F10004679CB /* ADALBaseTest.m in Sources */,
+				B21E3D921FFDBF6500CFB343 /* PingInteractiveLoginTests.m in Sources */,
+				B2795BA11FFDA48A0002B764 /* AADInteractiveLoginTests.m in Sources */,
+				B21E3D941FFDC7E100CFB343 /* ADFSv3InteractiveLoginTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D6EA53A31D541011008A0BC3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -576,6 +693,11 @@
 			isa = PBXTargetDependency;
 			target = 8BA42AF517E3C150002D206E /* MyTestiOSApp */;
 			targetProxy = 8BA42B2817E3C150002D206E /* PBXContainerItemProxy */;
+		};
+		B22F77581FFD4F10004679CB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8BA42AF517E3C150002D206E /* MyTestiOSApp */;
+			targetProxy = B22F77571FFD4F10004679CB /* PBXContainerItemProxy */;
 		};
 		D6D64BBB1D83320F0077C1A0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -882,6 +1004,117 @@
 			};
 			name = Release;
 		};
+		B22F77591FFD4F10004679CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = ADALiOSUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyTestiOSApp;
+			};
+			name = Debug;
+		};
+		B22F775A1FFD4F10004679CB /* CodeCoverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = ADALiOSUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyTestiOSApp;
+			};
+			name = CodeCoverage;
+		};
+		B22F775B1FFD4F10004679CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = ADALiOSUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyTestiOSApp;
+			};
+			name = Release;
+		};
 		D6EA53B31D541012008A0BC3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -986,6 +1219,16 @@
 				8BA42B3817E3C150002D206E /* Debug */,
 				8B41A1E71888C61B0027EE1E /* CodeCoverage */,
 				8BA42B3917E3C150002D206E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B22F776A1FFD4F10004679CB /* Build configuration list for PBXNativeTarget "ADALiOSUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B22F77591FFD4F10004679CB /* Debug */,
+				B22F775A1FFD4F10004679CB /* CodeCoverage */,
+				B22F775B1FFD4F10004679CB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

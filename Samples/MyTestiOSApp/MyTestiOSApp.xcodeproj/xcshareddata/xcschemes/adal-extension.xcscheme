@@ -41,6 +41,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
@@ -50,6 +51,16 @@
                BlueprintIdentifier = "8BA42B2117E3C150002D206E"
                BuildableName = "MyTestiOSAppTests.xctest"
                BlueprintName = "MyTestiOSAppTests"
+               ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B22F77511FFD4F0F004679CB"
+               BuildableName = "ADALiOSUITests.xctest"
+               BlueprintName = "ADALiOSUITests"
                ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -70,6 +81,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"

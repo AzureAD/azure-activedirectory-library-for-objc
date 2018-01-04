@@ -26,6 +26,9 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
+#import "ADTokenCacheItem.h"
+
+#define EMPTY_IF_NIL(X) X ? X : @""
 
 @interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
 
@@ -139,24 +142,29 @@
     _userIdField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
     _userIdField.borderStyle = UITextBorderStyleRoundedRect;
     _userIdField.delegate = self;
+    _userIdField.accessibilityIdentifier = @"user_id_field";
     [layout addControl:_userIdField title:@"userId"];
     
     _userIdType = [[UISegmentedControl alloc] initWithItems:@[@"Optional", @"Required", @"Unique"]];
     _userIdType.selectedSegmentIndex = 0;
+    _userIdType.accessibilityIdentifier = @"user_id_control";
     [layout addControl:_userIdType title:@"idType"];
     
     _promptBehavior = [[UISegmentedControl alloc] initWithItems:@[@"Always", @"Auto", @"Force"]];
     _promptBehavior.selectedSegmentIndex = 0;
+    _promptBehavior.accessibilityIdentifier = @"prompt_type_control";
     [layout addControl:_promptBehavior title:@"prompt"];
     
     _profileButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [_profileButton setTitle:ADTestAppSettings.currentProfileTitle forState:UIControlStateNormal];
     [_profileButton addTarget:self action:@selector(changeProfile:) forControlEvents:UIControlEventTouchUpInside];
     _profileButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    _profileButton.accessibilityIdentifier = @"profile_button";
     [layout addControl:_profileButton title:@"profile"];
     
     _webViewType = [[UISegmentedControl alloc] initWithItems:@[@"Passed In", @"ADAL"]];
     _webViewType.selectedSegmentIndex = 1;
+    _webViewType.accessibilityIdentifier = @"webview_type_control";
     [layout addControl:_webViewType title:@"webView"];
     
     _fullScreen = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
@@ -165,25 +173,31 @@
     
     _brokerEnabled = [[UISegmentedControl alloc] initWithItems:@[@"Disabled", @"Auto"]];
     [_brokerEnabled setSelectedSegmentIndex:0];
+    _brokerEnabled.accessibilityIdentifier = @"broker_auth_type";
     [layout addControl:_brokerEnabled title:@"broker"];
     
     _validateAuthority = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
+    _validateAuthority.accessibilityIdentifier = @"validate_authority_type";
     [layout addControl:_validateAuthority title:@"valAuth"];
     
     _extraQueryParamsField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
     _extraQueryParamsField.borderStyle = UITextBorderStyleRoundedRect;
     _extraQueryParamsField.delegate = self;
+    _extraQueryParamsField.accessibilityIdentifier = @"eqp_field";
     [layout addControl:_extraQueryParamsField title:@"EQP"];
     
     UIButton* clearCookies = [UIButton buttonWithType:UIButtonTypeSystem];
+    clearCookies.accessibilityIdentifier = @"clear_cookies";
     [clearCookies setTitle:@"Clear Cookies" forState:UIControlStateNormal];
     [clearCookies addTarget:self action:@selector(clearCookies:) forControlEvents:UIControlEventTouchUpInside];
     
     UIButton* clearCache = [UIButton buttonWithType:UIButtonTypeSystem];
+    clearCache.accessibilityIdentifier = @"clear_cache";
     [clearCache setTitle:@"Clear Cache" forState:UIControlStateNormal];
     [clearCache addTarget:self action:@selector(clearCache:) forControlEvents:UIControlEventTouchUpInside];
     
     UIButton* wipeUpn = [UIButton buttonWithType:UIButtonTypeSystem];
+    wipeUpn.accessibilityIdentifier = @"wipe_cache_for_upn";
     [wipeUpn setTitle:@"Wipe cache" forState:UIControlStateNormal];
     [wipeUpn addTarget:self action:@selector(wipeCache:) forControlEvents:UIControlEventTouchUpInside];
     
@@ -197,6 +211,7 @@
     _resultView.layer.cornerRadius = 8.0f;
     _resultView.backgroundColor = [UIColor colorWithRed:0.96f green:0.96f blue:0.96f alpha:1.0f];
     _resultView.editable = NO;
+    _resultView.accessibilityIdentifier = @"result_view";
     [layout addView:_resultView key:@"result"];
     
     UIView* contentView = [layout contentView];
@@ -215,10 +230,12 @@
     UIButton* acquireButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [acquireButton setTitle:@"acquireToken" forState:UIControlStateNormal];
     [acquireButton addTarget:self action:@selector(acquireTokenInteractive:) forControlEvents:UIControlEventTouchUpInside];
+    acquireButton.accessibilityIdentifier = @"acquire_token_btn";
     
     UIButton* acquireSilentButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [acquireSilentButton setTitle:@"acquireTokenSilent" forState:UIControlStateNormal];
     [acquireSilentButton addTarget:self action:@selector(acquireTokenSilent:) forControlEvents:UIControlEventTouchUpInside];
+    acquireSilentButton.accessibilityIdentifier = @"acquire_token_silent_btn";
     
     UIView* acquireButtonsView = [self createTwoItemLayoutView:acquireButton item2:acquireSilentButton];
     UIVisualEffect* blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
@@ -496,7 +513,20 @@
             break;
     }
     
-    NSString* resultText = [NSString stringWithFormat:@"{\n\tstatus = %@;\n\terror = %@\n\tcorrelation ID = %@\n\ttokenCacheItem = %@\n\tauthority = %@\n}", resultStatus, result.error, result.correlationId, result.tokenCacheItem, result.authority];
+    NSDictionary *resultDict = @{@"status": resultStatus,
+                                 @"error": EMPTY_IF_NIL(result.error.description),
+                                 @"correlation_id": EMPTY_IF_NIL(result.correlationId.UUIDString),
+                                 @"authority": EMPTY_IF_NIL(result.authority),
+                                 @"token_authority": EMPTY_IF_NIL(result.tokenCacheItem.authority),
+                                 @"token_access_token": EMPTY_IF_NIL([ADLogger getHash:result.tokenCacheItem.accessToken]),
+                                 @"token_refresh_token": EMPTY_IF_NIL([ADLogger getHash:result.tokenCacheItem.refreshToken]),
+                                 @"token_client_id": EMPTY_IF_NIL(result.tokenCacheItem.clientId),
+                                 @"token_resource": EMPTY_IF_NIL(result.tokenCacheItem.resource),
+                                 @"token_type": EMPTY_IF_NIL(result.tokenCacheItem.accessTokenType)};
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultDict options:NSJSONWritingPrettyPrinted error:nil];
+    
+    NSString *resultText = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     [_resultView setText:resultText];
     
