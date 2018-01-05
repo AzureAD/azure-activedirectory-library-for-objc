@@ -197,6 +197,7 @@
     _resultView.layer.cornerRadius = 8.0f;
     _resultView.backgroundColor = [UIColor colorWithRed:0.96f green:0.96f blue:0.96f alpha:1.0f];
     _resultView.editable = NO;
+    _resultView.text = [NSString stringWithFormat:@"ADAL %@", ADAL_VERSION_NSSTRING];
     [layout addView:_resultView key:@"result"];
     
     UIView* contentView = [layout contentView];

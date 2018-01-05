@@ -101,6 +101,8 @@
 {
     [super windowDidLoad];
     
+    self.window.title = [NSString stringWithFormat:@"Acquire Token (%@)", ADAL_VERSION_NSSTRING];
+    
     [self.window.contentView addSubview:_acquireSettingsView];
     [_authView setHidden:YES];
     [self.window.contentView addSubview:_authView];
