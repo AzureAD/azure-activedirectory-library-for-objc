@@ -239,6 +239,7 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     NSString* extraQueryParameters = _extraQueryParamsField.stringValue;
+    NSString* claims = _claimsField.stringValue;
     
     ADUserIdentifier* identifier = [self identifier];
     
@@ -273,6 +274,7 @@
                        promptBehavior:_promptBehavior
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
+                               claims:claims
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (fBlockHit)

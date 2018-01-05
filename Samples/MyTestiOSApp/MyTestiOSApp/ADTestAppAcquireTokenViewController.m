@@ -27,7 +27,11 @@
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
 
-@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
+@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
+
+@property (nonatomic) UIAlertController *claimsPickerSheet;
+@property (nonatomic) UIPickerView *claimsPickerView;
+@property (nonatomic) NSDictionary *claims;
 
 @end
 
@@ -36,6 +40,7 @@
     UIView* _acquireSettingsView;
     UITextField* _userIdField;
     UITextField* _extraQueryParamsField;
+    UITextField* _claimsField;
     UISegmentedControl* _userIdType;
     
     UISegmentedControl* _promptBehavior;
@@ -68,6 +73,8 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
+    
+    self.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D"};
     
     return self;
 }
@@ -174,6 +181,16 @@
     _extraQueryParamsField.borderStyle = UITextBorderStyleRoundedRect;
     _extraQueryParamsField.delegate = self;
     [layout addControl:_extraQueryParamsField title:@"EQP"];
+    
+    _claimsField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
+    _claimsField.borderStyle = UITextBorderStyleRoundedRect;
+    _claimsField.delegate = self;
+    
+    UIButton *claimsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    claimsButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [claimsButton setTitle:@"Claims" forState:UIControlStateNormal];
+    [claimsButton addTarget:self action:@selector(onClaimsButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [layout addControl:_claimsField button:claimsButton];
     
     UIButton* clearCookies = [UIButton buttonWithType:UIButtonTypeSystem];
     [clearCookies setTitle:@"Clear Cookies" forState:UIControlStateNormal];
@@ -401,6 +418,7 @@
     
     _userIdField.text = settings.defaultUser;
     _extraQueryParamsField.text = settings.extraQueryParameters;
+    _claimsField.text = nil;
     
     self.navigationController.navigationBarHidden = YES;
     _validateAuthority.selectedSegmentIndex = settings.validateAuthority ? 0 : 1;
@@ -525,6 +543,7 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     NSString* extraQueryParameters = _extraQueryParamsField.text;
+    NSString* claims = _claimsField.text;
     
     ADUserIdentifier* identifier = [self identifier];
     ADCredentialsType credType = [self credType];
@@ -563,6 +582,7 @@
                        promptBehavior:[self promptBehavior]
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
+                               claims:claims
                       completionBlock:^(ADAuthenticationResult *result)
     {
         if (fBlockHit)
@@ -592,6 +612,12 @@
         });
     }];
     
+}
+
+
+- (IBAction)onClaimsButtonTapped:(id)sender
+{
+    [self showClaimsPickerView];
 }
 
 - (IBAction)cancelAuth:(id)sender
@@ -702,6 +728,91 @@
 - (IBAction)changeProfile:(id)sender
 {
     [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
+}
+
+- (void)showClaimsPickerView
+{
+    self.claimsPickerSheet = [UIAlertController alertControllerWithTitle:@"Select claim" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    self.claimsPickerView = [[UIPickerView alloc]initWithFrame:CGRectZero];
+    self.claimsPickerView.dataSource = self;
+    self.claimsPickerView.delegate = self;
+    self.claimsPickerView.showsSelectionIndicator = YES;
+    [self.claimsPickerView selectRow:1 inComponent:0 animated:YES];
+    [self.claimsPickerSheet.view addSubview:self.claimsPickerView];
+    self.claimsPickerView.translatesAutoresizingMaskIntoConstraints = NO;
+    UIView *view = self.claimsPickerView;
+    [self.claimsPickerSheet.view addConstraints:[NSLayoutConstraint
+                                           constraintsWithVisualFormat:@"V:|[view]|"
+                                           options:0l
+                                           metrics:nil
+                                           views:NSDictionaryOfVariableBindings(view)]];
+    
+    [self.claimsPickerSheet.view addConstraints:[NSLayoutConstraint
+                                           constraintsWithVisualFormat:@"H:|[view]|"
+                                           options:0l
+                                           metrics:nil
+                                           views:NSDictionaryOfVariableBindings(view)]];
+    
+    
+    UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    cancelButton.frame = CGRectMake(10, 0, 50, 40);
+    [cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    [cancelButton addTarget:self action:@selector(onClaimsCancelButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.claimsPickerSheet.view addSubview:cancelButton];
+    
+    UIButton *clearButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    clearButton.frame = CGRectMake(70, 0, 80, 40);
+    [clearButton setTitle:@"Clear" forState:UIControlStateNormal];
+    [clearButton addTarget:self action:@selector(onClaimsClearButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.claimsPickerSheet.view addSubview:clearButton];
+    
+    UIButton *doneButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    doneButton.frame = CGRectMake(self.claimsPickerSheet.view.bounds.size.width - (80 + 10 * 2), 0, 80, 40);
+    [doneButton setTitle:@"Select" forState:UIControlStateNormal];
+    [doneButton addTarget:self action:@selector(onClaimsDoneButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.claimsPickerSheet.view addSubview:doneButton];
+    
+    [self presentViewController:self.claimsPickerSheet animated:YES completion:nil];
+}
+
+- (IBAction)onClaimsCancelButtonTapped:(id)sender
+{
+    [self.claimsPickerSheet dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)onClaimsClearButtonTapped:(id)sender
+{
+    _claimsField.text = nil;
+    [self.claimsPickerSheet dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)onClaimsDoneButtonTapped:(id)sender
+{
+    NSInteger row = [self.claimsPickerView selectedRowInComponent:0];
+    NSString *claim = self.claims.allValues[row];
+    
+    _claimsField.text = claim;
+    
+    [self.claimsPickerSheet dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UIPickerViewDataSource
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    return self.claims.count;
+}
+
+#pragma mark - UIPickerViewDelegate
+
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
+{
+    return self.claims.allKeys[row];
 }
 
 @end

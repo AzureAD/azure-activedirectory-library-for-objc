@@ -68,6 +68,28 @@
     [self addView:view key:title];
 }
 
+- (void)addControl:(UIControl *)control
+             button:(UIButton *)button
+{
+    UIView *view = [UIView new];
+    
+    [view addSubview:button];
+    
+    control.translatesAutoresizingMaskIntoConstraints = NO;
+    [view addSubview:control];
+    
+    NSDictionary* views = @{ @"button" : button, @"control" : control };
+    NSArray* verticalConstraints1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[button]|" options:0 metrics:NULL views:views];
+    NSArray* verticalConstraints2 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[control(29)]|" options:0 metrics:NULL views:views];
+    NSArray* horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[button(60)]-[control]|" options:NSLayoutFormatAlignAllCenterY metrics:NULL views:views];
+    
+    [view addConstraints:verticalConstraints1];
+    [view addConstraints:verticalConstraints2];
+    [view addConstraints:horizontalConstraints];
+    
+    [self addView:view key:button.titleLabel.text];
+}
+
 - (void)addViewInternal:(UIView*)view key:(NSString *)key
 {
     view.translatesAutoresizingMaskIntoConstraints = NO;
