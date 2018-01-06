@@ -26,12 +26,11 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
+#import "ADTestAppClaimsPickerController.h"
 
 @interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
 
-@property (nonatomic) UIAlertController *claimsPickerSheet;
-@property (nonatomic) UIPickerView *claimsPickerView;
-@property (nonatomic) NSDictionary *claims;
+@property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
 @end
 
@@ -73,8 +72,6 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
-    
-    self.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D"};
     
     return self;
 }
@@ -373,6 +370,10 @@
                                                object:nil];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    self.claimsPickerController = [ADTestAppClaimsPickerController alertControllerWithTitle:@"Select claim" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    self.claimsPickerController.claimsTextField = _claimsField;
+    self.claimsPickerController.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D"};
 }
 
 - (void)keyboardWillShow:(NSNotification *)aNotification
@@ -614,10 +615,9 @@
     
 }
 
-
 - (IBAction)onClaimsButtonTapped:(id)sender
 {
-    [self showClaimsPickerView];
+    [self presentViewController:self.claimsPickerController animated:YES completion:nil];
 }
 
 - (IBAction)cancelAuth:(id)sender
@@ -728,91 +728,6 @@
 - (IBAction)changeProfile:(id)sender
 {
     [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
-}
-
-- (void)showClaimsPickerView
-{
-    self.claimsPickerSheet = [UIAlertController alertControllerWithTitle:@"Select claim" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    self.claimsPickerView = [[UIPickerView alloc]initWithFrame:CGRectZero];
-    self.claimsPickerView.dataSource = self;
-    self.claimsPickerView.delegate = self;
-    self.claimsPickerView.showsSelectionIndicator = YES;
-    [self.claimsPickerView selectRow:1 inComponent:0 animated:YES];
-    [self.claimsPickerSheet.view addSubview:self.claimsPickerView];
-    self.claimsPickerView.translatesAutoresizingMaskIntoConstraints = NO;
-    UIView *view = self.claimsPickerView;
-    [self.claimsPickerSheet.view addConstraints:[NSLayoutConstraint
-                                           constraintsWithVisualFormat:@"V:|[view]|"
-                                           options:0l
-                                           metrics:nil
-                                           views:NSDictionaryOfVariableBindings(view)]];
-    
-    [self.claimsPickerSheet.view addConstraints:[NSLayoutConstraint
-                                           constraintsWithVisualFormat:@"H:|[view]|"
-                                           options:0l
-                                           metrics:nil
-                                           views:NSDictionaryOfVariableBindings(view)]];
-    
-    
-    UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    cancelButton.frame = CGRectMake(10, 0, 50, 40);
-    [cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
-    [cancelButton addTarget:self action:@selector(onClaimsCancelButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.claimsPickerSheet.view addSubview:cancelButton];
-    
-    UIButton *clearButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    clearButton.frame = CGRectMake(70, 0, 80, 40);
-    [clearButton setTitle:@"Clear" forState:UIControlStateNormal];
-    [clearButton addTarget:self action:@selector(onClaimsClearButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.claimsPickerSheet.view addSubview:clearButton];
-    
-    UIButton *doneButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    doneButton.frame = CGRectMake(self.claimsPickerSheet.view.bounds.size.width - (80 + 10 * 2), 0, 80, 40);
-    [doneButton setTitle:@"Select" forState:UIControlStateNormal];
-    [doneButton addTarget:self action:@selector(onClaimsDoneButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.claimsPickerSheet.view addSubview:doneButton];
-    
-    [self presentViewController:self.claimsPickerSheet animated:YES completion:nil];
-}
-
-- (IBAction)onClaimsCancelButtonTapped:(id)sender
-{
-    [self.claimsPickerSheet dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (IBAction)onClaimsClearButtonTapped:(id)sender
-{
-    _claimsField.text = nil;
-    [self.claimsPickerSheet dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (IBAction)onClaimsDoneButtonTapped:(id)sender
-{
-    NSInteger row = [self.claimsPickerView selectedRowInComponent:0];
-    NSString *claim = self.claims.allValues[row];
-    
-    _claimsField.text = claim;
-    
-    [self.claimsPickerSheet dismissViewControllerAnimated:YES completion:nil];
-}
-
-#pragma mark - UIPickerViewDataSource
-
-- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
-{
-    return 1;
-}
-
-- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
-{
-    return self.claims.count;
-}
-
-#pragma mark - UIPickerViewDelegate
-
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
-{
-    return self.claims.allKeys[row];
 }
 
 @end
