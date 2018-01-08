@@ -26,8 +26,11 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
+#import "ADTestAppClaimsPickerController.h"
 
-@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
+@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
+
+@property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
 @end
 
@@ -36,6 +39,7 @@
     UIView* _acquireSettingsView;
     UITextField* _userIdField;
     UITextField* _extraQueryParamsField;
+    UITextField* _claimsField;
     UISegmentedControl* _userIdType;
     
     UISegmentedControl* _promptBehavior;
@@ -174,6 +178,16 @@
     _extraQueryParamsField.borderStyle = UITextBorderStyleRoundedRect;
     _extraQueryParamsField.delegate = self;
     [layout addControl:_extraQueryParamsField title:@"EQP"];
+    
+    _claimsField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
+    _claimsField.borderStyle = UITextBorderStyleRoundedRect;
+    _claimsField.delegate = self;
+    
+    UIButton *claimsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    claimsButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [claimsButton setTitle:@"Claims" forState:UIControlStateNormal];
+    [claimsButton addTarget:self action:@selector(onClaimsButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [layout addControl:_claimsField button:claimsButton];
     
     UIButton* clearCookies = [UIButton buttonWithType:UIButtonTypeSystem];
     [clearCookies setTitle:@"Clear Cookies" forState:UIControlStateNormal];
@@ -357,6 +371,10 @@
                                                object:nil];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    self.claimsPickerController = [ADTestAppClaimsPickerController alertControllerWithTitle:@"Select claim" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    self.claimsPickerController.claimsTextField = _claimsField;
+    self.claimsPickerController.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D"};
 }
 
 - (void)keyboardWillShow:(NSNotification *)aNotification
@@ -402,6 +420,7 @@
     
     _userIdField.text = settings.defaultUser;
     _extraQueryParamsField.text = settings.extraQueryParameters;
+    _claimsField.text = nil;
     
     self.navigationController.navigationBarHidden = YES;
     _validateAuthority.selectedSegmentIndex = settings.validateAuthority ? 0 : 1;
@@ -526,6 +545,7 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     NSString* extraQueryParameters = _extraQueryParamsField.text;
+    NSString* claims = _claimsField.text;
     
     ADUserIdentifier* identifier = [self identifier];
     ADCredentialsType credType = [self credType];
@@ -564,6 +584,7 @@
                        promptBehavior:[self promptBehavior]
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
+                               claims:claims
                       completionBlock:^(ADAuthenticationResult *result)
     {
         if (fBlockHit)
@@ -593,6 +614,11 @@
         });
     }];
     
+}
+
+- (IBAction)onClaimsButtonTapped:(id)sender
+{
+    [self presentViewController:self.claimsPickerController animated:YES completion:nil];
 }
 
 - (IBAction)cancelAuth:(id)sender
