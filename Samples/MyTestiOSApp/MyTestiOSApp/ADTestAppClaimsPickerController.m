@@ -33,6 +33,8 @@
 {
     [super viewDidLoad];
     
+    UILayoutGuide *margins = self.view.layoutMarginsGuide;
+    
     self.claimsPickerView = [[UIPickerView alloc]initWithFrame:CGRectZero];
     self.claimsPickerView.dataSource = self;
     self.claimsPickerView.delegate = self;
@@ -55,22 +57,34 @@
     
     
     UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    cancelButton.frame = CGRectMake(10, 0, 50, 40);
+    [self.view addSubview:cancelButton];
+    cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [cancelButton.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor constant:0].active = YES;
+    [cancelButton.topAnchor constraintEqualToAnchor:margins.topAnchor constant:0].active = YES;
+    [cancelButton.widthAnchor constraintEqualToConstant:50].active = YES;
+    [cancelButton.heightAnchor constraintEqualToConstant:40].active = YES;
     [cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
     [cancelButton addTarget:self action:@selector(onClaimsCancelButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:cancelButton];
-    
+
     UIButton *clearButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    clearButton.frame = CGRectMake(70, 0, 80, 40);
+    [self.view addSubview:clearButton];
+    clearButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [clearButton.topAnchor constraintEqualToAnchor:margins.topAnchor constant:0].active = YES;
+    [clearButton.centerXAnchor constraintEqualToAnchor:margins.centerXAnchor constant:0].active = YES;
+    [clearButton.widthAnchor constraintEqualToConstant:50].active = YES;
+    [clearButton.heightAnchor constraintEqualToConstant:40].active = YES;
     [clearButton setTitle:@"Clear" forState:UIControlStateNormal];
     [clearButton addTarget:self action:@selector(onClaimsClearButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:clearButton];
-    
+
     UIButton *doneButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    doneButton.frame = CGRectMake(self.view.bounds.size.width - (80 + 10 * 2), 0, 80, 40);
+    [self.view addSubview:doneButton];
+    doneButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [doneButton.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor constant:0].active = YES;
+    [doneButton.topAnchor constraintEqualToAnchor:margins.topAnchor constant:0].active = YES;
+    [doneButton.widthAnchor constraintEqualToConstant:50].active = YES;
+    [doneButton.heightAnchor constraintEqualToConstant:40].active = YES;
     [doneButton setTitle:@"Select" forState:UIControlStateNormal];
     [doneButton addTarget:self action:@selector(onClaimsDoneButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:doneButton];
 }
 
 #pragma mark - Public

@@ -28,7 +28,7 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 
-@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
+@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
 
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
@@ -372,7 +372,7 @@
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    self.claimsPickerController = [ADTestAppClaimsPickerController alertControllerWithTitle:@"Select claim" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    self.claimsPickerController = [ADTestAppClaimsPickerController alertControllerWithTitle:@"" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     self.claimsPickerController.claimsTextField = _claimsField;
     self.claimsPickerController.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D"};
 }
@@ -616,8 +616,10 @@
     
 }
 
-- (IBAction)onClaimsButtonTapped:(id)sender
+- (IBAction)onClaimsButtonTapped:(UIButton *)sender
 {
+    self.claimsPickerController.popoverPresentationController.sourceView = sender;
+    self.claimsPickerController.popoverPresentationController.sourceRect = sender.bounds;
     [self presentViewController:self.claimsPickerController animated:YES completion:nil];
 }
 
