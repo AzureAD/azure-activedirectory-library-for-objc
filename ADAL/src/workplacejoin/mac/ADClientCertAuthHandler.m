@@ -173,6 +173,10 @@
             
             // If no identity comes back then we can't handle the request
             completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+            
+            NSError *error = [NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_USER_CANCEL userInfo:nil];
+            [protocol URLSession:session task:task didCompleteWithError:error];
+            
             return YES;
         }
         
