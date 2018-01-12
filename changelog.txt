@@ -1,3 +1,12 @@
+Version 2.6.0 (01.16.2018)
+-------------
+* Improved handling for guest users (#1078)
+* instance_aware=true flow support for sovereign clouds (#1083)
+* Added PII flag to logs and telemetry (#1088, #1091, #1093)
+* Added an API to remove all tokens for a specified user Id (#1097)
+* Return error headers to the app developer (#1102)
+* Don’t block loading of about:blank pages (#1118)
+
 Version 2.5.4 (12.11.2017)
 -------------
 * Look for the correct error field for authority metadata discovery request (#1116)
