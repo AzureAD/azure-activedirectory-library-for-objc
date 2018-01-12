@@ -207,19 +207,18 @@
     [self waitForAADLoginPage];
     
     // Enter the username
-    XCUIElement *emailTextField = _testApplication.webViews.textFields[@"Email or phone"];
+    XCUIElement *emailTextField = _testApplication.textFields[@"Email or phone"];
     [emailTextField pressForDuration:0.5f];
     [emailTextField typeText:username];
     
     // Press next
-    XCUIElement *nextButton = _testApplication.webViews.buttons[@"Next"];
+    XCUIElement *nextButton = _testApplication.otherElements[@"Sign in to your account"].buttons[@"Next"];
     [nextButton tap];
 }
 
 - (void)waitForAADLoginPage
 {
-    XCUIElementQuery *webViewsQuery = _testApplication.webViews;
-    XCUIElement *emailOrPhoneTextField = webViewsQuery.textFields[@"Email or phone"];
+    XCUIElement *emailOrPhoneTextField = _testApplication.textFields[@"Email or phone"];
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     

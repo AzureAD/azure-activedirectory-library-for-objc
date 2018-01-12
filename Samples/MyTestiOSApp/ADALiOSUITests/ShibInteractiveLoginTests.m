@@ -44,7 +44,7 @@
 - (void)signinToShibWithUsername:(NSString *)username password:(NSString *)password
 {
     // Wait for Shib page to load
-    XCUIElement *usernameField = [_testApplication.webViews.textFields elementBoundByIndex:0];
+    XCUIElement *usernameField = [_testApplication.textFields elementBoundByIndex:0];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     
     [self expectationForPredicate:predicate evaluatedWithObject:usernameField handler:nil];
@@ -54,12 +54,12 @@
     [usernameField pressForDuration:0.5f];
     [usernameField typeText:username];
     
-    XCUIElement *passwordField = [_testApplication.webViews.secureTextFields elementBoundByIndex:0];
+    XCUIElement *passwordField = [_testApplication.secureTextFields elementBoundByIndex:0];
     [passwordField pressForDuration:0.5f];
     [passwordField typeText:password];
     
     // Tap sign in
-    XCUIElement *signInButton = [_testApplication.webViews.buttons elementBoundByIndex:0];
+    XCUIElement *signInButton = _testApplication.buttons[@"Continue"];
     [signInButton tap];
 }
 

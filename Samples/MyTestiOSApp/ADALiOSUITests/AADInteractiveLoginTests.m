@@ -44,8 +44,7 @@
 - (void)signinToAADWithPassword:(NSString *)password
 {
     // Wait for AAD username page to load
-    XCUIElementQuery *webViewsQuery = _testApplication.webViews;
-    XCUIElement *passwordSecureTextField = webViewsQuery/*@START_MENU_TOKEN@*/.secureTextFields[@"Password"]/*[[".otherElements[@\"Sign in to your account\"].secureTextFields[@\"Password\"]",".secureTextFields[@\"Password\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
+    XCUIElement *passwordSecureTextField = _testApplication/*@START_MENU_TOKEN@*/.secureTextFields[@"Password"]/*[[".otherElements[@\"Sign in to your account\"].secureTextFields[@\"Password\"]",".secureTextFields[@\"Password\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     
     [self expectationForPredicate:predicate
@@ -57,31 +56,32 @@
     [passwordSecureTextField typeText:password];
     
     // Tap sign in
-    XCUIElement *signInButton = webViewsQuery/*@START_MENU_TOKEN@*/.buttons[@"Sign in"]/*[[".otherElements[@\"Sign in to your account\"].buttons[@\"Sign in\"]",".buttons[@\"Sign in\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
+    XCUIElement *signInButton = _testApplication/*@START_MENU_TOKEN@*/.buttons[@"Sign in"]/*[[".otherElements[@\"Sign in to your account\"].buttons[@\"Sign in\"]",".buttons[@\"Sign in\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
     [signInButton tap];
 }
 
 - (void)signinToBlackforestAADWithPassword:(NSString *)password
 {
     // Wait for AAD username page to load
-    XCUIElementQuery *webViewsQuery = _testApplication.webViews;
-    XCUIElement *usernameField = webViewsQuery.textFields[@"User account"];
+    XCUIElement *usernameField = _testApplication.textFields[@"User account"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     
     [self expectationForPredicate:predicate
               evaluatedWithObject:usernameField handler:nil];
     [self waitForExpectationsWithTimeout:20.0f handler:nil];
     
-    // Blackforest signing page does some additional redirrection which happens as soon as you tap any text fields
-    [usernameField pressForDuration:0.5f];
-    
     // Enter the password
-    XCUIElement *passwordSecureTextField = webViewsQuery/*@START_MENU_TOKEN@*/.secureTextFields[@"Password"]/*[[".otherElements[@\"Sign in to your account\"].secureTextFields[@\"Password\"]",".secureTextFields[@\"Password\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
+    XCUIElement *passwordSecureTextField = _testApplication/*@START_MENU_TOKEN@*/.secureTextFields[@"Password"]/*[[".otherElements[@\"Sign in to your account\"].secureTextFields[@\"Password\"]",".secureTextFields[@\"Password\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
     [passwordSecureTextField pressForDuration:0.5f];
+    [usernameField pressForDuration:0.5f];
+    // Blackforest signing page does some additional redirrection which happens as soon as you tap any text fields
+    [passwordSecureTextField pressForDuration:1.0f];
     [passwordSecureTextField typeText:password];
     
+    [_testApplication.buttons[@"Done"] tap];
+    
     // Tap sign in
-    XCUIElement *signInButton = webViewsQuery/*@START_MENU_TOKEN@*/.buttons[@"Sign in"]/*[[".otherElements[@\"Sign in to your account\"].buttons[@\"Sign in\"]",".buttons[@\"Sign in\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
+    XCUIElement *signInButton = _testApplication/*@START_MENU_TOKEN@*/.buttons[@"Sign in"]/*[[".otherElements[@\"Sign in to your account\"].buttons[@\"Sign in\"]",".buttons[@\"Sign in\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
     [signInButton tap];
 }
 
@@ -260,7 +260,7 @@
     [self waitForAADLoginPage];
     
     // Press next (this is special AAD behavior in case of sovereign clouds)
-    XCUIElement *nextButton = _testApplication.webViews.buttons[@"Next"];
+    XCUIElement *nextButton = _testApplication.buttons[@"Next"];
     [nextButton tap];
     
     [self signinToBlackforestAADWithPassword:DEFAULT_BLACKFOREST_PASSWORD];
@@ -278,6 +278,7 @@
     
     // Tap the "acquire" button again, UI should appear
     [self startAndCancelInteractiveSignin];
+    
 }
 
 @end
