@@ -1,3 +1,7 @@
+Version 2.5.4 (12.11.2017)
+-------------
+* Look for the correct error field for authority metadata discovery request (#1116)
+
 Version 2.5.3 (11.17.2017)
 -------------
 * Parse auth challenges where Bearer is not the first challenge. (#1042)
