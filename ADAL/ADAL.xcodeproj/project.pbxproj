@@ -30,12 +30,12 @@
 		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
 		230E16DB1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */; };
 		230E16DC1FAD45E700ADC904 /* ADAuthorityUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */; };
-		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
-		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		230E16E11FB17A2C00ADC904 /* ADTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E01FB17A2C00ADC904 /* ADTelemetryUIEventTests.m */; };
 		230E16E41FB17A7400ADC904 /* ADTelemetryAPIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */; };
 		230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */; };
 		230E16E61FB17A7D00ADC904 /* ADTelemetryUIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E01FB17A2C00ADC904 /* ADTelemetryUIEventTests.m */; };
+		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
+		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
@@ -529,10 +529,10 @@
 		04AB6D551D9D619B007E9A83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UnitTestHostApp.entitlements; sourceTree = "<group>"; };
 		230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtilsTests.m; sourceTree = "<group>"; };
-		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
-		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
 		230E16E01FB17A2C00ADC904 /* ADTelemetryUIEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryUIEventTests.m; sourceTree = "<group>"; };
 		230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryAPIEventTests.m; sourceTree = "<group>"; };
+		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
+		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
 		234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationContextTests.h; sourceTree = "<group>"; };
