@@ -21,45 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoRequestViewController.h"
+#import <Foundation/Foundation.h>
 
-@interface ADAutoRequestViewController ()
+typedef NS_ENUM(NSInteger, ADTestAccountType)
+{
+    ADTestAccountTypeAAD,
+    ADTestAccountTypePing,
+    ADTestAccountTypeADFSv3,
+    ADTestAccountTypeBlackforest,
+    ADTestAccountTypeShib,
+};
 
-@property (strong, nonatomic) IBOutlet UITextView *requestInfo;
-@property (strong, nonatomic) IBOutlet UIButton *requestGo;
+typedef NS_ENUM(NSInteger, ADTestProfileType)
+{
+    ADTestProfileTypeBasic,
+    ADTestProfileTypeFoci,
+    ADTestProfileTypeSovereign
+};
+
+@interface ADTestAccount : NSObject
+
+@property (nonatomic) NSString *account;
+@property (nonatomic) NSString *username;
+@property (nonatomic) NSString *password;
 
 @end
 
-@implementation ADAutoRequestViewController
+@interface ADTestAccountsProvider : NSObject
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-}
+- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
+- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type exclude:(NSArray *)accountsToExclude;
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (IBAction)go:(id)sender {
-    
-    (void)sender;
-    
-    self.requestInfo.editable = NO;
-    self.requestGo.enabled = NO;
-    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
-
-    NSError* error = nil;
-    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
-    if (!params)
-    {
-        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, error.code, error.localizedDescription];
-        
-        params = @{ @"error" : errorString };
-    }
-    
-    self.completionBlock(params);
-}
+- (NSDictionary *)testProfileOfType:(ADTestProfileType)type;
 
 @end
