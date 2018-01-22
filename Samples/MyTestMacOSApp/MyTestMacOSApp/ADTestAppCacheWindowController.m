@@ -188,6 +188,20 @@ static NSLineBreakMode linebreakForColumn(NSTableColumn* tableColumn)
     return cell;
 }
 
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    NSIndexSet* rows = [_tableView selectedRowIndexes];
+    
+    __block NSMutableString * descr = [NSMutableString new];
+    [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop)
+     {
+         ADTokenCacheItem* item = _allItems[idx];
+         [descr appendFormat:@"{\n\taccess_token: %@\n\trefresh_token: %@\n}\n", item.accessToken, item.refreshToken];
+     }];
+    
+    [[_detailView textStorage] setAttributedString:[[NSAttributedString alloc] initWithString:descr]];
+    
+}
+
 - (IBAction)expire:(id)sender
 {
     @synchronized (self)

@@ -26,7 +26,8 @@
 
 @interface ADTestAppCacheWindowController : NSWindowController
 {
-    IBOutlet NSTableView* _tableView;
+    IBOutlet NSTableView *_tableView;
+    IBOutlet NSTextView *_detailView;
     NSArray* _allItems;
 }
 
