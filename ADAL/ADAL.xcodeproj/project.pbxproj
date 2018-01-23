@@ -403,6 +403,10 @@
 		D69A721B1D4FF68300E91DB3 /* ADAggregatedDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401B51D37658C0020EAAB /* ADAggregatedDispatcher.m */; };
 		D69A721C1D4FF68300E91DB3 /* ADTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401AA1D3443D30020EAAB /* ADTelemetryDefaultEvent.m */; };
 		D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */; };
+		D6BA664F20167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */; };
+		D6BA665020167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */; };
+		D6BA665120167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */; };
+		D6BA665220167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */; };
 		D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
@@ -805,6 +809,9 @@
 		D68040311D22F686007A61AC /* ADWebAuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthResponse.h; sourceTree = "<group>"; };
 		D68040321D22F686007A61AC /* ADWebAuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponse.m; sourceTree = "<group>"; };
 		D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/SecurityInterface.framework; sourceTree = DEVELOPER_DIR; };
+		D6BA664D20167BA2001085EC /* ADRefreshResponseBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADRefreshResponseBuilder.h; sourceTree = "<group>"; };
+		D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADRefreshResponseBuilder.m; sourceTree = "<group>"; };
+		D6BA665320167E15001085EC /* ADTestConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestConstants.h; sourceTree = "<group>"; };
 		D6D4D4961F2FCD8600CC1859 /* ADTestURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLResponse.h; sourceTree = "<group>"; };
 		D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLResponse.m; sourceTree = "<group>"; };
 		D6D8A83E1D4FD14100D20DE6 /* ADKeychainUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADKeychainUtil.h; sourceTree = "<group>"; };
@@ -1086,6 +1093,7 @@
 				D67D3D391F38502900660F32 /* ADTestCase.h */,
 				D67D3D3A1F38502900660F32 /* ADTestCase.m */,
 				D67D3D3F1F38538100660F32 /* ADTest.pch */,
+				D6BA665320167E15001085EC /* ADTestConstants.h */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -1496,6 +1504,8 @@
 				D66A9F1B1F76D05900144011 /* NSURL+ADTestUtil.m */,
 				D66A9F261F7998D300144011 /* ADTokenCacheTestUtil.h */,
 				D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */,
+				D6BA664D20167BA2001085EC /* ADRefreshResponseBuilder.h */,
+				D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -2091,6 +2101,7 @@
 				B20DC6011F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5F71F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
 				D66A9F1C1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
+				D6BA664F20167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
 				B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
 				D67D3D351F382F8B00660F32 /* NSDictionary+ADTestUtil.m in Sources */,
 			);
@@ -2189,6 +2200,7 @@
 				D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC6061F0D998A00957806 /* ADUserInformationTests.m in Sources */,
 				D632B5541F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
+				D6BA665120167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
 				B20DC60A1F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
 				B20DC6021F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */,
@@ -2234,6 +2246,7 @@
 				B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */,
+				D6BA665020167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
 				D66A9F1D1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
 				B20DC6121F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */,
@@ -2265,6 +2278,7 @@
 				B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */,
 				D67D3D461F422C3000660F32 /* ADFSAuthorityValidationIntegrationTests.m in Sources */,
 				D66A9F2B1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
+				D6BA665220167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
 				D632B54F1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				D62256541F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
