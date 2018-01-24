@@ -185,6 +185,16 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 
 + (BOOL)canUseBroker
 {
+    if (![NSThread isMainThread])
+    {
+        __block BOOL result = NO;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            result = [self canUseBroker];
+        });
+        
+        return result;
+    }
+    
     if (![ADAppExtensionUtil isExecutingInAppExtension])
     {
         // Verify broker app url can be opened
