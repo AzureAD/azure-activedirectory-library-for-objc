@@ -31,6 +31,8 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheKey.h"
+#import "ADTelemetryTestDispatcher.h"
+#import "ADTelemetry+Internal.h"
 
 //Some logging constant to help with testing the persistence:
 NSString* const sPersisted = @"successfully persisted";

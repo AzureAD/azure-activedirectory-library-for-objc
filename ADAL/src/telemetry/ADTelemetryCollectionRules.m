@@ -76,6 +76,8 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_EVENT_NAME: @(CollectOnly),
                              AD_TELEMETRY_KEY_REQUEST_ID: @(CollectOnly),
                              AD_TELEMETRY_KEY_SPE_INFO: @(CollectOnly),
+                             AD_TELEMETRY_KEY_WIPE_APP: @(CollectOnly),
+                             AD_TELEMETRY_KEY_WIPE_TIME: @(CollectOnly),
                              
                              // Collect and count
                              AD_TELEMETRY_KEY_UI_EVENT_COUNT: @(CollectAndCount),

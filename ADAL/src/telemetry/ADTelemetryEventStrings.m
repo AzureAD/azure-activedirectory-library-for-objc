@@ -37,6 +37,7 @@ NSString *const AD_TELEMETRY_EVENT_AUTHORIZATION_CODE     = @"Microsoft.ADAL.aut
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP     = @"Microsoft.ADAL.token_cache_lookup";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE      = @"Microsoft.ADAL.token_cache_write";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE     = @"Microsoft.ADAL.token_cache_delete";
+NSString *const AD_TELEMETRY_EVENT_CACHE_WIPED            = @"Microsoft.ADAL.token_cache_wiped";
 
 // Telemetry property name, only alphabetic letters, dots, and underscores are allowed.
 NSString *const AD_TELEMETRY_KEY_EVENT_NAME                   = @"Microsoft.ADAL.event_name";
@@ -97,6 +98,8 @@ NSString *const AD_TELEMETRY_KEY_SERVER_ERROR_CODE            = @"Microsoft.ADAL
 NSString *const AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE         = @"Microsoft.ADAL.server_sub_error_code";
 NSString *const AD_TELEMETRY_KEY_RT_AGE                       = @"Microsoft.ADAL.rt_age";
 NSString *const AD_TELEMETRY_KEY_SPE_INFO                     = @"Microsoft.ADAL.spe_info";
+NSString *const AD_TELEMETRY_KEY_WIPE_APP                     = @"Microsoft.ADAL.wipe_app";
+NSString *const AD_TELEMETRY_KEY_WIPE_TIME                    = @"Microsoft.ADAL.wipe_time";
 
 // Telemetry property value
 NSString *const AD_TELEMETRY_VALUE_YES                             = @"yes";

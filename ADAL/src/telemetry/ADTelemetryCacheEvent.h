@@ -34,5 +34,7 @@
 - (void)setMRRTStatus:(NSString*)status;
 - (void)setFRTStatus:(NSString*)status;
 - (void)setSpeInfo:(NSString *)speInfo;
+- (void)setCacheWipeApp:(NSString *)wipeApp;
+- (void)setCacheWipeTime:(NSString *)wipeTime;
 
 @end

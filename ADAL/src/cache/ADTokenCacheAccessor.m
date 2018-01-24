@@ -33,6 +33,7 @@
 #import "ADTelemetryCacheEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
+#import "ADHelpers.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -153,6 +154,17 @@
         [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
         [event setMRRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
+    else
+    {
+        NSDictionary *wipeData = [_dataSource getWipeTokenData];
+        
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[ADHelpers stringFromDate:wipeData[@"wipeTime"]]];
+        }
+    }
+    
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
@@ -182,6 +194,17 @@
         [event setIsFRT:AD_TELEMETRY_VALUE_YES];
         [event setFRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
+    else
+    {
+        NSDictionary *wipeData = [_dataSource getWipeTokenData];
+        
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[ADHelpers stringFromDate:wipeData[@"wipeTime"]]];
+        }
+    }
+    
     [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
