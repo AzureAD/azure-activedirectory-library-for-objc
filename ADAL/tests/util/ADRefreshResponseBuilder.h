@@ -23,25 +23,27 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ADTokenCache.h"
-#if TARGET_OS_IPHONE
-#import "ADKeychainTokenCache.h"
-#endif
+@interface ADRefreshResponseBuilder : NSObject
 
-@protocol ADTokenCacheTestUtil
+@property (copy, readwrite, nonnull) NSString *authority;
+@property (copy, readwrite, nonnull) NSString *clientId;
+@property (copy, readwrite, nonnull) NSString *resource;
+@property (copy, readwrite, nonnull) NSUUID *correlationId;
 
-- (NSString *)getAT:(NSString *)authority;
-- (NSString *)getMRRT:(NSString *)authority;
-- (ADTokenCacheItem *)getMRRTItem:(NSString *)authority;
-- (NSString *)getFRT:(NSString *)authority;
-- (ADTokenCacheItem *)getFRTItem:(NSString *)authority;
+@property (copy, readwrite, nonnull) NSString *oldRefreshToken;
+
+@property (readonly, nonnull) NSMutableDictionary *requestHeaders;
+@property (readonly, nonnull) NSMutableDictionary *requestBody;
+
+@property (readwrite) NSInteger responseCode;
+@property (readonly, nonnull) NSMutableDictionary *responseHeaders;
+@property (readonly, nonnull) NSMutableDictionary *responseBody;
+
+@property (copy, readwrite, nonnull) NSString *updatedRefreshToken;
+@property (copy, readwrite, nonnull) NSString *updatedAccessToken;
+@property (copy, readwrite, nonnull) NSDate *expirationTime;
+@property (copy, readwrite, nullable) NSString *updatedIdToken;
+
+- (nonnull ADTestURLResponse *)response;
 
 @end
-
-@interface ADTokenCache (TestUtil) <ADTokenCacheTestUtil>
-@end
-
-#if TARGET_OS_IPHONE
-@interface ADKeychainTokenCache (TestUtil) <ADTokenCacheTestUtil>
-@end
-#endif

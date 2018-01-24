@@ -376,6 +376,19 @@
              // If we got back a valid RT but no access token then replay the RT for a new AT
              if (result.status == AD_SUCCEEDED && result.tokenCacheItem.accessToken == nil)
              {
+                 if (_requestParams.scope == nil)
+                 {
+                    [self setScope:@"openid"];
+                 }
+                 else
+                 {
+                     NSArray *scopes = [_requestParams.scope componentsSeparatedByString:@" "];
+                     if (![scopes containsObject:@"openid"])
+                     {
+                         [self setScope:[NSString stringWithFormat:@"openid %@", _requestParams.scope]];
+                     }
+                 }
+                 
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -497,9 +510,9 @@
                                          [_requestParams clientId], OAUTH2_CLIENT_ID,
                                          [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                                          nil];
-    if (![NSString adIsStringNilOrBlank:_scope])
+    if (![NSString adIsStringNilOrBlank:_requestParams.scope])
     {
-        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
+        [request_data setValue:_requestParams.scope forKey:OAUTH2_SCOPE];
     }
     
     [self executeRequest:request_data

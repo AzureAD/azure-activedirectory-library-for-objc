@@ -53,7 +53,6 @@
     
     ADPromptBehavior _promptBehavior;
     
-    NSString* _scope;
     NSString* _queryParams;
     NSString* _claims;
     

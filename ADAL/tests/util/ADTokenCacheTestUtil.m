@@ -39,34 +39,44 @@ static ADTokenCacheItem *getToken(id<ADTokenCacheDataSource> tokenCache, NSStrin
     return [tokenCache getItemsWithKey:key userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil].firstObject;
 }
 
-static NSString *getMRRT(id<ADTokenCacheDataSource> tokenCache, NSString *authority)
+static ADTokenCacheItem *getMRRT(id<ADTokenCacheDataSource> tokenCache, NSString *authority)
 {
-    return getToken(tokenCache, authority, TEST_CLIENT_ID, nil).refreshToken;
+    return getToken(tokenCache, authority, TEST_CLIENT_ID, nil);
 }
 
-static NSString *getFRT(id<ADTokenCacheDataSource> tokenCache, NSString *authority)
+static ADTokenCacheItem *getFRT(id<ADTokenCacheDataSource> tokenCache, NSString *authority)
 {
-    return getToken(tokenCache, authority, @"foci-1", nil).refreshToken;
+    return getToken(tokenCache, authority, @"foci-1", nil);
 }
 
-static NSString *getAT(id<ADTokenCacheDataSource> tokenCache, NSString *authority)
+static ADTokenCacheItem *getAT(id<ADTokenCacheDataSource> tokenCache, NSString *authority)
 {
-    return getToken(tokenCache, authority, TEST_CLIENT_ID, TEST_RESOURCE).accessToken;
+    return getToken(tokenCache, authority, TEST_CLIENT_ID, TEST_RESOURCE);
 }
 
 @implementation ADTokenCache (TestUtil)
 
 - (NSString *)getAT:(NSString *)authority
 {
-    return getAT(self, authority);
+    return getAT(self, authority).accessToken;
 }
 
 - (NSString *)getMRRT:(NSString *)authority
+{
+    return getMRRT(self, authority).refreshToken;
+}
+
+- (ADTokenCacheItem *)getMRRTItem:(NSString *)authority
 {
     return getMRRT(self, authority);
 }
 
 - (NSString *)getFRT:(NSString *)authority
+{
+    return getFRT(self, authority).refreshToken;
+}
+
+- (ADTokenCacheItem *)getFRTItem:(NSString *)authority
 {
     return getFRT(self, authority);
 }
@@ -78,15 +88,25 @@ static NSString *getAT(id<ADTokenCacheDataSource> tokenCache, NSString *authorit
 
 - (NSString *)getAT:(NSString *)authority
 {
-    return getAT(self, authority);
+    return getAT(self, authority).accessToken;
 }
 
 - (NSString *)getMRRT:(NSString *)authority
+{
+    return getMRRT(self, authority).refreshToken;
+}
+
+- (ADTokenCacheItem *)getMRRTItem:(NSString *)authority
 {
     return getMRRT(self, authority);
 }
 
 - (NSString *)getFRT:(NSString *)authority
+{
+    return getFRT(self, authority).refreshToken;
+}
+
+- (ADTokenCacheItem *)getFRTItem:(NSString *)authority
 {
     return getFRT(self, authority);
 }
