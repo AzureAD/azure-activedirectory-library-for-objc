@@ -67,6 +67,8 @@ extern NSString *const AD_TELEMETRY_KEY_SERVER_ERROR_CODE;
 extern NSString *const AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE;
 extern NSString *const AD_TELEMETRY_KEY_RT_AGE;
 extern NSString *const AD_TELEMETRY_KEY_SPE_INFO;
+extern NSString *const AD_TELEMETRY_KEY_WIPE_APP;
+extern NSString *const AD_TELEMETRY_KEY_WIPE_TIME;
 extern NSString *const AD_TELEMETRY_KEY_IS_RT;
 extern NSString *const AD_TELEMETRY_KEY_IS_MRRT;
 extern NSString *const AD_TELEMETRY_KEY_IS_FRT;

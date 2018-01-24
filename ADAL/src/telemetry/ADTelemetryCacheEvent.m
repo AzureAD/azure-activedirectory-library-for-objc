@@ -91,4 +91,14 @@
     }
 }
 
+- (void)setCacheWipeApp:(NSString *)wipeApp
+{
+    [self setProperty:AD_TELEMETRY_KEY_WIPE_APP value:wipeApp];
+}
+
+- (void)setCacheWipeTime:(NSString *)wipeTime
+{
+    [self setProperty:AD_TELEMETRY_KEY_WIPE_TIME value:wipeTime];
+}
+
 @end

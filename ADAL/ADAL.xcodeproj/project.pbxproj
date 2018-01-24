@@ -203,6 +203,7 @@
 		96C75D251E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
 		96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
+		B200BC4420180A57000A81FD /* ADWipeTokensTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B200BC4320180A57000A81FD /* ADWipeTokensTelemetryTests.m */; };
 		B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */; };
 		B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
@@ -724,6 +725,7 @@
 		97A522481A1A752D001D77CE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		B200BC4320180A57000A81FD /* ADWipeTokensTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADWipeTokensTelemetryTests.m; sourceTree = "<group>"; };
 		B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_iOS_ITs.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_Mac_ITs.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20DC5D61F0D97C600957806 /* ADAL_iOS_UTs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_iOS_UTs-Info.plist"; sourceTree = "<group>"; };
@@ -1480,6 +1482,7 @@
 				B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */,
 				D6771DFF1F749CE100D0DCDC /* ADBrokerIntegrationTests.m */,
 				B20DC5DC1F0D97DD00957806 /* ADAL_iOS_ITs-Info.plist */,
+				B200BC4320180A57000A81FD /* ADWipeTokensTelemetryTests.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -2260,6 +2263,7 @@
 				D67D3D471F422C3200660F32 /* ADFSAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC59A1F0D96A100957806 /* ADTestAuthenticationViewController.m in Sources */,
 				D6771E001F749CE100D0DCDC /* ADBrokerIntegrationTests.m in Sources */,
+				B200BC4420180A57000A81FD /* ADWipeTokensTelemetryTests.m in Sources */,
 				B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

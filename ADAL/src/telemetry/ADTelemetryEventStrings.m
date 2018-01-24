@@ -97,6 +97,8 @@ NSString *const AD_TELEMETRY_KEY_SERVER_ERROR_CODE            = @"Microsoft.ADAL
 NSString *const AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE         = @"Microsoft.ADAL.server_sub_error_code";
 NSString *const AD_TELEMETRY_KEY_RT_AGE                       = @"Microsoft.ADAL.rt_age";
 NSString *const AD_TELEMETRY_KEY_SPE_INFO                     = @"Microsoft.ADAL.spe_info";
+NSString *const AD_TELEMETRY_KEY_WIPE_APP                     = @"Microsoft.ADAL.wipe_app";
+NSString *const AD_TELEMETRY_KEY_WIPE_TIME                    = @"Microsoft.ADAL.wipe_time";
 
 // Telemetry property value
 NSString *const AD_TELEMETRY_VALUE_YES                             = @"yes";

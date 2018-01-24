@@ -33,6 +33,10 @@
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
+#import "ADTelemetryCacheEvent.h"
+#import "ADTelemetryEventStrings.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
 
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
@@ -220,27 +224,15 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 - (void)logWipeTokenData:(NSUUID *)correlationId
 {
-    static NSDictionary *sQuery;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSMutableDictionary *query = [[self wipeQuery] mutableCopy];
-        [query setObject:@(YES) forKey:(id)kSecReturnData];
-        sQuery = query;
-    });
+    NSDictionary *wipeData = [self getWipeTokenData];
     
-    CFTypeRef data = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)sQuery, &data);
-    
-    if (status == errSecSuccess && data)
+    if (wipeData)
     {
-        NSDictionary *wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
-        CFRelease(data);
-        
         NSString *bundleId = wipeData[@"bundleId"];
-        NSDate *wipeTime = wipeData[@"wipeTime"];
+        NSString *wipeTime = [ADHelpers stringFromDate:wipeData[@"wipeTime"]];
         
-        AD_LOG_INFO(correlationId, @"Last wiped by %@ at %@", bundleId, [ADHelpers stringFromDate:wipeTime]);
-        AD_LOG_INFO_PII(correlationId, @"Last wiped by %@ at %@", bundleId, [ADHelpers stringFromDate:wipeTime]);
+        AD_LOG_INFO(correlationId, @"Last wiped by %@ at %@", bundleId, wipeTime);
+        AD_LOG_INFO_PII(correlationId, @"Last wiped by %@ at %@", bundleId, wipeTime);
     }
     else
     {
@@ -248,7 +240,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         AD_LOG_INFO_PII(correlationId, @"Failed to get a wipe data or it does not exist for %@", _sharedGroup);
     }
 }
-
 
 #pragma mark -
 #pragma mark Keychain Logging
@@ -620,10 +611,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 {
     NSArray* items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     
-    //if nothing is found, last wipe details should be logged.
     if (!items || items.count == 0)
     {
-        [self logWipeTokenData:correlationId];
         return nil;
     }
     
@@ -745,6 +734,29 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (NSDictionary *)defaultKeychainQuery
 {
     return _default;
+}
+
+- (NSDictionary *)getWipeTokenData
+{
+    static NSDictionary *sQuery;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableDictionary *query = [[self wipeQuery] mutableCopy];
+        [query setObject:@(YES) forKey:(id)kSecReturnData];
+        sQuery = query;
+    });
+    
+    CFTypeRef data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)sQuery, &data);
+    
+    if (status == errSecSuccess && data)
+    {
+        NSDictionary *wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
+        CFRelease(data);
+        return wipeData;
+    }
+    
+    return nil;
 }
 
 @end
