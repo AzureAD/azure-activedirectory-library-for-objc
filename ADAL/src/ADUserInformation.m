@@ -25,6 +25,7 @@
 #import "ADAL_Internal.h"
 #import "ADOAuth2Constants.h"
 #import "NSString+ADHelperMethods.h"
+#import "ADHelpers.h"
 
 NSString* const ID_TOKEN_SUBJECT = @"sub";
 NSString* const ID_TOKEN_TENANTID = @"tid";
@@ -56,13 +57,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 + (NSString*)normalizeUserId:(NSString*)userId
 {
-    if (!userId)
-    {
-        return nil;//Quick exit;
-    }
-    NSString* normalized = [userId adTrimmedString].lowercaseString;
-        
-    return normalized.length ? normalized : nil;
+    return [ADHelpers normalizeUserId:userId];
 }
 
 - (id)initWithUserId:(NSString*)userId
@@ -219,7 +214,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         _uniqueId = self.subject;
     }
-    _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
+    _uniqueId = [self.class normalizeUserId:_uniqueId];
     
     return self;
 }
