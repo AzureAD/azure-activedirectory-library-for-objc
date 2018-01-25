@@ -471,7 +471,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     AD_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
 
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount: [userId adBase64UrlEncode],
+                             (id)kSecAttrAccount: [ADUserInformation normalizeUserId:userId].adBase64UrlEncode,
                              (id)kSecAttrAccessGroup: _sharedGroup };
     
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
