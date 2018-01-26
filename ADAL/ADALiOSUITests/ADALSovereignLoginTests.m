@@ -54,7 +54,7 @@
     [self clearCache];
     [self acquireToken:jsonString];
     
-    XCUIElement *emailTextField = self.testApp.webViews.textFields[@"Email or phone"];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
     [self.testApp.webViews.buttons[@"Next"] tap];
     
@@ -95,7 +95,7 @@
 
 - (void)blackforestComEnterEmail
 {
-    XCUIElement *emailTextField = self.testApp.webViews.textFields[@"Email or phone"];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
     [emailTextField tap];
     [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
@@ -103,7 +103,7 @@
 
 - (void)blackforestComEnterPassword
 {
-    XCUIElement *passwordTextField = self.testApp.webViews.secureTextFields[@"Password"];
+    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [passwordTextField tap];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];

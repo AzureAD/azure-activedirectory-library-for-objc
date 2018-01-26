@@ -333,11 +333,11 @@
 
 - (void)signInWithAnotherAccount
 {
-    XCUIElement *signIn = self.testApp.webViews.staticTexts[@"Sign in with another account"];
+    XCUIElement *signIn = self.testApp.staticTexts[@"Sign in with another account"];
     [self waitForElement:signIn];
     [signIn tap];
     
-    XCUIElement *useAnotherAccount = self.testApp.webViews.buttons[@"Use another account, Use another account"];
+    XCUIElement *useAnotherAccount = self.testApp.buttons[@"Use another account, Use another account"];
     [self waitForElement:useAnotherAccount];
     [useAnotherAccount tap];
 }
@@ -349,11 +349,10 @@
 
 - (void)aadEnterPassword:(NSString *)password
 {
-    XCUIElement *passwordTextField = self.testApp.webViews.secureTextFields[@"Password"];
+    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [passwordTextField tap];
+    [passwordTextField pressForDuration:0.5f];
     [passwordTextField typeText:password];
 }
-
 
 @end

@@ -97,7 +97,7 @@
 
 - (void)pingEnterUsername
 {
-    XCUIElement *usernameTextField = [self.testApp.webViews.textFields firstMatch];
+    XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
     [usernameTextField pressForDuration:0.5f];
     [usernameTextField typeText:self.accountInfo.username];
@@ -105,7 +105,7 @@
 
 - (void)pingEnterPassword
 {
-    XCUIElement *passwordTextField = [self.testApp.webViews.secureTextFields firstMatch];
+    XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
     [passwordTextField pressForDuration:0.5f];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];

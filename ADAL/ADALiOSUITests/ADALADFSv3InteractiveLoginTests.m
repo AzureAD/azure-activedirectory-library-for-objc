@@ -91,7 +91,7 @@
 
 - (void)enterADFSv3Password
 {
-    XCUIElement *passwordTextField = self.testApp.webViews.secureTextFields[@"Password"];
+    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [passwordTextField tap];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];

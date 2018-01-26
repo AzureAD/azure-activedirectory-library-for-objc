@@ -50,9 +50,9 @@
 
 - (void)aadEnterEmail:(NSString *)email
 {
-    XCUIElement *emailTextField = self.testApp.webViews.textFields[@"Email or phone"];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
-    [emailTextField tap];
+    [emailTextField pressForDuration:0.5f];
     [emailTextField typeText:email];
 }
 
@@ -87,7 +87,18 @@
 
 - (void)assertAuthUIAppear
 {
-    [self waitForElement:self.testApp.webViews.firstMatch];
+    XCUIElement *cancelButton = self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"].firstMatch;
+    XCUIElement *webView = self.testApp.otherElements[@"ADAL_WEB_VIEW"].firstMatch;
+    
+    // If webview is "passed in" -- we are looking for 'ADAL_WEB_VIEW' identifier,
+    // otherwise for cancel button.
+    BOOL result = [cancelButton waitForExistenceWithTimeout:2.0];
+    if (!result)
+    {
+        result = [webView waitForExistenceWithTimeout:2.0];
+    }
+
+    XCTAssertTrue(result);
 }
 
 - (void)assertError:(NSString *)error

@@ -32,6 +32,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.webView.accessibilityIdentifier = @"ADAL_WEB_VIEW";
 }
 
 @end
