@@ -21,20 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetryDefaultEvent.h"
+#ifndef ADTestConstants_h
+#define ADTestConstants_h
 
-@interface ADTelemetryCacheEvent : ADTelemetryDefaultEvent
+#define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
+#define TEST_REDIRECT_URL_STRING @"urn:ietf:wg:oauth:2.0:oob"
+#define TEST_REDIRECT_URL [NSURL URLWithString:TEST_REDIRECT_URL_STRING]
+#define TEST_RESOURCE @"resource"
+#define TEST_USER_ID @"eric_cartman@contoso.com"
+#define TEST_CLIENT_ID @"c3c7f5e5-7153-44d4-90e6-329686d48d76"
+#define TEST_ACCESS_TOKEN @"access token"
+#define TEST_ACCESS_TOKEN_TYPE @"access token type"
+#define TEST_REFRESH_TOKEN @"refresh token"
+#define TEST_UPDATE_REFRESH_TOKEN @"updated refresh token"
+#define TEST_CORRELATION_ID ({NSUUID *testID = [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]; testID;})
 
-- (void)setTokenType:(NSString*)tokenType;
-- (void)setStatus:(NSString*)status;
-- (void)setIsRT:(NSString*)isRT;
-- (void)setIsMRRT:(NSString*)isMRRT;
-- (void)setIsFRT:(NSString*)isFRT;
-- (void)setRTStatus:(NSString*)status;
-- (void)setMRRTStatus:(NSString*)status;
-- (void)setFRTStatus:(NSString*)status;
-- (void)setSpeInfo:(NSString *)speInfo;
-- (void)setCacheWipeApp:(NSString *)wipeApp;
-- (void)setCacheWipeTime:(NSString *)wipeTime;
 
-@end
+#endif /* ADTestConstants_h */

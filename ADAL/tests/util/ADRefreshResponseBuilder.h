@@ -21,20 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetryDefaultEvent.h"
+#import <Foundation/Foundation.h>
 
-@interface ADTelemetryCacheEvent : ADTelemetryDefaultEvent
+@interface ADRefreshResponseBuilder : NSObject
 
-- (void)setTokenType:(NSString*)tokenType;
-- (void)setStatus:(NSString*)status;
-- (void)setIsRT:(NSString*)isRT;
-- (void)setIsMRRT:(NSString*)isMRRT;
-- (void)setIsFRT:(NSString*)isFRT;
-- (void)setRTStatus:(NSString*)status;
-- (void)setMRRTStatus:(NSString*)status;
-- (void)setFRTStatus:(NSString*)status;
-- (void)setSpeInfo:(NSString *)speInfo;
-- (void)setCacheWipeApp:(NSString *)wipeApp;
-- (void)setCacheWipeTime:(NSString *)wipeTime;
+@property (copy, readwrite, nonnull) NSString *authority;
+@property (copy, readwrite, nonnull) NSString *clientId;
+@property (copy, readwrite, nonnull) NSString *resource;
+@property (copy, readwrite, nonnull) NSUUID *correlationId;
+
+@property (copy, readwrite, nonnull) NSString *oldRefreshToken;
+
+@property (readonly, nonnull) NSMutableDictionary *requestHeaders;
+@property (readonly, nonnull) NSMutableDictionary *requestBody;
+
+@property (readwrite) NSInteger responseCode;
+@property (readonly, nonnull) NSMutableDictionary *responseHeaders;
+@property (readonly, nonnull) NSMutableDictionary *responseBody;
+
+@property (copy, readwrite, nonnull) NSString *updatedRefreshToken;
+@property (copy, readwrite, nonnull) NSString *updatedAccessToken;
+@property (copy, readwrite, nonnull) NSDate *expirationTime;
+@property (copy, readwrite, nullable) NSString *updatedIdToken;
+
+- (nonnull ADTestURLResponse *)response;
 
 @end

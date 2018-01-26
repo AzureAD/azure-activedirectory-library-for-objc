@@ -25,19 +25,9 @@
 #import "ADAuthenticationError.h"
 #import "ADAL_Internal.h"
 #import "ADTelemetry.h"
+#import "ADTestConstants.h"
 
 #define ADTAssertContains(_str, _contains) XCTAssertTrue([_str containsString:_contains], "%@ does not contain \"%@\"", _str, _contains)
-
-#define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
-#define TEST_REDIRECT_URL_STRING @"urn:ietf:wg:oauth:2.0:oob"
-#define TEST_REDIRECT_URL [NSURL URLWithString:TEST_REDIRECT_URL_STRING]
-#define TEST_RESOURCE @"resource"
-#define TEST_USER_ID @"eric_cartman@contoso.com"
-#define TEST_CLIENT_ID @"c3c7f5e5-7153-44d4-90e6-329686d48d76"
-#define TEST_ACCESS_TOKEN @"access token"
-#define TEST_ACCESS_TOKEN_TYPE @"access token type"
-#define TEST_REFRESH_TOKEN @"refresh token"
-#define TEST_CORRELATION_ID ({NSUUID *testID = [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]; testID;})
 
 @class ADTokenCacheItem;
 @class ADUserInformation;
@@ -45,6 +35,9 @@
 @class ADTestURLResponse;
 
 @interface XCTestCase (HelperMethods)
+
++ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+                                      tenantId:(NSString *)tid;
 
 - (void)adAssertStringEquals:(NSString *)actual
             stringExpression:(NSString *)expression

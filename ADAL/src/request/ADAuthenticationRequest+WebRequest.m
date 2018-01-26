@@ -98,7 +98,7 @@
 // Encodes the state parameter for a protocol message
 - (NSString *)encodeProtocolState
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _scope, @"s", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _requestParams.scope, @"s", nil]
              adURLFormEncode] adBase64UrlEncode];
 }
 
@@ -270,9 +270,9 @@
                        @"1", @"nux",
                        @"none", @"prompt", nil];
         
-        if (_scope)
+        if (![NSString adIsStringNilOrBlank:_requestParams.scope])
         {
-            [requestData setObject:_scope forKey:OAUTH2_SCOPE];
+            [requestData setObject:_requestParams.scope forKey:OAUTH2_SCOPE];
         }
         
         if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])

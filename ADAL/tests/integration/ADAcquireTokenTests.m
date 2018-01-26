@@ -2076,4 +2076,163 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testAcquireToken_whenRefreshTokenIsNotPassedIn_shouldReturnError
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    [context acquireTokenWithRefreshToken:nil
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL 
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         //Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireToken_whenRefreshTokenIsPassedIn_shouldSkipCacheAndUseTheGivenRefreshToken
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // Add an AT and an MRRT to the cache
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateATCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // the request should be using refresh token from developer
+    [ADTestURLSession addResponse:[self adResponseRefreshToken:@"refresh token from developer"
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"refresh token from server"
+                                                newAccessToken:@"access token from server"]];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         //we should skip cache and hit network and get back new access token
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         XCTAssertEqualObjects(result.accessToken, @"access token from server");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"refresh token from server");
+         XCTAssertEqualObjects(result.tokenCacheItem.resource, TEST_RESOURCE);
+         XCTAssertEqualObjects(result.tokenCacheItem.clientId, TEST_CLIENT_ID);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireToken_whenRefreshTokenIsPassedIn_shouldStoreTokensIfSucceed
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // the request should be using refresh token from developer
+    [ADTestURLSession addResponse:[self adResponseRefreshToken:@"refresh token from developer"
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"refresh token from server"
+                                                newAccessToken:@"access token from server"]];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         //we should skip cache and hit network and get back new access token
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertEqualObjects(result.accessToken, @"access token from server");
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // make a silent call again to see if tokens are stored properly
+    expectation = [self expectationWithDescription:@"acquireTokenSilent"];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         XCTAssertEqualObjects(result.accessToken, @"access token from server");
+         XCTAssertEqualObjects(result.tokenCacheItem.resource, TEST_RESOURCE);
+         XCTAssertEqualObjects(result.tokenCacheItem.clientId, TEST_CLIENT_ID);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireToken_whenRefreshTokenRejected_shouldNotDeleteTokenInCacheWithSameCacheKey
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // Add an MRRT to the cache
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Network Response to reject developer's refresh token
+    [ADTestURLSession addResponse:[self adResponseBadRefreshToken:@"refresh token from developer"
+                                                        authority:TEST_AUTHORITY
+                                                         resource:TEST_RESOURCE
+                                                         clientId:TEST_CLIENT_ID
+                                                       oauthError:@"invalid_grant"
+                                                    correlationId:TEST_CORRELATION_ID]];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         // We should fail with "invalid_grant" error
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqualObjects(result.error.protocolCode, @"invalid_grant");
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // Refresh token in cache should not be deleted because the token itself is different from
+    // the one provided by developer
+    ADTokenCacheItem *rtInCache = [context.tokenCacheStore.dataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
+    XCTAssertNotNil(rtInCache);
+}
+
 @end

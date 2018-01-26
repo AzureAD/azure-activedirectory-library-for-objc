@@ -98,3 +98,4 @@ extern NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME;
 extern NSString* const ADAL_BROKER_SCHEME;
 extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;
 extern NSString* const ADAL_BROKER_APP_BUNDLE_ID;
+extern NSString* const ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD;

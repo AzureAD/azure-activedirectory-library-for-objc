@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23F32F2D2000556E00B2905E /* ADTestAppClaimsPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F32F2C2000556E00B2905E /* ADTestAppClaimsPickerController.m */; };
 		8B87548818988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548918988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548C189978350061999F /* ADTestAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548B189978350061999F /* ADTestAppSettings.m */; };
@@ -43,6 +44,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		23F32F382000557000B2905E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B20DC5AD1F0D96A100957806;
+			remoteInfo = ADAL_iOS_ITs;
+		};
+		23F32F3A2000557000B2905E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B20DC5D11F0D96A700957806;
+			remoteInfo = ADAL_Mac_ITs;
+		};
 		8B3F79F61D74F0A200F95A44 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
@@ -168,6 +183,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23F32F2B2000556E00B2905E /* ADTestAppClaimsPickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppClaimsPickerController.h; sourceTree = "<group>"; };
+		23F32F2C2000556E00B2905E /* ADTestAppClaimsPickerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppClaimsPickerController.m; sourceTree = "<group>"; };
 		4CAE461A18F7555400659400 /* MyTestiOSApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MyTestiOSApp.entitlements; sourceTree = "<group>"; };
 		8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADAL.xcodeproj; path = ../../ADAL/ADAL.xcodeproj; sourceTree = "<group>"; };
 		8B87548718988C4B0061999F /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestData.plist; sourceTree = "<group>"; };
@@ -334,6 +351,8 @@
 				D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */,
 				D68ACD2E1CD42710008EFA17 /* ADTestAppProfileViewController.h */,
 				D68ACD2F1CD42710008EFA17 /* ADTestAppProfileViewController.m */,
+				23F32F2B2000556E00B2905E /* ADTestAppClaimsPickerController.h */,
+				23F32F2C2000556E00B2905E /* ADTestAppClaimsPickerController.m */,
 			);
 			path = MyTestiOSApp;
 			sourceTree = "<group>";
@@ -532,6 +551,20 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		23F32F392000557000B2905E /* ADAL_iOS_ITs.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADAL_iOS_ITs.xctest;
+			remoteRef = 23F32F382000557000B2905E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		23F32F3B2000557000B2905E /* ADAL_Mac_ITs.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADAL_Mac_ITs.xctest;
+			remoteRef = 23F32F3A2000557000B2905E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		8B3F79F71D74F0A200F95A44 /* libADALiOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -648,6 +681,7 @@
 			files = (
 				8BA42B0C17E3C150002D206E /* ADTestAppDelegate.m in Sources */,
 				D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */,
+				23F32F2D2000556E00B2905E /* ADTestAppClaimsPickerController.m in Sources */,
 				D68ACD301CD42710008EFA17 /* ADTestAppProfileViewController.m in Sources */,
 				D6119CE61DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m in Sources */,
 				D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */,

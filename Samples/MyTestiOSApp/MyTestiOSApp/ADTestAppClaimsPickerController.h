@@ -21,20 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetryDefaultEvent.h"
+#import <UIKit/UIKit.h>
 
-@interface ADTelemetryCacheEvent : ADTelemetryDefaultEvent
+@interface ADTestAppClaimsPickerController : UIAlertController
 
-- (void)setTokenType:(NSString*)tokenType;
-- (void)setStatus:(NSString*)status;
-- (void)setIsRT:(NSString*)isRT;
-- (void)setIsMRRT:(NSString*)isMRRT;
-- (void)setIsFRT:(NSString*)isFRT;
-- (void)setRTStatus:(NSString*)status;
-- (void)setMRRTStatus:(NSString*)status;
-- (void)setFRTStatus:(NSString*)status;
-- (void)setSpeInfo:(NSString *)speInfo;
-- (void)setCacheWipeApp:(NSString *)wipeApp;
-- (void)setCacheWipeTime:(NSString *)wipeTime;
+@property (nonatomic) UIPickerView *claimsPickerView;
+@property (nonatomic) NSDictionary *claims;
+@property (nonatomic, weak) UITextField *claimsTextField;
 
 @end

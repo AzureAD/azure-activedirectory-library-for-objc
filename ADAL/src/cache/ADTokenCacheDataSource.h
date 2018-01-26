@@ -80,4 +80,9 @@
 
 - (nullable NSArray*)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
+/*!
+ Returns any information present about last application, who wiped tokens, if present.
+ */
+- (nullable NSDictionary *)getWipeTokenData;
+
 @end

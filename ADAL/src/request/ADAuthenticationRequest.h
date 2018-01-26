@@ -53,7 +53,6 @@
     
     ADPromptBehavior _promptBehavior;
     
-    NSString* _scope;
     NSString* _queryParams;
     NSString* _claims;
     
@@ -76,6 +75,8 @@
     ADAuthenticationError* _underlyingError;
     
     NSString *_cloudAuthority;
+    
+    NSString *_refreshToken;
 }
 
 @property (retain) NSString* logComponent;
@@ -115,6 +116,7 @@
 #endif
 - (void)setSamlAssertion:(NSString*)samlAssertion;
 - (void)setAssertionType:(ADAssertionType)assertionType;
+- (void)setRefreshToken:(NSString *)refreshToken;
 
 // This can be set anyTime
 - (void)setCloudInstanceHostname:(NSString *)cloudInstanceHostName;

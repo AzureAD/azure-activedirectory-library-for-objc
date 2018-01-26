@@ -580,6 +580,11 @@
     return result;
 }
 
+- (nullable NSDictionary *)getWipeTokenData
+{
+    // Wiping token data is not yet supported on macOS
+    return nil;
+}
 
 - (NSString *)description
 {

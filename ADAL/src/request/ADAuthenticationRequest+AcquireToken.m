@@ -237,6 +237,12 @@
 {
     [self ensureRequest];
     
+    if (_refreshToken)
+    {
+        [self tryRefreshToken:completionBlock];
+        return;
+    }
+    
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
     {
         [self getAccessToken:^(ADAuthenticationResult *result) {
@@ -370,6 +376,19 @@
              // If we got back a valid RT but no access token then replay the RT for a new AT
              if (result.status == AD_SUCCEEDED && result.tokenCacheItem.accessToken == nil)
              {
+                 if (_requestParams.scope == nil)
+                 {
+                    [self setScope:@"openid"];
+                 }
+                 else
+                 {
+                     NSArray *scopes = [_requestParams.scope componentsSeparatedByString:@" "];
+                     if (![scopes containsObject:@"openid"])
+                     {
+                         [self setScope:[NSString stringWithFormat:@"openid %@", _requestParams.scope]];
+                     }
+                 }
+                 
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -491,13 +510,30 @@
                                          [_requestParams clientId], OAUTH2_CLIENT_ID,
                                          [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                                          nil];
-    if (![NSString adIsStringNilOrBlank:_scope])
+    if (![NSString adIsStringNilOrBlank:_requestParams.scope])
     {
-        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
+        [request_data setValue:_requestParams.scope forKey:OAUTH2_SCOPE];
     }
     
     [self executeRequest:request_data
               completion:completionBlock];
+}
+
+- (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
+{
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN];
+    ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
+    [request acquireTokenByRefreshToken:_refreshToken
+                              cacheItem:[ADTokenCacheItem new]
+                        completionBlock:^(ADAuthenticationResult *result)
+     {
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN
+                                                                        context:_requestParams];
+         
+         [event setResultStatus:[result status]];
+         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+         completionBlock(result);
+     }];
 }
 
 @end

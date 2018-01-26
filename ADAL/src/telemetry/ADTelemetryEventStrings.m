@@ -32,6 +32,7 @@ NSString *const AD_TELEMETRY_EVENT_LAUNCH_BROKER          = @"Microsoft.ADAL.bro
 NSString *const AD_TELEMETRY_EVENT_TOKEN_GRANT            = @"Microsoft.ADAL.token_grant";
 NSString *const AD_TELEMETRY_EVENT_AUTHORITY_VALIDATION   = @"Microsoft.ADAL.authority_validation";
 NSString *const AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT   = @"Microsoft.ADAL.acquire_token_silent_handler";
+NSString *const AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_BY_REFRESH_TOKEN   = @"Microsoft.ADAL.acquire_token_by_refresh_token";
 NSString *const AD_TELEMETRY_EVENT_AUTHORIZATION_CODE     = @"Microsoft.ADAL.authorization_code";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP     = @"Microsoft.ADAL.token_cache_lookup";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE      = @"Microsoft.ADAL.token_cache_write";
@@ -96,6 +97,8 @@ NSString *const AD_TELEMETRY_KEY_SERVER_ERROR_CODE            = @"Microsoft.ADAL
 NSString *const AD_TELEMETRY_KEY_SERVER_SUBERROR_CODE         = @"Microsoft.ADAL.server_sub_error_code";
 NSString *const AD_TELEMETRY_KEY_RT_AGE                       = @"Microsoft.ADAL.rt_age";
 NSString *const AD_TELEMETRY_KEY_SPE_INFO                     = @"Microsoft.ADAL.spe_info";
+NSString *const AD_TELEMETRY_KEY_WIPE_APP                     = @"Microsoft.ADAL.wipe_app";
+NSString *const AD_TELEMETRY_KEY_WIPE_TIME                    = @"Microsoft.ADAL.wipe_time";
 
 // Telemetry property value
 NSString *const AD_TELEMETRY_VALUE_YES                             = @"yes";

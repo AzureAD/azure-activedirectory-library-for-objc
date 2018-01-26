@@ -121,6 +121,11 @@
         [request_data setObject:[_requestParams resource] forKey:OAUTH2_RESOURCE];
     }
     
+    if (![NSString adIsStringNilOrBlank:_requestParams.scope])
+    {
+        request_data[OAUTH2_SCOPE] = _requestParams.scope;
+    }
+    
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];

@@ -39,6 +39,7 @@
 #import "ADTokenCacheItem.h"
 #import "ADTokenCacheTestUtil.h"
 #import "ADUserInformation.h"
+#import "ADRefreshResponseBuilder.h"
 
 
 @interface ADBrokerIntegrationTests : ADTestCase
@@ -202,9 +203,11 @@
     NSString *brokerAT = @"i-am-a-access-token";
     NSString *updatedRT = @"updated-refresh-token";
     NSString *updatedAT = @"updated-access-token";
+    NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
     
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
     
+    // Parameters for launching broker
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
         
@@ -230,6 +233,7 @@
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
+        // Broker response back to client
         NSDictionary *responseParams =
         @{
           @"authority" : authority,
@@ -253,15 +257,16 @@
     [ADTestAuthorityValidationResponse validAuthority:authority
                                           trustedHost:@"login.microsoftonline.com"
                                          withMetadata:metadata];
-    ADTestURLResponse *tokenResponse =
-    [self adResponseRefreshToken:brokerRT
-                       authority:authority
-                        resource:TEST_RESOURCE
-                        clientId:TEST_CLIENT_ID
-                   correlationId:TEST_CORRELATION_ID
-                 newRefreshToken:updatedRT
-                  newAccessToken:updatedAT
-                additionalFields:@{ @"foci" : @"1"}];
+    
+    ADRefreshResponseBuilder *builder = [ADRefreshResponseBuilder new];
+    builder.oldRefreshToken = brokerRT;
+    builder.authority = authority;
+    builder.requestBody[@"scope"] = @"openid";
+    builder.updatedRefreshToken = updatedRT;
+    builder.updatedAccessToken = updatedAT;
+    builder.responseBody[@"foci"] = @"1";
+    builder.updatedIdToken = [[XCTestCase adCreateUserInformation:TEST_USER_ID tenantId:correctTid] rawIdToken];
+    ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
     ADAuthenticationContext *context = [self getBrokerTestContext:authority];
@@ -286,7 +291,119 @@
     
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
     XCTAssertEqualObjects([tokenCache getFRT:cacheAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
 }
+
+- (void)testBroker_whenTenantSpecifiedWithRequestUsingScope_shouldGetNewAT
+{
+    // This test is near identical to testBroker_whenTenantSpecified_shouldGetNewAT except the
+    // acquireToken call is initiated using ADAuthenticationRequest directly
+    NSString *authority = @"https://login.microsoftonline.com/contoso.net";
+    NSString *cacheAuthority = @"https://login.windows.net/contoso.net";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    NSString *brokerRT = @"i-am-a-refresh-token";
+    NSString *brokerAT = @"i-am-a-access-token";
+    NSString *updatedRT = @"updated-refresh-token";
+    NSString *updatedAT = @"updated-access-token";
+    NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
+    
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    
+    // Parameters for launching broker
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+        
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          };
+        
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+        
+        // Broker response back to client
+        NSDictionary *responseParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"client_id" : TEST_CLIENT_ID,
+          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+          @"access_token" : brokerAT,
+          @"refresh_token" : brokerRT,
+          @"foci" : @"1",
+          @"expires_in" : @"3600"
+          };
+        
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+    
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.microsoftonline.com"
+                                         withMetadata:metadata];
+    
+    ADRefreshResponseBuilder *builder = [ADRefreshResponseBuilder new];
+    builder.oldRefreshToken = brokerRT;
+    builder.authority = authority;
+    builder.requestBody[@"scope"] = @"openid aza bzb";
+    builder.updatedRefreshToken = updatedRT;
+    builder.updatedAccessToken = updatedAT;
+    builder.responseBody[@"foci"] = @"1";
+    builder.updatedIdToken = [[XCTestCase adCreateUserInformation:TEST_USER_ID tenantId:correctTid] rawIdToken];
+    ADTestURLResponse *tokenResponse = builder.response;
+    [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
+    
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context];
+    req.requestParams.resource = TEST_RESOURCE;
+    req.requestParams.clientId = TEST_CLIENT_ID;
+    req.requestParams.redirectUri = redirectUri;
+    req.requestParams.scope = @"aza bzb";
+    
+    [req acquireToken:@"1234567890"
+      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, updatedAT);
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, updatedRT);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1.0];
+    
+    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
+    XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
+    XCTAssertEqualObjects([tokenCache getFRT:cacheAuthority], updatedRT);
+    XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
+}
+
 
 @end
