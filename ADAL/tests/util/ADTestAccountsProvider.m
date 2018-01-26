@@ -111,16 +111,16 @@ static NSDictionary* _testProfiles()
 
 - (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
 {
-    return [self testAccountOfType:type exclude:nil];
+    return [[self testAccountsOfType:type] firstObject];
 }
 
-- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type exclude:(NSArray *)accountsToExclude
+- (NSArray <ADTestAccount *> *)testAccountsOfType:(ADTestAccountType)type
 {
     NSString *stringType = [self accountTypeToString:type];
     
     NSArray *accountsInfo = _testAccounts()[stringType];
     
-    NSMutableSet *availableAccounts = [NSMutableSet new];
+    NSMutableArray *availableAccounts = [NSMutableArray new];
     
     for (NSDictionary *accountInfo in accountsInfo)
     {
@@ -132,9 +132,7 @@ static NSDictionary* _testProfiles()
         [availableAccounts addObject:account];
     }
     
-    [availableAccounts minusSet:[[NSSet alloc] initWithArray:accountsToExclude]];
-    
-    return [availableAccounts anyObject];
+    return availableAccounts;
 }
 
 - (NSDictionary *)testProfileOfType:(ADTestProfileType)type

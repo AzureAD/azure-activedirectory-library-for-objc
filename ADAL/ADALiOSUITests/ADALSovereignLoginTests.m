@@ -97,7 +97,7 @@
 {
     XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
-    [emailTextField tap];
+    [emailTextField pressForDuration:0.5f];
     [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
 }
 
@@ -105,7 +105,7 @@
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [passwordTextField tap];
+    [passwordTextField pressForDuration:0.5f];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
 }
 

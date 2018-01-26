@@ -93,7 +93,7 @@
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [passwordTextField tap];
+    [passwordTextField pressForDuration:0.5f];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
 }
 

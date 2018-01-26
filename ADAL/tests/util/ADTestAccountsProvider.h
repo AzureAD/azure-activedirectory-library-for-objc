@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, ADTestProfileType)
 @interface ADTestAccountsProvider : NSObject
 
 - (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
-- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type exclude:(NSArray *)accountsToExclude;
+- (NSArray <ADTestAccount *> *)testAccountsOfType:(ADTestAccountType)type;
 
 - (NSDictionary *)testProfileOfType:(ADTestProfileType)type;
 

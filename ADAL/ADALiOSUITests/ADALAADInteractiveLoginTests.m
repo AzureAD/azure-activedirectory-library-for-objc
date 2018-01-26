@@ -229,6 +229,10 @@
 // #296753: Login Multiple Accounts
 - (void)testAADLogin_withPromptAlways_LoginHint_loginMultipleAccounts
 {
+    NSArray *accounts = [self.accountsProvider testAccountsOfType:ADTestAccountTypeAAD];
+    XCTAssertTrue(accounts.count > 1);
+    self.accountInfo = [accounts firstObject];
+    
     // User 1.
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
@@ -250,8 +254,7 @@
     [self closeResultView];
     
     // User 2.
-    ADTestAccount *accountInfo2 = [self.accountsProvider testAccountOfType:ADTestAccountTypeAAD
-                                                                   exclude:@[self.accountInfo]];
+    ADTestAccount *accountInfo2 = accounts[1];
     self.baseConfigParams[@"user_identifier"] = accountInfo2.account;
     NSString *jsonString2 = [self.baseConfigParams toJsonString];
     
@@ -276,8 +279,11 @@
 // #296758: Different ADUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
-    ADTestAccount *accountInfo2 = [self.accountsProvider testAccountOfType:ADTestAccountTypeAAD
-                                                                   exclude:@[self.accountInfo]];
+    NSArray *accounts = [self.accountsProvider testAccountsOfType:ADTestAccountTypeAAD];
+    XCTAssertTrue(accounts.count > 1);
+    self.accountInfo = [accounts firstObject];
+    ADTestAccount *accountInfo2 = accounts[1];
+    
     // Optional Displayable, User 1.
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
