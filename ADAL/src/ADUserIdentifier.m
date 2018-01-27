@@ -26,6 +26,7 @@
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADUserInformation.h"
+#import "ADHelpers.h"
 
 #define DEFAULT_USER_TYPE RequiredDisplayableId
 
@@ -42,7 +43,7 @@
         return nil;
     }
     
-    identifier->_userId = [ADUserInformation normalizeUserId:userId];
+    identifier->_userId = [ADHelpers normalizeUserId:userId];
     identifier->_type = DEFAULT_USER_TYPE;
     
     return identifier;
@@ -57,7 +58,7 @@
         return nil;
     }
     
-    identifier->_userId = [ADUserInformation normalizeUserId:userId];
+    identifier->_userId = [ADHelpers normalizeUserId:userId];
     identifier->_type = type;
     
     return identifier;
@@ -72,7 +73,7 @@
         return nil;
     }
     
-    identifier->_userId = [ADUserInformation normalizeUserId:userId];
+    identifier->_userId = [ADHelpers normalizeUserId:userId];
     identifier->_type = [ADUserIdentifier typeFromString:type];
     
     return identifier;
