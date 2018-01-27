@@ -14,3 +14,4 @@ EXECUTABLE_PREFIX = app
 // could be found in the build products using a module lookup. For our own test apps it's
 // best to disable modules
 CLANG_ENABLE_MODULES = NO
+USER_HEADER_SEARCH_PATHS = $(inherited) $(HOME)/aadoverrides $IDCORE_PATH/src/**
