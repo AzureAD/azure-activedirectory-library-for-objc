@@ -33,7 +33,7 @@
 {
     [super viewDidLoad];
     
-    self.webView.accessibilityIdentifier = @"ADAL_WEB_VIEW";
+    self.webView.accessibilityIdentifier = @"ADAL_SIGN_IN_WEBVIEW";
 }
 
 @end
