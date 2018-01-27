@@ -45,6 +45,7 @@
 		232153371FE0601D00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */; };
 		232153381FE0601E00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */; };
 		2321533F1FE1EEA500C6960D /* ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321533E1FE1EEA500C6960D /* ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m */; };
+		232ED2BA20083F7800C5D74A /* ADBrokerHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232ED2B920083F7800C5D74A /* ADBrokerHelperTests.m */; };
 		234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CED1F35182500DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
 		234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */; };
@@ -663,6 +664,7 @@
 		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
 		232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemArchivingToMSIDTokenTests.m; sourceTree = "<group>"; };
 		2321533E1FE1EEA500C6960D /* ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m; sourceTree = "<group>"; };
+		232ED2B920083F7800C5D74A /* ADBrokerHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelperTests.m; sourceTree = "<group>"; };
 		234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationContextTests.m; sourceTree = "<group>"; };
 		234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationContextTests.h; sourceTree = "<group>"; };
@@ -1682,6 +1684,7 @@
 				230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */,
 				230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */,
 				04D32CDC1FDA0D2F000B123E /* ADAuthenticationErrorConverterTests.m */,
+				232ED2B920083F7800C5D74A /* ADBrokerHelperTests.m */,
 				B20DC5D51F0D97C600957806 /* ios */,
 				B20DC5D81F0D97CD00957806 /* mac */,
 			);
@@ -2625,6 +2628,7 @@
 				B20DC5F91F0D998A00957806 /* ADHelpersTests.m in Sources */,
 				B20DC6071F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */,
 				B20DC5F51F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
+				232ED2BA20083F7800C5D74A /* ADBrokerHelperTests.m in Sources */,
 				B20DC61D1F0DA39C00957806 /* ADBrokerKeyHelperTests.m in Sources */,
 				B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */,
 				D632B54C1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
@@ -3269,6 +3273,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
 		};
@@ -3326,6 +3331,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
 		};
