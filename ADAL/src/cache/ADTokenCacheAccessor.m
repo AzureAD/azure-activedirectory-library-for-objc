@@ -34,6 +34,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
 #import "MSIDAadAuthorityCache.h"
+#import "ADHelpers.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -154,6 +155,17 @@
         [event setIsMRRT:MSID_TELEMETRY_VALUE_YES];
         [event setMRRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
+    else
+    {
+        NSDictionary *wipeData = [_dataSource getWipeTokenData];
+        
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[ADHelpers stringFromDate:wipeData[@"wipeTime"]]];
+        }
+    }
+    
     [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
@@ -183,6 +195,17 @@
         [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
         [event setFRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
+    else
+    {
+        NSDictionary *wipeData = [_dataSource getWipeTokenData];
+        
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[ADHelpers stringFromDate:wipeData[@"wipeTime"]]];
+        }
+    }
+    
     [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];

@@ -32,7 +32,9 @@
 
 - (NSString *)getAT:(NSString *)authority;
 - (NSString *)getMRRT:(NSString *)authority;
+- (ADTokenCacheItem *)getMRRTItem:(NSString *)authority;
 - (NSString *)getFRT:(NSString *)authority;
+- (ADTokenCacheItem *)getFRTItem:(NSString *)authority;
 
 @end
 

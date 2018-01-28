@@ -221,19 +221,25 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return key;
 }
 
-+ (ADUserInformation *)adCreateUserInformation:(NSString*)userId
++ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+{
+    return [self adCreateUserInformation:userId tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"];
+}
+
++ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+                                      tenantId:(NSString *)tid
 {
     NSAssert(userId, @"userId cannot be nil!");
     NSDictionary* part1_claims = @{ @"typ" : @"JWT",
                                     @"alg" : @"none" };
     
     NSDictionary* idtoken_claims = @{ @"aud" : @"c3c7f5e5-7153-44d4-90e6-329686d48d76",
-                                      @"iss" : @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048",
+                                      @"iss" : [NSString stringWithFormat:@"https://sts.windows.net/%@", tid],
                                       @"iat" : @"1387224169",
                                       @"nbf" : @"1387224169",
                                       @"exp" : @"1387227769",
                                       @"ver" : @"1.0",
-                                      @"tid" : @"6fd1f5cd-a94c-4335-889b-6c598e6d8048",
+                                      @"tid" : tid,
                                       @"oid" : @"53c6acf2-2742-4538-918d-e78257ec8516",
                                       @"upn" : userId,
                                       @"unique_name" : userId,

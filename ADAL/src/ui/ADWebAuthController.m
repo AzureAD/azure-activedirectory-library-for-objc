@@ -273,7 +273,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if ([[requestURL lowercaseString] isEqualToString:@"about:blank"])
     {
-        return NO;
+        return YES;
     }
     
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"])

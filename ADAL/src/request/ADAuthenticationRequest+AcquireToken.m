@@ -236,6 +236,12 @@
 {
     [self ensureRequest];
     
+    if (_refreshToken)
+    {
+        [self tryRefreshToken:completionBlock];
+        return;
+    }
+    
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
     {
         [self getAccessToken:^(ADAuthenticationResult *result) {
@@ -369,6 +375,19 @@
              // If we got back a valid RT but no access token then replay the RT for a new AT
              if (result.status == AD_SUCCEEDED && result.tokenCacheItem.accessToken == nil)
              {
+                 if (_requestParams.scope == nil)
+                 {
+                    [self setScope:@"openid"];
+                 }
+                 else
+                 {
+                     NSArray *scopes = [_requestParams.scope componentsSeparatedByString:@" "];
+                     if (![scopes containsObject:@"openid"])
+                     {
+                         [self setScope:[NSString stringWithFormat:@"openid %@", _requestParams.scope]];
+                     }
+                 }
+                 
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -490,13 +509,25 @@
                                          [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
                                          [_requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
                                          nil];
-    if (![NSString msidIsStringNilOrBlank:_scope])
+
+    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
     {
-        [request_data setValue:_scope forKey:MSID_OAUTH2_SCOPE];
+        [request_data setValue:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
     }
     
     [self executeRequest:request_data
               completion:completionBlock];
+}
+
+- (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
+{
+    ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
+    [request acquireTokenByRefreshToken:_refreshToken
+                              cacheItem:[ADTokenCacheItem new]
+                        completionBlock:^(ADAuthenticationResult *result)
+     {
+         completionBlock(result);
+     }];
 }
 
 @end
