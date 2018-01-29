@@ -93,6 +93,7 @@ static NSDictionary* _testProfiles()
                           @(ADTestAccountTypeADFSv3) : StringName(ADTestAccountTypeADFSv3),
                           @(ADTestAccountTypeBlackforest) : StringName(ADTestAccountTypeBlackforest),
                           @(ADTestAccountTypeShib) : StringName(ADTestAccountTypeShib),
+                          @(ADTestAccountTypeAADMDM) : StringName(ADTestAccountTypeAADMDM),
                           };
     
     return map[@(type)];
@@ -104,6 +105,7 @@ static NSDictionary* _testProfiles()
                           @(ADTestProfileTypeBasic) : @"Basic",
                           @(ADTestProfileTypeFoci) : @"Foci",
                           @(ADTestProfileTypeSovereign) : @"Sovereign",
+                          @(ADTestProfileTypeBasicMDM) : @"BasicMDM",
                           };
     
     return map[@(type)];

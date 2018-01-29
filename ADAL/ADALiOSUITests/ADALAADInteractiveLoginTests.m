@@ -335,6 +335,41 @@
     [self assertRefreshTokenNotNil];
 }
 
+// 296732: Company Portal Install Prompt
+- (void)test_companyPortalInstallPrompt
+{
+    self.baseConfigParams = [[self.accountsProvider testProfileOfType:ADTestProfileTypeBasicMDM] mutableCopy];
+    NSArray *accounts = [self.accountsProvider testAccountsOfType:ADTestAccountTypeAADMDM];
+    XCTAssertTrue(accounts.count > 0);
+    self.accountInfo = [accounts firstObject];
+    
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier_type" : @"optional_displayable"
+                             };
+    NSString *jsonString = [self configParamsJsonString:params];
+    
+    [self clearCache];
+    [self acquireToken:jsonString];
+    
+    [self aadEnterPassword];
+    
+    XCUIElement *enrollButton = self.testApp.buttons[@"Enroll now"];
+    [self waitForElement:enrollButton];
+    [enrollButton tap];
+
+    XCUIApplication *safari = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
+    BOOL result = [safari waitForState:XCUIApplicationStateRunningForeground timeout:20];
+    XCTAssertTrue(result);
+    
+    XCUIElement *getTheAppButton = safari.staticTexts[@"GET THE APP"];
+    [self waitForElement:getTheAppButton];
+    
+    [self.testApp activate];
+}
+
 #pragma mark - Private
 
 - (void)signInWithAnotherAccount

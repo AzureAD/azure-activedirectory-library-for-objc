@@ -56,7 +56,7 @@
     
     XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
-    [self.testApp.webViews.buttons[@"Next"] tap];
+    [self.testApp.buttons[@"Next"] tap];
     
     [self blackforestComEnterPassword];
     

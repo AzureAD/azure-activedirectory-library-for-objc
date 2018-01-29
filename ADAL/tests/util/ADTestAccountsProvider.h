@@ -26,17 +26,19 @@
 typedef NS_ENUM(NSInteger, ADTestAccountType)
 {
     ADTestAccountTypeAAD,
+    ADTestAccountTypeAADMDM,
     ADTestAccountTypePing,
     ADTestAccountTypeADFSv3,
     ADTestAccountTypeBlackforest,
-    ADTestAccountTypeShib,
+    ADTestAccountTypeShib
 };
 
 typedef NS_ENUM(NSInteger, ADTestProfileType)
 {
     ADTestProfileTypeBasic,
+    ADTestProfileTypeBasicMDM,
     ADTestProfileTypeFoci,
-    ADTestProfileTypeSovereign
+    ADTestProfileTypeSovereign,
 };
 
 @interface ADTestAccount : NSObject
