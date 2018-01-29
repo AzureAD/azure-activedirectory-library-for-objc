@@ -269,6 +269,20 @@
                        logs:_resultLogs];
 }
 
+- (IBAction)clearCookies:(id)sender
+{
+    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    int count = 0;
+    for (NSHTTPCookie *cookie in cookieStore.cookies)
+    {
+        [cookieStore deleteCookie:cookie];
+        count++;
+    }
+    
+    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)count]
+                       logs:_resultLogs];
+}
+
 - (IBAction)invalidateRefreshToken:(id)sender
 {
     (void)sender;
