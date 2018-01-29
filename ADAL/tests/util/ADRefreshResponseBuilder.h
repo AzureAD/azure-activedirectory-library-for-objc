@@ -21,16 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 
-#import <Cocoa/Cocoa.h>
+@interface ADRefreshResponseBuilder : NSObject
 
-@interface ADTestAppCacheWindowController : NSWindowController
-{
-    IBOutlet NSTableView *_tableView;
-    IBOutlet NSTextView *_detailView;
-    NSArray* _allItems;
-}
+@property (copy, readwrite, nonnull) NSString *authority;
+@property (copy, readwrite, nonnull) NSString *clientId;
+@property (copy, readwrite, nonnull) NSString *resource;
+@property (copy, readwrite, nonnull) NSUUID *correlationId;
 
-+ (void)showWindow;
+@property (copy, readwrite, nonnull) NSString *oldRefreshToken;
+
+@property (readonly, nonnull) NSMutableDictionary *requestHeaders;
+@property (readonly, nonnull) NSMutableDictionary *requestBody;
+
+@property (readwrite) NSInteger responseCode;
+@property (readonly, nonnull) NSMutableDictionary *responseHeaders;
+@property (readonly, nonnull) NSMutableDictionary *responseBody;
+
+@property (copy, readwrite, nonnull) NSString *updatedRefreshToken;
+@property (copy, readwrite, nonnull) NSString *updatedAccessToken;
+@property (copy, readwrite, nonnull) NSDate *expirationTime;
+@property (copy, readwrite, nullable) NSString *updatedIdToken;
+
+- (nonnull ADTestURLResponse *)response;
 
 @end

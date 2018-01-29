@@ -101,6 +101,8 @@
 {
     [super windowDidLoad];
     
+    self.window.title = [NSString stringWithFormat:@"Acquire Token (%@)", ADAL_VERSION_NSSTRING];
+    
     [self.window.contentView addSubview:_acquireSettingsView];
     [_authView setHidden:YES];
     [self.window.contentView addSubview:_authView];
@@ -239,6 +241,7 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     NSString* extraQueryParameters = _extraQueryParamsField.stringValue;
+    NSString* claims = _claimsField.stringValue;
     
     ADUserIdentifier* identifier = [self identifier];
     
@@ -273,6 +276,7 @@
                        promptBehavior:_promptBehavior
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
+                               claims:claims
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (fBlockHit)

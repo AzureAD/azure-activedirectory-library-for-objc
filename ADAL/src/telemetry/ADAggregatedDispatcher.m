@@ -181,7 +181,9 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               MSID_TELEMETRY_KEY_FRT_STATUS,
                                               MSID_TELEMETRY_KEY_MRRT_STATUS,
                                               MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT,
-                                              MSID_TELEMETRY_KEY_SPE_INFO
+                                              MSID_TELEMETRY_KEY_SPE_INFO,
+                                              MSID_TELEMETRY_KEY_WIPE_APP,
+                                              MSID_TELEMETRY_KEY_WIPE_TIME
                                               ],
                                       NSStringFromClass([ADTelemetryBrokerEvent class]): @[
                                               // default properties apply to all events

@@ -228,7 +228,13 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 + (BOOL)isResponseFromBroker:(NSString *)sourceApplication
                     response:(NSURL *)response
 {
-    return response && [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
+    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
+    
+#ifdef DOGFOOD_BROKER
+    isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
+#endif
+    
+    return response && isBroker;
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response
@@ -396,6 +402,21 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setExtraQueryParameters:queryParams];
     [request setClaims:claims];
     [request acquireToken:@"133" completionBlock:completionBlock];
+}
+
+- (void)acquireTokenWithRefreshToken:(NSString *)refreshToken
+                            resource:(NSString *)resource
+                            clientId:(NSString *)clientId
+                         redirectUri:(NSURL *)redirectUri
+                     completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    CHECK_STRING_ARG_BLOCK(refreshToken);
+    [request setRefreshToken:refreshToken];
+    [request setSilent:YES];
+    
+    [request acquireToken:@"136" completionBlock:completionBlock];
 }
 
 @end
