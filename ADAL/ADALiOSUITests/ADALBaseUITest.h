@@ -34,11 +34,8 @@
 
 - (NSMutableDictionary *)fociConfig;
 - (NSMutableDictionary *)basicConfig;
-- (void)aadEnterEmail:(NSString *)email;
-- (void)aadEnterEmail;
 - (NSMutableDictionary *)sovereignConfig;
 
-- (void)closeAuthUI;
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
 - (void)assertAuthUIAppear;
@@ -46,16 +43,21 @@
 - (void)assertAccessTokenNotNil;
 - (void)assertRefreshTokenNotNil;
 
-- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
-                    additionalParams:(NSDictionary *)additionalParams;
-- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams;
 - (void)closeResultView;
-- (NSDictionary *)resultDictionary;
 - (void)invalidateRefreshToken:(NSString *)jsonString;
 - (void)expireAccessToken:(NSString *)jsonString;
 - (void)acquireToken:(NSString *)jsonString;
 - (void)acquireTokenSilent:(NSString *)jsonString;
 - (void)clearCache;
+- (void)clearCookies;
+- (void)aadEnterEmail:(NSString *)email;
+- (void)aadEnterEmail;
+- (void)closeAuthUI;
+
 - (void)waitForElement:(id)object;
+- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
+                    additionalParams:(NSDictionary *)additionalParams;
+- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams;
+- (NSDictionary *)resultDictionary;
 
 @end

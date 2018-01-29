@@ -32,4 +32,25 @@
     [app.menuItems[@"Paste"] tap];
 }
 
+- (void)clearText
+{
+    if (![self.value isKindOfClass:NSString.class])
+    {
+        return;
+    }
+    
+    [self pressForDuration:0.5];
+    
+    NSString *string = (NSString *)self.value;
+    string = [@"" stringByPaddingToLength:string.length withString:XCUIKeyboardKeyDelete startingAtIndex:0];
+    
+    [self typeText:string];
+}
+
+- (void)selectAll:(XCUIApplication *)app
+{
+    [self pressForDuration:0.5];
+    [app.menuItems[@"Select All"] tap];
+}
+
 @end

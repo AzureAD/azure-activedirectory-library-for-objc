@@ -36,6 +36,9 @@
     
     self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeShib];
     self.baseConfigParams = [self basicConfig];
+    
+    [self clearCache];
+    [self clearCookies];
 }
 
 #pragma mark - Tests
@@ -49,7 +52,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterEmail];
@@ -76,7 +78,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self shibEnterUsername];

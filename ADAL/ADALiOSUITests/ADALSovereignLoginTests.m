@@ -36,6 +36,9 @@
     
     self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeBlackforest];
     self.baseConfigParams = [self sovereignConfig];
+    
+    [self clearCache];
+    [self clearCookies];
 }
 
 #pragma mark - Tests
@@ -51,7 +54,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
@@ -77,7 +79,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self blackforestComEnterEmail];

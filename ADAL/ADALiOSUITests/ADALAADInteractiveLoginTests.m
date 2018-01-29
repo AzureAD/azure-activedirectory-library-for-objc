@@ -37,6 +37,9 @@
     
     self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeAAD];
     self.baseConfigParams = [self basicConfig];
+    
+    [self clearCache];
+    [self clearCookies];
 }
 
 #pragma mark - Tests
@@ -50,7 +53,7 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
+    
     [self acquireToken:jsonString];
     
     [self aadEnterEmail];
@@ -77,7 +80,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterPassword];
@@ -102,7 +104,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterPassword];
@@ -130,7 +131,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterPassword];
@@ -154,7 +154,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterEmail];
@@ -188,7 +187,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:[self fociConfig] additionalParams:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterEmail];
@@ -243,7 +241,6 @@
     [self.baseConfigParams addEntriesFromDictionary:params];
     NSString *jsonString = [self.baseConfigParams toJsonString];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterPassword];
@@ -293,7 +290,6 @@
                              };
     [self.baseConfigParams addEntriesFromDictionary:params];
     
-    [self clearCache];
     [self acquireToken:[self.baseConfigParams toJsonString]];
     
     [self signInWithAnotherAccount];
@@ -351,7 +347,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterPassword];
@@ -377,10 +372,6 @@
     XCUIElement *signIn = self.testApp.staticTexts[@"Sign in with another account"];
     [self waitForElement:signIn];
     [signIn tap];
-    
-    XCUIElement *useAnotherAccount = self.testApp.buttons[@"Use another account, Use another account"];
-    [self waitForElement:useAnotherAccount];
-    [useAnotherAccount tap];
 }
 
 - (void)aadEnterPassword

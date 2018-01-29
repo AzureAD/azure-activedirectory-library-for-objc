@@ -36,6 +36,9 @@
     
     self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeADFSv3];
     self.baseConfigParams = [self basicConfig];
+    
+    [self clearCache];
+    [self clearCookies];
 }
 
 #pragma mark - Tests
@@ -49,7 +52,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self aadEnterEmail];
@@ -74,7 +76,6 @@
                              };
     NSString *jsonString = [self configParamsJsonString:params];
     
-    [self clearCache];
     [self acquireToken:jsonString];
     
     [self enterADFSv3Password];

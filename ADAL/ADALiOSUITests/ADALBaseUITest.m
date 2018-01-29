@@ -38,6 +38,8 @@
     self.accountsProvider = [ADTestAccountsProvider new];
 }
 
+#pragma mark - Profiles
+
 - (NSMutableDictionary *)fociConfig
 {
     return [[self.accountsProvider testProfileOfType:ADTestProfileTypeFoci] mutableCopy];
@@ -48,28 +50,12 @@
     return [[self.accountsProvider testProfileOfType:ADTestProfileTypeSovereign] mutableCopy];
 }
 
-- (void)aadEnterEmail:(NSString *)email
-{
-    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
-    [self waitForElement:emailTextField];
-    [emailTextField pressForDuration:0.5f];
-    [emailTextField typeText:email];
-}
-
-- (void)aadEnterEmail
-{
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
-}
-
 - (NSMutableDictionary *)basicConfig
 {
     return [[self.accountsProvider testProfileOfType:ADTestProfileTypeBasic] mutableCopy];
 }
 
-- (void)closeAuthUI
-{
-     [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] tap];
-}
+#pragma mark - Asserts
 
 - (void)assertRefreshTokenInvalidated
 {
@@ -88,9 +74,9 @@
 - (void)assertAuthUIAppear
 {
     XCUIElement *webView = self.testApp.otherElements[@"ADAL_SIGN_IN_WEBVIEW"].firstMatch;
-
+    
     BOOL result = [webView waitForExistenceWithTimeout:2.0];
-
+    
     XCTAssertTrue(result);
 }
 
@@ -118,31 +104,38 @@
     XCTAssertTrue([result[@"refresh_token"] length] > 0);
 }
 
+#pragma mark - Actions
 
-- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
-                    additionalParams:(NSDictionary *)additionalParams
+- (void)aadEnterEmail:(NSString *)email
 {
-    [config addEntriesFromDictionary:additionalParams];
-
-    return [config toJsonString];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
+    [self waitForElement:emailTextField];
+    if ([email isEqualToString:emailTextField.value])
+    {
+        return;
+    }
+    
+    [emailTextField pressForDuration:0.5f];
+    if (emailTextField.value)
+    {
+        [emailTextField selectAll:self.testApp];
+    }
+    [emailTextField typeText:email];
 }
 
-- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams
+- (void)aadEnterEmail
 {
-    return [self configParamsJsonString:self.baseConfigParams additionalParams:additionalParams];
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
+}
+
+- (void)closeAuthUI
+{
+     [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] tap];
 }
 
 - (void)closeResultView
 {
     [self.testApp.buttons[@"Done"] tap];
-}
-
-- (NSDictionary *)resultDictionary
-{
-    XCUIElement *resultTextView = self.testApp.textViews[@"resultInfo"];
-    [self waitForElement:resultTextView];
-    
-    return [NSJSONSerialization JSONObjectWithData:[resultTextView.value dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
 }
 
 - (void)invalidateRefreshToken:(NSString *)jsonString
@@ -181,6 +174,35 @@
 {
     [self.testApp.buttons[@"Clear Cache"] tap];
     [self.testApp.buttons[@"Done"] tap];
+}
+
+- (void)clearCookies
+{
+    [self.testApp.buttons[@"Clear Cookies"] tap];
+    [self.testApp.buttons[@"Done"] tap];
+}
+
+#pragma mark - Helpers
+
+- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
+                    additionalParams:(NSDictionary *)additionalParams
+{
+    [config addEntriesFromDictionary:additionalParams];
+    
+    return [config toJsonString];
+}
+
+- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams
+{
+    return [self configParamsJsonString:self.baseConfigParams additionalParams:additionalParams];
+}
+
+- (NSDictionary *)resultDictionary
+{
+    XCUIElement *resultTextView = self.testApp.textViews[@"resultInfo"];
+    [self waitForElement:resultTextView];
+    
+    return [NSJSONSerialization JSONObjectWithData:[resultTextView.value dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
 }
 
 - (void)waitForElement:(id)object

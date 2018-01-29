@@ -26,5 +26,7 @@
 @interface XCUIElement (ADALiOSUITests)
 
 - (void)pasteText:(NSString *)text application:(XCUIApplication *)app;
+- (void)clearText;
+- (void)selectAll:(XCUIApplication *)app;
 
 @end
