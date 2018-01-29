@@ -21,16 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <UIKit/UIKit.h>
 
-#import <Cocoa/Cocoa.h>
+@interface ADTestAppClaimsPickerController : UIAlertController
 
-@interface ADTestAppCacheWindowController : NSWindowController
-{
-    IBOutlet NSTableView *_tableView;
-    IBOutlet NSTextView *_detailView;
-    NSArray* _allItems;
-}
-
-+ (void)showWindow;
+@property (nonatomic) UIPickerView *claimsPickerView;
+@property (nonatomic) NSDictionary *claims;
+@property (nonatomic, weak) UITextField *claimsTextField;
 
 @end

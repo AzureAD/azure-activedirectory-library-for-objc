@@ -23,6 +23,7 @@
 
 #import "ADUserInformation.h"
 #import "ADAL_Internal.h"
+#import "ADHelpers.h"
 
 static NSString* const ID_TOKEN_SUBJECT = @"sub";
 static NSString* const ID_TOKEN_TENANTID = @"tid";
@@ -54,13 +55,7 @@ static NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 + (NSString*)normalizeUserId:(NSString*)userId
 {
-    if (!userId)
-    {
-        return nil;//Quick exit;
-    }
-    NSString* normalized = [userId msidTrimmedString].lowercaseString;
-        
-    return normalized.length ? normalized : nil;
+    return [ADHelpers normalizeUserId:userId];
 }
 
 - (id)initWithUserId:(NSString*)userId
@@ -217,7 +212,7 @@ static NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         _uniqueId = self.subject;
     }
-    _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
+    _uniqueId = [self.class normalizeUserId:_uniqueId];
     
     return self;
 }

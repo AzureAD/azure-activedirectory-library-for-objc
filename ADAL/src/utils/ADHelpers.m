@@ -386,5 +386,15 @@
     return [s_dateFormatter stringFromDate:date];
 }
 
++ (NSString *)normalizeUserId:(NSString *)userId
+{
+    if (!userId)
+    {
+        return nil;//Quick exit;
+    }
+    NSString* normalized = [userId msidTrimmedString].lowercaseString;
+    
+    return normalized.length ? normalized : nil;
+}
 
 @end

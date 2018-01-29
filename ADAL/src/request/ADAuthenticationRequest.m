@@ -78,6 +78,10 @@ static dispatch_semaphore_t s_interactionLock = nil;
     }
     
     request->_context = context;
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.tokenCache = context.tokenCacheStore;
+    request->_requestParams = params;
     
     return request;
 }
@@ -125,12 +129,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 - (void)setScope:(NSString *)scope
 {
-    CHECK_REQUEST_STARTED;
-    if (_scope == scope)
-    {
-        return;
-    }
-    _scope = [scope copy];
+    _requestParams.scope = scope;
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams
@@ -255,6 +254,12 @@ static dispatch_semaphore_t s_interactionLock = nil;
     CHECK_REQUEST_STARTED;
     
     _assertionType = assertionType;
+}
+
+- (void)setRefreshToken:(NSString *)refreshToken
+{
+    CHECK_REQUEST_STARTED;
+    _refreshToken = [refreshToken copy];
 }
 
 - (void)ensureRequest
