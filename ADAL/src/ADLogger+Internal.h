@@ -75,9 +75,6 @@
 
 + (NSString*)getCPUInfo;
 
-/*! Returns previously set callback call or nil, if the user has not set such callback. */
-+ (LogCallback)getLogCallBack;
-
 + (void)log:(ADAL_LOG_LEVEL)level
     context:(id)context
 correlationId:(NSUUID *)correlationId
