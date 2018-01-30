@@ -27,7 +27,7 @@
 
 int main(int argc, const char * argv[])
 {
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
      {
          NSLog(@"%@", message);
      }];
