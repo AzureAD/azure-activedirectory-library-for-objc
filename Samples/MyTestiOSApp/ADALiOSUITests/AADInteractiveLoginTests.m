@@ -60,31 +60,6 @@
     [signInButton tap];
 }
 
-- (void)signinToBlackforestAADWithPassword:(NSString *)password
-{
-    // Wait for AAD username page to load
-    XCUIElement *usernameField = _testApplication.textFields[@"User account"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists == 1"];
-    
-    [self expectationForPredicate:predicate
-              evaluatedWithObject:usernameField handler:nil];
-    [self waitForExpectationsWithTimeout:20.0f handler:nil];
-    
-    // Enter the password
-    XCUIElement *passwordSecureTextField = _testApplication/*@START_MENU_TOKEN@*/.secureTextFields[@"Password"]/*[[".otherElements[@\"Sign in to your account\"].secureTextFields[@\"Password\"]",".secureTextFields[@\"Password\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
-    [passwordSecureTextField pressForDuration:0.5f];
-    [usernameField pressForDuration:0.5f];
-    // Blackforest signing page does some additional redirrection which happens as soon as you tap any text fields
-    [passwordSecureTextField pressForDuration:1.0f];
-    [passwordSecureTextField typeText:password];
-    
-    [_testApplication.buttons[@"Done"] tap];
-    
-    // Tap sign in
-    XCUIElement *signInButton = _testApplication/*@START_MENU_TOKEN@*/.buttons[@"Sign in"]/*[[".otherElements[@\"Sign in to your account\"].buttons[@\"Sign in\"]",".buttons[@\"Sign in\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/;
-    [signInButton tap];
-}
-
 #pragma mark - Tests
 
 // #290995 iteration 1
@@ -227,7 +202,8 @@
     // Start interactive auth
     [self acquireToken];
     [self enterAADUsername:DEFAULT_BLACKFOREST_USERNAME];
-    [self signinToBlackforestAADWithPassword:DEFAULT_BLACKFOREST_PASSWORD];
+    
+    [self signinToAADWithPassword:DEFAULT_BLACKFOREST_PASSWORD];
     
     // Wait for result
     [self waitForTokenResultWithCompletionHandler:^(NSDictionary *result) {
@@ -263,7 +239,7 @@
     XCUIElement *nextButton = _testApplication.buttons[@"Next"];
     [nextButton tap];
     
-    [self signinToBlackforestAADWithPassword:DEFAULT_BLACKFOREST_PASSWORD];
+    [self signinToAADWithPassword:DEFAULT_BLACKFOREST_PASSWORD];
     
     // Wait for result
     [self waitForTokenResultWithCompletionHandler:^(NSDictionary *result) {

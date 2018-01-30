@@ -26,6 +26,7 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
+#import "ADTestAppClaimsPickerController.h"
 #import "ADTokenCacheItem.h"
 
 #define EMPTY_IF_NIL(X) X ? X : @""
@@ -224,6 +225,7 @@
     _resultView.layer.cornerRadius = 8.0f;
     _resultView.backgroundColor = [UIColor colorWithRed:0.96f green:0.96f blue:0.96f alpha:1.0f];
     _resultView.editable = NO;
+    _resultView.text = [NSString stringWithFormat:@"ADAL %@", ADAL_VERSION_NSSTRING];
     _resultView.accessibilityIdentifier = @"result_view";
     [layout addView:_resultView key:@"result"];
     

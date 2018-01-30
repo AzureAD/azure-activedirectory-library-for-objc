@@ -23,20 +23,19 @@
 
 #import <XCTest/XCTest.h>
 
-#define DEFAULT_AAD_USERNAME @"user"
-#define DEFAULT_AAD_PASSWORD @"pwd"
+#define DEFAULT_AAD_USERNAME @"user@msdevex.onmicrosoft.com"
+#define DEFAULT_AAD_PASSWORD @"wordp@ss1"
 
-#define DEFAULT_SHIB_USERNAME @"user"
-#define DEFAULT_SHIB_USERID @"user"
-#define DEFAULT_SHIB_PASSWORD @"pwd"
+#define DEFAULT_SHIB_USERNAME @"aduser1@msidlab13.com"
+#define DEFAULT_SHIB_USERID @"aduser1"
+#define DEFAULT_SHIB_PASSWORD @"Hulu@135"
 
-#define DEFAULT_PING_USERNAME @"user"
-#define DEFAULT_PING_USERID @"user"
-#define DEFAULT_PING_PASSWORD @"pwd"
+#define DEFAULT_PING_USERNAME @"atoster@ektd.pingdemo.com"
+#define DEFAULT_PING_USERID @"atoster"
+#define DEFAULT_PING_PASSWORD @"For7una!"
 
-#define DEFAULT_BLACKFOREST_USERNAME @"user"
-#define DEFAULT_BLACKFOREST_PASSWORD @"pwd"
-
+#define DEFAULT_BLACKFOREST_USERNAME @"TestSovereign@bfe2e.onmicrosoft.de"
+#define DEFAULT_BLACKFOREST_PASSWORD @"P@ssw0rd!"
 
 @interface ADALBaseTest : XCTestCase
 {

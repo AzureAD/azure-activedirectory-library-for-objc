@@ -44,20 +44,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		23F32F382000557000B2905E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = B20DC5AD1F0D96A100957806;
-			remoteInfo = ADAL_iOS_ITs;
-		};
-		23F32F3A2000557000B2905E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = B20DC5D11F0D96A700957806;
-			remoteInfo = ADAL_Mac_ITs;
-		};
 		8B3F79F61D74F0A200F95A44 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
@@ -551,20 +537,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		23F32F392000557000B2905E /* ADAL_iOS_ITs.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ADAL_iOS_ITs.xctest;
-			remoteRef = 23F32F382000557000B2905E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		23F32F3B2000557000B2905E /* ADAL_Mac_ITs.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ADAL_Mac_ITs.xctest;
-			remoteRef = 23F32F3A2000557000B2905E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		8B3F79F71D74F0A200F95A44 /* libADALiOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1070,6 +1042,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MyTestiOSApp;
 			};
@@ -1107,6 +1080,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MyTestiOSApp;
 			};
@@ -1144,6 +1118,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MyTestiOSApp;
 			};
