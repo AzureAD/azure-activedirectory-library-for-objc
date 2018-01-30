@@ -82,7 +82,7 @@
     XCTAssertNoThrow([ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:nil]);
 }
 
-- (void)testLog_whenPiiNotEnabled_shouldReturnMessageInCallback
+- (void)testLog_whenPiiNotEnabled_andLogMessage_shouldReturnMessageInCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
@@ -120,7 +120,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testLog_whenPiiNotEnabled_shouldNotInvokeCallback
+- (void)testLog_whenPiiNotEnabled_andLogPii_shouldNotInvokeCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     expectation.inverted = YES;
@@ -135,7 +135,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testLog_whenPiiNotEnabledAndOldCallback_shouldReturnMessageInCallback
+- (void)testLog_whenPiiNotEnabled_andOldCallback_andLogMessage_shouldReturnMessageInCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
@@ -158,7 +158,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testLog_whenPiiEnabled_logPii_andOldCallback_shouldReturnAdditionalMessageInCallback
+- (void)testLog_whenPiiEnabled_andOldCallback_andLogPii_shouldReturnAdditionalMessageInCallback
 {
     [ADLogger setPiiEnabled:YES];
     
@@ -186,7 +186,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testLog_whenPiiNotEnabledAndOldCallback_shouldNotInvokeCallback
+- (void)testLog_whenPiiNotEnabled_andOldCallback_andLogPii_shouldNotInvokeCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     expectation.inverted = YES;
