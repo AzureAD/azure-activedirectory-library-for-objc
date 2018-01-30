@@ -44,7 +44,14 @@
     [super tearDown];
     
     [ADLogger setNSLogging:self.enableNSLogging];
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [ADLogger setLogCallBack:nil];
+#pragma clang diagnostic pop
+    
+    [ADLogger setLoggerCallback:nil];
+    [ADLogger setPiiEnabled:NO];
 }
 
 #pragma mark - setNSLogging
@@ -75,11 +82,31 @@
     XCTAssertNoThrow([ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:nil]);
 }
 
-- (void)testLog_whenPiiEnabled_shouldReturnMessageInCallback
+- (void)testLog_whenPiiNotEnabled_shouldReturnMessageInCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+     {
+         XCTAssertNotNil(message);
+         XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
+         XCTAssertFalse(containsPii);
+         
+         [expectation fulfill];
+     }];
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testLog_whenPiiEnabled_andLogPii_shouldReturnMessageInCallback
+{
+    [ADLogger setPiiEnabled:YES];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
+    
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
@@ -98,12 +125,115 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     expectation.inverted = YES;
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii)
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii)
      {
          [expectation fulfill];
      }];
     
     [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testLog_whenPiiNotEnabledAndOldCallback_shouldReturnMessageInCallback
+{
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
+    {
+         XCTAssertNotNil(message);
+         XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
+         XCTAssertNil(additionalInfo);
+         
+         [expectation fulfill];
+     }];
+    
+#pragma clang diagnostic pop
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testLog_whenPiiEnabled_logPii_andOldCallback_shouldReturnAdditionalMessageInCallback
+{
+    [ADLogger setPiiEnabled:YES];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, NSInteger errorCode, NSDictionary *userInfo)
+     {
+         XCTAssertNil(userInfo);
+         XCTAssertEqual(errorCode, 0);
+         XCTAssertNotNil(additionalInfo);
+         XCTAssertEqualObjects(message, @"PII message");
+         XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
+         XCTAssertNil(userInfo);
+         
+         [expectation fulfill];
+     }];
+    
+#pragma clang diagnostic pop
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testLog_whenPiiNotEnabledAndOldCallback_shouldNotInvokeCallback
+{
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
+    expectation.inverted = YES;
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    
+    [ADLogger setLogCallBack:^(__unused ADAL_LOG_LEVEL logLevel, __unused NSString *message, __unused NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
+    {
+         [expectation fulfill];
+     }];
+    
+#pragma clang diagnostic pop
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testLog_whenBothCallbacksSet_shouldCallNewOne
+{
+    XCTestExpectation *oldExpectation = [self expectationWithDescription:@"Validate old logger callback."];
+    oldExpectation.inverted = YES;
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    
+    [ADLogger setLogCallBack:^(__unused ADAL_LOG_LEVEL logLevel, __unused NSString *message, __unused NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
+     {
+         [oldExpectation fulfill];
+     }];
+    
+#pragma clang diagnostic pop
+    
+    XCTestExpectation *newExpectation = [self expectationWithDescription:@"Validate new logger callback."];
+    
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+     {
+         XCTAssertNotNil(message);
+         XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
+         XCTAssertFalse(containsPii);
+         
+         [newExpectation fulfill];
+     }];
+    
+    
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }

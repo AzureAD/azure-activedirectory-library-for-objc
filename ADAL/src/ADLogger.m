@@ -37,7 +37,8 @@
 
 static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
 static BOOL s_piiEnabled = NO;
-static LogCallback s_LogCallback = nil;
+static LogCallback s_OldCallback = nil;
+static ADLoggerCallback s_LoggerCallback = nil;
 static BOOL s_NSLogging = YES;
 static NSString* s_OSString = @"UnkOS";
 
@@ -79,9 +80,17 @@ static dispatch_once_t s_logOnce;
 
 + (void)setLogCallBack:(LogCallback)callback
 {
-    @synchronized(self)//Avoid changing to null while attempting to call it.
+    @synchronized (self)
     {
-        s_LogCallback = [callback copy];
+        s_OldCallback = [callback copy];
+    }
+}
+
++ (void)setLoggerCallback:(ADLoggerCallback)callback
+{
+    @synchronized (self)
+    {
+        s_LoggerCallback = callback;
     }
 }
 
@@ -108,14 +117,6 @@ static dispatch_once_t s_logOnce;
 @end
 
 @implementation ADLogger (Internal)
-
-+ (LogCallback)getLogCallBack
-{
-    @synchronized(self)
-    {
-        return s_LogCallback;
-    }
-}
 
 + (NSString*)stringForLevel:(ADAL_LOG_LEVEL)level
 {
@@ -167,7 +168,7 @@ correlationId:(NSUUID*)correlationId
     
     @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
     {
-        if (!(level <= s_LogLevel && (s_LogCallback || s_NSLogging)))
+        if (!(level <= s_LogLevel && (s_LoggerCallback || s_OldCallback || s_NSLogging)))
         {
             return;
         }
@@ -200,11 +201,18 @@ correlationId:(NSUUID*)correlationId
             NSLog(@"%@", msg);
         }
         
-        if (s_LogCallback)
+        NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
+        
+        if (s_LoggerCallback)
         {
-            NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
+            s_LoggerCallback(level, msg, isPii);
+        }
+        else if (s_OldCallback)
+        {
+            NSString *message = isPii ? @"PII message" : msg;
+            NSString *additionalMessage = isPii ? msg : nil;
             
-            s_LogCallback(level, msg, isPii);
+            s_OldCallback(level, message, additionalMessage, 0, nil);
         }
     }
 }
