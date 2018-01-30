@@ -90,7 +90,7 @@ static dispatch_once_t s_logOnce;
 {
     @synchronized (self)
     {
-        s_LoggerCallback = callback;
+        s_LoggerCallback = [callback copy];
     }
 }
 
