@@ -1,0 +1,6 @@
+//
+//  adal__mac__common.xcconfig
+//
+
+#include "adal__common.xcconfig"
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__common__mac.xcconfig"

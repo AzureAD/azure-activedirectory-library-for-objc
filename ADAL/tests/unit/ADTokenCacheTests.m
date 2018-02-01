@@ -25,7 +25,6 @@
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
 #import "ADTokenCacheKey.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADUserInformation.h"
 
 #define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
@@ -168,8 +167,8 @@ static NSString* ReginaIdtoken()
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     return idtoken;
 }
@@ -212,8 +211,8 @@ static NSString* CartmanIdtoken()
                                      @"given_name" : @"Cartman" };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part1 options:0 error:nil]],
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part2 options:0 error:nil]]];
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part1 options:0 error:nil]],
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_part2 options:0 error:nil]]];
     
     return idtoken;
 }

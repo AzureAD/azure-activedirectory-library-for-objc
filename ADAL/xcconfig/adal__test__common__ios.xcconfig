@@ -1,0 +1,10 @@
+//
+//  adal__test__ios.xcconfig
+//
+
+#include "adal__common__ios.xcconfig"
+#include "adal__test__common.xcconfig"
+
+TEST_HOST = $(BUILT_PRODUCTS_DIR)/UnitTestHost.app/UnitTestHost
+FRAMEWORK_SEARCH_PATHS = $(SDKROOT)/Developer/Library/Frameworks $(inherited) $(DEVELOPER_FRAMEWORKS_DIR)
+OTHER_LDFLAGS = $(inherited) -framework XCTest

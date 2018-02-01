@@ -24,7 +24,6 @@
 #import "ADAL_Internal.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
-#import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
@@ -64,9 +63,9 @@
 //we create a special, "broad" cache item, with nil resource and access token:
 - (BOOL)isMultiResourceRefreshToken
 {
-    return [NSString adIsStringNilOrBlank:_resource]
-        && [NSString adIsStringNilOrBlank:_accessToken]
-       && ![NSString adIsStringNilOrBlank:_refreshToken];
+    return [NSString msidIsStringNilOrBlank:_resource]
+        && [NSString msidIsStringNilOrBlank:_accessToken]
+       && ![NSString msidIsStringNilOrBlank:_refreshToken];
 }
 
 - (id)copyWithZone:(NSZone*) zone
@@ -216,8 +215,8 @@
 {
     return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ resource=%@)",
             _authority, _clientId,
-            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : [ADLogger getHash:_accessToken], _accessTokenType,
-            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : [ADLogger getHash:_refreshToken], _resource];
+            [NSString msidIsStringNilOrBlank:_accessToken] ? @"(nil)" : [_accessToken msidTokenHash], _accessTokenType,
+            [NSString msidIsStringNilOrBlank:_refreshToken] ? @"(nil)" : [_refreshToken msidTokenHash], _resource];
 }
 
 - (NSString *)clientId

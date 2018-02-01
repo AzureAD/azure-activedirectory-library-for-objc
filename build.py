@@ -57,7 +57,7 @@ target_specifiers = [
 	{
 		"name" : "iOS Framework",
 		"target" : "ios_framework",
-		"scheme" : "ADAL",
+		"scheme" : "ADAL iOS",
 		"operations" : [ "build", "test", "codecov" ],
 		"min_warn_codecov" : 70.0,
 		"platform" : "iOS",
@@ -66,7 +66,7 @@ target_specifiers = [
 	{
 		"name" : "iOS Test App",
 		"target" : "ios_test_app",
-		"scheme" : "MyTestiOSApp",
+		"scheme" : "iOSTestApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
 	},
@@ -96,7 +96,7 @@ target_specifiers = [
 	{
 		"name" : "Mac Test App",
 		"target" : "mac_test_app",
-		"scheme" : "MyTestMacOSApp",
+		"scheme" : "MacTestApp",
 		"operations" : [ "build" ],
 		"platform" : "Mac"
 	}
@@ -281,7 +281,7 @@ class BuildTarget:
 		executable_path = build_settings["EXECUTABLE_PATH"]
 		executable_file_path = configuration_build_dir + "/" + executable_path
 		if not os.path.isfile(executable_file_path) :
-			print ColorValues.FAIL + "execuable file missing! : " + profile_data_path + ColorValues.END
+			print ColorValues.FAIL + "executable file missing! : " + executable_file_path + ColorValues.END
 			return -1
 		
 		command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"x86_64\" -use-color " + executable_file_path

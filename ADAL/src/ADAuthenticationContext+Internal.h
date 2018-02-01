@@ -42,8 +42,9 @@
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADOAuth2Constants.h"
 #import "ADTokenCacheAccessor.h"
+
+#import "MSIDOAuth2Constants.h"
 
 extern NSString* const ADUnknownError;
 extern NSString* const ADCredentialsNeeded;

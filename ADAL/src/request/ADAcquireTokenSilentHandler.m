@@ -26,16 +26,15 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
-#import "ADOAuth2Constants.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserInformation.h"
 #import "ADWebAuthRequest.h"
 #import "ADHelpers.h"
 #import "ADTokenCacheAccessor.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -62,11 +61,11 @@
              [_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
              
              // give the stale token as result
-             [ADLogger logToken:_extendedLifetimeAccessTokenItem.accessToken
-                      tokenType:@"AT (extended lifetime)"
-                      expiresOn:_extendedLifetimeAccessTokenItem.expiresOn
-                        context:@"Returning"
-                  correlationId:_requestParams.correlationId];
+             [[MSIDLogger sharedLogger] logToken:_extendedLifetimeAccessTokenItem.accessToken
+                                       tokenType:@"AT (extended lifetime)"
+                                   expiresOnDate:_extendedLifetimeAccessTokenItem.expiresOn
+                                    additionaLog:@"Returning"
+                                         context:_requestParams];
              
              result = [ADAuthenticationResult resultFromTokenCacheItem:_extendedLifetimeAccessTokenItem
                                              multiResourceRefreshToken:NO
@@ -87,11 +86,11 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    [ADLogger logToken:refreshToken
-             tokenType:@"RT"
-             expiresOn:nil
-               context:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _requestParams.resource]
-         correlationId:_requestParams.correlationId];
+    [[MSIDLogger sharedLogger] logToken:refreshToken
+                              tokenType:@"RT"
+                          expiresOnDate:nil
+                           additionaLog:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _requestParams.resource]
+                                context:_requestParams];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -102,7 +101,7 @@
                         _requestParams.redirectUri, @"redirect_uri",
                         _requestParams.clientId, @"client_id",
                         @"2.0", @"windows_api_version",
-                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
+                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", MSID_OAUTH2_GRANT_TYPE,
                         jwtToken, @"request",
                         nil];
         
@@ -110,29 +109,29 @@
     else
     {
         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
-                        refreshToken, OAUTH2_REFRESH_TOKEN,
-                        [_requestParams clientId], OAUTH2_CLIENT_ID,
+                        MSID_OAUTH2_REFRESH_TOKEN, MSID_OAUTH2_GRANT_TYPE,
+                        refreshToken, MSID_OAUTH2_REFRESH_TOKEN,
+                        [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
                         nil];
     }
     
-    if (![NSString adIsStringNilOrBlank:[_requestParams resource]])
+    if (![NSString msidIsStringNilOrBlank:[_requestParams resource]])
     {
-        [request_data setObject:[_requestParams resource] forKey:OAUTH2_RESOURCE];
+        [request_data setObject:[_requestParams resource] forKey:MSID_OAUTH2_RESOURCE];
     }
     
-    if (![NSString adIsStringNilOrBlank:_requestParams.scope])
+    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
     {
-        request_data[OAUTH2_SCOPE] = _requestParams.scope;
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.scope;
     }
     
     ADWebAuthRequest* webReq =
-    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
+    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     
-    AD_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
-    AD_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
+    MSID_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
+    MSID_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
     
     [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
@@ -172,11 +171,11 @@
 {
     NSString* grantType = @"refresh_token";
     
-    NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
+    NSString* ctx = [[[NSUUID UUID] UUIDString] msidComputeSHA256];
     NSDictionary *header = @{
                              @"alg" : @"HS256",
                              @"typ" : @"JWT",
-                             @"ctx" : [ADHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
+                             @"ctx" : [ADHelpers convertBase64UrlStringToBase64NSString:[ctx msidBase64UrlEncode]]
                              };
     
     NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
@@ -204,16 +203,16 @@
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
-    [[ADTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_GRANT];
+    [[MSIDTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_GRANT
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                         context:_requestParams];
-         [event setGrantType:AD_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
+         [event setGrantType:MSID_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
          [event setResultStatus:[result status]];
-         [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
+         [[MSIDTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
 
          NSString* resultStatus = @"Succeded";
          
@@ -239,8 +238,8 @@
              msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
-         AD_LOG_INFO(_requestParams.correlationId, @"%@", msg);
-         AD_LOG_INFO_PII(_requestParams.correlationId, @"%@ clientId: '%@', resource: '%@'", msg, _requestParams.clientId, _requestParams.resource);
+         MSID_LOG_INFO(_requestParams, @"%@", msg);
+         MSID_LOG_INFO_PII(_requestParams, @"%@ clientId: '%@', resource: '%@'", msg, _requestParams.clientId, _requestParams.resource);
          
          if ([ADAuthenticationContext isFinalResult:result])
          {
@@ -303,11 +302,11 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken
-                 tokenType:@"AT"
-                 expiresOn:item.expiresOn
-                   context:@"Returning"
-             correlationId:_requestParams.correlationId];
+        [[MSIDLogger sharedLogger] logToken:item.accessToken
+                                  tokenType:@"AT"
+                              expiresOnDate:item.expiresOn
+                               additionaLog:@"Returning"
+                                    context:_requestParams];
         ADAuthenticationResult* result =
         [ADAuthenticationResult resultFromTokenCacheItem:item
                                multiResourceRefreshToken:NO

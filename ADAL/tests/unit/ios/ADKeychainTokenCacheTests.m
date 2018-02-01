@@ -396,13 +396,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil(itemData);
     
     NSString* service = [NSString stringWithFormat:@"MSOpenTech.ADAL.1|%@|%@|%@",
-                         [@"https://login.microsoftonline.com/common" adBase64UrlEncode],
-                         [@"<resource>" adBase64UrlEncode],
+                         [@"https://login.microsoftonline.com/common" msidBase64UrlEncode],
+                         [@"<resource>" msidBase64UrlEncode],
                          // The underlying keychain code lowercases the client ID before saving it out to keychain
-                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed18f" adBase64UrlEncode]];
+                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed18f" msidBase64UrlEncode]];
     
     NSDictionary* query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount : [@"myfakeuser@contoso.com" adBase64UrlEncode],
+                             (id)kSecAttrAccount : [@"myfakeuser@contoso.com" msidBase64UrlEncode],
                              (id)kSecAttrService : service,
                              (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
                              (id)kSecValueData : itemData,
@@ -430,7 +430,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(item.userInformation.userId, @"myfakeuser@contoso.com");
     
     NSDictionary* deleteQuery = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                                   (id)kSecAttrAccount : [@"myfakeuser@contoso.com" adBase64UrlEncode],
+                                   (id)kSecAttrAccount : [@"myfakeuser@contoso.com" msidBase64UrlEncode],
                                    (id)kSecAttrService : service,
                                    (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
                                    };

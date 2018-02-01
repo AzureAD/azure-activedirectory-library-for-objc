@@ -1,0 +1,8 @@
+//
+//  adal__integrationtest__ios.xcconfig
+//
+
+#include "adal__test__common__ios.xcconfig"
+#include "adal__integrationtest.xcconfig"
+
+INFOPLIST_FILE = tests/integration/ios/ADAL_iOS_ITs-Info.plist

@@ -2,7 +2,6 @@
 //  adal__common.xcconfig
 //
 
-CLANG_WARN_UNREACHABLE_CODE = YES
-GCC_PREFIX_HEADER = src/ADAL.pch
-ONLY_ACTIVE_ARCH = NO
-OTHER_CFLAGS = $(inherited) -Wuninitialized -Werror
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__common.xcconfig"
+
+IDCORE_PATH = IdentityCore/IdentityCore
