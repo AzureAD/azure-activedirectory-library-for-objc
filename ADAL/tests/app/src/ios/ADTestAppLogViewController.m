@@ -56,7 +56,7 @@ static NSAttributedString* s_attrNewLine = nil;
     
     [self setEdgesForExtendedLayout:UIRectEdgeNone];
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
         [self appendNewLogLine:message];
     }];
