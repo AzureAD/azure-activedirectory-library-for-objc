@@ -24,16 +24,10 @@
 #import "ADLogger.h"
 #import "MSIDLogger+Internal.h"
 
-static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
-static BOOL s_piiEnabled = NO;
 static LogCallback s_OldCallback = nil;
 static ADLoggerCallback s_LoggerCallback = nil;
-static BOOL s_NSLogging = YES;
-static NSString* s_OSString = @"UnkOS";
 
 static NSMutableDictionary* s_adalId = nil;
-
-static dispatch_once_t s_logOnce;
 
 @implementation ADLogger
 
@@ -56,14 +50,14 @@ static dispatch_once_t s_logOnce;
             {
                 if (s_LoggerCallback)
                 {
-                    s_LoggerCallback(level, message, containsPII);
+                    s_LoggerCallback((ADAL_LOG_LEVEL)level, message, containsPII);
                 }
                 else if (s_OldCallback)
                 {
-                    NSString *message = containsPII ? @"PII message" : message;
+                    NSString *msg = containsPII ? @"PII message" : message;
                     NSString *additionalMessage = containsPII ? message : nil;
                     
-                    s_OldCallback(level, message, additionalMessage, 0, nil);
+                    s_OldCallback((ADAL_LOG_LEVEL)level, msg, additionalMessage, 0, nil);
                 }
             }
         }];
