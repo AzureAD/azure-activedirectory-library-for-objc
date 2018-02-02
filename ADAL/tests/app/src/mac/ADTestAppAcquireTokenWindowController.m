@@ -221,15 +221,13 @@
 - (void)showMultipleHitAlert
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSAlert* alert = [NSAlert alertWithMessageText:@"Error!"
-                                         defaultButton:@"OK"
-                                       alternateButton:nil
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Completion block was hit multiple times!"];
-        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode)
-         {
-             (void)returnCode;
-         }];
+        
+        NSAlert *alert = [[NSAlert alloc] init];
+        alert.messageText = @"Error!";
+        [alert addButtonWithTitle:@"OK"];
+        alert.informativeText = @"Completion block was hit multiple times!";
+        
+        [alert beginSheetModalForWindow:self.window completionHandler:nil];
     });
 }
 

@@ -172,7 +172,7 @@ static NSUInteger s_currentProfileIdx = 0;
     self.resource = [settings objectForKey:@"resource"];
     self.defaultUser = [settings objectForKey:@"defaultUser"];
     NSNumber* validate = [settings objectForKey:@"validateAuthority"];
-    self.validateAuthority = validate ? [validate boolValue] : YES;
+    self.validateAuthority = validate != nil ? [validate boolValue] : YES;
     NSNumber* enableBroker = [settings objectForKey:@"enableBroker"];
     self.enableBroker = [enableBroker boolValue];
     self.extraQueryParameters = [settings objectForKey:@"EQP"];

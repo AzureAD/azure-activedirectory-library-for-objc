@@ -808,8 +808,8 @@
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		B200BC4320180A57000A81FD /* ADWipeTokensTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADWipeTokensTelemetryTests.m; sourceTree = "<group>"; };
-		B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = ADAL_iOS_ITs.xctest; path = "ADAL-Integration-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = ADAL_Mac_ITs.xctest; path = "ADAL-Integration-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20DC5AD1F0D96A100957806 /* ADAL-Integration-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Integration-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20DC5D11F0D96A700957806 /* ADAL-Integration-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Integration-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20DC5D61F0D97C600957806 /* ADAL_iOS_UTs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_iOS_UTs-Info.plist"; sourceTree = "<group>"; };
 		B20DC5D91F0D97CD00957806 /* ADAL_Mac_UTs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_Mac_UTs-Info.plist"; sourceTree = "<group>"; };
 		B20DC5DC1F0D97DD00957806 /* ADAL_iOS_ITs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ADAL_iOS_ITs-Info.plist"; sourceTree = "<group>"; };
@@ -1177,8 +1177,8 @@
 				D664F1B41D302B9C0017B799 /* libADAL-core.a */,
 				04AB6D421D9D619B007E9A83 /* UnitTestHost.app */,
 				D64C1F481DB9B05900850036 /* ADALAutomation.app */,
-				B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */,
-				B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */,
+				B20DC5AD1F0D96A100957806 /* ADAL-Integration-Tests.xctest */,
+				B20DC5D11F0D96A700957806 /* ADAL-Integration-Tests.xctest */,
 				D6D9A4DD1FBFB45100EFA430 /* ADAL Test App.app */,
 				D6D9A4F91FBFB47200EFA430 /* ADAL Test App.app */,
 			);
@@ -2104,7 +2104,7 @@
 			);
 			name = ADAL_iOS_ITs;
 			productName = ADALiOSTests;
-			productReference = B20DC5AD1F0D96A100957806 /* ADAL_iOS_ITs.xctest */;
+			productReference = B20DC5AD1F0D96A100957806 /* ADAL-Integration-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		B20DC5AF1F0D96A700957806 /* ADAL_Mac_ITs */ = {
@@ -2123,7 +2123,7 @@
 			);
 			name = ADAL_Mac_ITs;
 			productName = "ADAL Mac Tests";
-			productReference = B20DC5D11F0D96A700957806 /* ADAL_Mac_ITs.xctest */;
+			productReference = B20DC5D11F0D96A700957806 /* ADAL-Integration-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D64C1F471DB9B05900850036 /* ADALAutomation */ = {

@@ -5,3 +5,4 @@
 #include "../IdentityCore/IdentityCore/xcconfig/identitycore__common.xcconfig"
 
 IDCORE_PATH = IdentityCore/IdentityCore
+OTHER_CFLAGS=$(inherited) -fstack-protector-strong
