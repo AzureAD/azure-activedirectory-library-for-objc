@@ -193,15 +193,21 @@ class BuildTarget:
 		print command
 		
 		start = timer()
-        
-		settings_blob = subprocess.check_output(command, shell=True)
+		
+		try:
+			settings_blob = subprocess.check_output(command, shell=True)
+		except CalledProcessError as e:
+			print "Failed to get build settings:"
+			print e.output
+			
+			raise e
+			
 		if (show_build_settings) :
 			print settings_blob
 			print "travis_fold:end:" + (self.name + "_settings").replace(" ", "_")
 		
 		settings_blob = settings_blob.decode("utf-8")
 		settings_blob = settings_blob.split("\n")
-        
 		settings = {}
 		
 		for line in settings_blob :
