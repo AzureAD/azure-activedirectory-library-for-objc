@@ -197,7 +197,7 @@ class BuildTarget:
 		try:
 			settings_blob = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
 		except subprocess.CalledProcessError as e:
-			print "Failed to get build settings (exit code: " + e.returncode + ")"
+			print "Failed to get build settings (exit code: " + str(e.returncode) + ")"
 			print e.output
 			
 			raise e
