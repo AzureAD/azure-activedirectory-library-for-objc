@@ -43,6 +43,7 @@ default_workspace = "ADAL.xcworkspace"
 default_config = "Debug"
 
 use_xcpretty = True
+use_junit = False
 show_build_settings = False
 
 class ColorValues:
@@ -173,6 +174,8 @@ class BuildTarget:
 		
 		if (xcpretty) :
 			command += " | xcpretty"
+			if (use_junit) :
+				command += " -r junit"
 		
 		return command
 	
@@ -367,14 +370,14 @@ parser.add_argument('--no-clean', action='store_false', help="Skips the clean bu
 parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
 parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
 parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+parser.add_argument('--junit', action='store_true', help="Use junit reporting for test results (requires xcpretty)")
 args = parser.parse_args()
 
 clean = args.no_clean
 use_xcpretty = args.no_xcpretty
+use_junit = args.junit
 show_build_settings = args.show_build_settings
 
-
-subprocess.call("printenv", shell=True)
 subprocess.call("xcodebuild -version", shell=True)
 
 if (args.targets != None) :
