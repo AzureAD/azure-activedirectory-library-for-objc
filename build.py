@@ -120,6 +120,7 @@ def print_operation_end(name, operation, exit_code, start_time) :
 class BuildTarget:
 	def __init__(self, target):
 		self.name = target["name"]
+		self.target = target["target"]
 		self.project = target.get("project")
 		self.workspace = target.get("workspace")
 		if (self.workspace == None and self.project == None) :
@@ -174,8 +175,10 @@ class BuildTarget:
 		
 		if (xcpretty) :
 			command += " | xcpretty"
-			if (use_junit) :
+			
+		if (use_junit and xcpretty and operation == "test") :
 				command += " -r junit"
+				command += " -o reports/" +  self.target + "-junit.xml"
 		
 		return command
 	
