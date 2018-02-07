@@ -178,7 +178,7 @@ class BuildTarget:
 			
 		if (use_junit and xcpretty and operation == "test") :
 				command += " -r junit"
-				command += " -o reports/" +  self.target + "-junit.xml"
+				command += " -o reports/test/" +  self.target + "-junit.xml"
 		
 		return command
 	
