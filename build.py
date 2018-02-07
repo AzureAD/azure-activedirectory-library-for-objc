@@ -373,6 +373,8 @@ clean = args.no_clean
 use_xcpretty = args.no_xcpretty
 show_build_settings = args.show_build_settings
 
+
+subprocess.call("printenv", shell=True)
 subprocess.call("xcodebuild -version", shell=True)
 
 if (args.targets != None) :
