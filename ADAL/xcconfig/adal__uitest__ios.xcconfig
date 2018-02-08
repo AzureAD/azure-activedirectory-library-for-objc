@@ -1,0 +1,15 @@
+//
+//  adal__uitest__ios.xcconfig
+//  
+
+#include "adal__common__ios.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests
+PRODUCT_NAME = ADALiOSUITests
+INFOPLIST_FILE = ADALiOSUITests/Info.plist
+CLANG_ENABLE_MODULES = YES;
+
+
+
+TEST_TARGET_NAME = ADALAutomation;
+USER_HEADER_SEARCH_PATHS = "$(HOME)/aadoverrides/**";
