@@ -164,8 +164,9 @@ class BuildTarget:
 		
 		# The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
 		# headers not being found. If Apple can't make this reliable then we should short circuit it out of our build
+		
 		if (operation == "build") :
-			command += " RUN_CLANG_STATIC_ANALYZER=NO"
+			command += " RUN_CLANG_STATIC_ANALYZER=NO ONLY_ACTIVE_ARCH=YES VALID_ARCHS=x86_64"
 		
 		if (operation != None and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
@@ -177,8 +178,8 @@ class BuildTarget:
 			command += " | xcpretty"
 			
 		if (use_junit and xcpretty and operation == "test") :
-				command += " -r junit"
-				command += " -o reports/test/" +  self.target + "-junit.xml"
+			command += " -r junit"
+			command += " -o reports/test/" +  self.target + "-junit.xml"
 		
 		return command
 	
