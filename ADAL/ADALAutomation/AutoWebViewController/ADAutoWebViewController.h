@@ -21,45 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoRequestViewController.h"
+#import <UIKit/UIKit.h>
 
-@interface ADAutoRequestViewController ()
+@interface ADAutoWebViewController : UIViewController
 
-@property (strong, nonatomic) IBOutlet UITextView *requestInfo;
-@property (strong, nonatomic) IBOutlet UIButton *requestGo;
-
-@end
-
-@implementation ADAutoRequestViewController
-
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (IBAction)go:(id)sender {
-    
-    (void)sender;
-    
-    self.requestInfo.editable = NO;
-    self.requestGo.enabled = NO;
-    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
-
-    NSError* error = nil;
-    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
-    if (!params)
-    {
-        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, error.code, error.localizedDescription];
-        
-        params = @{ @"error" : errorString };
-    }
-    
-    self.completionBlock(params);
-}
+@property (strong) IBOutlet UIWebView *webView;
 
 @end
