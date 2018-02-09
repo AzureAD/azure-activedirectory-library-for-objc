@@ -13,3 +13,4 @@ CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements
 PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.automationapp
 PRODUCT_NAME = ADALAutomation
 INFOPLIST_FILE = ADALAutomation/Info.plist
+GCC_OPTIMIZATION_LEVEL = 0;
