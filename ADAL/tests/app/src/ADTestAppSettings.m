@@ -34,6 +34,10 @@ static NSDictionary* _additionalProfiles()
 {
     return nil;
 }
+static NSDictionary* _testAccounts()
+{
+    return nil;
+}
 #endif
 static NSDictionary* s_additionalProfiles = nil;
 
