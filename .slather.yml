@@ -1,5 +1,8 @@
 # .slather.yml
 
-coverage_service: coveralls
-xcodeproj: ADALiOS/ADALiOS.xcodeproj
-ignore: ADALiOS/ADALiOSTests/*
+coverage_service: cobertura_xml
+workspace: ADAL.xcworkspace
+xcodeproj: ADAL/ADAL.xcodeproj
+source_directory: ADAL/src
+output_directory: reports/codecov
+ignore: ADAL/tests/**
