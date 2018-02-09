@@ -116,7 +116,12 @@
     }
     
     [emailTextField pressForDuration:0.5f];
-    if (emailTextField.value)
+    
+    // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
+    // instead of empty string. In order to make it work we check that value of text field is not
+    // equal to placeholder.
+    // See here: https://forums.developer.apple.com/thread/86653
+    if (![emailTextField.placeholderValue isEqualToString:emailTextField.value] && emailTextField.value)
     {
         [emailTextField selectAll:self.testApp];
     }
