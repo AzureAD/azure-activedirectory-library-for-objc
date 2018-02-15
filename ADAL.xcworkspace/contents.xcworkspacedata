@@ -4,4 +4,7 @@
    <FileRef
       location = "group:ADAL/ADAL.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:KeyVaultClient/KeyVaultClient.xcodeproj">
+   </FileRef>
 </Workspace>
