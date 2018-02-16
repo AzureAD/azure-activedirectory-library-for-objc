@@ -1,3 +1,7 @@
+Version 2.6.1 (02.15.2018)
+-------------
+* Fix 'UI API called on a background thread' warning in ADBrokerHelper (#1100)
+
 Version 2.6.0 (01.16.2018)
 -------------
 * Improved handling for guest users (#1078)
