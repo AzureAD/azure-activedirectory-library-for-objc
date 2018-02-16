@@ -1,0 +1,21 @@
+//
+//  adal__framework__mac.xcconfig
+//
+
+#include "adal__common__mac.xcconfig"
+#include "adal__lib__common.xcconfig"
+
+DEFINES_MODULE = YES
+INFOPLIST_FILE = resources/mac/Info.plist
+INSTALL_PATH = $(LOCAL_LIBRARY_DIR)/Frameworks @rpath
+MODULEMAP_FILE = resources/mac/adal_mac.modulemap
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL
+PRODUCT_NAME = ADAL
+SKIP_INSTALL = YES
+COMBINE_HIDPI_IMAGES = YES;
+DYLIB_COMPATIBILITY_VERSION = 1;
+DYLIB_CURRENT_VERSION = 1;
+DYLIB_INSTALL_NAME_BASE = "@rpath";
+VERSIONING_SYSTEM = "apple-generic";
+VERSION_INFO_PREFIX = "";
+FRAMEWORK_VERSION = A;

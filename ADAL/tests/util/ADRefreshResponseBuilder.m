@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADRefreshResponseBuilder.h"
-#import "ADOAuth2Constants.h"
 #import "ADTestConstants.h"
 
 @implementation ADRefreshResponseBuilder
@@ -63,19 +62,19 @@
     _requestHeaders[@"client-request-id"] = [self.correlationId UUIDString];
     
     NSMutableDictionary *requestBody = [NSMutableDictionary new];
-    requestBody[OAUTH2_GRANT_TYPE] = @"refresh_token";
-    requestBody[OAUTH2_REFRESH_TOKEN] = self.oldRefreshToken;
-    requestBody[OAUTH2_RESOURCE] = self.resource;
-    requestBody[OAUTH2_CLIENT_ID] = self.clientId;
+    requestBody[MSID_OAUTH2_GRANT_TYPE] = @"refresh_token";
+    requestBody[MSID_OAUTH2_REFRESH_TOKEN] = self.oldRefreshToken;
+    requestBody[MSID_OAUTH2_RESOURCE] = self.resource;
+    requestBody[MSID_OAUTH2_CLIENT_ID] = self.clientId;
     [requestBody addEntriesFromDictionary:_requestBody];
     
     NSMutableDictionary *responseBody = [NSMutableDictionary new];
-    responseBody[OAUTH2_REFRESH_TOKEN] = self.updatedRefreshToken;
-    responseBody[OAUTH2_ACCESS_TOKEN] = self.updatedAccessToken;
-    responseBody[OAUTH2_RESOURCE] = self.resource;
+    responseBody[MSID_OAUTH2_REFRESH_TOKEN] = self.updatedRefreshToken;
+    responseBody[MSID_OAUTH2_ACCESS_TOKEN] = self.updatedAccessToken;
+    responseBody[MSID_OAUTH2_RESOURCE] = self.resource;
     [responseBody addEntriesFromDictionary:_responseBody];
     if (_updatedIdToken) {
-        responseBody[OAUTH2_ID_TOKEN] = _updatedIdToken;
+        responseBody[MSID_OAUTH2_ID_TOKEN] = _updatedIdToken;
     }
     
     ADTestURLResponse* response =

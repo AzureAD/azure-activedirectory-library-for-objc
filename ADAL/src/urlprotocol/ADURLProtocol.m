@@ -26,18 +26,18 @@
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADURLSessionDemux.h"
 #import "ADAuthorityUtils.h"
 
 static NSMutableDictionary *s_handlers      = nil;
 static NSString *s_endURL                   = nil;
-static ADTelemetryUIEvent *s_telemetryEvent = nil;
+static MSIDTelemetryUIEvent *s_telemetryEvent = nil;
 
 static NSString *s_kADURLProtocolPropertyKey  = @"ADURLProtocol";
 
-static id<ADRequestContext> _reqContext(NSURLRequest* request)
+static id<MSIDRequestContext> _reqContext(NSURLRequest* request)
 {
     return [NSURLProtocol propertyForKey:@"context" inRequest:request];
 }
@@ -69,7 +69,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 }
 
 + (BOOL)registerProtocol:(NSString *)endURL
-          telemetryEvent:(ADTelemetryUIEvent *)telemetryEvent
+          telemetryEvent:(MSIDTelemetryUIEvent *)telemetryEvent
 {
     if (s_endURL!=endURL)
     {
@@ -95,7 +95,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     }
 }
 
-+ (void)addContext:(id<ADRequestContext>)context
++ (void)addContext:(id<MSIDRequestContext>)context
                toRequest:(NSMutableURLRequest *)request
 {
     if (!context)
@@ -136,8 +136,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-        AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [request.URL host]);
+        MSID_LOG_VERBOSE(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+        MSID_LOG_VERBOSE_PII(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [request.URL host]);
         
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
@@ -147,30 +147,30 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
+    MSID_LOG_VERBOSE(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
+    MSID_LOG_VERBOSE(_reqContext(request), @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_reqContext(request), @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
     
     return request;
 }
 
 - (void)startLoading
 {
-    id<ADRequestContext> context = _reqContext(self.request);
+    id<MSIDRequestContext> context = _reqContext(self.request);
     if (context)
     {
         _context = context;
     }
     
-    AD_LOG_VERBOSE(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
+    MSID_LOG_VERBOSE(context, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(context, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
      [ADCustomHeaderHandler applyCustomHeadersTo:request];
@@ -189,8 +189,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
+    MSID_LOG_VERBOSE(_reqContext(self.request), @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_reqContext(self.request), @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
     
     [_dataTask cancel];
     _dataTask = nil;
@@ -267,7 +267,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE(_context.correlationId,
+    MSID_LOG_VERBOSE(_context,
                    @"%@ - %@. Previous challenge failure count: %ld",
                    @"session:task:didReceiveChallenge:completionHandler",
                    authMethod, (long)challenge.previousFailureCount);
@@ -294,7 +294,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     
     if ([authMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame)
     {
-        [s_telemetryEvent setNtlm:AD_TELEMETRY_VALUE_YES];
+        [s_telemetryEvent setNtlm:MSID_TELEMETRY_VALUE_YES];
     }
 }
 

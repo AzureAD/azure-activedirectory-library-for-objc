@@ -24,9 +24,9 @@
 #import <Foundation/Foundation.h>
 #import "ADClientMetrics.h"
 #import "ADHelpers.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
+#import "MSIDAuthority.h"
 
 @implementation ADClientMetrics
 
@@ -60,7 +60,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 - (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
                 endpoint:(NSString *)endPoint
 {
-    if ([ADHelpers isADFSInstance:endPoint])
+    if ([MSIDAuthority isADFSInstance:endPoint])
     {
         return;
     }
@@ -81,7 +81,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
         }
         else
         {
-            AD_LOG_ERROR(nil, @"unable to add client metrics.");
+            MSID_LOG_ERROR(nil, @"unable to add client metrics.");
         }
         
         _errorToReport = nil;
@@ -98,7 +98,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
                  correlationId:(NSUUID *)correlationId
                   errorDetails:(NSString *)errorDetails
 {
-    if ([ADHelpers isADFSInstance:endpoint])
+    if ([MSIDAuthority isADFSInstance:endpoint])
     {
         return;
     }
@@ -106,7 +106,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     @synchronized(self)
     {
         _endpoint = endpoint;
-        _errorToReport = [NSString adIsStringNilOrBlank:errorDetails] ? @"" : errorDetails;
+        _errorToReport = [NSString msidIsStringNilOrBlank:errorDetails] ? @"" : errorDetails;
         _correlationId = [correlationId UUIDString];
         _responseTime = [NSString stringWithFormat:@"%f", [startTime timeIntervalSinceNow] * -1000.0];
         _isPending = YES;

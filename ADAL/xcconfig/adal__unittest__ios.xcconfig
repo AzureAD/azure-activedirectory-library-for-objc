@@ -1,0 +1,8 @@
+//
+//  adal__unittest__ios.xcconfig
+//
+
+#include "adal__test__common__ios.xcconfig"
+#include "adal__unittest.xcconfig"
+
+INFOPLIST_FILE = tests/unit/ios/ADAL_iOS_UTs-Info.plist

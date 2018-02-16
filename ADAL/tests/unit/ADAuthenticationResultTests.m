@@ -127,7 +127,7 @@
                                @"expires_on" : @"1444166530.336707",
                                @"client_id" : @"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F",
                                @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784",
-                               @"id_token" : [idtokenJSON adBase64UrlEncode],
+                               @"id_token" : [idtokenJSON msidBase64UrlEncode],
                                @"user_id" : @"myfakeuser@contoso.com"
                                };
     
@@ -158,7 +158,7 @@
                                @"expires_on" : @"1444166530.336707",
                                @"client_id" : @"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F",
                                @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784",
-                               @"id_token" : [idtokenJSON adBase64UrlEncode],
+                               @"id_token" : [idtokenJSON msidBase64UrlEncode],
                                @"user_id" : @"myfakeuser@contoso.com"
                                };
     
@@ -188,7 +188,7 @@
                                @"expires_on" : @"1444166530.336707",
                                @"client_id" : @"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F",
                                @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784",
-                               @"id_token" : [idtokenJSON adBase64UrlEncode],
+                               @"id_token" : [idtokenJSON msidBase64UrlEncode],
                                @"user_id" : @"myfakeuser@contoso.com"
                                };
     

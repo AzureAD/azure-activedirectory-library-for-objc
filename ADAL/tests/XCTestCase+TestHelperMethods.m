@@ -23,7 +23,6 @@
 
 #import "ADAL_Internal.h"
 #import "ADLogger.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationContext.h"
@@ -33,11 +32,10 @@
 #import <objc/runtime.h>
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADOAuth2Constants.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
-#import "NSDictionary+ADTestUtil.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -60,7 +58,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertNotNil(error.domain, "Error domain is nil.");
     XCTAssertEqual(error.domain, ADAuthenticationErrorDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
-    XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
+    XCTAssertFalse([NSString msidIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
     BOOL found = [error.errorDetails containsString:argument];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
@@ -111,7 +109,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.refreshToken = TEST_REFRESH_TOKEN;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -137,7 +135,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.refreshToken = nil;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -166,7 +164,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.clientId = TEST_CLIENT_ID;
     item.refreshToken = TEST_REFRESH_TOKEN;
     item.familyId = foci;
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -205,7 +203,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.clientId = [NSString stringWithFormat:@"foci-%@", foci];
     item.familyId = foci;
     item.refreshToken = @"family refresh token";
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -251,8 +249,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
     
@@ -290,15 +288,15 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:requestHeaders
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                           OAUTH2_REFRESH_TOKEN : refreshToken,
-                                           OAUTH2_RESOURCE : resource,
-                                           OAUTH2_CLIENT_ID : clientId }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                           MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
+                                           MSID_OAUTH2_RESOURCE : resource,
+                                           MSID_OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
-                       dictionaryAsJSON:@{ OAUTH2_ERROR : oauthError,
-                                           OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
+                       dictionaryAsJSON:@{ MSID_OAUTH2_ERROR : oauthError,
+                                           MSID_OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
     
     return response;
 }
@@ -403,9 +401,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders
 {
-    NSDictionary* jsonBody = @{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
-                                OAUTH2_ACCESS_TOKEN : newAccessToken,
-                                OAUTH2_RESOURCE : resource };
+    NSDictionary* jsonBody = @{ MSID_OAUTH2_REFRESH_TOKEN : newRefreshToken,
+                                MSID_OAUTH2_ACCESS_TOKEN : newAccessToken,
+                                MSID_OAUTH2_RESOURCE : resource };
     
     if (additionalFields)
     {
@@ -463,10 +461,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                           OAUTH2_REFRESH_TOKEN : oldRefreshToken,
-                                           OAUTH2_RESOURCE : resource,
-                                           OAUTH2_CLIENT_ID : clientId }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                           MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
+                                           MSID_OAUTH2_RESOURCE : resource,
+                                           MSID_OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:responseCode
                        httpHeaderFields:responseHeaders ? responseHeaders : @{}
@@ -487,10 +485,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_AUTHORIZATION_CODE,
-                                           OAUTH2_CODE : authCode,
-                                           OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                           OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_AUTHORIZATION_CODE,
+                                           MSID_OAUTH2_CODE : authCode,
+                                           MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                           MSID_OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
                       responseURLString:@"https://contoso.com"
                            responseCode:200
                        httpHeaderFields:@{}

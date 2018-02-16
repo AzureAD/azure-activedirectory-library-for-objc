@@ -18,11 +18,8 @@
 
 #import "ADTestAuthorityValidationResponse.h"
 #import "ADAuthorityValidationRequest.h"
-#import "ADOAuth2Constants.h"
 
-#import "NSDictionary+ADExtensions.h"
-#import "NSDictionary+ADTestUtil.h"
-#import "NSURL+ADExtensions.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 
 #define DEFAULT_TRUSTED_HOST @"login.microsoftonline.com"
@@ -74,8 +71,8 @@
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
                                                      httpHeaderFields:@{}
-                                                     dictionaryAsJSON:@{OAUTH2_ERROR : @"invalid_instance",
-                                                                        OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
+                                                     dictionaryAsJSON:@{MSID_OAUTH2_ERROR : @"invalid_instance",
+                                                                        MSID_OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];
     
     return response;

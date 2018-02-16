@@ -26,6 +26,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
@@ -33,7 +34,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "94DD18E01C5ACFBF00F80C62"
-               BuildableName = "ADAL_Mac_UTs.xctest"
+               BuildableName = "ADAL-Unit-Tests.xctest"
                BlueprintName = "ADAL_Mac_UTs"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
@@ -43,7 +44,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B20DC5AF1F0D96A700957806"
-               BuildableName = "ADAL_Mac_ITs.xctest"
+               BuildableName = "ADAL-Integration-Tests.xctest"
                BlueprintName = "ADAL_Mac_ITs"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
@@ -65,6 +66,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"

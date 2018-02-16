@@ -70,7 +70,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                     correlationId:(NSUUID *)correlationId
                   completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString msidIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
@@ -87,7 +87,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult
 {
-    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString msidIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:nil];
         *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
@@ -101,13 +101,13 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
-    NSString* serverOAuth2Error = [dictionary objectForKey:OAUTH2_ERROR];
-    if (![NSString adIsStringNilOrBlank:serverOAuth2Error])
+    NSString* serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
+    if (![NSString msidIsStringNilOrBlank:serverOAuth2Error])
     {
-        NSString* errorDetails = [dictionary objectForKey:OAUTH2_ERROR_DESCRIPTION];
+        NSString* errorDetails = [dictionary objectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
         // Error response from the server
-        NSUUID* correlationId = [dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
-                                [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
+        NSUUID* correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+                                [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
     }
@@ -183,7 +183,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
-    if (AD_SUCCEEDED != result.status || !userId || [NSString adIsStringNilOrBlank:userId.userId] || userId.type == OptionalDisplayableId)
+    if (AD_SUCCEEDED != result.status || !userId || [NSString msidIsStringNilOrBlank:userId.userId] || userId.type == OptionalDisplayableId)
     {
         //No user to compare - either no specific user id requested, or no specific userId obtained:
         return result;

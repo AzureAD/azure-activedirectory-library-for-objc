@@ -45,7 +45,7 @@
     } \
 }
 
-@interface ADAuthenticationRequest : NSObject <ADRequestContext>
+@interface ADAuthenticationRequest : NSObject <MSIDRequestContext>
 {
 @protected
     ADAuthenticationContext* _context;

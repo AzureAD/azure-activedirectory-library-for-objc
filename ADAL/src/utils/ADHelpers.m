@@ -23,13 +23,11 @@
 
 #import <Foundation/Foundation.h>
 #import "ADHelpers.h"
-#import "NSString+ADHelperMethods.h"
 #import <Security/Security.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
-#import "ADOauth2Constants.h"
 #import "ADAL_Internal.h"
 #import "ADAuthorityUtils.h"
 
@@ -47,32 +45,9 @@
     }
 }
 
-+ (BOOL)isADFSInstance:(NSString *)endpoint
-{
-    if([NSString adIsStringNilOrBlank:endpoint]){
-        return NO;
-    }
-    
-    return[ADHelpers isADFSInstanceURL: [NSURL URLWithString:endpoint.lowercaseString]];
-}
-
-
-+ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
-{
-    
-    NSArray* paths = endpointUrl.pathComponents;
-    if (paths.count >= 2)
-    {
-        NSString* tenant = [paths objectAtIndex:1];
-        return [@"adfs" isEqualToString:tenant];
-    }
-    return false;
-}
-
-
 + (NSString *)getEndpointName:(NSString *)fullEndpoint
 {
-    if([NSString adIsStringNilOrBlank:fullEndpoint])
+    if([NSString msidIsStringNilOrBlank:fullEndpoint])
     {
         return nil;
     }
@@ -121,8 +96,8 @@
                                    symmetricKey:(NSData *)symmetricKey
 {
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
-                              [[ADHelpers JSONFromDictionary:header] adBase64UrlEncode],
-                              [[ADHelpers JSONFromDictionary:payload] adBase64UrlEncode]];
+                              [[ADHelpers JSONFromDictionary:header] msidBase64UrlEncode],
+                              [[ADHelpers JSONFromDictionary:payload] msidBase64UrlEncode]];
     
     NSData* derivedKey = [ADHelpers computeKDFInCounterMode:symmetricKey
                                                     context:[context dataUsingEncoding:NSUTF8StringEncoding]];
@@ -136,7 +111,7 @@
            [data length],
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
-    NSString* signedEncodedDataString = [NSString adBase64UrlEncodeData:signedData];
+    NSString* signedEncodedDataString = [NSString msidBase64UrlEncodeData:signedData];
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
@@ -162,7 +137,7 @@
 + (NSData*)computeKDFInCounterMode:(NSData *)key
                            context:(NSData *)ctx
 {
-    NSData* labelData = [AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* labelData = [ADAL_AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData* mutData = [NSMutableData new];
     [mutData appendBytes:labelData.bytes length:labelData.length];
     Byte bytes[] = {0x00};
@@ -319,25 +294,25 @@
 
 + (NSString*)canonicalizeAuthority:(NSString *)authority
 {
-    if ([NSString adIsStringNilOrBlank:authority])
+    if ([NSString msidIsStringNilOrBlank:authority])
     {
         return nil;
     }
     
-    NSString* trimmedAuthority = [[authority adTrimmedString] lowercaseString];
+    NSString* trimmedAuthority = [[authority msidTrimmedString] lowercaseString];
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        AD_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority adUrl]] ? [authority adUrl].host : @"unknown host");
-        AD_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
+        MSID_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority msidUrl]] ? [authority msidUrl].host : @"unknown host");
+        MSID_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
 
         return nil;
     }
     NSString* scheme = url.scheme;
     if (![scheme isEqualToString:@"https"])
     {
-        AD_LOG_WARN(nil, @"Non HTTPS protocol for the authority");
-        AD_LOG_WARN_PII(nil, @"Non HTTPS protocol for the authority %@", authority);
+        MSID_LOG_WARN(nil, @"Non HTTPS protocol for the authority");
+        MSID_LOG_WARN_PII(nil, @"Non HTTPS protocol for the authority %@", authority);
         return nil;
     }
     
@@ -347,18 +322,18 @@
         return nil;//No path component: invalid URL
     
     NSString* tenant = [paths objectAtIndex:1];
-    if ([NSString adIsStringNilOrBlank:tenant])
+    if ([NSString msidIsStringNilOrBlank:tenant])
     {
         return nil;
     }
     
     NSString* host = url.host;
-    if ([NSString adIsStringNilOrBlank:host])
+    if ([NSString msidIsStringNilOrBlank:host])
     {
         return nil;
     }
     NSNumber* port = url.port;
-    if (port)
+    if (port != nil)
     {
         trimmedAuthority = [NSString stringWithFormat:@"%@://%@:%d/%@", scheme, host, port.intValue, tenant];
     }
@@ -417,7 +392,7 @@
     {
         return nil;//Quick exit;
     }
-    NSString* normalized = [userId adTrimmedString].lowercaseString;
+    NSString* normalized = [userId msidTrimmedString].lowercaseString;
     
     return normalized.length ? normalized : nil;
 }
