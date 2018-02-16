@@ -42,6 +42,7 @@
 		230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */; };
 		23189A001FAA9A6C0014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
 		23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */; };
+    2335EFAA2036450100C342D0 /* ADBrokerHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2335EFA92036450100C342D0 /* ADBrokerHelperTests.m */; };
 		232153371FE0601D00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */; };
 		232153381FE0601E00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */; };
 		2321533F1FE1EEA500C6960D /* ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321533E1FE1EEA500C6960D /* ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m */; };
@@ -670,6 +671,7 @@
 		230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryAPIEventTests.m; sourceTree = "<group>"; };
 		231899FD1FAA9A4A0014B8EF /* ADAuthorityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityUtils.h; sourceTree = "<group>"; };
 		231899FE1FAA9A4A0014B8EF /* ADAuthorityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityUtils.m; sourceTree = "<group>"; };
+    2335EFA92036450100C342D0 /* ADBrokerHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelperTests.m; sourceTree = "<group>"; };
 		232153351FE05F6500C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemArchivingToMSIDTokenTests.m; sourceTree = "<group>"; };
 		2321533E1FE1EEA500C6960D /* ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheToMSIDKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		232ED2B920083F7800C5D74A /* ADBrokerHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelperTests.m; sourceTree = "<group>"; };
@@ -1687,7 +1689,10 @@
 		B20DC5D31F0D975A00957806 /* unit */ = {
 			isa = PBXGroup;
 			children = (
-				B2AF9AAC2022A70A009602CF /* ADLoggerTests.m */,
+				2335EFA92036450100C342D0 /* ADBrokerHelperTests.m */,
+				B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */,
+				D67D3D4D1F43B17000660F32 /* ADAadAuthorityCacheTests.m */,
+        B2AF9AAC2022A70A009602CF /* ADLoggerTests.m */,
 				234F3CEF1F3519A300DE4AA4 /* ADAuthenticationContextTests.h */,
 				234F3CEB1F35180B00DE4AA4 /* ADAuthenticationContextTests.m */,
 				B20DC5E21F0D998A00957806 /* ADAuthenticationErrorTests.m */,
@@ -2623,6 +2628,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
+				2335EFAA2036450100C342D0 /* ADBrokerHelperTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
