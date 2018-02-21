@@ -1806,6 +1806,58 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testAllowSilentRequestParameters_whenAuthCodeReturned_shouldSucceed
+{
+    XCTestExpectation* expectation = [self expectationWithDescription:@"requestToken"];
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                      tokenCache:context.tokenCacheStore
+                                                                extendedLifetime:NO
+                                                                   correlationId:TEST_CORRELATION_ID
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    [req setSilent:YES];
+    [req setAllowSilentRequests:YES];
+    
+    
+    // Add a mock response returning auth code for the allowSilent request
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?prompt=none&response_type=code&login_hint=eric_cartman%40contoso.com&resource=resource&nux=1&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&x-client-Ver=" ADAL_VERSION_STRING]];
+    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
+    [response setRequestHeaders:headers];
+    [response setResponseURL:[NSString stringWithFormat:@"%@?code=fake_auth_code", TEST_REDIRECT_URL_STRING]
+                        code:401
+                headerFields:@{}];
+    [ADTestURLSession addResponse:response];
+    
+    // Add a mock response returning tokens
+    [ADTestURLSession addResponse:[self adResponseAuthCode:@"fake_auth_code"
+                                                 authority:context.authority
+                                             correlationId:TEST_CORRELATION_ID]];
+    
+    // We send the actual silent network request
+    [req requestToken:^(ADAuthenticationResult *result)
+     {
+         // Should succeed
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertNotNil(result.tokenCacheItem);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+
+
 - (void)testSkipCacheRequestParameters_whenSkipCacheIsNotSet_shouldNotSkipCache
 {
     ADAuthenticationError* error = nil;
