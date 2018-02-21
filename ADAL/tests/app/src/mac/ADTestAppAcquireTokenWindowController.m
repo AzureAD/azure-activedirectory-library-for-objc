@@ -101,6 +101,8 @@
 {
     [super windowDidLoad];
     
+    self.window.title = [NSString stringWithFormat:@"Acquire Token (%@)", ADAL_VERSION_NSSTRING];
+    
     [self.window.contentView addSubview:_acquireSettingsView];
     [_authView setHidden:YES];
     [self.window.contentView addSubview:_authView];
@@ -219,15 +221,13 @@
 - (void)showMultipleHitAlert
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSAlert* alert = [NSAlert alertWithMessageText:@"Error!"
-                                         defaultButton:@"OK"
-                                       alternateButton:nil
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Completion block was hit multiple times!"];
-        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode)
-         {
-             (void)returnCode;
-         }];
+        
+        NSAlert *alert = [[NSAlert alloc] init];
+        alert.messageText = @"Error!";
+        [alert addButtonWithTitle:@"OK"];
+        alert.informativeText = @"Completion block was hit multiple times!";
+        
+        [alert beginSheetModalForWindow:self.window completionHandler:nil];
     });
 }
 
@@ -239,6 +239,7 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     NSString* extraQueryParameters = _extraQueryParamsField.stringValue;
+    NSString* claims = _claimsField.stringValue;
     
     ADUserIdentifier* identifier = [self identifier];
     
@@ -273,6 +274,7 @@
                        promptBehavior:_promptBehavior
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
+                               claims:claims
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (fBlockHit)

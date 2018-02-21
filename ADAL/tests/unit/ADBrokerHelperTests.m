@@ -21,18 +21,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAadAuthorityCache.h"
+#import <XCTest/XCTest.h>
+#import "ADBrokerHelper.h"
+#import "ADAppExtensionUtil.h"
 
-@interface ADAadAuthorityCache (TestUtil)
+@interface ADBrokerHelperTests : XCTestCase
 
-- (NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)recordMap;
-- (void)setRecordMap:(NSDictionary<NSString *, ADAadAuthorityCacheRecord *> *)cacheDictionary;
+@end
 
-- (BOOL)grabReadLock;
-- (BOOL)grabWriteLock;
-- (BOOL)tryWriteLock;
-- (BOOL)unlock;
+@implementation ADBrokerHelperTests
 
-- (void)clear;
+- (void)setUp
+{
+    [super setUp];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+}
+
+- (void)testCanUseBroker_whenInvokeOnMainThread_ShouldReturnTrue
+{
+    BOOL result = [ADBrokerHelper canUseBroker];
+    
+    XCTAssertTrue(result);
+}
+
+- (void)testCanUseBroker_whenInvokeOnBgThread_ShouldReturnTrue
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get result from +canUseBroker on bg thread."];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        BOOL result = [ADBrokerHelper canUseBroker];
+        XCTAssertTrue(result);
+        
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
 
 @end

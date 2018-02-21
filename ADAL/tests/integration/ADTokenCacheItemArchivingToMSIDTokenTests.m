@@ -89,6 +89,7 @@
     item.resource = TEST_RESOURCE;
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
+    item.accessToken = nil;
     item.refreshToken = TEST_REFRESH_TOKEN;
     item.expiresOn = date;
     item.userInformation = [self adCreateUserInformation:TEST_USER_ID];

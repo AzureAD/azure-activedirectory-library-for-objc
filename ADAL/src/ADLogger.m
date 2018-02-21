@@ -24,7 +24,10 @@
 #import "ADLogger.h"
 #import "MSIDLogger+Internal.h"
 
-static LogCallback s_LogCallback = nil;
+static LogCallback s_OldCallback = nil;
+static ADLoggerCallback s_LoggerCallback = nil;
+
+static NSMutableDictionary* s_adalId = nil;
 
 @implementation ADLogger
 
@@ -45,9 +48,16 @@ static LogCallback s_LogCallback = nil;
             
             @synchronized (self) //Guard against thread-unsafe callback and modification of sLogCallback after the check
             {
-                if (s_LogCallback)
+                if (s_LoggerCallback)
                 {
-                    s_LogCallback((ADAL_LOG_LEVEL)level, message, containsPII);
+                    s_LoggerCallback((ADAL_LOG_LEVEL)level, message, containsPII);
+                }
+                else if (s_OldCallback)
+                {
+                    NSString *msg = containsPII ? @"PII message" : message;
+                    NSString *additionalMessage = containsPII ? message : nil;
+                    
+                    s_OldCallback((ADAL_LOG_LEVEL)level, msg, additionalMessage, 0, nil);
                 }
             }
         }];
@@ -56,13 +66,19 @@ static LogCallback s_LogCallback = nil;
 
 + (void)setLogCallBack:(LogCallback)callback
 {
-    @synchronized (self) //Avoid changing to null while attempting to call it.
+    @synchronized (self)
     {
-        s_LogCallback = [callback copy];
+        s_OldCallback = [callback copy];
     }
 }
 
-#pragma mark - Level
++ (void)setLoggerCallback:(ADLoggerCallback)callback
+{
+    @synchronized (self)
+    {
+        s_LoggerCallback = [callback copy];
+    }
+}
 
 + (void)setLevel:(ADAL_LOG_LEVEL)logLevel
 {

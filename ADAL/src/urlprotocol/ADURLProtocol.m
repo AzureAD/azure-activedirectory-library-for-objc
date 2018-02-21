@@ -42,6 +42,10 @@ static id<MSIDRequestContext> _reqContext(NSURLRequest* request)
     return [NSURLProtocol propertyForKey:@"context" inRequest:request];
 }
 
+/*
+ This class implemented following Apple's CustomHTTPProtocol demo code:
+ https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
+ */
 
 @implementation ADURLProtocol
 
@@ -240,17 +244,9 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 
     [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
     
-    // If we don't cancel out the connection in the redirectResponse case then we will end up
-    // with duplicate connections
-    
-    // Here are the comments from Apple's CustomHTTPProtocol demo code:
-    // https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
-    
-    // Stop our load.  The CFNetwork infrastructure will create a new NSURLProtocol instance to run
-    // the load of the redirect.
-    
-    // The following ends up calling -URLSession:task:didCompleteWithError: with NSURLErrorDomain / NSURLErrorCancelled,
-    // which specificallys traps and ignores the error.
+    /* If we don't cancel out the connection in the redirectResponse case then we will end up with duplicate connections.
+     This code makes sure we don't end up with duplicate connections. The CFNetwork will create a new NSURLProtocol instance to process the redirect, so the old connection is no longer necessary.
+     After task is canceled, the -URLSession:task:didCompleteWithError: delegate method will be called with NSURLErrorCancelled error. This error is explicitly ignored in the delegate method to not cause the whole connection to fail.*/
     
     [task cancel];
     [self.client URLProtocol:self
@@ -309,8 +305,8 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
     else if ([error.domain isEqual:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
     {
-        // Do nothing.  This happens in two cases - 
-        // during a redirect, and request cancellation via -stopLoading.
+        // Do nothing. This is explicit handling for redirects. When a redirect happens, we cancel out the previous connection and the new one is created. The previous connection completes with a NSURLErrorCancelled error. If we don't catch it here, the whole request will fail.
+        // Another case, when this is called, is via -stopLoading;
     }
     else
     {

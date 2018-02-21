@@ -36,8 +36,8 @@ static NSArray* s_deviceRows = nil;
 @interface ADTestAppSettingsRow : NSObject
 
 @property (nonatomic, retain) NSString* title;
-@property (nonatomic, copy) NSString*(^valueBlock)();
-@property (nonatomic, copy) void(^action)();
+@property (nonatomic, copy) NSString*(^valueBlock)(void);
+@property (nonatomic, copy) void(^action)(void);
 
 + (ADTestAppSettingsRow*)rowWithTitle:(NSString *)title;
 
@@ -53,7 +53,7 @@ static NSArray* s_deviceRows = nil;
 }
 
 + (ADTestAppSettingsRow*)rowWithTitle:(NSString *)title
-                                value:(NSString*(^)())value
+                                value:(NSString*(^)(void))value
 {
     ADTestAppSettingsRow* row = [ADTestAppSettingsRow new];
     row.title = title;

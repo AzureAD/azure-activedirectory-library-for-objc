@@ -35,6 +35,9 @@
 - (void)addControl:(UIControl *)control
              title:(NSString *)title;
 
+- (void)addControl:(UIControl *)control
+            button:(UIButton *)button;
+
 - (void)addView:(UIView*)view key:(NSString *)key;
 
 - (void)addCenteredView:(UIView *)view

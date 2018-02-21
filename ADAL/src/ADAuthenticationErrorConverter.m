@@ -27,6 +27,7 @@
 
 static NSDictionary *s_errorDomainMapping;
 static NSDictionary *s_errorCodeMapping;
+static NSDictionary *s_userInfoKeyMapping;
 
 @interface ADAuthenticationError (ErrorConverterUtil)
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
@@ -47,7 +48,11 @@ static NSDictionary *s_errorCodeMapping;
     
     s_errorCodeMapping = @{
                            //sample format is like @"MSIDErrorDomain|-10000":@"-20000"
+                           @"MSIDErrorDomain|-51001":@"212",
+                           @"MSIDErrorDomain|-51301":@"101"
                            };
+    
+    s_userInfoKeyMapping = @{MSIDHTTPHeadersKey : ADHTTPHeadersKey};
 }
 
 + (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
@@ -73,12 +78,12 @@ static NSDictionary *s_errorCodeMapping;
         errorCode = [mapValue integerValue];
     }
     
-    NSMutableDictionary *userInfo = nil;
-    if (msidError.userInfo[NSUnderlyingErrorKey] || msidError.userInfo[MSIDHTTPHeadersKey])
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    
+    for (NSString *key in [msidError.userInfo allKeys])
     {
-        userInfo = [NSMutableDictionary new];
-        [userInfo setValue:msidError.userInfo[NSUnderlyingErrorKey] forKey:NSUnderlyingErrorKey];
-        [userInfo setValue:msidError.userInfo[MSIDHTTPHeadersKey] forKey:ADHTTPHeadersKey];
+        NSString *mappedKey = s_userInfoKeyMapping[key] ? s_userInfoKeyMapping[key] : key;
+        userInfo[mappedKey] = msidError.userInfo[key];
     }
     
     return [ADAuthenticationError errorWithDomainInternal:domain

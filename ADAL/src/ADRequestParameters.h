@@ -28,21 +28,23 @@
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
-    NSString* _authority;
-    NSString* _resource;
-    NSString* _clientId;
-    NSString* _redirectUri;
-    ADUserIdentifier* _identifier;
-    ADTokenCacheAccessor* _tokenCache;
+    NSString *_authority;
+    NSString *_resource;
+    NSString *_clientId;
+    NSString *_redirectUri;
+    NSString *_scope;
+    ADUserIdentifier *_identifier;
+    ADTokenCacheAccessor *_tokenCache;
     BOOL _extendedLifetime;
-    NSUUID* _correlationId;
-    NSString* _telemetryRequestId;
+    NSUUID *_correlationId;
+    NSString *_telemetryRequestId;
 }
 
 @property (retain, nonatomic) NSString* authority;
 @property (retain, nonatomic) NSString* resource;
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
+@property (retain, nonatomic) NSString* scope;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
 @property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
 @property BOOL extendedLifetime;

@@ -33,6 +33,8 @@
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
+#import "MSIDAadAuthorityCache.h"
+#import "ADHelpers.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -71,7 +73,7 @@
                              context:(id<MSIDRequestContext>)context
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
+    NSArray<NSURL *> *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:_authority]];
     for (NSURL *alias in aliases)
     {
         ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:[alias absoluteString]
@@ -125,7 +127,7 @@
     ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:resource clientId:clientId context:context error:error];
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setTokenType:MSIDTokenTypeAccessToken];
     [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
@@ -146,13 +148,24 @@
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                      requestId:[context telemetryRequestId]
                                                                  correlationId:[context correlationId]];
-    [event setTokenType:MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+    [event setTokenType:MSIDTokenTypeRefreshToken];
     [event setMRRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
         [event setIsMRRT:MSID_TELEMETRY_VALUE_YES];
         [event setMRRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
+    else
+    {
+        NSDictionary *wipeData = [_dataSource getWipeTokenData];
+        
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[ADHelpers stringFromDate:wipeData[@"wipeTime"]]];
+        }
+    }
+    
     [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
@@ -175,13 +188,24 @@
 
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+    [event setTokenType:MSIDTokenTypeRefreshToken];
     [event setFRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
         [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
         [event setFRTStatus:MSID_TELEMETRY_VALUE_TRIED];
     }
+    else
+    {
+        NSDictionary *wipeData = [_dataSource getWipeTokenData];
+        
+        if (wipeData)
+        {
+            [event setCacheWipeApp:wipeData[@"bundleId"]];
+            [event setCacheWipeTime:[ADHelpers stringFromDate:wipeData[@"wipeTime"]]];
+        }
+    }
+    
     [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
@@ -210,7 +234,7 @@
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[context correlationId] error:error];
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
+    [event setTokenType:MSIDTokenTypeAdfsUserToken];
     [event setRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if ([item refreshToken])
     {
@@ -301,7 +325,7 @@
         MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
         [event setIsMRRT:MSID_TELEMETRY_VALUE_YES];
-        [event setTokenType:MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+        [event setTokenType:MSIDTokenTypeRefreshToken];
         [event setSpeInfo:multiRefreshTokenItem.speInfo];
         [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         
@@ -320,7 +344,7 @@
             MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                                context:context];
             [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
-            [event setTokenType:MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+            [event setTokenType:MSIDTokenTypeRefreshToken];
             [event setSpeInfo:frtItem.speInfo];
             [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         }
@@ -334,7 +358,7 @@
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setTokenType:MSIDTokenTypeAccessToken];
     [event setSpeInfo:cacheItem.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }
@@ -344,7 +368,7 @@
                   error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     NSURL *oldAuthority = [NSURL URLWithString:item.authority];
-    NSURL *newAuthority = [[ADAuthorityValidation sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
+    NSURL *newAuthority = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:oldAuthority context:context];
     
     // The authority used to retrieve the item over the network can differ from the preferred authority used to
     // cache the item. As it would be awkward to cache an item using an authority other then the one we store

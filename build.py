@@ -40,9 +40,15 @@ ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + "
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "ADAL.xcworkspace"
+# Slather requires the path to the project file, this is the only place this is used
+project_file = "ADAL/ADAL.xcodeproj"
 default_config = "Debug"
 
+report_dir = "reports"
+
 use_xcpretty = True
+use_junit = False
+use_slather = False
 show_build_settings = False
 
 class ColorValues:
@@ -119,6 +125,7 @@ def print_operation_end(name, operation, exit_code, start_time) :
 class BuildTarget:
 	def __init__(self, target):
 		self.name = target["name"]
+		self.target = target["target"]
 		self.project = target.get("project")
 		self.workspace = target.get("workspace")
 		if (self.workspace == None and self.project == None) :
@@ -162,17 +169,22 @@ class BuildTarget:
 		
 		# The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
 		# headers not being found. If Apple can't make this reliable then we should short circuit it out of our build
+		
 		if (operation == "build") :
-			command += " RUN_CLANG_STATIC_ANALYZER=NO"
+			command += " RUN_CLANG_STATIC_ANALYZER=NO ONLY_ACTIVE_ARCH=YES VALID_ARCHS=x86_64"
 		
 		if (operation != None and "codecov" in self.operations) :
 			command += " -enableCodeCoverage YES"
 
 		if (self.platform == "iOS") :
-			command += " " + ios_sim_flags + " " + ios_sim_dest
+			command += " " + ios_sim_flags + " " + ios_sim_dest + " SUPPORTED_PLATFORMS=iOS"
 		
 		if (xcpretty) :
 			command += " | xcpretty"
+			
+		if (use_junit and xcpretty and operation == "test") :
+			command += " -r junit"
+			command += " -o " + report_dir + "/test/" +  self.target + "-junit.xml"
 		
 		return command
 	
@@ -193,15 +205,21 @@ class BuildTarget:
 		print command
 		
 		start = timer()
-        
-		settings_blob = subprocess.check_output(command, shell=True)
+		
+		try:
+			settings_blob = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+		except subprocess.CalledProcessError as e:
+			print "Failed to get build settings (exit code: " + str(e.returncode) + ")"
+			print e.output
+			
+			raise e
+			
 		if (show_build_settings) :
 			print settings_blob
 			print "travis_fold:end:" + (self.name + "_settings").replace(" ", "_")
 		
 		settings_blob = settings_blob.decode("utf-8")
 		settings_blob = settings_blob.split("\n")
-        
 		settings = {}
 		
 		for line in settings_blob :
@@ -298,6 +316,18 @@ class BuildTarget:
 		sys.stdout.write(output[0])
 		sys.stderr.write(output[1])
 		
+		if (use_slather) :
+			target_settings = "--workspace \"" + default_workspace + "\" --scheme \"" + self.scheme + "\" " + project_file
+			
+			html_cmd = "slather coverage --html --output-directory " + report_dir + "/codecov/html " + target_settings
+			print html_cmd
+			subprocess.call(html_cmd, shell=True)
+			
+			xml_cmd = "slather coverage -x --output-directory " + report_dir + "/codecov " + target_settings
+			print xml_cmd
+			subprocess.call(xml_cmd, shell=True)
+			
+		
 		last_line = last_line.split()
 		# Remove everything but 
 		cov_str = re.sub(r"[^0-9.]", "", last_line[3])
@@ -361,11 +391,17 @@ parser.add_argument('--no-clean', action='store_false', help="Skips the clean bu
 parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
 parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
 parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+parser.add_argument('--junit', action='store_true', help="Use junit reporting for test results (requires xcpretty)")
+parser.add_argument('--slather', action='store_true', help="Use slather to create code coverage reports. Note slather only really works if you did code coverage on a single scheme.")
 args = parser.parse_args()
 
 clean = args.no_clean
 use_xcpretty = args.no_xcpretty
+use_junit = args.junit
+use_slather = args.slather
 show_build_settings = args.show_build_settings
+
+subprocess.call("xcodebuild -version", shell=True)
 
 if (args.targets != None) :
 	print "Targets specified: " + str(args.targets)

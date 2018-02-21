@@ -44,6 +44,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
+#import "MSIDAadAuthorityCache.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -272,7 +273,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if ([[requestURL lowercaseString] isEqualToString:@"about:blank"])
     {
-        return NO;
+        return YES;
     }
     
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"])
@@ -544,7 +545,7 @@ static ADAuthenticationResult* s_result = nil;
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                                  context:_requestParams];
     
-    startURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:startURL context:requestParams];
+    startURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:startURL context:requestParams];
     startURL = [self addToURL:startURL correlationId:requestParams.correlationId];//Append the correlation id
     _endURL = [endURL absoluteString];
     _complete = NO;
