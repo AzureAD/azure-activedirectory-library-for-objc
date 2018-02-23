@@ -77,10 +77,13 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
+    
     MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey new];
-    msidTokenCacheKey.service = @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2";
-    msidTokenCacheKey.account = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
+    MSIDTokenCacheKey *msidTokenCacheKey =
+    [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
+                               clientId:TEST_CLIENT_ID
+                               resource:TEST_RESOURCE
+                                    upn:TEST_USER_ID];
     
     MSIDToken *msidToken = [msidKeychainTokenCache itemWithKey:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
     
@@ -94,9 +97,11 @@
 {
     MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
     
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey new];
-    msidTokenCacheKey.service = @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2";
-    msidTokenCacheKey.account = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
+    MSIDTokenCacheKey *msidTokenCacheKey =
+    [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
+                               clientId:TEST_CLIENT_ID
+                               resource:TEST_RESOURCE
+                                    upn:TEST_USER_ID];
     
     MSIDToken *token = [MSIDToken new];
     [token setValue:TEST_ACCESS_TOKEN_TYPE forKey:@"token"];
