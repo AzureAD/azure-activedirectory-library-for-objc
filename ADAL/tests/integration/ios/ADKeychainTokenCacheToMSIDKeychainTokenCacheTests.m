@@ -21,109 +21,110 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
-#import "XCTestCase+TestHelperMethods.h"
-#import "ADKeychainTokenCache.h"
-#import "ADKeychainTokenCache+Internal.h"
-#import "ADTokenCacheItem.h"
-#import "ADUserInformation.h"
-#import "MSIDKeychainTokenCache.h"
-#import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDTokenCacheKey.h"
-#import "MSIDToken.h"
-#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
-#import "ADTokenCacheKey.h"
+//#import <XCTest/XCTest.h>
+//#import "XCTestCase+TestHelperMethods.h"
+//#import "ADKeychainTokenCache.h"
+//#import "ADKeychainTokenCache+Internal.h"
+//#import "ADTokenCacheItem.h"
+//#import "ADUserInformation.h"
+//#import "MSIDKeychainTokenCache.h"
+//#import "MSIDKeyedArchiverSerializer.h"
+//#import "MSIDTokenCacheKey.h"
+//#import "MSIDToken.h"
+//#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+//#import "ADTokenCacheKey.h"
+//
+//@interface ADKeychainTokenCacheToMSIDKeychainTokenCacheTests : XCTestCase
+//
+//@end
+//
+//@implementation ADKeychainTokenCacheToMSIDKeychainTokenCacheTests
+//
+//- (void)setUp
+//{
+//    [super setUp];
+//    
+//    [MSIDKeychainTokenCache reset];
+//}
+//
+//- (void)tearDown
+//{
+//    [super tearDown];
+//    
+//    [MSIDKeychainTokenCache reset];
+//}
+//
+//#pragma mark - ADKeychainTokenCache -> MSIDKeychainTokenCache
+//
+//- (void)test_saveADALTokenInADALKeychain_MSIDKeychainShouldFindMSIDToken
+//{
+//    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
+//    NSDate *date = [NSDate new];
+//    NSDictionary *additionalServerInfo = @{@"key1": @"value1"};
+//    NSData *sessionKey = [@"test" dataUsingEncoding:NSUTF8StringEncoding];
+//    ADTokenCacheItem *item = [ADTokenCacheItem new];
+//    item.resource = TEST_RESOURCE;
+//    item.authority = TEST_AUTHORITY;
+//    item.clientId = TEST_CLIENT_ID;
+//    item.accessToken = TEST_ACCESS_TOKEN;
+//    item.expiresOn = date;
+//    item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
+//    [item setValue:additionalServerInfo forKey:@"additionalServer"];
+//    [item setValue:sessionKey forKey:@"sessionKey"];
+//    
+//    NSError *error;
+//    BOOL result = [adKeychainTokenCache addOrUpdateItem:item correlationId:nil error:&error];
+//    XCTAssertNil(error);
+//    XCTAssertTrue(result);
+//    
+//    MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
+//    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey new];
+//    msidTokenCacheKey.service = @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2";
+//    msidTokenCacheKey.account = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
+//    
+//    MSIDToken *msidToken = [msidKeychainTokenCache itemWithKey:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
+//    
+//    XCTAssertNil(error);
+//    XCTAssertNotNil(msidToken);
+//}
+//
+//#pragma mark - MSIDKeychainTokenCache -> ADKeychainTokenCache
+//
+//- (void)test_saveMSIDTokenInMSIDKeychain_ADALKeychainShouldFindADALToken
+//{
+//    MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
+//    
+//    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey new];
+//    msidTokenCacheKey.service = @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2";
+//    msidTokenCacheKey.account = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
+//    
+//    MSIDToken *token = [MSIDToken new];
+//    [token setValue:TEST_ACCESS_TOKEN_TYPE forKey:@"token"];
+//    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+//    [token setValue:rawIdToken forKey:@"idToken"];
+//    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+//    [token setValue:@"familyId value" forKey:@"familyId"];
+//    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
+//    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
+//    [token setValue:clientInfo forKey:@"clientInfo"];
+//    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+//    [token setValue:TEST_RESOURCE forKey:@"resource"];
+//    [token setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
+//    [token setValue:TEST_CLIENT_ID forKey:@"clientId"];
+//    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+//    
+//    NSError *error;
+//    BOOL result = [msidKeychainTokenCache setItem:token key:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
+//    XCTAssertNil(error);
+//    XCTAssertTrue(result);
+//    
+//    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:TEST_RESOURCE clientId:TEST_CLIENT_ID error:nil];
+//    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
+//    ADTokenCacheItem *item = [adKeychainTokenCache getItemWithKey:key userId:TEST_USER_ID correlationId:nil error:&error];
+//    
+//    XCTAssertNil(error);
+//    XCTAssertNotNil(item);
+//}
+//
+//@end
 
-@interface ADKeychainTokenCacheToMSIDKeychainTokenCacheTests : XCTestCase
-
-@end
-
-@implementation ADKeychainTokenCacheToMSIDKeychainTokenCacheTests
-
-- (void)setUp
-{
-    [super setUp];
-    
-    [MSIDKeychainTokenCache reset];
-}
-
-- (void)tearDown
-{
-    [super tearDown];
-    
-    [MSIDKeychainTokenCache reset];
-}
-
-#pragma mark - ADKeychainTokenCache -> MSIDKeychainTokenCache
-
-- (void)test_saveADALTokenInADALKeychain_MSIDKeychainShouldFindMSIDToken
-{
-    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
-    NSDate *date = [NSDate new];
-    NSDictionary *additionalServerInfo = @{@"key1": @"value1"};
-    NSData *sessionKey = [@"test" dataUsingEncoding:NSUTF8StringEncoding];
-    ADTokenCacheItem *item = [ADTokenCacheItem new];
-    item.resource = TEST_RESOURCE;
-    item.authority = TEST_AUTHORITY;
-    item.clientId = TEST_CLIENT_ID;
-    item.accessToken = TEST_ACCESS_TOKEN;
-    item.expiresOn = date;
-    item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
-    [item setValue:additionalServerInfo forKey:@"additionalServer"];
-    [item setValue:sessionKey forKey:@"sessionKey"];
-    
-    NSError *error;
-    BOOL result = [adKeychainTokenCache addOrUpdateItem:item correlationId:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey new];
-    msidTokenCacheKey.service = @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2";
-    msidTokenCacheKey.account = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
-    
-    MSIDToken *msidToken = [msidKeychainTokenCache itemWithKey:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertNotNil(msidToken);
-}
-
-#pragma mark - MSIDKeychainTokenCache -> ADKeychainTokenCache
-
-- (void)test_saveMSIDTokenInMSIDKeychain_ADALKeychainShouldFindADALToken
-{
-    MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
-    
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey new];
-    msidTokenCacheKey.service = @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2";
-    msidTokenCacheKey.account = @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t";
-    
-    MSIDToken *token = [MSIDToken new];
-    [token setValue:TEST_ACCESS_TOKEN_TYPE forKey:@"token"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [token setValue:rawIdToken forKey:@"idToken"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [token setValue:@"familyId value" forKey:@"familyId"];
-    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
-    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
-    [token setValue:clientInfo forKey:@"clientInfo"];
-    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:TEST_RESOURCE forKey:@"resource"];
-    [token setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
-    [token setValue:TEST_CLIENT_ID forKey:@"clientId"];
-    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
-    
-    NSError *error;
-    BOOL result = [msidKeychainTokenCache setItem:token key:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:TEST_RESOURCE clientId:TEST_CLIENT_ID error:nil];
-    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
-    ADTokenCacheItem *item = [adKeychainTokenCache getItemWithKey:key userId:TEST_USER_ID correlationId:nil error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertNotNil(item);
-}
-
-@end
