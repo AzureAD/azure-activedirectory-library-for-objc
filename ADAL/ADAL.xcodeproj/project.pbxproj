@@ -68,7 +68,6 @@
 		6010EDF61D47B2CE00B62072 /* ADTelemetryCacheEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF41D47B2CE00B62072 /* ADTelemetryCacheEvent.m */; };
 		6010EDF81D47B2E300B62072 /* ADTelemetryBrokerEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 6010EDF71D47B2E300B62072 /* ADTelemetryBrokerEvent.h */; };
 		6010EDFB1D47B2F300B62072 /* ADTelemetryBrokerEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */; };
-		60164E6E2047343400B1034F /* ADBrokerHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2335EFA92036450100C342D0 /* ADBrokerHelperTests.m */; };
 		60164E6F2047343F00B1034F /* ADBrokerHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2335EFA92036450100C342D0 /* ADBrokerHelperTests.m */; };
 		601BEE311C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */; };
 		601BEE321C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */; };
@@ -2237,7 +2236,6 @@
 				D632B54E1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */,
 				B20DC5F41F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
-				60164E6E2047343400B1034F /* ADBrokerHelperTests.m in Sources */,
 				B20DC6191F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */,
 				601BEE321C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */,
 				234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
