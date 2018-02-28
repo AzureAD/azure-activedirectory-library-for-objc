@@ -287,17 +287,17 @@
         [req setRequestDictionary:requestData];
         [req sendRequest:^(ADAuthenticationError *error, NSDictionary * parameters)
          {
-             if (error)
+             if (error && ![parameters objectForKey:@"url"]) // auth code and OAuth2 error could be in endURL
              {
                  requestCompletion(error, nil);
                  [req invalidate];
                  return;
              }
              
-             NSURL* endURL = nil;
-             
-             //OAuth2 error may be passed by the server
-             endURL = [parameters objectForKey:@"url"];
+             //Auth code and OAuth2 error may be passed in endURL
+             NSURL* endURL = [parameters objectForKey:@"url"];
+             error = nil;
+
              if (!endURL)
              {
                  // If the request was not silent only then launch the webview
