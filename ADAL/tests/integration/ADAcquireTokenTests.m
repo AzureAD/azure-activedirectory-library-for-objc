@@ -1818,8 +1818,7 @@ const int sAsyncContextTimeout = 10;
                                                                       tokenCache:context.tokenCacheStore
                                                                 extendedLifetime:NO
                                                                    correlationId:TEST_CORRELATION_ID
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
+                                                              telemetryRequestId:nil];
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
     [req setSilent:YES];
     [req setAllowSilentRequests:YES];
