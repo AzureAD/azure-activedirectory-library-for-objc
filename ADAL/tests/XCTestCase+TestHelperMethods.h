@@ -33,6 +33,7 @@
 @class ADUserInformation;
 @class ADTokenCacheKey;
 @class ADTestURLResponse;
+@class MSIDTokenCacheItem;
 
 @interface XCTestCase (HelperMethods)
 
@@ -147,6 +148,12 @@
 
 //Creates a sample user information object
 - (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
+
+- (MSIDTokenCacheItem *)createAccessMSIDTokenCacheItem;
+
+- (MSIDTokenCacheItem *)createRefreshMSIDTokenCacheItem;
+
+- (MSIDTokenCacheItem *)createLegacySingleResourceMSIDTokenCacheItem;
 
 @end
 
