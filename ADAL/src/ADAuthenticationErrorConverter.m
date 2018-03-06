@@ -29,6 +29,8 @@ static NSDictionary *s_errorDomainMapping;
 static NSDictionary *s_errorCodeMapping;
 static NSDictionary *s_userInfoKeyMapping;
 
+#define NSNUMBER(n) [NSNumber numberWithInteger:(n)]
+
 @interface ADAuthenticationError (ErrorConverterUtil)
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
                                               code:(NSInteger)code
@@ -47,9 +49,10 @@ static NSDictionary *s_userInfoKeyMapping;
                              };
     
     s_errorCodeMapping = @{
-                           //sample format is like @"MSIDErrorDomain|-10000":@"-20000"
-                           @"MSIDErrorDomain|-51001":@"212",
-                           @"MSIDErrorDomain|-51301":@"101"
+                           MSIDErrorDomain:@{
+                                   NSNUMBER(MSIDErrorServerInvalidResponse) : NSNUMBER(AD_ERROR_SERVER_INVALID_RESPONSE),
+                                   NSNUMBER(MSIDErrorDeveloperAuthorityValidation) : NSNUMBER(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
+                                   }
                            };
     
     s_userInfoKeyMapping = @{MSIDHTTPHeadersKey : ADHTTPHeadersKey};
@@ -69,13 +72,12 @@ static NSDictionary *s_userInfoKeyMapping;
         domain = s_errorDomainMapping[domain];
     }
     
-    //Map errorCode. Note that errorCode must be mapped together with domain
+    //Map errorCode
     NSInteger errorCode = msidError.code;
-    NSString *mapKey = [NSString stringWithFormat:@"%@|%ld", msidError.domain, (long)errorCode];
-    NSString *mapValue = s_errorCodeMapping[mapKey];
-    if (![NSString msidIsStringNilOrBlank:mapValue])
+    NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][NSNUMBER(msidError.code)];
+    if (mappedErrorCode)
     {
-        errorCode = [mapValue integerValue];
+        errorCode = [mappedErrorCode integerValue];
     }
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
