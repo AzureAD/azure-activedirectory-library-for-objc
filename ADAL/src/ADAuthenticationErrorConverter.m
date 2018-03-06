@@ -48,8 +48,14 @@ static NSDictionary *s_userInfoKeyMapping;
     
     s_errorCodeMapping = @{
                            MSIDErrorDomain:@{
-                                   @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
-                                   @(MSIDErrorDeveloperAuthorityValidation) : @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
+                                   @(MSIDErrorInternal):@(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInvalidInternalParameter):@(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInvalidDeveloperParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+                                   @(MSIDErrorInteractionRequired):@(AD_ERROR_SERVER_USER_INPUT_NEEDED),
+                                   @(MSIDErrorCacheMultipleUsers):@(AD_ERROR_CACHE_MULTIPLE_USERS),
+                                   @(MSIDErrorTokenCacheItemFailure):@(AD_ERROR_CACHE_BAD_FORMAT),
+                                   @(MSIDErrorServerInvalidResponse):@(AD_ERROR_SERVER_INVALID_RESPONSE),
+                                   @(MSIDErrorDeveloperAuthorityValidation):@(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
                                    }
                            };
     
@@ -63,16 +69,17 @@ static NSDictionary *s_userInfoKeyMapping;
         return nil;
     }
     
-    //Map domain
+    // Map domain
     NSString *domain = msidError.domain;
     if (domain && s_errorDomainMapping[domain])
     {
         domain = s_errorDomainMapping[domain];
     }
     
+    // Map errorCode
+    // errorCode mapping is needed only if domain is in s_errorCodeMapping
     NSInteger errorCode = msidError.code;
-    //If the domain is in s_errorCodeMapping, it means errorCode mapping is needed
-    if (s_errorCodeMapping[msidError.domain])
+    if (msidError.domain && msidError.code && s_errorCodeMapping[msidError.domain])
     {
         NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
         if (mappedErrorCode)
