@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <XCTest/XCTest.h>
 
-#import <UIKit/UIKit.h>
-#import "ADAutoAppDelegate.h"
+@interface XCUIElement (ADALiOSUITests)
 
-int main(int argc, char * argv[]) {
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADAutoAppDelegate class]));
-    }
-}
+- (void)pasteText:(NSString *)text application:(XCUIApplication *)app;
+- (void)clearText;
+- (void)selectAll:(XCUIApplication *)app;
+
+@end

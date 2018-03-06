@@ -21,12 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADAutoWebViewController.h"
 
-#import <UIKit/UIKit.h>
-#import "ADAutoAppDelegate.h"
+@interface ADAutoWebViewController ()
 
-int main(int argc, char * argv[]) {
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADAutoAppDelegate class]));
-    }
+@end
+
+@implementation ADAutoWebViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.webView.accessibilityIdentifier = @"ADAL_SIGN_IN_WEBVIEW";
 }
+
+@end

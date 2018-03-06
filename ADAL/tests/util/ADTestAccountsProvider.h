@@ -21,12 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 
-#import <UIKit/UIKit.h>
-#import "ADAutoAppDelegate.h"
+typedef NS_ENUM(NSInteger, ADTestAccountType)
+{
+    ADTestAccountTypeAAD,
+    ADTestAccountTypeAADMDM,
+    ADTestAccountTypePing,
+    ADTestAccountTypeADFSv3,
+    ADTestAccountTypeBlackforest,
+    ADTestAccountTypeShib
+};
 
-int main(int argc, char * argv[]) {
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADAutoAppDelegate class]));
-    }
-}
+typedef NS_ENUM(NSInteger, ADTestProfileType)
+{
+    ADTestProfileTypeBasic,
+    ADTestProfileTypeBasicMDM,
+    ADTestProfileTypeFoci,
+    ADTestProfileTypeSovereign,
+};
+
+@interface ADTestAccount : NSObject
+
+@property (nonatomic) NSString *account;
+@property (nonatomic) NSString *username;
+@property (nonatomic) NSString *password;
+
+@end
+
+@interface ADTestAccountsProvider : NSObject
+
+- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
+- (NSArray <ADTestAccount *> *)testAccountsOfType:(ADTestAccountType)type;
+
+- (NSDictionary *)testProfileOfType:(ADTestProfileType)type;
+
+@end

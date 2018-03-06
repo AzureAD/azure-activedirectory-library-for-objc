@@ -127,7 +127,7 @@
     ADTokenCacheItem* item = [self getItemForUser:identifier.userId resource:resource clientId:clientId context:context error:error];
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setTokenType:MSIDTokenTypeAccessToken];
     [event setStatus:item? MSID_TELEMETRY_VALUE_SUCCEEDED : MSID_TELEMETRY_VALUE_FAILED];
     [event setSpeInfo:item.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
@@ -148,7 +148,7 @@
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                      requestId:[context telemetryRequestId]
                                                                  correlationId:[context correlationId]];
-    [event setTokenType:MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+    [event setTokenType:MSIDTokenTypeRefreshToken];
     [event setMRRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
@@ -188,7 +188,7 @@
 
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+    [event setTokenType:MSIDTokenTypeRefreshToken];
     [event setFRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
@@ -234,7 +234,7 @@
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[context correlationId] error:error];
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_ADFS_TOKEN];
+    [event setTokenType:MSIDTokenTypeAdfsUserToken];
     [event setRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if ([item refreshToken])
     {
@@ -325,7 +325,7 @@
         MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
         [event setIsMRRT:MSID_TELEMETRY_VALUE_YES];
-        [event setTokenType:MSID_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+        [event setTokenType:MSIDTokenTypeRefreshToken];
         [event setSpeInfo:multiRefreshTokenItem.speInfo];
         [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         
@@ -344,7 +344,7 @@
             MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                                context:context];
             [event setIsFRT:MSID_TELEMETRY_VALUE_YES];
-            [event setTokenType:MSID_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+            [event setTokenType:MSIDTokenTypeRefreshToken];
             [event setSpeInfo:frtItem.speInfo];
             [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         }
@@ -358,7 +358,7 @@
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
-    [event setTokenType:MSID_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setTokenType:MSIDTokenTypeAccessToken];
     [event setSpeInfo:cacheItem.speInfo];
     [[MSIDTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }

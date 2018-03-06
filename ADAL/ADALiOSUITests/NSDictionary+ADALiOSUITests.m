@@ -21,12 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "NSDictionary+ADALiOSUITests.h"
 
-#import <UIKit/UIKit.h>
-#import "ADAutoAppDelegate.h"
+@implementation NSDictionary (ADALiOSUITests)
 
-int main(int argc, char * argv[]) {
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADAutoAppDelegate class]));
-    }
+- (NSString *)toJsonString
+{
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:0 error:nil];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
+
+@end

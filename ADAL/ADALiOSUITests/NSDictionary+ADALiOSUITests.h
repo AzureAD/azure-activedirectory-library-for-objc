@@ -21,12 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 
-#import <UIKit/UIKit.h>
-#import "ADAutoAppDelegate.h"
+@interface NSDictionary (ADALiOSUITests)
 
-int main(int argc, char * argv[]) {
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADAutoAppDelegate class]));
-    }
-}
+- (NSString *)toJsonString;
+
+@end
