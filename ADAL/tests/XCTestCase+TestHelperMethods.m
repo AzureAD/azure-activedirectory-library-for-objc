@@ -534,7 +534,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.familyId = @"familyId value";
     tokenCacheItem.clientInfo = nil;
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
-    tokenCacheItem.target = TEST_RESOURCE;
+    tokenCacheItem.target = nil;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
     tokenCacheItem.clientId = TEST_CLIENT_ID;
     tokenCacheItem.tokenType = MSIDTokenTypeRefreshToken;

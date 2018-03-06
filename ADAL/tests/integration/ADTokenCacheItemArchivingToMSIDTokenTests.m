@@ -192,7 +192,7 @@
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
-    XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
+    XCTAssertNil(adToken.resource);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.refreshToken, TEST_REFRESH_TOKEN);
