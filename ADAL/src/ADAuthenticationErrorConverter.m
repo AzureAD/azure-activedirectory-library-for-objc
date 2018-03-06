@@ -29,8 +29,6 @@ static NSDictionary *s_errorDomainMapping;
 static NSDictionary *s_errorCodeMapping;
 static NSDictionary *s_userInfoKeyMapping;
 
-#define NSNUMBER(n) [NSNumber numberWithInteger:(n)]
-
 @interface ADAuthenticationError (ErrorConverterUtil)
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
                                               code:(NSInteger)code
@@ -50,8 +48,8 @@ static NSDictionary *s_userInfoKeyMapping;
     
     s_errorCodeMapping = @{
                            MSIDErrorDomain:@{
-                                   NSNUMBER(MSIDErrorServerInvalidResponse) : NSNUMBER(AD_ERROR_SERVER_INVALID_RESPONSE),
-                                   NSNUMBER(MSIDErrorDeveloperAuthorityValidation) : NSNUMBER(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
+                                   @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
+                                   @(MSIDErrorDeveloperAuthorityValidation) : @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
                                    }
                            };
     
@@ -72,12 +70,19 @@ static NSDictionary *s_userInfoKeyMapping;
         domain = s_errorDomainMapping[domain];
     }
     
-    //Map errorCode
     NSInteger errorCode = msidError.code;
-    NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][NSNUMBER(msidError.code)];
-    if (mappedErrorCode)
+    //If the domain is in s_errorCodeMapping, it means errorCode mapping is needed
+    if (s_errorCodeMapping[msidError.domain])
     {
-        errorCode = [mappedErrorCode integerValue];
+        NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
+        if (mappedErrorCode)
+        {
+            errorCode = [mappedErrorCode integerValue];
+        }
+        else
+        {
+            MSID_LOG_ERROR(nil, @"ADAuthenticationErrorConverter could not find the error code mapping entry for domain (%@) + error code (%ld).", msidError.domain, msidError.code);
+        }
     }
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
