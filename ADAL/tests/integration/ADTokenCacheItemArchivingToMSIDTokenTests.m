@@ -163,7 +163,7 @@
 
 - (void)testSerialize_whenAccessMSIDToken_shouldUnarchiveAsAccessADTokenCacheItem
 {
-    MSIDTokenCacheItem *tokenCacheItem = [self createAccessMSIDTokenCacheItem];
+    MSIDTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeTokenCacheItem:tokenCacheItem];
     
@@ -184,7 +184,7 @@
 
 - (void)testSerialize_whenRefreshMSIDToken_shouldUnarchiveAsRefreshADTokenCacheItem
 {
-    MSIDTokenCacheItem *tokenCacheItem = [self createRefreshMSIDTokenCacheItem];
+    MSIDTokenCacheItem *tokenCacheItem = [self adCreateRefreshMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeTokenCacheItem:tokenCacheItem];
     
@@ -205,7 +205,7 @@
 
 - (void)testSerialize_whenLegacySingleResourceMSIDToken_shouldUnarchiveAsSingleResourceADTokenCacheItem
 {
-    MSIDTokenCacheItem *tokenCacheItem = [self createLegacySingleResourceMSIDTokenCacheItem];
+    MSIDTokenCacheItem *tokenCacheItem = [self adCreateLegacySingleResourceMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeTokenCacheItem:tokenCacheItem];
     

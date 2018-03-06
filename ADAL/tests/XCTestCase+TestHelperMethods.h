@@ -149,11 +149,11 @@
 //Creates a sample user information object
 - (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
 
-- (MSIDTokenCacheItem *)createAccessMSIDTokenCacheItem;
+- (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
 
-- (MSIDTokenCacheItem *)createRefreshMSIDTokenCacheItem;
+- (MSIDTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
 
-- (MSIDTokenCacheItem *)createLegacySingleResourceMSIDTokenCacheItem;
+- (MSIDTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
 
 @end
 

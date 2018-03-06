@@ -502,7 +502,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return response;
 }
 
-- (MSIDTokenCacheItem *)createAccessMSIDTokenCacheItem
+- (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem
 {
     MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
     tokenCacheItem.accessToken = TEST_ACCESS_TOKEN_TYPE;
@@ -522,7 +522,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return tokenCacheItem;
 }
 
-- (MSIDTokenCacheItem *)createRefreshMSIDTokenCacheItem
+- (MSIDTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem
 {
     MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
     
@@ -543,7 +543,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return tokenCacheItem;
 }
 
-- (MSIDTokenCacheItem *)createLegacySingleResourceMSIDTokenCacheItem
+- (MSIDTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem
 {
     MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
     
