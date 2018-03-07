@@ -295,8 +295,6 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 {
     [aCoder encodeObject:_rawIdToken forKey:@"rawIdToken"];
     
-    // TODO: add homeUserId.
-    
     // There was no official support for Mac in ADAL 1.x, so no need for this back compat code
     // which would greatly increase the size of the user information blobs.
 #if TARGET_OS_IPHONE
@@ -310,8 +308,6 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 // Deserialize:
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    // TODO: add homeUserId.
-    
     NSString* idToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
     
     return [self initWithIdToken:idToken
