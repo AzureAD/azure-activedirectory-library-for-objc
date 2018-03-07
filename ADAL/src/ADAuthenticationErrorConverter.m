@@ -47,9 +47,16 @@ static NSDictionary *s_userInfoKeyMapping;
                              };
     
     s_errorCodeMapping = @{
-                           //sample format is like @"MSIDErrorDomain|-10000":@"-20000"
-                           @"MSIDErrorDomain|-51001":@"212",
-                           @"MSIDErrorDomain|-51301":@"101"
+                           MSIDErrorDomain:@{
+                                   @(MSIDErrorInternal):@(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInvalidInternalParameter):@(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInvalidDeveloperParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+                                   @(MSIDErrorInteractionRequired):@(AD_ERROR_SERVER_USER_INPUT_NEEDED),
+                                   @(MSIDErrorCacheMultipleUsers):@(AD_ERROR_CACHE_MULTIPLE_USERS),
+                                   @(MSIDErrorTokenCacheItemFailure):@(AD_ERROR_CACHE_BAD_FORMAT),
+                                   @(MSIDErrorServerInvalidResponse):@(AD_ERROR_SERVER_INVALID_RESPONSE),
+                                   @(MSIDErrorDeveloperAuthorityValidation):@(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
+                                   }
                            };
     
     s_userInfoKeyMapping = @{MSIDHTTPHeadersKey : ADHTTPHeadersKey};
@@ -62,20 +69,27 @@ static NSDictionary *s_userInfoKeyMapping;
         return nil;
     }
     
-    //Map domain
+    // Map domain
     NSString *domain = msidError.domain;
     if (domain && s_errorDomainMapping[domain])
     {
         domain = s_errorDomainMapping[domain];
     }
     
-    //Map errorCode. Note that errorCode must be mapped together with domain
+    // Map errorCode
+    // errorCode mapping is needed only if domain is in s_errorCodeMapping
     NSInteger errorCode = msidError.code;
-    NSString *mapKey = [NSString stringWithFormat:@"%@|%ld", msidError.domain, (long)errorCode];
-    NSString *mapValue = s_errorCodeMapping[mapKey];
-    if (![NSString msidIsStringNilOrBlank:mapValue])
+    if (msidError.domain && msidError.code && s_errorCodeMapping[msidError.domain])
     {
-        errorCode = [mapValue integerValue];
+        NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
+        if (mappedErrorCode)
+        {
+            errorCode = [mappedErrorCode integerValue];
+        }
+        else
+        {
+            MSID_LOG_ERROR(nil, @"ADAuthenticationErrorConverter could not find the error code mapping entry for domain (%@) + error code (%ld).", msidError.domain, msidError.code);
+        }
     }
     
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
