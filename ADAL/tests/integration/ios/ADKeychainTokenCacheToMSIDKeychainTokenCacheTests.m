@@ -109,7 +109,7 @@
     XCTAssertEqualObjects(msidTokenCacheKey.account, @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t");
     XCTAssertEqualObjects(msidTokenCacheKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2");
     
-    MSIDTokenCacheItem *tokenCacheItem = [self createAccessMSIDTokenCacheItem];
+    MSIDTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
     
     NSError *error;
     BOOL result = [msidKeychainTokenCache saveToken:tokenCacheItem key:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
