@@ -25,7 +25,7 @@
 #import "ADUserInformation.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 
 @implementation ADTokenCacheItem (MSIDTokens)
 
@@ -40,8 +40,8 @@
         {
             MSID_LOG_ERROR(nil, @"Failed to create user information with id token.");
         }
-        // We support only "Bearer" type.
-        _accessTokenType = @"Bearer";
+        
+        _accessTokenType = accessToken.accessTokenType;
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
         _expiresOn = accessToken.expiresOn;
@@ -62,19 +62,18 @@
             MSID_LOG_ERROR(nil, @"Failed to create user information with id token.");
         }
         _refreshToken = refreshToken.refreshToken;
-        _resource = refreshToken.resource;
         _familyId = refreshToken.familyId;
     }
     
     return self;
 }
 
-- (instancetype)initWithADFSToken:(MSIDAdfsToken *)adfsToken
+- (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken
 {
-    self = [self initWithAccessToken:adfsToken];
+    self = [self initWithAccessToken:legacySingleResourceToken];
     if (self)
     {
-        _refreshToken = adfsToken.refreshToken;
+        _refreshToken = legacySingleResourceToken.refreshToken;
     }
     
     return self;

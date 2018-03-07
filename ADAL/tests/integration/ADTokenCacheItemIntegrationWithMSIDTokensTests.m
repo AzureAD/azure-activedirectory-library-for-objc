@@ -28,7 +28,7 @@
 #import "ADUserInformation.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
-#import "MSIDAdfsToken.h"
+#import "MSIDLegacySingleResourceToken.h"
 
 @interface ADTokenCacheItemIntegrationWithMSIDTokensTests : XCTestCase
 
@@ -92,9 +92,9 @@
 
 - (void)testInitWithADFSToken_shouldInitADTokenCacheItem
 {
-    MSIDAdfsToken *adfsToken = [self createADFSToken];
+    MSIDLegacySingleResourceToken *legacySingleResourceToken = [self createLegacySingleResourceToken];
     
-    ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithADFSToken:adfsToken];
+    ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:legacySingleResourceToken];
     
     XCTAssertNotNil(adToken);
     XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
@@ -135,17 +135,17 @@
     return refreshToken;
 }
 
-- (MSIDAdfsToken *)createADFSToken
+- (MSIDLegacySingleResourceToken *)createLegacySingleResourceToken
 {
-    MSIDAdfsToken *adfsToken = [MSIDAdfsToken new];
-    [self initBaseToken:adfsToken];
-    [self initAccessToken:adfsToken];
+    MSIDLegacySingleResourceToken *legacySingleResourceToken = [MSIDLegacySingleResourceToken new];
+    [self initBaseToken:legacySingleResourceToken];
+    [self initAccessToken:legacySingleResourceToken];
     
-    [adfsToken setValue:@"refresh token" forKey:@"refreshToken"];
+    [legacySingleResourceToken setValue:@"refresh token" forKey:@"refreshToken"];
     NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [adfsToken setValue:rawIdToken forKey:@"idToken"];
+    [legacySingleResourceToken setValue:rawIdToken forKey:@"idToken"];
     
-    return adfsToken;
+    return legacySingleResourceToken;
 }
 
 - (void)initBaseToken:(MSIDBaseToken *)baseToken
@@ -165,6 +165,7 @@
     [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1100000000] forKey:@"cachedAt"];
     [accessToken setValue:@"access token" forKey:@"accessToken"];
+    [accessToken setValue:@"Bearer" forKey:@"accessTokenType"];
     NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
     [accessToken setValue:rawIdToken forKey:@"idToken"];
     [accessToken setValue:TEST_RESOURCE forKey:@"target"];
