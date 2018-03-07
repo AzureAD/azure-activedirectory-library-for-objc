@@ -34,13 +34,8 @@
     self = [self initWithBaseToken:accessToken];
     if (self)
     {
-        NSError *error;
-        _userInformation = [ADUserInformation userInformationWithIdToken:accessToken.idToken error:&error];
-        if (error)
-        {
-            MSID_LOG_ERROR(nil, @"Failed to create user information with id token.");
-        }
-        
+        _userInformation = [self createUserInfoWithIdToken:accessToken.idToken
+                                                homeUserId:accessToken.clientInfo.userIdentifier];
         _accessTokenType = accessToken.accessTokenType;
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
@@ -55,12 +50,8 @@
     self = [self initWithBaseToken:refreshToken];
     if (self)
     {
-        NSError *error;
-        _userInformation = [ADUserInformation userInformationWithIdToken:refreshToken.idToken error:&error];
-        if (error)
-        {
-            MSID_LOG_ERROR(nil, @"Failed to create user information with id token.");
-        }
+        _userInformation = [self createUserInfoWithIdToken:refreshToken.idToken
+                                                homeUserId:refreshToken.clientInfo.userIdentifier];
         _refreshToken = refreshToken.refreshToken;
         _familyId = refreshToken.familyId;
     }
@@ -80,6 +71,20 @@
 }
 
 #pragma mark - Private
+
+- (ADUserInformation *)createUserInfoWithIdToken:(NSString *)idToken homeUserId:(NSString *)homeUserId
+{
+    NSError *error;
+    ADUserInformation *userInformation = [ADUserInformation userInformationWithIdToken:idToken
+                                                                            homeUserId:homeUserId
+                                                                                 error:&error];
+    if (error)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to create user information with id token.");
+    }
+    
+    return userInformation;
+}
 
 - (instancetype)initWithBaseToken:(MSIDBaseToken *)baseToken
 {

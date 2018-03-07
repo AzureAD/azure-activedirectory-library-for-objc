@@ -37,6 +37,9 @@
 #import "ADUserInformation.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDTokenCacheItem.h"
+#import "MSIDAccessToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDRefreshToken.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -112,7 +115,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     if (![NSString msidIsStringNilOrBlank:userId])
     {
-        item.userInformation = [self adCreateUserInformation:userId];
+        item.userInformation = [self adCreateUserInformation:userId homeUserId:nil];
     }
     item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
     
@@ -145,17 +148,17 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem
+- (ADTokenCacheItem *)adCreateMRRTCacheItem
 {
     return [self adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
 }
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
 {
     return [self adCreateMRRTCacheItem:userId familyId:nil];
 }
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
                                    familyId:(NSString *)foci
 {
     // A MRRT item is just a refresh token, it doesn't have a specified resource
@@ -167,26 +170,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.familyId = foci;
     if (![NSString msidIsStringNilOrBlank:userId])
     {
-        item.userInformation = [self adCreateUserInformation:userId];
+        item.userInformation = [self adCreateUserInformation:userId homeUserId:nil];
     }
     
     return item;
-}
-
-- (ADTokenCacheItem *)adCreateMRRTCacheItem
-{
-    return [[self class] adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
-}
-
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
-{
-    return [[self class] adCreateMRRTCacheItem:userId familyId:nil];
-}
-
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
-                                   familyId:(NSString *)foci
-{
-    return [[self class] adCreateMRRTCacheItem:userId familyId:foci];
 }
 
 - (ADTokenCacheItem *)adCreateFRTCacheItem
@@ -222,13 +209,23 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return key;
 }
 
-+ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId
 {
-    return [self adCreateUserInformation:userId tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"];
+    return [self adCreateUserInformation:userId
+                                tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
+                              homeUserId:nil];
 }
 
-+ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeUserId:(NSString *)homeUserId
+{
+    return [self adCreateUserInformation:userId
+                                tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
+                              homeUserId:homeUserId];
+}
+
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId
                                       tenantId:(NSString *)tid
+                                    homeUserId:(NSString *)homeUserId
 {
     NSAssert(userId, @"userId cannot be nil!");
     NSDictionary* part1_claims = @{ @"typ" : @"JWT",
@@ -253,16 +250,13 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                          [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
                          [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken
+                                                                     homeUserId:homeUserId
+                                                                          error:nil];
     
     // If you're hitting this you might as well fix it before trying to run other tests.
     NSAssert(userInfo, @"Failed to create a userinfo object from a static idtoken. Something must have horribly broke,");
     return userInfo;
-}
-
-- (ADUserInformation *)adCreateUserInformation:(NSString*)userId
-{
-    return [[self class] adCreateUserInformation:userId];
 }
 
 - (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken
@@ -511,7 +505,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = nil;
-    tokenCacheItem.clientInfo = nil;
+    tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = TEST_RESOURCE;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
@@ -532,7 +526,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = @"familyId value";
-    tokenCacheItem.clientInfo = nil;
+    tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = nil;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
@@ -553,7 +547,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = @"familyId value";
-    tokenCacheItem.clientInfo = nil;
+    tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = TEST_RESOURCE;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
@@ -562,6 +556,76 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.username = nil;
     
     return tokenCacheItem;
+}
+
+- (MSIDClientInfo *)adCreateClientInfo
+{
+    NSString *clientInfoJsonString = @"{\"uid\":\"28f3807a-4fb0-45f2-a44a-236aa0cb3f97\",\"utid\":\"0284f963-1d72-4363-5e3a-5705c5b0f031\"}";
+    
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:[clientInfoJsonString msidBase64UrlEncode] error:nil];
+    
+    assert(clientInfo);
+    
+    return clientInfo;
+}
+
+- (MSIDAccessToken *)adCreateAccessToken
+{
+    MSIDAccessToken *accessToken = [MSIDAccessToken new];
+    [self initBaseToken:accessToken];
+    [self initAccessToken:accessToken];
+    
+    return accessToken;
+}
+
+- (MSIDRefreshToken *)adCreateRefreshToken
+{
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    [self initBaseToken:refreshToken];
+    
+    [refreshToken setValue:@"refresh token" forKey:@"refreshToken"];
+    [refreshToken setValue:@"family Id" forKey:@"familyId"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [refreshToken setValue:rawIdToken forKey:@"idToken"];
+    
+    return refreshToken;
+}
+
+- (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken
+{
+    MSIDLegacySingleResourceToken *legacySingleResourceToken = [MSIDLegacySingleResourceToken new];
+    [self initBaseToken:legacySingleResourceToken];
+    [self initAccessToken:legacySingleResourceToken];
+    
+    [legacySingleResourceToken setValue:@"refresh token" forKey:@"refreshToken"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [legacySingleResourceToken setValue:rawIdToken forKey:@"idToken"];
+    
+    return legacySingleResourceToken;
+}
+
+#pragma mark - Private
+
+- (void)initBaseToken:(MSIDBaseToken *)baseToken
+{
+    [baseToken setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
+    [baseToken setValue:TEST_CLIENT_ID forKey:@"clientId"];
+    [baseToken setValue:@"unique User Id" forKey:@"uniqueUserId"];
+    MSIDClientInfo *clientInfo = [self adCreateClientInfo];
+    [baseToken setValue:clientInfo forKey:@"clientInfo"];
+    [baseToken setValue:@{@"key2" : @"value2"} forKey:@"additionalInfo"];
+    [baseToken setValue:@"Eric Cartman" forKey:@"username"];
+}
+
+- (void)initAccessToken:(MSIDAccessToken *)accessToken
+{
+    [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
+    [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1100000000] forKey:@"cachedAt"];
+    [accessToken setValue:@"access token" forKey:@"accessToken"];
+    [accessToken setValue:@"Bearer" forKey:@"accessTokenType"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [accessToken setValue:rawIdToken forKey:@"idToken"];
+    [accessToken setValue:TEST_RESOURCE forKey:@"target"];
 }
 
 @end

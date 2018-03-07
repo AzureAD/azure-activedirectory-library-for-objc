@@ -29,6 +29,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
+#import "XCTestCase+TestHelperMethods.h"
 
 @interface ADTokenCacheItemIntegrationWithMSIDTokensTests : XCTestCase
 
@@ -50,12 +51,14 @@
 
 - (void)testInitWithAccessToken_shouldInitADTokenCacheItem
 {
-    MSIDAccessToken *accessToken = [self createAccessToken];
+    MSIDAccessToken *accessToken = [self adCreateAccessToken];
+    ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
+                                                                homeUserId:accessToken.clientInfo.userIdentifier];
     
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithAccessToken:accessToken];
     
     XCTAssertNotNil(adToken);
-    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.userInformation, expectedInformation);
     XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
     XCTAssertNil(adToken.sessionKey);
     XCTAssertNil(adToken.refreshToken);
@@ -71,12 +74,14 @@
 
 - (void)testInitWithRefreshToken_shouldInitADTokenCacheItem
 {
-    MSIDRefreshToken *refreshToken = [self createRefreshToken];
+    MSIDRefreshToken *refreshToken = [self adCreateRefreshToken];
+    ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
+                                                                homeUserId:refreshToken.clientInfo.userIdentifier];
     
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithRefreshToken:refreshToken];
     
     XCTAssertNotNil(adToken);
-    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.userInformation, expectedInformation);
     XCTAssertNil(adToken.expiresOn);
     XCTAssertNil(adToken.sessionKey);
     XCTAssertEqualObjects(adToken.refreshToken, @"refresh token");
@@ -90,14 +95,16 @@
     XCTAssertEqualObjects(adToken.additionalClient, @{});
 }
 
-- (void)testInitWithADFSToken_shouldInitADTokenCacheItem
+- (void)testInitWithLegacySingleResourceToken_shouldInitADTokenCacheItem
 {
-    MSIDLegacySingleResourceToken *legacySingleResourceToken = [self createLegacySingleResourceToken];
+    MSIDLegacySingleResourceToken *legacySingleResourceToken = [self adCreateLegacySingleResourceToken];
+    ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
+                                                                homeUserId:legacySingleResourceToken.clientInfo.userIdentifier];
     
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:legacySingleResourceToken];
     
     XCTAssertNotNil(adToken);
-    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.userInformation, expectedInformation);
     XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
     XCTAssertNil(adToken.sessionKey);
     XCTAssertEqualObjects(adToken.refreshToken, @"refresh token");
@@ -109,66 +116,6 @@
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
     XCTAssertEqualObjects(adToken.additionalClient, @{});
-}
-
-#pragma mark - Private
-
-- (MSIDAccessToken *)createAccessToken
-{
-    MSIDAccessToken *accessToken = [MSIDAccessToken new];
-    [self initBaseToken:accessToken];
-    [self initAccessToken:accessToken];
-    
-    return accessToken;
-}
-
-- (MSIDRefreshToken *)createRefreshToken
-{
-    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    [self initBaseToken:refreshToken];
-    
-    [refreshToken setValue:@"refresh token" forKey:@"refreshToken"];
-    [refreshToken setValue:@"family Id" forKey:@"familyId"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [refreshToken setValue:rawIdToken forKey:@"idToken"];
-    
-    return refreshToken;
-}
-
-- (MSIDLegacySingleResourceToken *)createLegacySingleResourceToken
-{
-    MSIDLegacySingleResourceToken *legacySingleResourceToken = [MSIDLegacySingleResourceToken new];
-    [self initBaseToken:legacySingleResourceToken];
-    [self initAccessToken:legacySingleResourceToken];
-    
-    [legacySingleResourceToken setValue:@"refresh token" forKey:@"refreshToken"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [legacySingleResourceToken setValue:rawIdToken forKey:@"idToken"];
-    
-    return legacySingleResourceToken;
-}
-
-- (void)initBaseToken:(MSIDBaseToken *)baseToken
-{
-    [baseToken setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
-    [baseToken setValue:TEST_CLIENT_ID forKey:@"clientId"];
-    [baseToken setValue:@"unique User Id" forKey:@"uniqueUserId"];
-    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
-    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
-    [baseToken setValue:clientInfo forKey:@"clientInfo"];
-    [baseToken setValue:@{@"key2" : @"value2"} forKey:@"additionalInfo"];
-    [baseToken setValue:@"Eric Cartman" forKey:@"username"];
-}
-
-- (void)initAccessToken:(MSIDAccessToken *)accessToken
-{
-    [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1100000000] forKey:@"cachedAt"];
-    [accessToken setValue:@"access token" forKey:@"accessToken"];
-    [accessToken setValue:@"Bearer" forKey:@"accessTokenType"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [accessToken setValue:rawIdToken forKey:@"idToken"];
-    [accessToken setValue:TEST_RESOURCE forKey:@"target"];
 }
 
 @end

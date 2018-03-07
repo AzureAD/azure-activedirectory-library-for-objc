@@ -245,7 +245,7 @@
     NSString *updatedAT = @"updated-access-token";
     NSString *updatedRT = @"updated-refresh-token";
     
-    ADTokenCache *tokenCache = CreateMRRTTokenCache(authority, nil);
+    ADTokenCache *tokenCache = [self createMRRTTokenCache:authority doNotUseAuthority:nil];
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:NO
                                                                                     error:&error];
@@ -595,29 +595,6 @@ CreateAuthorityValidationResponse(NSString *contextAuthority,
     return [ADTestAuthorityValidationResponse validAuthority:[networkUrl absoluteString] withMetadata:metadata];
 }
 
-static ADTokenCache *
-CreateMRRTTokenCache(NSString *preferredAuthority,
-                     NSString *doNotUseAuthority)
-{
-    // Cache Setup
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    
-    ADTokenCacheItem *mrrt = [XCTestCase adCreateMRRTCacheItem];
-    mrrt.authority = preferredAuthority;
-    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
-    
-    // Also add a MRRT in the non-preferred lcoation to ignore
-    if (doNotUseAuthority)
-    {
-        ADTokenCacheItem *otherMrrt = [XCTestCase adCreateMRRTCacheItem];
-        otherMrrt.authority = doNotUseAuthority;
-        otherMrrt.refreshToken = s_doNotUseRT;
-        [tokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
-    }
-    
-    return tokenCache;
-}
-
 static ADAuthenticationContext *
 CreateAuthContext(NSString *authority,
                   ADTokenCache *tokenCache)
@@ -649,7 +626,7 @@ CreateAuthContext(NSString *authority,
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADTokenCache *tokenCache = CreateMRRTTokenCache(authority, nil);
+    ADTokenCache *tokenCache = [self createMRRTTokenCache:authority doNotUseAuthority:nil];
     ADAuthenticationContext *context = CreateAuthContext(authority, tokenCache);
     
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
@@ -700,7 +677,7 @@ CreateAuthContext(NSString *authority,
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADTokenCache *tokenCache = CreateMRRTTokenCache(preferredAuthority, authority);
+    ADTokenCache *tokenCache = [self createMRRTTokenCache:preferredAuthority doNotUseAuthority:authority];
     ADAuthenticationContext *context = CreateAuthContext(authority, tokenCache);
     
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
@@ -749,7 +726,7 @@ CreateAuthContext(NSString *authority,
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADTokenCache *tokenCache = CreateMRRTTokenCache(preferredAuthority, authority);
+    ADTokenCache *tokenCache = [self createMRRTTokenCache:preferredAuthority doNotUseAuthority:authority];
     ADAuthenticationContext *context = CreateAuthContext(authority, tokenCache);
     
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
@@ -775,6 +752,30 @@ CreateAuthContext(NSString *authority,
     XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
     XCTAssertNil([tokenCache getFRT:authority]);
     XCTAssertNil([tokenCache getAT:authority]);
+}
+
+#pragma mark - Private
+
+- (ADTokenCache *)createMRRTTokenCache:(NSString *)preferredAuthority
+                     doNotUseAuthority:(NSString *)doNotUseAuthority
+{
+    // Cache Setup
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    
+    ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
+    mrrt.authority = preferredAuthority;
+    [tokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    
+    // Also add a MRRT in the non-preferred lcoation to ignore
+    if (doNotUseAuthority)
+    {
+        ADTokenCacheItem *otherMrrt = [self adCreateMRRTCacheItem];
+        otherMrrt.authority = doNotUseAuthority;
+        otherMrrt.refreshToken = s_doNotUseRT;
+        [tokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
+    }
+    
+    return tokenCache;
 }
 
 @end

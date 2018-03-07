@@ -34,14 +34,20 @@
 }
 
 /*! Factory method to extract user information from the AAD id_token parameter.
- @param idToken The contents of the id_token parameter, as passed by the server. */
-+ (ADUserInformation *) userInformationWithIdToken:(NSString *)idToken
-                                             error:(ADAuthenticationError * __autoreleasing *)error;
+ @param idToken The contents of the id_token parameter, as passed by the server.
+ @param homeUserId Combination of uid & utid.
+ */
++ (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
+                                       homeUserId:(NSString *)homeUserId
+                                            error:(ADAuthenticationError * __autoreleasing *)error;
 
 /* This is the only unique property, as it is used in the key generation for the cache.
  Two ADUserInformation objects are considered the same if this property is the same. Using RequiredDisplayableId
  will validate against this property. */
 @property (readonly) NSString* userId;
+
+/*! Combination of uid & utid. */
+@property (readonly) NSString *homeUserId;
 
 /*! Determines whether userId is displayable */
 @property (readonly) BOOL userIdDisplayable;

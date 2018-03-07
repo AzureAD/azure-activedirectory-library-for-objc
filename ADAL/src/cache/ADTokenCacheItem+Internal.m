@@ -116,9 +116,9 @@
         return;
     }
     
-    ADUserInformation* info = nil;
-    info = [ADUserInformation userInformationWithIdToken:idToken
-                                                   error:nil];
+    ADUserInformation* info = [ADUserInformation userInformationWithIdToken:idToken
+                                                                 homeUserId:nil
+                                                                      error:nil];
     
     self.userInformation = info;
 }
