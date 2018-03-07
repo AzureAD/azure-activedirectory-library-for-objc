@@ -27,6 +27,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
+#import "MSIDTestCacheIdentifiers.h"
 
 @interface ADTokenCacheItemArchivingToMSIDTokenTests : ADTestCase
 
@@ -166,19 +167,20 @@
     MSIDTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeTokenCacheItem:tokenCacheItem];
+    ADUserInformation *expectedUserInfo = [ADUserInformation userInformationWithIdToken:tokenCacheItem.idToken error:nil];
     
     ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
-    XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
-    XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
-    XCTAssertEqualObjects(adToken.accessToken, TEST_ACCESS_TOKEN_TYPE);
+    XCTAssertEqualObjects(adToken.resource, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(adToken.authority, DEFAULT_TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(adToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(adToken.accessTokenType, @"Bearer");
     XCTAssertNil(adToken.refreshToken);
     XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
-    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.userInformation, expectedUserInfo);
     XCTAssertNil(adToken.familyId);
 }
 
@@ -187,19 +189,20 @@
     MSIDTokenCacheItem *tokenCacheItem = [self adCreateRefreshMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeTokenCacheItem:tokenCacheItem];
+    ADUserInformation *expectedUserInfo = [ADUserInformation userInformationWithIdToken:tokenCacheItem.idToken error:nil];
     
     ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
     XCTAssertNil(adToken.resource);
-    XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
-    XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
-    XCTAssertEqualObjects(adToken.refreshToken, TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(adToken.authority, DEFAULT_TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(adToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(adToken.accessTokenType, @"Bearer");
     XCTAssertNil(adToken.accessToken);
-    XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
-    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertNil(adToken.expiresOn);
+    XCTAssertEqualObjects(adToken.userInformation, expectedUserInfo);
     XCTAssertEqualObjects(adToken.familyId, @"familyId value");
 }
 
@@ -208,19 +211,20 @@
     MSIDTokenCacheItem *tokenCacheItem = [self adCreateLegacySingleResourceMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeTokenCacheItem:tokenCacheItem];
+    ADUserInformation *expectedUserInfo = [ADUserInformation userInformationWithIdToken:tokenCacheItem.idToken error:nil];
     
     ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
-    XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
-    XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
-    XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
-    XCTAssertEqualObjects(adToken.refreshToken, TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(adToken.resource, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(adToken.authority, DEFAULT_TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(adToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(adToken.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(adToken.accessToken, TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(adToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(adToken.expiresOn, [NSDate dateWithTimeIntervalSince1970:1500000000]);
-    XCTAssertEqualObjects(adToken.userInformation, [self adCreateUserInformation:TEST_USER_ID]);
+    XCTAssertEqualObjects(adToken.userInformation, expectedUserInfo);
     XCTAssertEqualObjects(adToken.familyId, @"familyId value");
 }
 

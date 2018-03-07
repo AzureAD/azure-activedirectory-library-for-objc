@@ -237,6 +237,14 @@ ID_TOKEN_PROPERTY_GETTER(identityProvider, ID_TOKEN_IDENTITY_PROVIDER);
 ID_TOKEN_PROPERTY_GETTER(userObjectId, ID_TOKEN_OBJECT_ID);
 ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 
++ (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
+                                            error:(ADAuthenticationError * __autoreleasing *)error
+{
+    return [[ADUserInformation alloc] initWithIdToken:idToken
+                                           homeUserId:nil
+                                                error:error];
+}
+
 + (ADUserInformation*)userInformationWithIdToken:(NSString *)idToken
                                       homeUserId:(NSString *)homeUserId
                                            error:(ADAuthenticationError * __autoreleasing *)error

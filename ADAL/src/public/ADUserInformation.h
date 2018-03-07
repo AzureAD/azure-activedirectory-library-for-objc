@@ -35,7 +35,13 @@
 
 /*! Factory method to extract user information from the AAD id_token parameter.
  @param idToken The contents of the id_token parameter, as passed by the server.
- @param homeUserId Combination of uid & utid.
+ */
++ (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
+                                            error:(ADAuthenticationError * __autoreleasing *)error;
+
+/*! Factory method to extract user information from the AAD id_token parameter.
+ @param idToken The contents of the id_token parameter, as passed by the server.
+ @param homeUserId Unique AAD user identifier across tenants based on user's home OID/home tenantId.
  */
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
                                        homeUserId:(NSString *)homeUserId
@@ -46,7 +52,7 @@
  will validate against this property. */
 @property (readonly) NSString* userId;
 
-/*! Combination of uid & utid. */
+/*! Unique AAD user identifier across tenants based on user's home OID/home tenantId. */
 @property (readonly) NSString *homeUserId;
 
 /*! Determines whether userId is displayable */

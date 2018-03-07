@@ -40,6 +40,8 @@
 #import "MSIDAccessToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdTokenUtil.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -499,17 +501,19 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 - (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem
 {
     MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
-    tokenCacheItem.accessToken = TEST_ACCESS_TOKEN_TYPE;
+    tokenCacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     tokenCacheItem.refreshToken = nil;
-    tokenCacheItem.idToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
+                                                              upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                         tenantId:DEFAULT_TEST_UTID];
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = nil;
     tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
-    tokenCacheItem.target = TEST_RESOURCE;
-    tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
-    tokenCacheItem.clientId = TEST_CLIENT_ID;
+    tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
+    tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
+    tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     tokenCacheItem.tokenType = MSIDTokenTypeAccessToken;
     tokenCacheItem.username = nil;
     
@@ -521,16 +525,18 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
     
     tokenCacheItem.accessToken = nil;
-    tokenCacheItem.refreshToken = TEST_REFRESH_TOKEN;
-    tokenCacheItem.idToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
+    tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
+                                                              upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                         tenantId:DEFAULT_TEST_UTID];
+    tokenCacheItem.expiresOn = nil;
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = @"familyId value";
     tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = nil;
-    tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
-    tokenCacheItem.clientId = TEST_CLIENT_ID;
+    tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
+    tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     tokenCacheItem.tokenType = MSIDTokenTypeRefreshToken;
     tokenCacheItem.username = nil;
     
@@ -541,17 +547,19 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
     
-    tokenCacheItem.accessToken = TEST_ACCESS_TOKEN;
-    tokenCacheItem.refreshToken = TEST_REFRESH_TOKEN;
-    tokenCacheItem.idToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    tokenCacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
+    tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
+    tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
+                                                              upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                         tenantId:DEFAULT_TEST_UTID];
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = @"familyId value";
     tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
-    tokenCacheItem.target = TEST_RESOURCE;
-    tokenCacheItem.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
-    tokenCacheItem.clientId = TEST_CLIENT_ID;
+    tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
+    tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
+    tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
     tokenCacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
     tokenCacheItem.username = nil;
     
@@ -572,8 +580,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 - (MSIDAccessToken *)adCreateAccessToken
 {
     MSIDAccessToken *accessToken = [MSIDAccessToken new];
-    [self initBaseToken:accessToken];
-    [self initAccessToken:accessToken];
+    [self fillBaseToken:accessToken];
+    [self fillAccessToken:accessToken];
     
     return accessToken;
 }
@@ -581,7 +589,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 - (MSIDRefreshToken *)adCreateRefreshToken
 {
     MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
-    [self initBaseToken:refreshToken];
+    [self fillBaseToken:refreshToken];
     
     [refreshToken setValue:@"refresh token" forKey:@"refreshToken"];
     [refreshToken setValue:@"family Id" forKey:@"familyId"];
@@ -594,8 +602,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 - (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken
 {
     MSIDLegacySingleResourceToken *legacySingleResourceToken = [MSIDLegacySingleResourceToken new];
-    [self initBaseToken:legacySingleResourceToken];
-    [self initAccessToken:legacySingleResourceToken];
+    [self fillBaseToken:legacySingleResourceToken];
+    [self fillAccessToken:legacySingleResourceToken];
     
     [legacySingleResourceToken setValue:@"refresh token" forKey:@"refreshToken"];
     NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
@@ -606,7 +614,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 #pragma mark - Private
 
-- (void)initBaseToken:(MSIDBaseToken *)baseToken
+- (void)fillBaseToken:(MSIDBaseToken *)baseToken
 {
     [baseToken setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
     [baseToken setValue:TEST_CLIENT_ID forKey:@"clientId"];
@@ -617,7 +625,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [baseToken setValue:@"Eric Cartman" forKey:@"username"];
 }
 
-- (void)initAccessToken:(MSIDAccessToken *)accessToken
+- (void)fillAccessToken:(MSIDAccessToken *)accessToken
 {
     [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1100000000] forKey:@"cachedAt"];
