@@ -176,7 +176,9 @@ static NSString* ReginaIdtoken()
 static ADTokenCacheItem* ReginaItem(NSString* resource)
 {
     ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
-    item.userInformation = [ADUserInformation userInformationWithIdToken:ReginaIdtoken() error:nil];
+    item.userInformation = [ADUserInformation userInformationWithIdToken:ReginaIdtoken()
+                                                              homeUserId:nil
+                                                                   error:nil];
     item.authority = TEST_AUTHORITY;
     item.accessToken = @"ThisIsMyAcessToken";
     item.refreshToken = @"ThisIsMyRefreshToken";
@@ -226,7 +228,9 @@ static ADTokenCacheItem* CartmanItem(NSString* resource)
     item.accessToken = @"Grant me access, hippie!";
     item.accessTokenType = @"Bearer";
     item.refreshToken = @"I am a refresh token.";
-    item.userInformation = [ADUserInformation userInformationWithIdToken:CartmanIdtoken() error:nil];
+    item.userInformation = [ADUserInformation userInformationWithIdToken:CartmanIdtoken()
+                                                              homeUserId:nil
+                                                                   error:nil];
     
     return item;
 }
