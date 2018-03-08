@@ -507,7 +507,7 @@
                                           MSID_OAUTH2_CODE: code,
                                           MSID_OAUTH2_CLIENT_ID: [_requestParams clientId],
                                           MSID_OAUTH2_REDIRECT_URI: [_requestParams redirectUri],
-                                          MSID_OAUTH2_CLIENT_INFO: @YES
+                                          MSID_OAUTH2_CLIENT_INFO: @"1"
                                           } mutableCopy];
 
     if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
