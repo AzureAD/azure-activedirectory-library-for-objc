@@ -28,7 +28,7 @@
 #import "ADTokenCache.h"
 #import "ADTokenCache+Internal.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDToken.h"
+#import "MSIDLegacyTokenCacheKey.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheKey.h"
 
@@ -65,25 +65,29 @@
     item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
     [item setValue:additionalServerInfo forKey:@"additionalServer"];
     [item setValue:sessionKey forKey:@"sessionKey"];
-    
+
     NSError *error;
     BOOL result = [adTokenCache addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
-    
+
     MSIDMacTokenCache *msidMacTokenCache = [MSIDMacTokenCache new];
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY] clientId:TEST_CLIENT_ID resource:TEST_RESOURCE upn:@"eric_cartman@contoso.com"];
-    
+    MSIDTokenCacheKey *msidTokenCacheKey =
+    [MSIDLegacyTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
+                                     clientId:TEST_CLIENT_ID
+                                     resource:TEST_RESOURCE
+                                 legacyUserId:TEST_USER_ID];
+
     // Read from blob created by ADTokenCache.
     NSData *data = [adTokenCache serialize];
     result = [msidMacTokenCache deserialize:data error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
-    
-    MSIDToken *msidToken = [msidMacTokenCache itemWithKey:msidTokenCacheKey serializer:nil context:nil error:&error];
-    
+
+    MSIDTokenCacheItem *tokenCacheItem = [msidMacTokenCache tokenWithKey:msidTokenCacheKey serializer:nil context:nil error:&error];
+
     XCTAssertNil(error);
-    XCTAssertNotNil(msidToken);
+    XCTAssertNotNil(tokenCacheItem);
 }
 
 #pragma mark - MSIDMacTokenCache -> ADTokenCacheKey
@@ -91,40 +95,32 @@
 - (void)testADTokenCacheKeyGetItemFromMSIDBlob_whenBlobContainsItem_shouldReturnThatItem
 {
     MSIDMacTokenCache *msidMacTokenCache = [MSIDMacTokenCache new];
-    
-    MSIDTokenCacheKey *msidTokenCacheKey = [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY] clientId:TEST_CLIENT_ID resource:TEST_RESOURCE upn:@"eric_cartman@contoso.com"];
-    
-    MSIDToken *token = [MSIDToken new];
-    [token setValue:TEST_ACCESS_TOKEN_TYPE forKey:@"token"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [token setValue:rawIdToken forKey:@"idToken"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [token setValue:@"familyId value" forKey:@"familyId"];
-    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
-    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
-    [token setValue:clientInfo forKey:@"clientInfo"];
-    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:TEST_RESOURCE forKey:@"resource"];
-    [token setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
-    [token setValue:TEST_CLIENT_ID forKey:@"clientId"];
-    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
-    
+
+    MSIDTokenCacheKey *msidTokenCacheKey =
+    [MSIDLegacyTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
+                                     clientId:TEST_CLIENT_ID
+                                     resource:TEST_RESOURCE
+                                 legacyUserId:TEST_USER_ID];
+
+    MSIDTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
+
     NSError *error;
-    BOOL result = [msidMacTokenCache setItem:token key:msidTokenCacheKey serializer:nil context:nil error:&error];
+    BOOL result = [msidMacTokenCache saveToken:tokenCacheItem key:msidTokenCacheKey serializer:nil context:nil error:nil];
+    
     XCTAssertNil(error);
     XCTAssertTrue(result);
-    
+
     ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:TEST_RESOURCE clientId:TEST_CLIENT_ID error:nil];
     ADTokenCache *adTokenCache = [ADTokenCache new];
-    
+
     // Read from blob created by MSIDMacTokenCache.
     NSData *data = [msidMacTokenCache serialize];
     result = [adTokenCache deserialize:data error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
-    
+
     ADTokenCacheItem *item = [adTokenCache getItemWithKey:key userId:TEST_USER_ID correlationId:nil error:&error];
-    
+
     XCTAssertNil(error);
     XCTAssertNotNil(item);
 }
