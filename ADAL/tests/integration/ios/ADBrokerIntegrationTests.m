@@ -263,7 +263,7 @@
     builder.updatedRefreshToken = updatedRT;
     builder.updatedAccessToken = updatedAT;
     builder.responseBody[@"foci"] = @"1";
-    builder.updatedIdToken = [[XCTestCase adCreateUserInformation:TEST_USER_ID tenantId:correctTid] rawIdToken];
+    builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeUserId:nil].rawIdToken;
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
@@ -368,7 +368,7 @@
     builder.updatedRefreshToken = updatedRT;
     builder.updatedAccessToken = updatedAT;
     builder.responseBody[@"foci"] = @"1";
-    builder.updatedIdToken = [[XCTestCase adCreateUserInformation:TEST_USER_ID tenantId:correctTid] rawIdToken];
+    builder.updatedIdToken = [[self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeUserId:nil] rawIdToken];
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
@@ -402,6 +402,5 @@
     XCTAssertEqualObjects([tokenCache getFRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
 }
-
 
 @end
