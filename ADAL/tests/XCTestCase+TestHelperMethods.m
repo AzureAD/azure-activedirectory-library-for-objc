@@ -289,6 +289,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                            MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
                                            MSID_OAUTH2_RESOURCE : resource,
+                                           MSID_OAUTH2_CLIENT_INFO: @"1",
                                            MSID_OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:400
@@ -462,6 +463,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                            MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
                                            MSID_OAUTH2_RESOURCE : resource,
+                                           MSID_OAUTH2_CLIENT_INFO: @"1",
                                            MSID_OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
                            responseCode:responseCode

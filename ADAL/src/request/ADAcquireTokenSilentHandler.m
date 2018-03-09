@@ -115,7 +115,7 @@
                         nil];
     }
     
-    request_data[MSID_OAUTH2_CLIENT_INFO] = @"1";
+    request_data[MSID_OAUTH2_CLIENT_INFO] = @YES;
     
     if (![NSString msidIsStringNilOrBlank:[_requestParams resource]])
     {
