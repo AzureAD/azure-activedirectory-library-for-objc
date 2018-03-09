@@ -117,7 +117,6 @@
     }
     
     ADUserInformation* info = [ADUserInformation userInformationWithIdToken:idToken
-                                                                 homeUserId:nil
                                                                       error:nil];
     
     self.userInformation = info;

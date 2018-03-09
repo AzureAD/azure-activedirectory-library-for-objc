@@ -23,6 +23,7 @@
 
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "ADUserInformation.h"
+#import "ADUserInformation+Internal.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
