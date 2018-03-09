@@ -30,9 +30,10 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDTokenCacheKey.h"
-#import "MSIDToken.h"
+#import "MSIDTokenCacheItem.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "ADTokenCacheKey.h"
+#import "MSIDLegacyTokenCacheKey.h"
 
 @interface ADKeychainTokenCacheToMSIDKeychainTokenCacheTests : XCTestCase
 
@@ -80,15 +81,18 @@
     
     MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDTokenCacheKey *msidTokenCacheKey =
-    [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
-                               clientId:TEST_CLIENT_ID
-                               resource:TEST_RESOURCE
-                                    upn:TEST_USER_ID];
+    [MSIDLegacyTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
+                                     clientId:TEST_CLIENT_ID
+                                     resource:TEST_RESOURCE
+                                 legacyUserId:TEST_USER_ID];
     
-    MSIDToken *msidToken = [msidKeychainTokenCache itemWithKey:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
+    XCTAssertEqualObjects(msidTokenCacheKey.account, @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t");
+    XCTAssertEqualObjects(msidTokenCacheKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2");
+    
+    MSIDTokenCacheItem *tokenCacheItem = [msidKeychainTokenCache tokenWithKey:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
     
     XCTAssertNil(error);
-    XCTAssertNotNil(msidToken);
+    XCTAssertNotNil(tokenCacheItem);
 }
 
 #pragma mark - MSIDKeychainTokenCache -> ADKeychainTokenCache
@@ -98,28 +102,19 @@
     MSIDKeychainTokenCache *msidKeychainTokenCache = [MSIDKeychainTokenCache new];
     
     MSIDTokenCacheKey *msidTokenCacheKey =
-    [MSIDTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
-                               clientId:TEST_CLIENT_ID
-                               resource:TEST_RESOURCE
-                                    upn:TEST_USER_ID];
+    [MSIDLegacyTokenCacheKey keyWithAuthority:[[NSURL alloc] initWithString:TEST_AUTHORITY]
+                                     clientId:TEST_CLIENT_ID
+                                     resource:TEST_RESOURCE
+                                 legacyUserId:TEST_USER_ID];
     
-    MSIDToken *token = [MSIDToken new];
-    [token setValue:TEST_ACCESS_TOKEN_TYPE forKey:@"token"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [token setValue:rawIdToken forKey:@"idToken"];
-    [token setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [token setValue:@"familyId value" forKey:@"familyId"];
-    MSIDClientInfo *clientInfo = [MSIDClientInfo new];
-    [clientInfo setValue:@"raw client info" forKey:@"rawClientInfo"];
-    [token setValue:clientInfo forKey:@"clientInfo"];
-    [token setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [token setValue:TEST_RESOURCE forKey:@"resource"];
-    [token setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
-    [token setValue:TEST_CLIENT_ID forKey:@"clientId"];
-    [token setValue:[[NSOrderedSet alloc] initWithArray:@[@1, @2]] forKey:@"scopes"];
+    XCTAssertEqualObjects(msidTokenCacheKey.account, @"ZXJpY19jYXJ0bWFuQGNvbnRvc28uY29t");
+    XCTAssertEqualObjects(msidTokenCacheKey.service, @"MSOpenTech.ADAL.1|aHR0cHM6Ly9sb2dpbi53aW5kb3dzLm5ldC9jb250b3NvLmNvbQ|cmVzb3VyY2U|YzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2");
+    
+    MSIDTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
     
     NSError *error;
-    BOOL result = [msidKeychainTokenCache setItem:token key:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
+    BOOL result = [msidKeychainTokenCache saveToken:tokenCacheItem key:msidTokenCacheKey serializer:[MSIDKeyedArchiverSerializer new] context:nil error:&error];
+    
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
