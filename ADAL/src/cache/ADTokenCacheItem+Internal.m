@@ -29,6 +29,7 @@
 #import "ADAuthenticationResult+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
+#import "MSIDClientInfo.h"
 
 @implementation ADTokenCacheItem (Internal)
 
@@ -108,7 +109,7 @@
     }
 }
 
-- (void)fillUserInformation:(NSString*)idToken
+- (void)fillUserInformation:(NSString*)idToken clientInfo:(MSIDClientInfo *)clientInfo
 {
     if (!idToken)
     {
@@ -117,7 +118,7 @@
     }
     
     ADUserInformation* info = [ADUserInformation userInformationWithIdToken:idToken
-                                                                 homeUserId:nil
+                                                                 homeUserId:clientInfo.userIdentifier
                                                                       error:nil];
     
     self.userInformation = info;
@@ -203,7 +204,9 @@
     
     BOOL isMRRT = ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:MSID_OAUTH2_RESOURCE]] && ![NSString msidIsStringNilOrBlank:[responseDictionary objectForKey:MSID_OAUTH2_REFRESH_TOKEN]];
     
-    [self fillUserInformation:[responseDictionary valueForKey:MSID_OAUTH2_ID_TOKEN]];
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:[responseDictionary valueForKey:MSID_OAUTH2_CLIENT_INFO] error:nil];
+    
+    [self fillUserInformation:[responseDictionary valueForKey:MSID_OAUTH2_ID_TOKEN] clientInfo:clientInfo];
     [responseDictionary removeObjectForKey:MSID_OAUTH2_ID_TOKEN];
     
     FILL_FIELD(authority, MSID_OAUTH2_AUTHORITY, [NSString class]);

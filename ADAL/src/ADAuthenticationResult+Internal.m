@@ -226,7 +226,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     NSArray *pathComponents = [[NSURL URLWithString:item.authority] pathComponents];
     NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
     BOOL fValidTenant = response[@"vt"] != nil || [tenant isEqualToString:@"common"];
-    if (!fValidTenant)
+    BOOL replay = [NSString msidIsStringNilOrBlank:item.userInformation.homeUserId];
+    if (!fValidTenant || replay)
     {
         item.accessToken = nil;
     }

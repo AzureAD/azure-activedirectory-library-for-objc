@@ -36,6 +36,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "ADAuthorityUtils.h"
+#import "ADUserInformation.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -372,8 +373,9 @@
              [ADAuthenticationRequest releaseExclusionLock];
 #endif
              
-             // If we got back a valid RT but no access token then replay the RT for a new AT
-             if (result.status == AD_SUCCEEDED && result.tokenCacheItem.accessToken == nil)
+             // If we got back a valid RT but no access token, then replay the RT for a new AT.
+             BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
+             if (result.status == AD_SUCCEEDED && replay)
              {
                  if (_requestParams.scope == nil)
                  {
