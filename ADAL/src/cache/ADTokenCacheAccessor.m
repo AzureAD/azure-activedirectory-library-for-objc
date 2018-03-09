@@ -234,7 +234,7 @@
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[context correlationId] error:error];
     MSIDTelemetryCacheEvent* event = [[MSIDTelemetryCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:MSIDTokenTypeAdfsUserToken];
+    [event setTokenType:MSIDTokenTypeLegacySingleResourceToken];
     [event setRTStatus:MSID_TELEMETRY_VALUE_NOT_FOUND];
     if ([item refreshToken])
     {
