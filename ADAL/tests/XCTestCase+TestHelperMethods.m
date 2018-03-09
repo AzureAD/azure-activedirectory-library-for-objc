@@ -35,6 +35,7 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
+#import "ADUserInformation+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDTokenCacheItem.h"
 #import "MSIDAccessToken.h"

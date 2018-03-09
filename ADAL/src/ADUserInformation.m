@@ -22,21 +22,9 @@
 // THE SOFTWARE.
 
 #import "ADUserInformation.h"
+#import "ADUserInformation+Internal.h"
 #import "ADAL_Internal.h"
 #import "ADHelpers.h"
-
-static NSString* const ID_TOKEN_SUBJECT = @"sub";
-static NSString* const ID_TOKEN_TENANTID = @"tid";
-static NSString* const ID_TOKEN_UPN = @"upn";
-static NSString* const ID_TOKEN_GIVEN_NAME = @"given_name";
-static NSString* const ID_TOKEN_FAMILY_NAME = @"family_name";
-static NSString* const ID_TOKEN_UNIQUE_NAME = @"unique_name";
-static NSString* const ID_TOKEN_EMAIL = @"email";
-static NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
-static NSString* const ID_TOKEN_TYPE = @"typ";
-static NSString* const ID_TOKEN_JWT_TYPE = @"JWT";
-static NSString* const ID_TOKEN_OBJECT_ID = @"oid";
-static NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 @implementation ADUserInformation
 
@@ -70,190 +58,12 @@ static NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return self;
 }
 
-#define RETURN_ID_TOKEN_ERROR \
-{ \
-    ADAuthenticationError* idTokenError = [ADUserInformation invalidIdTokenError]; \
-    if (error) \
-    { \
-        *error = idTokenError; \
-    } \
-    return nil; \
-}
-
-
-+ (ADAuthenticationError*)invalidIdTokenError
-{
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_INVALID_ID_TOKEN
-                                                  protocolCode:nil
-                                                  errorDetails:@"The id_token contents cannot be parsed."
-                                                 correlationId:nil];
-}
-
-- (id)initWithIdToken:(NSString *)idToken
-           homeUserId:(NSString *)homeUserId
-                error:(ADAuthenticationError * __autoreleasing *)error
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    if (!idToken)
-    {
-        return nil;
-    }
-
-    if ([NSString msidIsStringNilOrBlank:idToken])
-    {
-        RETURN_ID_TOKEN_ERROR;
-    }
-    
-    _rawIdToken = idToken;
-    _homeUserId = homeUserId;
-    
-    NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
-    if (parts.count < 1)
-    {
-        RETURN_ID_TOKEN_ERROR;
-    }
-    
-    NSMutableDictionary* allClaims = [NSMutableDictionary new];
-    NSString* type = nil;
-    for (NSString* part in parts)
-    {
-        NSString* decoded = [part msidBase64UrlDecode];
-        if (![NSString msidIsStringNilOrBlank:decoded])
-        {
-            NSError* jsonError  = nil;
-            id jsonObject = [NSJSONSerialization JSONObjectWithData:[decoded dataUsingEncoding:NSUTF8StringEncoding]
-                                                            options:0
-                                                              error:&jsonError];
-                if (jsonError)
-                {
-                    
-                    
-                    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
-                                                                                errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]
-                                                                               correlationId:nil];
-                    if (error)
-                    {
-                        *error = adError;
-                    }
-                    return nil;
-                }
-            
-            if (![jsonObject isKindOfClass:[NSDictionary class]])
-            {
-                RETURN_ID_TOKEN_ERROR;
-            }
-            
-            NSDictionary* contents = (NSDictionary*)jsonObject;
-            if (!type)
-            {
-                type = [contents objectForKey:ID_TOKEN_TYPE];
-                if (type)
-                {
-                    //Type argument is passed, check if it is the expected one
-                    if (![ID_TOKEN_JWT_TYPE isEqualToString:type])
-                    {
-                        //Log it, but still try to use it as if it was a JWT token
-                        MSID_LOG_WARN(nil, @"Incompatible id_token type - %@", type);
-                    }
-                }
-            }
-
-            [allClaims addEntriesFromDictionary:contents];
-        }
-    }
-    if (!type)
-    {
-        MSID_LOG_WARN(nil, @"The id_token type is missing. Assuming JWT type.");
-    }
-    
-    _allClaims = allClaims;
-    
-    //Now attempt to extract an unique user id:
-    if (![NSString msidIsStringNilOrBlank:self.upn])
-    {
-        _userId = self.upn;
-        _userIdDisplayable = YES;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.eMail])
-    {
-        _userId = self.eMail;
-        _userIdDisplayable = YES;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.subject])
-    {
-        _userId = self.subject;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.userObjectId])
-    {
-        _userId = self.userObjectId;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.uniqueName])
-    {
-        _userId = self.uniqueName;
-        _userIdDisplayable = YES;//This is what the server provided
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.guestId])
-    {
-        _userId = self.guestId;
-    }
-    else
-    {
-        RETURN_ID_TOKEN_ERROR;
-    }
-    _userId = [self.class normalizeUserId:_userId];
-    
-    if (![NSString msidIsStringNilOrBlank:self.userObjectId])
-    {
-        _uniqueId = self.userObjectId;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.subject])
-    {
-        _uniqueId = self.subject;
-    }
-    _uniqueId = [self.class normalizeUserId:_uniqueId];
-    
-    return self;
-}
-
-//Declares a propperty getter, which extracts the property from the claims dictionary
-#define ID_TOKEN_PROPERTY_GETTER(property, claimName) \
--(NSString*) property \
-{ \
-    return [self.allClaims objectForKey:claimName]; \
-}
-
-ID_TOKEN_PROPERTY_GETTER(givenName, ID_TOKEN_GIVEN_NAME);
-ID_TOKEN_PROPERTY_GETTER(familyName, ID_TOKEN_FAMILY_NAME);
-ID_TOKEN_PROPERTY_GETTER(subject, ID_TOKEN_SUBJECT);
-ID_TOKEN_PROPERTY_GETTER(tenantId, ID_TOKEN_TENANTID);
-ID_TOKEN_PROPERTY_GETTER(upn, ID_TOKEN_UPN);
-ID_TOKEN_PROPERTY_GETTER(uniqueName, ID_TOKEN_UNIQUE_NAME);
-ID_TOKEN_PROPERTY_GETTER(eMail, ID_TOKEN_EMAIL);
-ID_TOKEN_PROPERTY_GETTER(identityProvider, ID_TOKEN_IDENTITY_PROVIDER);
-ID_TOKEN_PROPERTY_GETTER(userObjectId, ID_TOKEN_OBJECT_ID);
-ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
-
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
                                             error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [[ADUserInformation alloc] initWithIdToken:idToken
                                            homeUserId:nil
                                                 error:error];
-}
-
-+ (ADUserInformation*)userInformationWithIdToken:(NSString *)idToken
-                                      homeUserId:(NSString *)homeUserId
-                                           error:(ADAuthenticationError * __autoreleasing *)error
-{
-    RETURN_NIL_ON_NIL_ARGUMENT(idToken);
-    ADUserInformation* userInfo = [[ADUserInformation alloc] initWithIdToken:idToken
-                                                                  homeUserId:homeUserId
-                                                                       error:error];
-    return userInfo;
 }
 
 - (id)copyWithZone:(NSZone *)zone

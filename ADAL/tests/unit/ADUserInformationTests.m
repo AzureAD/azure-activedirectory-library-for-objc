@@ -82,7 +82,6 @@
     NSString *idtoken = [NSString stringWithFormat:@"%@.%@", p1, p2];
     
     ADUserInformation *userInfo = [ADUserInformation userInformationWithIdToken:idtoken
-                                                                     homeUserId:nil
                                                                           error:nil];
     
     ADAssertStringEquals(userInfo.userId, @"eric_cartman@contoso.com");
@@ -111,7 +110,6 @@
     NSString* normalToken = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9.";
     ADAuthenticationError* error = nil;
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:normalToken
-                                                                     homeUserId:nil
                                                                           error:&error];
     ADAssertNoError;
     ADAssertStringEquals(userInfo.userId.lowercaseString, @"boris@msopentechbv.onmicrosoft.com");
@@ -126,21 +124,18 @@
 {
     ADAuthenticationError* error = nil;
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:@""
-                                                                     homeUserId:nil
                                                                           error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
     
     error = nil;
     userInfo = [ADUserInformation userInformationWithIdToken:nil
-                                                  homeUserId:nil
                                                        error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
     
     error = nil;
     userInfo = [ADUserInformation userInformationWithIdToken:@"....."
-                                                  homeUserId:nil
                                                        error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
@@ -149,7 +144,6 @@
     error = nil;//Reset it, as it was set in the previous calls
     NSString* missingHeader = @"eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9";
     userInfo = [ADUserInformation userInformationWithIdToken:missingHeader
-                                                  homeUserId:nil
                                                        error:&error];
     ADAssertNoError;
     ADAssertStringEquals(userInfo.userId.lowercaseString, @"boris@msopentechbv.onmicrosoft.com");
@@ -159,14 +153,12 @@
     
     //Pass nil for error:
     userInfo = [ADUserInformation userInformationWithIdToken:@"....."
-                                                  homeUserId:nil
                                                        error:nil];
     XCTAssertNil(userInfo);
 
     error = nil;
     NSString* plain = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"unique_name\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"}";
     userInfo = [ADUserInformation userInformationWithIdToken:plain
-                                                  homeUserId:nil
                                                        error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
@@ -175,7 +167,6 @@
     NSString* plainNoUserId = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"}";//Missing meaningful userID field
     NSString* encoded = [plainNoUserId msidBase64UrlEncode];
     userInfo = [ADUserInformation userInformationWithIdToken:encoded
-                                                  homeUserId:nil
                                                        error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
@@ -185,7 +176,6 @@
     NSString* badJSON = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"unique_name\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"";//Missing closing braket '}'
     encoded = [badJSON msidBase64UrlEncode];
     userInfo = [ADUserInformation userInformationWithIdToken:encoded
-                                                  homeUserId:nil
                                                        error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);

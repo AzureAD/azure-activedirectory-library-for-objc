@@ -25,6 +25,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADAuthenticationError.h"
 #import "ADUserInformation.h"
+#import "ADUserInformation+Internal.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
