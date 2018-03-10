@@ -34,7 +34,7 @@
     NSString *_redirectUri;
     NSString *_scope;
     ADUserIdentifier *_identifier;
-    ADTokenCacheAccessor *_tokenCache;
+//    ADTokenCacheAccessor *_tokenCache;
     BOOL _extendedLifetime;
     NSUUID *_correlationId;
     NSString *_telemetryRequestId;
@@ -46,7 +46,7 @@
 @property (retain, nonatomic) NSString* redirectUri;
 @property (retain, nonatomic) NSString* scope;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
-@property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
+//@property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
 @property BOOL extendedLifetime;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;

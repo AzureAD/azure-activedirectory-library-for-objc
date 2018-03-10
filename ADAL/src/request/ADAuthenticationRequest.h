@@ -27,7 +27,7 @@
 #import "ADRequestParameters.h"
 
 @class ADUserIdentifier;
-@class ADTokenCacheAccessor;
+@class MSIDSharedTokenCache;
 
 #define AD_REQUEST_CHECK_ARGUMENT(_arg) { \
     if (!_arg || ([_arg isKindOfClass:[NSString class]] && [(NSString*)_arg isEqualToString:@""])) { \
@@ -80,11 +80,12 @@
 }
 
 @property (retain) NSString* logComponent;
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
 
 // These constructors exists *solely* to be used when trying to use some of the caching logic.
 // You can't actually send requests with it. They will fail.
-+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority;
-+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context;
+//+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority;
+//+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context;
 
 // The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context

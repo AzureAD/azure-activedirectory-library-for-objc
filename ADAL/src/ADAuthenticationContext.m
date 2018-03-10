@@ -35,6 +35,13 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem.h"
+#import "MSIDSharedTokenCache.h"
+#import "ADHelpers.h"
+#import "MSIDSharedTokenCache.h"
+#import "MSIDMacTokenCache.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -42,6 +49,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 // symbols in a binary to detect what version of ADAL is being used without needing to
 // run the application.
 NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
+
+@interface ADAuthenticationContext()
+
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+
+@end
 
 @implementation ADAuthenticationContext
 
@@ -75,60 +88,77 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
                   error:(ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    if (!(self = [self initWithAuthority:authority validateAuthority:bValidate error:error]))
-    {
-        return nil;
-    }
     
-    [self setTokenCacheStore:[ADKeychainTokenCache keychainCacheForGroup:sharedGroup]];
+    MSIDKeychainTokenCache.defaultKeychainGroup = sharedGroup;
+    MSIDSharedTokenCache *tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
     
-    return self;
+    return [self initWithAuthority:authority
+                 validateAuthority:bValidate
+                        tokenCache:tokenCache
+                             error:error];
 }
-#endif
-
+#else
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
           cacheDelegate:(id<ADTokenCacheDelegate>) delegate
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     API_ENTRY;
-    if (!(self = [self initWithAuthority:authority validateAuthority:validateAuthority error:error]))
-    {
-        return nil;
-    }
     
-    ADTokenCache* cache = [ADTokenCache new];
-    [cache setDelegate:delegate];
+    // TODO: Implement proxy delegate that wil convert calls.
+    //    [MSIDMacTokenCache defaultCache].delegate = delegate;
     
-    [self setTokenCacheStore:cache];
-    return self;
+    MSIDSharedTokenCache *tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
+    
+    return [self initWithAuthority:authority
+                 validateAuthority:validateAuthority
+                        tokenCache:tokenCache
+                             error:error];
 }
+#endif
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
                   error:(ADAuthenticationError *__autoreleasing *)error
 {
-    id<ADTokenCacheDataSource> tokenCache = nil;
+    MSIDSharedTokenCache *tokenCache = nil;
 
 #if TARGET_OS_IPHONE
-    tokenCache = [ADKeychainTokenCache defaultKeychainCache];
-    if (!tokenCache)
-    {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to get kecyhain token cache" correlationId:nil];
-        if (error)
-        {
-            *error = adError;
-        }
-        return nil;
-    }
+    tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
 #else
-    tokenCache = [ADTokenCache defaultCache];
+    tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
 #endif
     
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
                         tokenCache:tokenCache
                              error:error];
+}
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(MSIDSharedTokenCache *)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error
+{
+    API_ENTRY;
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    }
+    
+    _authority = extractedAuthority;
+    _validateAuthority = validateAuthority;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _extendedLifetimeEnabled = NO;
+    _tokenCache = tokenCache;
+    
+    return self;
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -144,7 +174,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setResource:resource];
     [requestParams setClientId:clientId];
     [requestParams setRedirectUri:redirectUri];
-    [requestParams setTokenCache:_tokenCacheStore];
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
     [requestParams setLogComponent:_logComponent];
 
@@ -419,24 +448,23 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:@"136" completionBlock:completionBlock];
 }
 
-@end
+#pragma mark - Private
 
-@implementation ADAuthenticationContext (CacheStorage)
-
-- (void)setTokenCacheStore:(id<ADTokenCacheDataSource>)dataSource
+#if TARGET_OS_IPHONE
+- (MSIDSharedTokenCache *)createIosCache:(id<MSIDTokenCacheDataSource>)dataSource
 {
-    if (_tokenCacheStore.dataSource == dataSource)
-    {
-        return;
-    }
+    MSIDLegacyTokenCacheAccessor *legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource];
+    MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource];
     
-    _tokenCacheStore = [[ADTokenCacheAccessor alloc] initWithDataSource:dataSource authority:_authority];
+    return [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyAccessor otherCacheAccessors:@[defaultAccessor]];
 }
-
-- (ADTokenCacheAccessor *)tokenCacheStore
+#else
+- (MSIDSharedTokenCache *)createMacCache:(id<MSIDTokenCacheDataSource>)dataSource
 {
-    return _tokenCacheStore;
+    MSIDLegacyTokenCacheAccessor *legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource];
+    
+    return [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyAccessor otherCacheAccessors:@[]];
 }
+#endif
 
 @end
-

@@ -41,6 +41,8 @@
     BOOL _attemptedFRT;
 }
 
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+
 + (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters*)requestParams;
 
 - (void)getToken:(ADAuthenticationCallback)completionBlock;

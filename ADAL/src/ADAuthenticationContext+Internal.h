@@ -67,12 +67,6 @@ extern NSString* const ADRedirectUriInvalidError;
 + (ADAuthenticationError*)errorFromDictionary:(NSDictionary *)dictionary
                                     errorCode:(ADErrorCode)errorCode;
 
-
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error;
-
 + (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
@@ -82,13 +76,5 @@ extern NSString* const ADRedirectUriInvalidError;
 + (ADAuthenticationResult*)updateResult:(ADAuthenticationResult *)result
                                  toUser:(ADUserIdentifier *)userId;
 
-- (BOOL)hasCacheStore;
-
 @end
 
-@interface ADAuthenticationContext (CacheStorage)
-
-- (void)setTokenCacheStore:(id<ADTokenCacheDataSource>)tokenCacheStore;
-- (ADTokenCacheAccessor *)tokenCacheStore;
-
-@end

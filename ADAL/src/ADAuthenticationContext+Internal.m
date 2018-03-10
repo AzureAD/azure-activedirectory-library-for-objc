@@ -34,32 +34,6 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
 @implementation ADAuthenticationContext (Internal)
 
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error
-{
-    API_ENTRY;
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
-    if (!extractedAuthority)
-    {
-        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    }
-    
-    _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _extendedLifetimeEnabled = NO;
-    [self setTokenCacheStore:tokenCache];
-    
-    return self;
-}
-
 /*! Verifies that the string parameter is not nil or empty. If it is,
  the method generates an error and set it to an authentication result.
  Then the method calls the callback with the result.
@@ -160,11 +134,6 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 {
     //If prompt parameter needs to be passed, re-authorization is needed.
     return [ADAuthenticationContext getPromptParameter:prompt] != nil;
-}
-
-- (BOOL)hasCacheStore
-{
-    return self.tokenCacheStore != nil;
 }
 
 //Used in the flows, where developer requested an explicit user. The method compares

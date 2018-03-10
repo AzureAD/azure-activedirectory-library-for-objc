@@ -242,7 +242,7 @@
         return;
     }
     
-    if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
+    if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache)
     {
         [self getAccessToken:^(ADAuthenticationResult *result) {
             if ([ADAuthenticationContext isFinalResult:result])
@@ -276,63 +276,63 @@
 
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
 {
-    [self ensureRequest];
-    NSUUID* correlationId = [_requestParams correlationId];
-    
-    if (_samlAssertion)
-    {
-        [self requestTokenByAssertion:^(ADAuthenticationResult *result){
-            if (AD_SUCCEEDED == result.status)
-            {
-                [[_requestParams tokenCache] updateCacheToResult:result
-                                                       cacheItem:nil
-                                                    refreshToken:nil
-                                                         context:_requestParams];
-                result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
-            }
-            completionBlock(result);
-        }];
-        return;
-    }
-
-    if (_silent && !_allowSilent)
-    {
-        //The cache lookup and refresh token attempt have been unsuccessful,
-        //so credentials are needed to get an access token, but the developer, requested
-        //no UI to be shown:
-        NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
-                                               protocolCode:nil
-                                               errorDetails:ADCredentialsNeeded
-                                                   userInfo:underlyingError
-                                              correlationId:correlationId];
-        
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-        completionBlock(result);
-        return;
-    }
-    
-    //can't pop UI or go to broker in an extension
-    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"])
-    {
-        // This is an app extension. Return an error unless a webview is specified by the
-        // extension and embedded auth is being used.
-        BOOL isEmbeddedWebView = (nil != _context.webView) && (AD_CREDENTIALS_EMBEDDED == _context.credentialsType);
-        if (!isEmbeddedWebView)
-        {
-            ADAuthenticationError* error =
-            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
-                                                   protocolCode:nil
-                                                   errorDetails:ADInteractionNotSupportedInExtension
-                                                  correlationId:correlationId];
-            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-            completionBlock(result);
-            return;
-        }
-    }
-    
-    [self requestTokenImpl:completionBlock];
+//    [self ensureRequest];
+//    NSUUID* correlationId = [_requestParams correlationId];
+//
+//    if (_samlAssertion)
+//    {
+//        [self requestTokenByAssertion:^(ADAuthenticationResult *result){
+//            if (AD_SUCCEEDED == result.status)
+//            {
+//                [[_requestParams tokenCache] updateCacheToResult:result
+//                                                       cacheItem:nil
+//                                                    refreshToken:nil
+//                                                         context:_requestParams];
+//                result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
+//            }
+//            completionBlock(result);
+//        }];
+//        return;
+//    }
+//
+//    if (_silent && !_allowSilent)
+//    {
+//        //The cache lookup and refresh token attempt have been unsuccessful,
+//        //so credentials are needed to get an access token, but the developer, requested
+//        //no UI to be shown:
+//        NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
+//        ADAuthenticationError* error =
+//        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
+//                                               protocolCode:nil
+//                                               errorDetails:ADCredentialsNeeded
+//                                                   userInfo:underlyingError
+//                                              correlationId:correlationId];
+//
+//        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+//        completionBlock(result);
+//        return;
+//    }
+//
+//    //can't pop UI or go to broker in an extension
+//    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"])
+//    {
+//        // This is an app extension. Return an error unless a webview is specified by the
+//        // extension and embedded auth is being used.
+//        BOOL isEmbeddedWebView = (nil != _context.webView) && (AD_CREDENTIALS_EMBEDDED == _context.credentialsType);
+//        if (!isEmbeddedWebView)
+//        {
+//            ADAuthenticationError* error =
+//            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
+//                                                   protocolCode:nil
+//                                                   errorDetails:ADInteractionNotSupportedInExtension
+//                                                  correlationId:correlationId];
+//            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+//            completionBlock(result);
+//            return;
+//        }
+//    }
+//
+//    [self requestTokenImpl:completionBlock];
 }
 
 - (void)requestTokenImpl:(ADAuthenticationCallback)completionBlock
@@ -478,10 +478,10 @@
                       [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [[_requestParams tokenCache] updateCacheToResult:result
-                                                                 cacheItem:nil
-                                                              refreshToken:nil
-                                                                   context:_requestParams];
+//                          [[_requestParams tokenCache] updateCacheToResult:result
+//                                                                 cacheItem:nil
+//                                                              refreshToken:nil
+//                                                                   context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
                           [result setCloudAuthority:_cloudAuthority];
                       }

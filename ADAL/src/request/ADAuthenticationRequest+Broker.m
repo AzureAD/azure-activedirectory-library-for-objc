@@ -36,6 +36,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryBrokerEvent.h"
 #import "MSIDAuthority.h"
+#import "MSIDKeychainTokenCache.h"
 
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
@@ -315,44 +316,37 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"claims"         : _claims ? _claims : @"",
       };
     
-    NSDictionary<NSString *, NSString *>* resumeDictionary = nil;
+    NSDictionary<NSString *, NSString *> *resumeDictionary = nil;
 #if TARGET_OS_IPHONE
-    id<ADTokenCacheDataSource> dataSource = [_requestParams.tokenCache dataSource];
-    if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
+    NSString *keychainGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
+    NSString *teamId = [ADKeychainUtil keychainTeamId:error];
+    
+    if (!teamId) return nil;
+    
+    if (teamId && [keychainGroup hasPrefix:teamId])
     {
-        NSString* keychainGroup = [(ADKeychainTokenCache*)dataSource sharedGroup];
-        NSString* teamId = [ADKeychainUtil keychainTeamId:error];
-        if (!teamId)
-        {
-            return nil;
-        }
-        if (teamId && [keychainGroup hasPrefix:teamId])
-        {
-            keychainGroup = [keychainGroup substringFromIndex:teamId.length + 1];
-        }
-        resumeDictionary =
-        @{
-          @"authority"        : _requestParams.authority,
-          @"resource"         : _requestParams.resource,
-          @"client_id"        : _requestParams.clientId,
-          @"redirect_uri"     : _requestParams.redirectUri,
-          @"correlation_id"   : _requestParams.correlationId.UUIDString,
-          @"keychain_group"   : keychainGroup
-          };
-
+        keychainGroup = [keychainGroup substringFromIndex:teamId.length + 1];
     }
-    else
+    
+    resumeDictionary =
+    @{
+      @"authority"        : _requestParams.authority,
+      @"resource"         : _requestParams.resource,
+      @"client_id"        : _requestParams.clientId,
+      @"redirect_uri"     : _requestParams.redirectUri,
+      @"correlation_id"   : _requestParams.correlationId.UUIDString,
+      @"keychain_group"   : keychainGroup
+      };
+#else
+    resumeDictionary =
+    @{
+      @"authority"        : _requestParams.authority,
+      @"resource"         : _requestParams.resource,
+      @"client_id"        : _requestParams.clientId,
+      @"redirect_uri"     : _requestParams.redirectUri,
+      @"correlation_id"   : _requestParams.correlationId.UUIDString,
+      };
 #endif
-    {
-        resumeDictionary =
-        @{
-          @"authority"        : _requestParams.authority,
-          @"resource"         : _requestParams.resource,
-          @"client_id"        : _requestParams.clientId,
-          @"redirect_uri"     : _requestParams.redirectUri,
-          @"correlation_id"   : _requestParams.correlationId.UUIDString,
-          };
-    }
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
