@@ -27,6 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
+#import "MSIDAADV1TokenResponse.h"
 
 @implementation ADTokenCacheItem (MSIDTokens)
 
@@ -69,6 +70,30 @@
     }
     
     return self;
+}
+
+- (MSIDTokenResponse *)msidTokenResponse
+{
+    NSDictionary *params = @{@"resource": self.resource ? self.resource : @"",
+                             @"expires_on": self.expiresOn ? self.expiresOn : @"",
+                             @"foci": self.familyId ? self.familyId : @"",
+                             @"access_token": self.accessToken ? self.accessToken : @"",
+                             @"refresh_token": self.refreshToken ? self.refreshToken : @"",
+                             @"token_type": @"Bearer",
+                             @"id_token": self.userInformation.rawIdToken ? self.userInformation.rawIdToken : @""
+                             };
+    MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:params error:nil];
+    
+//    @property (readonly) NSInteger expiresIn;
+//    @property (readonly) NSString *scope;
+//    @property (readonly) NSString *state;
+//    @property (readonly) NSString *correlationId;
+//    @property (readonly) NSInteger extendedExpiresIn;
+//    @property (readonly) MSIDClientInfo *clientInfo;
+//    @property (readonly) NSString *speInfo;
+//    @property (readonly) NSDate *extendedExpiresOnDate;
+    
+    return response;
 }
 
 #pragma mark - Private

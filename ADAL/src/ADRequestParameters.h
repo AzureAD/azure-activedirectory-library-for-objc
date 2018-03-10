@@ -25,6 +25,7 @@
 #import "MSIDRequestContext.h"
 
 @class ADTokenCacheAccessor;
+@class MSIDRequestParameters;
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
@@ -62,5 +63,7 @@
           correlationId:(NSUUID *)correlationId
      telemetryRequestId:(NSString *)telemetryRequestId
            logComponent:(NSString *)logComponent;
+
+- (MSIDRequestParameters *)msidRequestParameters;
 
 @end

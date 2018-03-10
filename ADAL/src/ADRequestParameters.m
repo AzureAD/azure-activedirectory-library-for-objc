@@ -24,6 +24,7 @@
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheAccessor.h"
+#import "MSIDRequestParameters.h"
 
 @implementation ADRequestParameters
 
@@ -101,6 +102,15 @@
 - (void)setRedirectUri:(NSString *)redirectUri
 {
     _redirectUri = [redirectUri msidTrimmedString];
+}
+
+- (MSIDRequestParameters *)msidRequestParameters
+{
+    NSURL *authority = [[NSURL alloc] initWithString:self.authority];
+    MSIDRequestParameters *requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                                    redirectUri:self.redirectUri clientId:self.clientId target:self.resource];
+    
+    return requestParameters;
 }
 
 @end

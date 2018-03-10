@@ -27,6 +27,7 @@
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
 @class MSIDLegacySingleResourceToken;
+@class MSIDTokenResponse;
 
 @interface ADTokenCacheItem (MSIDTokens)
 
@@ -35,5 +36,8 @@
 - (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
 
 - (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
+
+// TODO: HACK!
+- (MSIDTokenResponse *)msidTokenResponse;
 
 @end

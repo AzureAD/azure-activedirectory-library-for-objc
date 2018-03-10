@@ -35,6 +35,10 @@
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "ADTokenCacheItem+MSIDTokens.h"
+#import "MSIDSharedTokenCache.h"
+#import "ADAuthenticationErrorConverter.h"
+#import "MSIDAccount.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -154,10 +158,10 @@
          ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_requestParams.correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
-//             [[_requestParams tokenCache] updateCacheToResult:result
-//                                                    cacheItem:resultItem
-//                                                 refreshToken:refreshToken
-//                                                      context:_requestParams];
+             [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
+                                                 response:[resultItem msidTokenResponse]
+                                                  context:_requestParams
+                                                    error:nil];
          }
          result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];//Verify the user (just in case)
          
@@ -259,69 +263,80 @@
 
 - (void)getAccessToken:(ADAuthenticationCallback)completionBlock
 {
-//    //All of these should be set before calling this method:
-//    THROW_ON_NIL_ARGUMENT(completionBlock);
-//    NSUUID* correlationId = [_requestParams correlationId];
-//
-//    ADAuthenticationError* error = nil;
-//    ADTokenCacheItem* item = [[_requestParams tokenCache] getATRTItemForUser:[_requestParams identifier]
-//                                                                    resource:[_requestParams resource]
-//                                                                    clientId:[_requestParams clientId]
-//                                                                     context:_requestParams
-//                                                                       error:&error];
-//    // If some error ocurred during the cache lookup then we need to fail out right away.
-//    if (!item && error)
-//    {
-//        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
-//        return;
-//    }
-//
-//    // If we didn't find an item at all there's a chance that we might be dealing with an "ADFS" user
-//    // and we need to check the unknown user ADFS token as well
-//    if (!item)
-//    {
-//        item = [[_requestParams tokenCache] getADFSUserTokenForResource:[_requestParams resource]
-//                                                               clientId:[_requestParams clientId]
-//                                                                context:_requestParams
-//                                                                  error:&error];
-//        if (!item && error)
-//        {
-//            completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
-//            return;
-//        }
-//
-//        // If we still don't have anything from the cache to use then we should try to see if we have an MRRT
-//        // that matches.
-//        if (!item)
-//        {
-//            [self tryMRRT:completionBlock];
-//            return;
-//        }
-//    }
-//
-//    // If we have a good (non-expired) access token then return it right away
-//    if (item.accessToken && !item.isExpired)
-//    {
-//        [[MSIDLogger sharedLogger] logToken:item.accessToken
-//                                  tokenType:@"AT"
-//                              expiresOnDate:item.expiresOn
-//                               additionaLog:@"Returning"
-//                                    context:_requestParams];
-//        ADAuthenticationResult* result =
-//        [ADAuthenticationResult resultFromTokenCacheItem:item
-//                               multiResourceRefreshToken:NO
-//                                           correlationId:correlationId];
-//        completionBlock(result);
-//        return;
-//    }
-//
-//    // If the access token is good in terms of extended lifetime then store it for later use
-//    if (item.accessToken && item.isExtendedLifetimeValid)
-//    {
-//        _extendedLifetimeAccessTokenItem = item;
-//    }
-//
-//    [self tryRT:item completionBlock:completionBlock];
+    //All of these should be set before calling this method:
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    NSUUID* correlationId = [_requestParams correlationId];
+
+    ADAuthenticationError *error = nil;
+    NSError *msidError = nil;
+    
+    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:_requestParams.identifier.userId
+                                                        uniqueUserId:nil];
+    
+    // TODO: we should be able to get AT wihtout user id.
+    MSIDAccessToken *token = [self.tokenCache getATForAccount:account
+                                                requestParams:[_requestParams msidRequestParameters]
+                                                      context:_requestParams
+                                                        error:&msidError];
+    
+    ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithAccessToken:token];
+    error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+    
+    // If some error ocurred during the cache lookup then we need to fail out right away.
+    if (!item && error)
+    {
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+        return;
+    }
+
+    // If we didn't find an item at all there's a chance that we might be dealing with an "ADFS" user
+    // and we need to check the unknown user ADFS token as well
+    if (!item)
+    {
+        MSIDLegacySingleResourceToken *token = [self.tokenCache getLegacyTokenWithRequestParams:[_requestParams msidRequestParameters]
+                                                                                       context:_requestParams
+                                                                                         error:&msidError];
+        item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:token];
+        error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+        
+        if (!item && error)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+            return;
+        }
+
+        // If we still don't have anything from the cache to use then we should try to see if we have an MRRT
+        // that matches.
+        if (!item)
+        {
+            [self tryMRRT:completionBlock];
+            return;
+        }
+    }
+
+    // If we have a good (non-expired) access token then return it right away
+    if (item.accessToken && !item.isExpired)
+    {
+        [[MSIDLogger sharedLogger] logToken:item.accessToken
+                                  tokenType:@"AT"
+                              expiresOnDate:item.expiresOn
+                               additionaLog:@"Returning"
+                                    context:_requestParams];
+        ADAuthenticationResult* result =
+        [ADAuthenticationResult resultFromTokenCacheItem:item
+                               multiResourceRefreshToken:NO
+                                           correlationId:correlationId];
+        completionBlock(result);
+        return;
+    }
+
+    // If the access token is good in terms of extended lifetime then store it for later use
+    if (item.accessToken && item.isExtendedLifetimeValid)
+    {
+        _extendedLifetimeAccessTokenItem = item;
+    }
+
+    [self tryRT:item completionBlock:completionBlock];
 }
 
 - (void)tryRT:(ADTokenCacheItem*)item completionBlock:(ADAuthenticationCallback)completionBlock
