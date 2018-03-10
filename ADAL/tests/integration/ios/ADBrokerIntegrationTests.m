@@ -38,6 +38,7 @@
 #import "ADTokenCacheTestUtil.h"
 #import "ADUserInformation.h"
 #import "ADRefreshResponseBuilder.h"
+#import "MSIDClientInfo.h"
 
 
 @interface ADBrokerIntegrationTests : ADTestCase
@@ -150,7 +151,8 @@
           @"access_token" : @"i-am-a-access-token",
           @"refresh_token" : @"i-am-a-refresh-token",
           @"foci" : @"1",
-          @"expires_in" : @"3600"
+          @"expires_in" : @"3600",
+          @"client_info" : [self adCreateClientInfo].rawClientInfo
           };
         
         [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];

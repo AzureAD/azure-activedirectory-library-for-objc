@@ -929,6 +929,7 @@ const int sAsyncContextTimeout = 10;
     [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
+                                       MSID_OAUTH2_CLIENT_INFO: @"1",
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
     [ADTestURLSession addResponse:response];
     
@@ -1022,6 +1023,7 @@ const int sAsyncContextTimeout = 10;
     [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
+                                       MSID_OAUTH2_CLIENT_INFO: @"1",
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
     
     //It should hit network twice for trying and retrying the refresh token because it is an server error
@@ -1632,6 +1634,7 @@ const int sAsyncContextTimeout = 10;
     [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
+                                       MSID_OAUTH2_CLIENT_INFO: @"1",
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
     
     // Add the responsce twice because retry will happen
@@ -2107,6 +2110,7 @@ const int sAsyncContextTimeout = 10;
     [response setUrlFormEncodedBody:@{ @"resource" : TEST_RESOURCE,
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
+                                       MSID_OAUTH2_CLIENT_INFO: @"1",
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
     
     [ADTestURLSession addResponse:response];
