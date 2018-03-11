@@ -66,6 +66,7 @@
     requestBody[MSID_OAUTH2_REFRESH_TOKEN] = self.oldRefreshToken;
     requestBody[MSID_OAUTH2_RESOURCE] = self.resource;
     requestBody[MSID_OAUTH2_CLIENT_ID] = self.clientId;
+    requestBody[MSID_OAUTH2_CLIENT_INFO] = @"1";
     [requestBody addEntriesFromDictionary:_requestBody];
     
     NSMutableDictionary *responseBody = [NSMutableDictionary new];
