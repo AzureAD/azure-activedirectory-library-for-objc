@@ -27,6 +27,8 @@
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
 @class MSIDLegacySingleResourceToken;
+@class MSIDLegacyTokenCacheKey;
+@class MSIDTokenCacheItem;
 
 @interface ADTokenCacheItem (MSIDTokens)
 
@@ -35,5 +37,9 @@
 - (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
 
 - (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
+- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem;
+
+- (MSIDLegacyTokenCacheKey *)tokenCacheKey;
+- (MSIDTokenCacheItem *)tokenCacheItem;
 
 @end

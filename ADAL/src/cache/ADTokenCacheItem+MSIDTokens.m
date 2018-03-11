@@ -27,6 +27,8 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDTokenCacheItem.h"
 
 @implementation ADTokenCacheItem (MSIDTokens)
 
@@ -71,6 +73,23 @@
     return self;
 }
 
+- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem
+{
+    MSIDBaseToken *token = [cacheItem tokenWithType:cacheItem.tokenType];
+    
+    switch (token.tokenType) {
+        case MSIDTokenTypeAccessToken:
+            return [self initWithAccessToken:(MSIDAccessToken *)token];
+        case MSIDTokenTypeRefreshToken:
+            return [self initWithRefreshToken:(MSIDRefreshToken *)token];
+        case MSIDTokenTypeLegacySingleResourceToken:
+            return [self initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)token];
+            
+        default:
+            return nil;
+    }
+}
+
 #pragma mark - Private
 
 - (ADUserInformation *)createUserInfoWithIdToken:(NSString *)idToken homeUserId:(NSString *)homeUserId
@@ -99,6 +118,36 @@
     }
     
     return self;
+}
+
+- (MSIDLegacyTokenCacheKey *)tokenCacheKey
+{
+    NSURL *authorityURL = [NSURL URLWithString:self.authority];
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:authorityURL
+                                                                    clientId:self.clientId
+                                                                    resource:self.resource
+                                                                legacyUserId:self.userInformation.userId];
+    
+    return key;
+}
+
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.clientId = self.clientId;
+    cacheItem.oauthTokenType = self.accessTokenType;
+    cacheItem.accessToken = self.accessToken;
+    cacheItem.refreshToken = self.refreshToken;
+    cacheItem.idToken = self.userInformation.rawIdToken;
+    cacheItem.target = self.resource;
+    cacheItem.expiresOn = self.expiresOn;
+    cacheItem.cachedAt = nil;
+    cacheItem.familyId = self.familyId;
+    cacheItem.authority = [NSURL URLWithString:self.authority];
+    cacheItem.uniqueUserId = self.userInformation.userId;
+    // TODO: add clientInfo
+    
+    return cacheItem;
 }
 
 @end

@@ -41,7 +41,6 @@
 
 @interface ADTokenCache : NSObject
 {
-    NSMutableDictionary* _cache;
     id<ADTokenCacheDelegate> _delegate;
     pthread_rwlock_t _lock;
 }
