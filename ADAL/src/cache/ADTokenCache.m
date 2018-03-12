@@ -83,7 +83,7 @@
     
     self.macTokenCache = [MSIDMacTokenCache new];
     self.macTokenCache.delegate = self;
-    self.tokenItemSerializer = [MSIDJsonSerializer new];
+    self.tokenItemSerializer = [MSIDKeyedArchiverSerializer new];
     
     pthread_rwlock_init(&_lock, NULL);
     
