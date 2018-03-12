@@ -100,7 +100,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     ADTokenCache* cache = [ADTokenCache new];
     [cache setDelegate:delegate];
     
-    //[self setTokenCacheStore:cache];
+    [self setTokenCacheStore:cache];
     return self;
 }
 

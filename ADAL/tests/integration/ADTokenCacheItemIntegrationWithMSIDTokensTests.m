@@ -69,7 +69,7 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertEqualObjects(adToken.additionalClient, @{});
+    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithRefreshToken_shouldInitADTokenCacheItem
@@ -92,7 +92,7 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertNil(adToken.resource);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertEqualObjects(adToken.additionalClient, @{});
+    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithLegacySingleResourceToken_shouldInitADTokenCacheItem
@@ -115,7 +115,7 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertEqualObjects(adToken.additionalClient, @{});
+    XCTAssertNil(adToken.additionalClient);
 }
 
 @end

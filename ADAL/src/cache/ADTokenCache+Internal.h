@@ -23,17 +23,15 @@
 
 #import "ADTokenCache.h"
 #import "MSIDMacTokenCache.h"
+#import "ADTokenCacheDataSource.h"
 
-@interface ADTokenCache (Internal) <MSIDMacTokenCacheDelegate>
-
-@property (nonatomic, nullable) MSIDMacTokenCache *macTokenCache;
-@property (nonatomic, nullable) id<MSIDTokenItemSerializer> tokenItemSerializer;
+@interface ADTokenCache (Internal) <MSIDMacTokenCacheDelegate, ADTokenCacheDataSource>
 
 - (nullable id<ADTokenCacheDelegate>)delegate;
 
-- (void)addOrUpdateItem:(nullable ADTokenCacheItem *)item
+- (BOOL)addOrUpdateItem:(nullable ADTokenCacheItem *)item
           correlationId:(nullable NSUUID *)correlationId
-                  error:(NSError * __nullable __autoreleasing * __nullable)error;
+                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end
 

@@ -29,6 +29,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDTokenCacheItem.h"
+#import "ADTokenCacheItem+Internal.h"
 
 @implementation ADTokenCacheItem (MSIDTokens)
 
@@ -113,8 +114,8 @@
     {
         _clientId = baseToken.clientId;
         _authority = baseToken.authority.absoluteString;
-        _additionalServer = baseToken.additionalInfo;
-        _additionalClient = [NSMutableDictionary new];
+        _additionalServer = baseToken.additionaServerlInfo;
+        _additionalClient = [baseToken.additionalClientInfo mutableCopy];
     }
     
     return self;
@@ -145,8 +146,9 @@
     cacheItem.familyId = self.familyId;
     cacheItem.authority = [NSURL URLWithString:self.authority];
     cacheItem.uniqueUserId = self.userInformation.userId;
-    // TODO: add clientInfo
-    
+    cacheItem.tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
+    cacheItem.additionalInfo = self.additionalServer;
+    cacheItem.additionalClientInfo = self.additionalClient;
     return cacheItem;
 }
 
