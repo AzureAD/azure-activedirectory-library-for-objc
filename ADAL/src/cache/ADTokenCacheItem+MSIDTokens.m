@@ -31,6 +31,12 @@
 #import "MSIDTokenCacheItem.h"
 #import "ADTokenCacheItem+Internal.h"
 
+@interface ADTokenCacheItem()
+
+- (void)calculateHash;
+
+@end
+
 @implementation ADTokenCacheItem (MSIDTokens)
 
 - (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken
@@ -46,6 +52,8 @@
         _expiresOn = accessToken.expiresOn;
     }
     
+    [self calculateHash];
+    
     return self;
 }
 
@@ -60,6 +68,8 @@
         _familyId = refreshToken.familyId;
     }
     
+    [self calculateHash];
+    
     return self;
 }
 
@@ -70,6 +80,8 @@
     {
         _refreshToken = legacySingleResourceToken.refreshToken;
     }
+    
+    [self calculateHash];
     
     return self;
 }

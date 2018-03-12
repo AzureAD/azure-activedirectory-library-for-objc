@@ -873,7 +873,6 @@
 		B20DC5E61F0D998A00957806 /* ADHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpersTests.m; sourceTree = "<group>"; };
 		B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemTests.m; sourceTree = "<group>"; };
 		B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheKeyTests.m; sourceTree = "<group>"; };
-		B20DC5EB1F0D998A00957806 /* ADTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheTests.m; sourceTree = "<group>"; };
 		B20DC5EC1F0D998A00957806 /* ADUserInformationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserInformationTests.m; sourceTree = "<group>"; };
 		B20DC5ED1F0D998A00957806 /* ADWebAuthResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponseTests.m; sourceTree = "<group>"; };
 		B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenTests.m; sourceTree = "<group>"; };
@@ -1715,7 +1714,6 @@
 				B20DC5E61F0D998A00957806 /* ADHelpersTests.m */,
 				B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */,
 				B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */,
-				B20DC5EB1F0D998A00957806 /* ADTokenCacheTests.m */,
 				B20DC5EC1F0D998A00957806 /* ADUserInformationTests.m */,
 				B20DC5ED1F0D998A00957806 /* ADWebAuthResponseTests.m */,
 				B20DC6141F0D9A7600957806 /* ADAuthorityValidationTests.m */,

@@ -163,6 +163,11 @@
         return nil;
     }
     
+    if (!allItems)
+    {
+        return nil;
+    }
+    
     NSMutableArray<ADTokenCacheItem *> *results = [NSMutableArray array];
     
     for (MSIDTokenCacheItem *cacheItem in allItems)
