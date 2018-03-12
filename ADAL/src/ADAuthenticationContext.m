@@ -122,7 +122,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         return nil;
     }
 #else
-    //tokenCache = [ADTokenCache defaultCache];
+    tokenCache = [ADTokenCache defaultCache];
 #endif
     
     return [self initWithAuthority:authority
