@@ -58,15 +58,6 @@
              return;
          }
          
-         //Prefill the known elements in the item. These can be overridden by the response:
-         NSMutableDictionary *result = [@{
-                                          MSID_OAUTH2_AUTHORITY : authority,
-                                          MSID_OAUTH2_RESOURCE : _requestParams.resource,
-                                          MSID_OAUTH2_CLIENT_ID : _requestParams.clientId
-                                          } mutableCopy];
-         
-         [result addEntriesFromDictionary:response];
-         
          MSIDAADV1TokenResponse *msidResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response error:nil];
          
          completionBlock(msidResponse, nil);
