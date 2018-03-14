@@ -45,7 +45,7 @@
 }
 
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
-- (void)requestTokenByAssertion:(ADAuthenticationCallback)completionBlock
+- (void)requestTokenByAssertion:(MSIDTokenResponseCallback)completionBlock
 {
     [self ensureRequest];
     NSUUID* correlationId = [_requestParams correlationId];
@@ -60,7 +60,7 @@
     {
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@"Unrecognized assertion type."
                                                                      correlationId:correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+        completionBlock(nil, error);
         return;
     }
     

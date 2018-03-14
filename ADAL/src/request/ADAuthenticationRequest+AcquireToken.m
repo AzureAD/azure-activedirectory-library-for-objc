@@ -38,6 +38,8 @@
 #import "ADAuthorityUtils.h"
 #import "MSIDSharedTokenCache.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
+#import "MSIDAccessToken.h"
+#import "MSIDAADV1TokenResponse.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -284,14 +286,21 @@
 
     if (_samlAssertion)
     {
-        [self requestTokenByAssertion:^(ADAuthenticationResult *result){
+        [self requestTokenByAssertion:^(MSIDTokenResponse *response, ADAuthenticationError *error)
+        {
+            
+            ADTokenCacheItem *item = [ADTokenCacheItem new];
+            ADAuthenticationResult *result = [item processTokenResponse:[response jsonDictionary]
+                                                            fromRefresh:NO
+                                                   requestCorrelationId:[_requestParams correlationId]];
+            
             if (AD_SUCCEEDED == result.status)
             {
                 [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
-                                                    response:[result.tokenCacheItem msidTokenResponse]
+                                                    response:response
                                                      context:_requestParams
                                                        error:nil];
-                
+
                 result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
             }
             completionBlock(result);
@@ -473,9 +482,15 @@
                  
                  [[MSIDTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
                  [self requestTokenByCode:code
-                          completionBlock:^(ADAuthenticationResult *result)
+                          completionBlock:^(MSIDTokenResponse *response, ADAuthenticationError *error)
                   {
-                      ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
+                      //Prefill the known elements in the item. These can be overridden by the response:
+                      ADTokenCacheItem *item = [ADTokenCacheItem new];
+                      ADAuthenticationResult *result = [item processTokenResponse:[response jsonDictionary]
+                                                                      fromRefresh:NO
+                                                             requestCorrelationId:[_requestParams correlationId]];
+                      
+                      ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                                      context:_requestParams];
                       [event setGrantType:MSID_TELEMETRY_VALUE_BY_CODE];
                       [event setResultStatus:[result status]];
@@ -483,9 +498,10 @@
                       if (AD_SUCCEEDED == result.status)
                       {
                           [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
-                                                              response:[result.tokenCacheItem msidTokenResponse]
+                                                              response:response
                                                                context:_requestParams
                                                                  error:nil];
+                          
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
                           [result setCloudAuthority:_cloudAuthority];
                       }
@@ -498,9 +514,15 @@
 
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString *)code
-           completionBlock:(ADAuthenticationCallback)completionBlock
+           completionBlock:(MSIDTokenResponseCallback)completionBlock
 {
-    HANDLE_ARGUMENT(code, [_requestParams correlationId]);
+    if ([NSString msidIsStringNilOrBlank:code])
+    {
+        ADAuthenticationError *error = [ADAuthenticationError errorFromArgument:code argumentName:@"code" correlationId:_requestParams.correlationId];
+        completionBlock(nil, error);
+        return;
+    }
+    
     [self ensureRequest];
     
     MSID_LOG_VERBOSE(_requestParams, @"Requesting token by authorization code");

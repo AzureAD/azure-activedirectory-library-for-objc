@@ -37,7 +37,4 @@
 
 - (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
 
-// TODO: HACK!
-- (MSIDTokenResponse *)msidTokenResponse;
-
 @end

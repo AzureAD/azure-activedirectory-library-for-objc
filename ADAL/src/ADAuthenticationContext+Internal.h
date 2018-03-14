@@ -21,16 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-//A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
-#define HANDLE_ARGUMENT(ARG, CORRELATION_ID) \
-    if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
-                                               argumentName:TO_NSSTRING(#ARG) \
-                                              correlationId:CORRELATION_ID \
-                                            completionBlock:completionBlock]) \
-    { \
-    return; \
-    }
-
 #define CHECK_FOR_NIL(_val) \
     if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:[_requestParams correlationId]]]); return; }
 
@@ -52,13 +42,7 @@ extern NSString* const ADInteractionNotSupportedInExtension;
 extern NSString* const ADServerError;
 extern NSString* const ADRedirectUriInvalidError;
 
-
 @interface ADAuthenticationContext (Internal)
-
-+ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
-                     argumentName:(NSString *)argumentName
-                    correlationId:(NSUUID *)correlationId
-                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
 + (BOOL)handleNilOrEmptyAsResult:(NSObject *)argumentValue
                     argumentName:(NSString *)argumentName

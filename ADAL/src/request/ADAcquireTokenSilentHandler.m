@@ -39,6 +39,7 @@
 #import "MSIDSharedTokenCache.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAccount.h"
+#import "MSIDAADV1TokenResponse.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -154,12 +155,12 @@
          resultItem.clientId = [_requestParams clientId];
          resultItem.authority = [_requestParams authority];
          
-         
          ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_requestParams.correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
+             MSIDAADV1TokenResponse *msidResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response error:nil];
              [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
-                                                 response:[resultItem msidTokenResponse]
+                                                 response:msidResponse
                                                   context:_requestParams
                                                     error:nil];
          }

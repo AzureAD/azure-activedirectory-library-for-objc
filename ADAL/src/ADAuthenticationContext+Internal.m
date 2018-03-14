@@ -34,29 +34,6 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
 @implementation ADAuthenticationContext (Internal)
 
-/*! Verifies that the string parameter is not nil or empty. If it is,
- the method generates an error and set it to an authentication result.
- Then the method calls the callback with the result.
- The method returns if the argument is valid. If the method returns false,
- the calling method should return. */
-+ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
-                     argumentName:(NSString *)argumentName
-                    correlationId:(NSUUID *)correlationId
-                  completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString msidIsStringNilOrBlank:(NSString*)argumentValue]))
-    {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
-        completionBlock(result);//Call the callback to tell about the result
-        return NO;
-    }
-    else
-    {
-        return YES;
-    }
-}
-
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult
