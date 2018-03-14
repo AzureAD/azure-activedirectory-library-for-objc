@@ -31,6 +31,9 @@
 @class ADTokenCacheItem;
 
 @interface ADLegacyMacTokenCache : ADTokenCache <ADTokenCacheDataSource>
+{
+    NSMutableDictionary* _cache;
+}
 
 /*! Returns the default cache object using the ADTokenCacheDelegate set in
     ADAuthenticationSettings */
