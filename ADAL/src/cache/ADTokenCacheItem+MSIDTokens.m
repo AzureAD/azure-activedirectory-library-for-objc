@@ -114,6 +114,8 @@
 
 - (instancetype)initWithBaseToken:(MSIDBaseToken *)baseToken
 {
+    if (!baseToken) return nil;
+    
     self = [super init];
     if (self)
     {

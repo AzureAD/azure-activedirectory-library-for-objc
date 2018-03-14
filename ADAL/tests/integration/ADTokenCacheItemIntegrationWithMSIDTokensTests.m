@@ -72,6 +72,13 @@
     XCTAssertEqualObjects(adToken.additionalClient, @{});
 }
 
+- (void)testInitWithNilAccessToken_shouldReturnNil
+{
+    ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithAccessToken:nil];
+    
+    XCTAssertNil(adToken);
+}
+
 - (void)testInitWithRefreshToken_shouldInitADTokenCacheItem
 {
     MSIDRefreshToken *refreshToken = [self adCreateRefreshToken];
@@ -95,6 +102,13 @@
     XCTAssertEqualObjects(adToken.additionalClient, @{});
 }
 
+- (void)testInitWithNilRefreshToken_shouldReturnNil
+{
+    ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithRefreshToken:nil];
+    
+    XCTAssertNil(adToken);
+}
+
 - (void)testInitWithLegacySingleResourceToken_shouldInitADTokenCacheItem
 {
     MSIDLegacySingleResourceToken *legacySingleResourceToken = [self adCreateLegacySingleResourceToken];
@@ -116,6 +130,13 @@
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
     XCTAssertEqualObjects(adToken.additionalClient, @{});
+}
+
+- (void)testInitWithNilSingleResourceToken_shouldReturnNil
+{
+    ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:nil];
+    
+    XCTAssertNil(adToken);
 }
 
 @end
