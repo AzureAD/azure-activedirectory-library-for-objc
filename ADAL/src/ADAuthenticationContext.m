@@ -42,6 +42,7 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "ADTokenCache.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -105,8 +106,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     
-    // TODO: Implement proxy delegate that wil convert calls.
-    //    [MSIDMacTokenCache defaultCache].delegate = delegate;
+    [[ADTokenCache defaultCache] setDelegate:delegate];
     
     MSIDSharedTokenCache *tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
     
