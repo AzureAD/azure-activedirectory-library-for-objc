@@ -40,6 +40,7 @@
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "ADUserInformation.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -385,8 +386,9 @@
              [ADAuthenticationRequest releaseExclusionLock];
 #endif
              
-             // If we got back a valid RT but no access token then replay the RT for a new AT
-             if (result.status == AD_SUCCEEDED && result.tokenCacheItem.accessToken == nil)
+             // If we got back a valid RT but no access token, then replay the RT for a new AT.
+             BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
+             if (result.status == AD_SUCCEEDED && replay)
              {
                  if (_requestParams.scope == nil)
                  {
@@ -529,19 +531,19 @@
     MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
-    NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                         MSID_OAUTH2_AUTHORIZATION_CODE, MSID_OAUTH2_GRANT_TYPE,
-                                         code, MSID_OAUTH2_CODE,
-                                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
-                                         [_requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
-                                         nil];
+    NSMutableDictionary *requestData = [@{MSID_OAUTH2_GRANT_TYPE: MSID_OAUTH2_AUTHORIZATION_CODE,
+                                          MSID_OAUTH2_CODE: code,
+                                          MSID_OAUTH2_CLIENT_ID: [_requestParams clientId],
+                                          MSID_OAUTH2_REDIRECT_URI: [_requestParams redirectUri],
+                                          MSID_OAUTH2_CLIENT_INFO: @YES
+                                          } mutableCopy];
 
     if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
     {
-        [request_data setValue:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
+        [requestData setValue:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
     }
     
-    [self executeRequest:request_data
+    [self executeRequest:requestData
               completion:completionBlock];
 }
 
