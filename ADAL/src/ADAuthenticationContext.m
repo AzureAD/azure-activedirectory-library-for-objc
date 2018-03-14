@@ -90,8 +90,8 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     
-    MSIDKeychainTokenCache.defaultKeychainGroup = sharedGroup;
-    MSIDSharedTokenCache *tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    MSIDSharedTokenCache *tokenCache = [self createIosCache:keychainTokenCache];
     
     return [self initWithAuthority:authority
                  validateAuthority:bValidate
