@@ -21,15 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADKeychainTokenCache.h"
-#import "ADTokenCacheDataSource.h"
+#import "ADMSIDContext.h"
 
-@class ADTokenCacheStoreKey;
+@implementation ADMSIDContext
 
-@interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
-
-/*! This method should *only* be called in test code, it should never be called
-    in production code */
-- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
+- (instancetype)initWithCorrelationId:(NSUUID *)correlationId
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _correlationId = correlationId;
+    }
+    
+    return self;
+}
 
 @end

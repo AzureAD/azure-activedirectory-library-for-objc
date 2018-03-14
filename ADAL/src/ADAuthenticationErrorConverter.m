@@ -88,7 +88,7 @@ static NSDictionary *s_userInfoKeyMapping;
         }
         else
         {
-            MSID_LOG_ERROR(nil, @"ADAuthenticationErrorConverter could not find the error code mapping entry for domain (%@) + error code (%ld).", msidError.domain, msidError.code);
+            MSID_LOG_ERROR(nil, @"ADAuthenticationErrorConverter could not find the error code mapping entry for domain (%@) + error code (%ld).", msidError.domain, (long)msidError.code);
         }
     }
     

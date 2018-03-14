@@ -360,7 +360,15 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     // Grab the default keychain query dict to make sure that we're
     // adding the garbage data in just the right place that we might
     // trip up the keychain code.
-    NSDictionary* defaultQuery = [cache defaultKeychainQuery];
+    
+    NSDictionary *defaultQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
+                                   (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
+                                   (id)kSecAttrAccessGroup: cache.sharedGroup
+                                   };
+    
+    // Depending on the environment we may or may not have keychain access groups. Which environments
+    // have keychain access group support also varies over time. They should always work on device,
+    // in Simulator they work when running within an app bundle but not in unit tests, as of Xcode 7.3
     NSMutableDictionary* addQuery = [NSMutableDictionary dictionaryWithDictionary:defaultQuery];
     
     void* bytes = malloc(1024);
@@ -399,13 +407,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                          [@"https://login.microsoftonline.com/common" msidBase64UrlEncode],
                          [@"<resource>" msidBase64UrlEncode],
                          // The underlying keychain code lowercases the client ID before saving it out to keychain
-                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed18f" msidBase64UrlEncode]];
+                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed180" msidBase64UrlEncode]];
     
     NSDictionary* query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
                              (id)kSecAttrAccount : [@"myfakeuser@contoso.com" msidBase64UrlEncode],
                              (id)kSecAttrService : service,
                              (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
-                             (id)kSecValueData : itemData,
+                             (id)kSecValueData : itemData
                              };
     
     OSStatus status = SecItemAdd((CFDictionaryRef)query, NULL);
@@ -417,7 +425,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:@"https://login.microsoftonline.com/common"
                                                     resource:@"<resource>"
                             // Client ID is upper cased here to make sure it does the proper case conversion
-                                                    clientId:@"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F"
+                                                    clientId:@"27AD83C9-FC05-4A6C-AF01-36EDA42ED180"
                                                        error:&error];
     XCTAssertNotNil(key);
     

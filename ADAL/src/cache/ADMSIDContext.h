@@ -21,15 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADKeychainTokenCache.h"
-#import "ADTokenCacheDataSource.h"
+#import <Foundation/Foundation.h>
+#import "MSIDRequestContext.h"
 
-@class ADTokenCacheStoreKey;
+/* !
+ This is a wrapper class for MSIDRequestContext for cases, when only correlationId is provided
+ (some legacy token cache calls)
+ */
 
-@interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
+@interface ADMSIDContext : NSObject <MSIDRequestContext>
 
-/*! This method should *only* be called in test code, it should never be called
-    in production code */
-- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
+@property (nonatomic, readonly) NSUUID *correlationId;
+@property (nonatomic, readonly) NSString *logComponent;
+@property (nonatomic, readonly) NSString *telemetryRequestId;
+
+- (instancetype)initWithCorrelationId:(NSUUID *)correlationId;
 
 @end

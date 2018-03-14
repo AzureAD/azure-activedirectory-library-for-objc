@@ -41,22 +41,17 @@
 
 #import "ADTokenCache.h"
 #import "MSIDMacTokenCache.h"
-#import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
 #import "ADAuthenticationErrorConverter.h"
-#import "ADTokenCacheItem+MSIDTokens.h"
-#import "MSIDBaseToken.h"
-#import "ADUserInformation.h"
 #import "ADTokenCache+Internal.h"
-#import "MSIDJsonSerializer.h"
-#import "ADTokenCacheKey.h"
+#import "ADMSIDDataSourceWrapper.h"
 
 #include <pthread.h>
 
 @interface ADTokenCache()
 
 @property (nonatomic, nullable) MSIDMacTokenCache *macTokenCache;
-@property (nonatomic, nullable) id<MSIDTokenItemSerializer> tokenItemSerializer;
+@property (nonatomic, nullable) ADMSIDDataSourceWrapper *msidDataSourceWrapper;
 
 @end
 
@@ -83,7 +78,8 @@
     
     self.macTokenCache = [MSIDMacTokenCache new];
     self.macTokenCache.delegate = self;
-    self.tokenItemSerializer = [MSIDKeyedArchiverSerializer new];
+    self.msidDataSourceWrapper = [[ADMSIDDataSourceWrapper alloc] initWithMSIDDataSource:self.macTokenCache
+                                                                              serializer:[MSIDKeyedArchiverSerializer new]];
     
     pthread_rwlock_init(&_lock, NULL);
     
@@ -129,18 +125,27 @@
 }
 
 - (BOOL)deserialize:(nullable NSData*)data
-              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+              error:(ADAuthenticationError **)error
 {
-    return [self.macTokenCache deserialize:data error:error];
+    NSError *cacheError = nil;
+    
+    BOOL result = [self.macTokenCache deserialize:data error:&cacheError];
+    
+    if (cacheError && error)
+    {
+        *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+    }
+    
+    return result;
 }
 
 /*! Clears token cache details for specific keys.
     @param item The item to remove from the array.
  */
 - (BOOL)removeItem:(ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __autoreleasing *)error
+             error:(ADAuthenticationError **)error
 {
-    return [self.macTokenCache removeItemsWithKey:[item tokenCacheKey] context:nil error:error];
+    return [self.msidDataSourceWrapper removeItem:item error:error];
 }
 
 /*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
@@ -148,39 +153,7 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
-    
-    NSError *cacheError = nil;
-    
-    NSArray<MSIDTokenCacheItem *> *allItems = [self.macTokenCache tokensWithKey:key
-                                                                     serializer:[MSIDKeyedArchiverSerializer new]
-                                                                        context:nil
-                                                                          error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
-        return nil;
-    }
-    
-    if (!allItems)
-    {
-        return nil;
-    }
-    
-    NSMutableArray<ADTokenCacheItem *> *results = [NSMutableArray array];
-    
-    for (MSIDTokenCacheItem *cacheItem in allItems)
-    {
-        ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithMSIDTokenCacheItem:cacheItem];
-        
-        if (item)
-        {
-            [results addObject:item];
-        }
-    }
-    
-    return results;
+    return [self.msidDataSourceWrapper allItems:error];
 }
 
 #pragma mark - MSIDMacTokenCacheDelegate
@@ -221,24 +194,7 @@
           correlationId:(NSUUID *)correlationId
                   error:(ADAuthenticationError **)error
 {
-    MSIDTokenCacheKey *key = [item tokenCacheKey];
-    MSIDTokenCacheItem *tokenCacheItem = [item tokenCacheItem];
-    
-    NSError *cacheError = nil;
-    
-    BOOL result = [self.macTokenCache saveToken:tokenCacheItem
-                                            key:key
-                                     serializer:self.tokenItemSerializer
-                                        context:nil
-                                          error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
-        return NO;
-    }
-    
-    return result;
+    return [self.msidDataSourceWrapper addOrUpdateItem:item correlationId:correlationId error:error];
 }
 
 #pragma mark - ADTokenCacheDataSource
@@ -253,25 +209,7 @@
                        correlationId:(NSUUID *)correlationId
                                error:(ADAuthenticationError **)error
 {
-    MSIDLegacyTokenCacheKey *msidKey = [MSIDLegacyTokenCacheKey keyWithAuthority:[NSURL URLWithString:key.authority]
-                                                                        clientId:key.clientId
-                                                                        resource:key.resource
-                                                                    legacyUserId:userId];
-    
-    NSError *cacheError = nil;
-    
-    MSIDTokenCacheItem *cacheItem = [self.macTokenCache tokenWithKey:msidKey
-                                                          serializer:self.tokenItemSerializer
-                                                             context:nil
-                                                               error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
-        return nil;
-    }
-    
-    return [[ADTokenCacheItem alloc] initWithMSIDTokenCacheItem:cacheItem];
+    return [self.msidDataSourceWrapper getItemWithKey:key userId:userId correlationId:correlationId error:error];
 }
 
 - (NSArray <ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
@@ -279,42 +217,12 @@
                                     correlationId:(NSUUID * )correlationId
                                             error:(ADAuthenticationError **)error
 {
-    MSIDLegacyTokenCacheKey *msidKey = [MSIDLegacyTokenCacheKey keyWithAuthority:[NSURL URLWithString:key.authority]
-                                                                        clientId:key.clientId
-                                                                        resource:key.resource
-                                                                    legacyUserId:userId];
-    
-    NSError *cacheError = nil;
-    
-    NSArray *cacheItems = [self.macTokenCache tokensWithKey:msidKey
-                                                 serializer:self.tokenItemSerializer
-                                                    context:nil
-                                                      error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
-        return nil;
-    }
-    
-    NSMutableArray<ADTokenCacheItem *> *results = [NSMutableArray array];
-    
-    for (MSIDTokenCacheItem *cacheItem in cacheItems)
-    {
-        ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithMSIDTokenCacheItem:cacheItem];
-        
-        if (item)
-        {
-            [results addObject:item];
-        }
-    }
-    
-    return results;
+    return [self.msidDataSourceWrapper getItemsWithKey:key userId:userId correlationId:correlationId error:error];
 }
 
 - (NSDictionary *)getWipeTokenData
 {
-    return nil;
+    return [self.msidDataSourceWrapper getWipeTokenData];
 }
 
 @end

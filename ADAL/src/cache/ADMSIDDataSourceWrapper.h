@@ -21,15 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADKeychainTokenCache.h"
-#import "ADTokenCacheDataSource.h"
+#import <Foundation/Foundation.h>
 
-@class ADTokenCacheStoreKey;
+@protocol MSIDTokenCacheDataSource;
+@protocol MSIDTokenItemSerializer;
+@protocol ADTokenCacheDataSource;
 
-@interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
+@interface ADMSIDDataSourceWrapper : NSObject <ADTokenCacheDataSource>
 
-/*! This method should *only* be called in test code, it should never be called
-    in production code */
-- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
+- (instancetype)initWithMSIDDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+                            serializer:(id<MSIDTokenItemSerializer>)serializer;
 
 @end
