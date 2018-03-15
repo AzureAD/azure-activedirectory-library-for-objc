@@ -87,7 +87,6 @@
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
     parameters->_account = [_account copyWithZone:zone];
-    parameters->_msidParameters = [_msidParameters copyWithZone:zone];
     
     return parameters;
 }

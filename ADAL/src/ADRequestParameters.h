@@ -52,7 +52,7 @@
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
 @property (retain, nonatomic) MSIDAccount *account;
-@property (retain, nonatomic) MSIDRequestParameters *msidParameters;
+@property (retain, nonatomic, readonly) MSIDRequestParameters *msidParameters;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
