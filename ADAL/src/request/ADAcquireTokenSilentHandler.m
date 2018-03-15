@@ -41,9 +41,16 @@
 #import "MSIDAccount.h"
 #import "MSIDAADV1TokenResponse.h"
 
+@interface ADAcquireTokenSilentHandler()
+
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+
+@end
+
 @implementation ADAcquireTokenSilentHandler
 
-+ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters*)requestParams
++ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
+                                        tokenCache:(MSIDSharedTokenCache *)tokenCache
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
     
@@ -51,6 +58,7 @@
     // authentication request, which created copies of them.
     
     handler->_requestParams = requestParams;
+    handler.tokenCache = tokenCache;
     
     return handler;
 }
