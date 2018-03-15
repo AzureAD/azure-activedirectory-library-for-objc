@@ -37,6 +37,7 @@
 #import "ADTelemetryBrokerEvent.h"
 #import "MSIDAuthority.h"
 #import "MSIDKeychainTokenCache.h"
+#import "ADTokenCacheAccessor.h"
 
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
