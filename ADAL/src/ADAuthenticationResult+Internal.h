@@ -37,6 +37,11 @@
 + (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error
                              correlationId:(NSUUID*)correlationId;
 
+/*! Creates an authentication result from an error condition, with/without correlation id. */
++ (ADAuthenticationResult*)resultFromMSIDError:(NSError *)error;
++ (ADAuthenticationResult*)resultFromMSIDError:(NSError *)error
+                                 correlationId:(NSUUID *)correlationId;
+
 + (ADAuthenticationResult*)resultFromParameterError:(NSString*)details;
 + (ADAuthenticationResult*)resultFromParameterError:(NSString*)details
                                       correlationId:(NSUUID*)correlationId;

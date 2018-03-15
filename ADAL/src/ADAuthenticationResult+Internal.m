@@ -27,6 +27,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "ADAuthenticationErrorConverter.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -103,6 +104,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                                      correlationId:correlationId];
     
     return result;
+}
+
++ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
+{
+    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
+    return [self resultFromError:adError];
+}
+
++ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
+                                  correlationId:(NSUUID *)correlationId
+{
+    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
+    return [self resultFromError:adError correlationId:correlationId];
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details

@@ -26,6 +26,7 @@
 
 @class ADTokenCacheAccessor;
 @class MSIDRequestParameters;
+@class MSIDAccount;
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
@@ -52,6 +53,8 @@
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
+@property (retain, nonatomic) MSIDAccount *account;
+@property (retain, nonatomic) MSIDRequestParameters *msidParameters;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
@@ -63,7 +66,5 @@
           correlationId:(NSUUID *)correlationId
      telemetryRequestId:(NSString *)telemetryRequestId
            logComponent:(NSString *)logComponent;
-
-- (MSIDRequestParameters *)msidRequestParameters;
 
 @end

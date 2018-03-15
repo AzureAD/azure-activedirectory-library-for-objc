@@ -97,7 +97,7 @@
     {
         _clientId = baseToken.clientId;
         _authority = baseToken.authority.absoluteString;
-        _additionalServer = baseToken.additionalInfo;
+        _additionalServer = baseToken.additionaServerlInfo;
         _additionalClient = [NSMutableDictionary new];
     }
     

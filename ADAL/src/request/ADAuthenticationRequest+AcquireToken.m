@@ -297,7 +297,7 @@
             
             if (AD_SUCCEEDED == result.status)
             {
-                [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
+                [self.tokenCache saveTokensWithRequestParams:_requestParams.msidParameters
                                                     response:response
                                                      context:_requestParams
                                                        error:nil];
@@ -499,7 +499,7 @@
                       [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
+                          [self.tokenCache saveTokensWithRequestParams:_requestParams.msidParameters
                                                               response:response
                                                                context:_requestParams
                                                                  error:nil];
@@ -552,7 +552,7 @@
     ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
     request.tokenCache = self.tokenCache;
     [request acquireTokenByRefreshToken:_refreshToken
-                              cacheItem:[ADTokenCacheItem new]
+                              cacheItem:nil
                         completionBlock:^(ADAuthenticationResult *result)
      {
          completionBlock(result);
