@@ -325,7 +325,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_id"        : _requestParams.clientId,
       @"redirect_uri"     : _requestParams.redirectUri,
       @"correlation_id"   : _requestParams.correlationId.UUIDString,
-      // TODO: Test shared group (can we get shared group with team id here?).
       @"keychain_group"   : self.sharedGroup
       };
 #else
