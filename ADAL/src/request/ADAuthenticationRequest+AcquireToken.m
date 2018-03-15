@@ -518,7 +518,7 @@
 - (void)requestTokenByCode:(NSString *)code
            completionBlock:(MSIDTokenResponseCallback)completionBlock
 {
-    if ([NSString msidIsStringNilOrBlank:code])
+    if (![code isKindOfClass:NSString.class] || [NSString msidIsStringNilOrBlank:code])
     {
         ADAuthenticationError *error = [ADAuthenticationError errorFromArgument:code argumentName:@"code" correlationId:_requestParams.correlationId];
         completionBlock(nil, error);
