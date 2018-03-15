@@ -41,6 +41,7 @@
 }
 
 @property (retain, nonatomic) NSString* authority;
+@property (retain, nonatomic) NSString* cloudAuthority;
 @property (retain, nonatomic) NSString* resource;
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;

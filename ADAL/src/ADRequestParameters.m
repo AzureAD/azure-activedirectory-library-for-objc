@@ -66,7 +66,6 @@
                                                         uniqueUserId:nil];
     
     [self setAccount:account];
-    [self setMsidParameters:[self msidRequestParameters]];
     
     return self;
 }
@@ -108,11 +107,13 @@
     _redirectUri = [redirectUri msidTrimmedString];
 }
 
-- (MSIDRequestParameters *)msidRequestParameters
+- (MSIDRequestParameters *)msidParameters
 {
-    NSURL *authority = [[NSURL alloc] initWithString:self.authority];
+    NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
     MSIDRequestParameters *requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
-                                                                                    redirectUri:self.redirectUri clientId:self.clientId target:self.resource];
+                                                                                    redirectUri:self.redirectUri
+                                                                                       clientId:self.clientId
+                                                                                         target:self.resource];
     
     return requestParameters;
 }
