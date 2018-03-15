@@ -28,21 +28,8 @@
 
 @interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
 
-+ (BOOL)checkStatus:(OSStatus)status
-          operation:(NSString *)operation
-      correlationId:(NSUUID *)correlationId
-              error:(ADAuthenticationError * __autoreleasing *)error;
-
-- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheKey *)key
-                                        userId:(NSString *)userId
-                                    additional:(NSDictionary*)additional;
-
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey;
-
 /*! This method should *only* be called in test code, it should never be called
     in production code */
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
-
-- (NSDictionary*)defaultKeychainQuery;
 
 @end

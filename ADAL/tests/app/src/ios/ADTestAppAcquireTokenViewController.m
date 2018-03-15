@@ -680,16 +680,16 @@
 
 - (IBAction)clearCache:(id)sender
 {
-    NSDictionary* query = [[ADKeychainTokenCache defaultKeychainCache] defaultKeychainQuery];
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    NSError *error = nil;
+    [[ADKeychainTokenCache defaultKeychainCache] testRemoveAll:&error];
     
-    if (status == errSecSuccess || status == errSecItemNotFound)
+    if (!error)
     {
         _resultView.text = @"Successfully cleared cache.";
     }
     else
     {
-        _resultView.text = [NSString stringWithFormat:@"Failed to clear cache, error = %d", (int)status];
+        _resultView.text = [NSString stringWithFormat:@"Failed to clear cache, error = %@", error];
     }
 }
 
