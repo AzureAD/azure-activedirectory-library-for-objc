@@ -24,7 +24,6 @@
 #import "ADTokenCacheDataSource.h"
 #import "MSIDRequestContext.h"
 
-@class ADTokenCacheAccessor;
 @class MSIDRequestParameters;
 @class MSIDAccount;
 
@@ -36,7 +35,6 @@
     NSString *_redirectUri;
     NSString *_scope;
     ADUserIdentifier *_identifier;
-//    ADTokenCacheAccessor *_tokenCache;
     BOOL _extendedLifetime;
     NSUUID *_correlationId;
     NSString *_telemetryRequestId;
@@ -48,7 +46,6 @@
 @property (retain, nonatomic) NSString* redirectUri;
 @property (retain, nonatomic) NSString* scope;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
-//@property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
 @property BOOL extendedLifetime;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
@@ -61,7 +58,6 @@
                clientId:(NSString *)clientId
             redirectUri:(NSString *)redirectUri
              identifier:(ADUserIdentifier *)identifier
-             tokenCache:(ADTokenCacheAccessor *)tokenCache
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
      telemetryRequestId:(NSString *)telemetryRequestId

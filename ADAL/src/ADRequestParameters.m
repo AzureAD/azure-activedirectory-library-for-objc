@@ -23,7 +23,6 @@
 
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
-#import "ADTokenCacheAccessor.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAccount.h"
 
@@ -34,7 +33,6 @@
 @synthesize clientId = _clientId;
 @synthesize redirectUri = _redirectUri;
 @synthesize identifier = _identifier;
-//@synthesize tokenCache = _tokenCache;
 @synthesize extendedLifetime = _extendedLifetime;
 @synthesize correlationId = _correlationId;
 @synthesize telemetryRequestId = _telemetryRequestId;
@@ -44,13 +42,11 @@
                clientId:(NSString *)clientId
             redirectUri:(NSString *)redirectUri
              identifier:(ADUserIdentifier *)identifier
-             tokenCache:(ADTokenCacheAccessor *)tokenCache
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
      telemetryRequestId:(NSString *)telemetryRequestId
            logComponent:(NSString *)logComponent
 {
-    (void)tokenCache;
     if (!(self = [super init]))
     {
         return nil;
@@ -61,7 +57,6 @@
     [self setClientId:clientId];
     [self setRedirectUri:redirectUri];
     [self setIdentifier:identifier];
-//    [self setTokenCache:tokenCache];
     [self setExtendedLifetime:extendedLifetime];
     [self setCorrelationId:correlationId];
     [self setTelemetryRequestId:telemetryRequestId];

@@ -30,7 +30,6 @@
 #import "ADUserInformation.h"
 #import "ADWebAuthRequest.h"
 #import "ADHelpers.h"
-#import "ADTokenCacheAccessor.h"
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"

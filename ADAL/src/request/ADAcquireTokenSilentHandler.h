@@ -24,7 +24,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class ADTokenCacheAccessor;
 @class MSIDLegacySingleResourceToken;
 @class MSIDRefreshToken;
 @class MSIDBaseToken;
