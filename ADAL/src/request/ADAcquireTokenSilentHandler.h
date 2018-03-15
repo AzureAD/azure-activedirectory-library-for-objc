@@ -29,6 +29,7 @@
 @class MSIDRefreshToken;
 @class MSIDBaseToken;
 @protocol MSIDRefreshableToken;
+@class MSIDSharedTokenCache;
 
 @interface ADAcquireTokenSilentHandler : NSObject
 {
@@ -45,9 +46,8 @@
     BOOL _attemptedFRT;
 }
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
-
-+ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters*)requestParams;
++ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
+                                        tokenCache:(MSIDSharedTokenCache *)tokenCache;
 
 - (void)getToken:(ADAuthenticationCallback)completionBlock;
 

@@ -104,6 +104,7 @@ typedef enum
 
 @class ADAuthenticationResult;
 @class ADTokenCacheAccessor;
+@class MSIDSharedTokenCache;
 
 /*!
     @class ADAuthenticationContext
@@ -116,7 +117,7 @@ typedef enum
  */
 @interface ADAuthenticationContext : NSObject
 {
-    ADTokenCacheAccessor* _tokenCacheStore;
+    MSIDSharedTokenCache *_tokenCache;
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;

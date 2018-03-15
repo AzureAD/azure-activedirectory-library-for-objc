@@ -318,16 +318,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     
     NSDictionary<NSString *, NSString *> *resumeDictionary = nil;
 #if TARGET_OS_IPHONE
-    NSString *keychainGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
-    NSString *teamId = [ADKeychainUtil keychainTeamId:error];
-    
-    if (!teamId) return nil;
-    
-    if (teamId && [keychainGroup hasPrefix:teamId])
-    {
-        keychainGroup = [keychainGroup substringFromIndex:teamId.length + 1];
-    }
-    
     resumeDictionary =
     @{
       @"authority"        : _requestParams.authority,
@@ -335,7 +325,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_id"        : _requestParams.clientId,
       @"redirect_uri"     : _requestParams.redirectUri,
       @"correlation_id"   : _requestParams.correlationId.UUIDString,
-      @"keychain_group"   : keychainGroup
+      // TODO: Test shared group (can we get shared group with team id here?).
+      @"keychain_group"   : self.sharedGroup
       };
 #else
     resumeDictionary =

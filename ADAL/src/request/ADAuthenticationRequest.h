@@ -79,8 +79,10 @@
     NSString *_refreshToken;
 }
 
+@property (nonatomic, readonly) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) NSString *sharedGroup;
+
 @property (retain) NSString* logComponent;
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
 
 // These constructors exists *solely* to be used when trying to use some of the caching logic.
 // You can't actually send requests with it. They will fail.
@@ -90,6 +92,7 @@
 // The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
+                                    tokenCache:(MSIDSharedTokenCache *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the

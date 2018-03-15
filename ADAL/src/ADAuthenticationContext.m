@@ -54,6 +54,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @interface ADAuthenticationContext()
 
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
+// It is used only for delegate proxy purposes between legacy mac delegate and msdi mac delegate.
+@property (nonatomic) ADTokenCache *legacyMacCache;
+// iOS keychain group.
+@property (nonatomic) NSString *sharedGroup;
 
 @end
 
@@ -83,15 +87,16 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 
 #if TARGET_OS_IPHONE
-- (id)initWithAuthority:(NSString*) authority
+- (id)initWithAuthority:(NSString *) authority
       validateAuthority:(BOOL)bValidate
-            sharedGroup:(NSString*)sharedGroup
-                  error:(ADAuthenticationError* __autoreleasing *) error
+            sharedGroup:(NSString *)sharedGroup
+                  error:(ADAuthenticationError *__autoreleasing *) error
 {
     API_ENTRY;
     
-    MSIDKeychainTokenCache.defaultKeychainGroup = sharedGroup;
-    MSIDSharedTokenCache *tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
+    self.sharedGroup = sharedGroup;
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    MSIDSharedTokenCache *tokenCache = [self createIosCache:keychainTokenCache];
     
     return [self initWithAuthority:authority
                  validateAuthority:bValidate
@@ -106,9 +111,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     
-    [[ADTokenCache defaultCache] setDelegate:delegate];
-    
-    MSIDSharedTokenCache *tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
+    self.legacyMacCache = [ADTokenCache new];
+    self.legacyMacCache.delegate = delegate;
+
+    MSIDSharedTokenCache *tokenCache = [self createMacCache:self.legacyMacCache.macTokenCache];
     
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
@@ -125,6 +131,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
 #if TARGET_OS_IPHONE
     tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
+    self.sharedGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
 #else
     tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
 #endif
@@ -177,9 +184,11 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
     [requestParams setLogComponent:_logComponent];
 
-    ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
+    ADAuthenticationRequest *request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
+                                                                        tokenCache:self.tokenCache
                                                                              error:&error];
+    request.sharedGroup = self.sharedGroup;
     
     if (!request)
     {
@@ -304,7 +313,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     CHECK_STRING_ARG_BLOCK(assertion);
     CHECK_STRING_ARG_BLOCK(resource);
     
-    request.tokenCache = self.tokenCache;
     [request setUserId:userId];
     [request setSamlAssertion:assertion];
     [request setAssertionType:assertionType];
@@ -322,8 +330,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
-    request.tokenCache = self.tokenCache;
-    
     [request acquireToken:@"118" completionBlock:completionBlock];
 }
 
@@ -337,7 +343,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setUserId:userId];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"121" completionBlock:completionBlock];
 }
@@ -354,7 +359,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setExtraQueryParameters:queryParams];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"124" completionBlock:completionBlock];
 }
@@ -366,7 +370,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    request.tokenCache = self.tokenCache;
     [request setSilent:YES];
     
     [request acquireToken:@"7" completionBlock:completionBlock];
@@ -383,7 +386,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setSilent:YES];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"8" completionBlock:completionBlock];
 }
@@ -402,7 +404,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"127" completionBlock:completionBlock];
 }
@@ -421,7 +422,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"130" completionBlock:completionBlock];
 }
@@ -442,7 +442,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     [request setClaims:claims];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"133" completionBlock:completionBlock];
 }
@@ -458,7 +457,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     CHECK_STRING_ARG_BLOCK(refreshToken);
     [request setRefreshToken:refreshToken];
     [request setSilent:YES];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"136" completionBlock:completionBlock];
 }

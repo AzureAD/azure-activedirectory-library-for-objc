@@ -269,8 +269,8 @@
 - (void)getAccessToken:(ADAuthenticationCallback)completionBlock
 {
     [[MSIDTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
-    ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
-    request.tokenCache = self.tokenCache;
+    ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
+                                                                               tokenCache:self.tokenCache];
     [request getToken:^(ADAuthenticationResult *result)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
@@ -518,7 +518,7 @@
 - (void)requestTokenByCode:(NSString *)code
            completionBlock:(MSIDTokenResponseCallback)completionBlock
 {
-    if ([NSString msidIsStringNilOrBlank:code])
+    if (![code isKindOfClass:NSString.class] || [NSString msidIsStringNilOrBlank:code])
     {
         ADAuthenticationError *error = [ADAuthenticationError errorFromArgument:code argumentName:@"code" correlationId:_requestParams.correlationId];
         completionBlock(nil, error);
@@ -549,8 +549,8 @@
 
 - (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
 {
-    ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
-    request.tokenCache = self.tokenCache;
+    ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
+                                                                               tokenCache:self.tokenCache];
     [request acquireTokenByRefreshToken:_refreshToken
                               cacheItem:nil
                         completionBlock:^(ADAuthenticationResult *result)
