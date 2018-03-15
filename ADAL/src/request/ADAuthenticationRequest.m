@@ -43,6 +43,12 @@
 static ADAuthenticationRequest* s_modalRequest = nil;
 static dispatch_semaphore_t s_interactionLock = nil;
 
+@interface ADAuthenticationRequest()
+
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+
+@end
+
 @implementation ADAuthenticationRequest
 
 @synthesize logComponent = _logComponent;
@@ -87,17 +93,21 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
+                                    tokenCache:(MSIDSharedTokenCache *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL([requestParams clientId]);
     
-    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context requestParams:requestParams];
+    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context
+                                                                          requestParams:requestParams
+                                                                             tokenCache:tokenCache];
     return request;
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
         requestParams:(ADRequestParameters*)requestParams
+           tokenCache:(MSIDSharedTokenCache *)tokenCache
 {
     RETURN_IF_NIL(context);
     RETURN_IF_NIL([requestParams clientId]);
@@ -107,6 +117,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     
     _context = context;
     _requestParams = requestParams;
+    _tokenCache = tokenCache;
     
     _promptBehavior = AD_PROMPT_AUTO;
     

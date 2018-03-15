@@ -179,6 +179,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
+                                                                        tokenCache:self.tokenCache
                                                                              error:&error];
     
     if (!request)
@@ -304,7 +305,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     CHECK_STRING_ARG_BLOCK(assertion);
     CHECK_STRING_ARG_BLOCK(resource);
     
-    request.tokenCache = self.tokenCache;
     [request setUserId:userId];
     [request setSamlAssertion:assertion];
     [request setAssertionType:assertionType];
@@ -322,8 +322,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
-    request.tokenCache = self.tokenCache;
-    
     [request acquireToken:@"118" completionBlock:completionBlock];
 }
 
@@ -337,7 +335,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setUserId:userId];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"121" completionBlock:completionBlock];
 }
@@ -354,7 +351,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setExtraQueryParameters:queryParams];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"124" completionBlock:completionBlock];
 }
@@ -366,7 +362,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    request.tokenCache = self.tokenCache;
     [request setSilent:YES];
     
     [request acquireToken:@"7" completionBlock:completionBlock];
@@ -383,7 +378,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setSilent:YES];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"8" completionBlock:completionBlock];
 }
@@ -402,7 +396,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"127" completionBlock:completionBlock];
 }
@@ -421,7 +414,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"130" completionBlock:completionBlock];
 }
@@ -442,7 +434,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     [request setClaims:claims];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"133" completionBlock:completionBlock];
 }
@@ -458,7 +449,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     CHECK_STRING_ARG_BLOCK(refreshToken);
     [request setRefreshToken:refreshToken];
     [request setSilent:YES];
-    request.tokenCache = self.tokenCache;
     
     [request acquireToken:@"136" completionBlock:completionBlock];
 }
