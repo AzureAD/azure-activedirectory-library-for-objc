@@ -54,6 +54,8 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @interface ADAuthenticationContext()
 
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
+// It is used only for delegate proxy purposes between legacy mac delegate and msdi mac delegate.
+@property (nonatomic) ADTokenCache *legacyMacCache;
 
 @end
 
@@ -106,9 +108,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     
-    [[ADTokenCache defaultCache] setDelegate:delegate];
-    
-    MSIDSharedTokenCache *tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
+    self.legacyMacCache = [ADTokenCache new];
+    self.legacyMacCache.delegate = delegate;
+
+    MSIDSharedTokenCache *tokenCache = [self createMacCache:self.legacyMacCache.macTokenCache];
     
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
