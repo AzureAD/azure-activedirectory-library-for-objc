@@ -41,6 +41,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "ADUserInformation.h"
+#import "ADResponseCacheHandler.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -289,21 +290,10 @@
     {
         [self requestTokenByAssertion:^(MSIDTokenResponse *response, ADAuthenticationError *error)
         {
-            
-            ADTokenCacheItem *item = [ADTokenCacheItem new];
-            ADAuthenticationResult *result = [item processTokenResponse:[response jsonDictionary]
-                                                            fromRefresh:NO
-                                                   requestCorrelationId:[_requestParams correlationId]];
-            
-            if (AD_SUCCEEDED == result.status)
-            {
-                [self.tokenCache saveTokensWithRequestParams:_requestParams.msidParameters
-                                                    response:response
-                                                     context:_requestParams
-                                                       error:nil];
-
-                result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
-            }
+            ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
+                                                                            fromRefreshToken:nil
+                                                                                       cache:self.tokenCache
+                                                                                      params:_requestParams];
             completionBlock(result);
         }];
         return;
@@ -486,27 +476,19 @@
                  [self requestTokenByCode:code
                           completionBlock:^(MSIDTokenResponse *response, ADAuthenticationError *error)
                   {
-                      //Prefill the known elements in the item. These can be overridden by the response:
-                      ADTokenCacheItem *item = [ADTokenCacheItem new];
-                      ADAuthenticationResult *result = [item processTokenResponse:[response jsonDictionary]
-                                                                      fromRefresh:NO
-                                                             requestCorrelationId:[_requestParams correlationId]];
+                      ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
+                                                                                      fromRefreshToken:nil
+                                                                                                 cache:self.tokenCache
+                                                                                                params:_requestParams];
+                      
+                      [result setCloudAuthority:_cloudAuthority];
                       
                       ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                                      context:_requestParams];
                       [event setGrantType:MSID_TELEMETRY_VALUE_BY_CODE];
                       [event setResultStatus:[result status]];
                       [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-                      if (AD_SUCCEEDED == result.status)
-                      {
-                          [self.tokenCache saveTokensWithRequestParams:_requestParams.msidParameters
-                                                              response:response
-                                                               context:_requestParams
-                                                                 error:nil];
-                          
-                          result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
-                          [result setCloudAuthority:_cloudAuthority];
-                      }
+                      
                       completionBlock(result);
                   }];
              }
