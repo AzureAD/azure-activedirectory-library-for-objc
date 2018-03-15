@@ -80,6 +80,7 @@
 }
 
 @property (nonatomic, readonly) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) NSString *sharedGroup;
 
 @property (retain) NSString* logComponent;
 

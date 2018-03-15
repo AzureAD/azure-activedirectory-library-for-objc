@@ -56,6 +56,8 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
 // It is used only for delegate proxy purposes between legacy mac delegate and msdi mac delegate.
 @property (nonatomic) ADTokenCache *legacyMacCache;
+// iOS keychain group.
+@property (nonatomic) NSString *sharedGroup;
 
 @end
 
@@ -85,13 +87,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 
 #if TARGET_OS_IPHONE
-- (id)initWithAuthority:(NSString*) authority
+- (id)initWithAuthority:(NSString *) authority
       validateAuthority:(BOOL)bValidate
-            sharedGroup:(NSString*)sharedGroup
-                  error:(ADAuthenticationError* __autoreleasing *) error
+            sharedGroup:(NSString *)sharedGroup
+                  error:(ADAuthenticationError *__autoreleasing *) error
 {
     API_ENTRY;
     
+    self.sharedGroup = sharedGroup;
     MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
     MSIDSharedTokenCache *tokenCache = [self createIosCache:keychainTokenCache];
     
@@ -128,6 +131,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
 #if TARGET_OS_IPHONE
     tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
+    self.sharedGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
 #else
     tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
 #endif
@@ -180,10 +184,11 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
     [requestParams setLogComponent:_logComponent];
 
-    ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
+    ADAuthenticationRequest *request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
                                                                         tokenCache:self.tokenCache
                                                                              error:&error];
+    request.sharedGroup = self.sharedGroup;
     
     if (!request)
     {
