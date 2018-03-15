@@ -68,6 +68,9 @@ const int sAsyncContextTimeout = 10;
 {
     [super setUp];
     [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
+#if TARGET_OS_IPHONE
+    [[ADKeychainTokenCache defaultKeychainCache] testRemoveAll:nil];
+#endif
 }
 
 - (void)tearDown
@@ -85,8 +88,12 @@ const int sAsyncContextTimeout = 10;
                                                      error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    [context setTokenCacheStore:tokenCache];
+    
+#if TARGET_OS_IPHONE
+    [context setTokenCacheStore:[ADKeychainTokenCache new]];
+#else
+    [context setTokenCacheStore:[ADTokenCache new]];
+#endif
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     return context;

@@ -22,14 +22,16 @@
 // THE SOFTWARE.
 
 #import "ADTokenCache.h"
+#import "MSIDMacTokenCache.h"
 #import "ADTokenCacheDataSource.h"
 
-@interface ADTokenCache (Internal) <ADTokenCacheDataSource>
-
-- (BOOL)validateCache:(nullable NSDictionary *)dict
-                error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
+@interface ADTokenCache (Internal) <MSIDMacTokenCacheDelegate, ADTokenCacheDataSource>
 
 - (nullable id<ADTokenCacheDelegate>)delegate;
+
+- (BOOL)addOrUpdateItem:(nullable ADTokenCacheItem *)item
+          correlationId:(nullable NSUUID *)correlationId
+                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end
 

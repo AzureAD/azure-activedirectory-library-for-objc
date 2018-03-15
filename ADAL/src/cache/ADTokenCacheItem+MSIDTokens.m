@@ -27,6 +27,15 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDTokenCacheItem.h"
+#import "ADTokenCacheItem+Internal.h"
+
+@interface ADTokenCacheItem()
+
+- (void)calculateHash;
+
+@end
 
 @implementation ADTokenCacheItem (MSIDTokens)
 
@@ -43,6 +52,8 @@
         _expiresOn = accessToken.expiresOn;
     }
     
+    [self calculateHash];
+    
     return self;
 }
 
@@ -57,6 +68,8 @@
         _familyId = refreshToken.familyId;
     }
     
+    [self calculateHash];
+    
     return self;
 }
 
@@ -68,7 +81,26 @@
         _refreshToken = legacySingleResourceToken.refreshToken;
     }
     
+    [self calculateHash];
+    
     return self;
+}
+
+- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem
+{
+    MSIDBaseToken *token = [cacheItem tokenWithType:cacheItem.tokenType];
+    
+    switch (token.tokenType) {
+        case MSIDTokenTypeAccessToken:
+            return [self initWithAccessToken:(MSIDAccessToken *)token];
+        case MSIDTokenTypeRefreshToken:
+            return [self initWithRefreshToken:(MSIDRefreshToken *)token];
+        case MSIDTokenTypeLegacySingleResourceToken:
+            return [self initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)token];
+            
+        default:
+            return nil;
+    }
 }
 
 #pragma mark - Private
@@ -94,11 +126,42 @@
     {
         _clientId = baseToken.clientId;
         _authority = baseToken.authority.absoluteString;
-        _additionalServer = baseToken.additionalInfo;
-        _additionalClient = [NSMutableDictionary new];
+        _additionalServer = baseToken.additionaServerlInfo;
+        _additionalClient = [baseToken.additionalClientInfo mutableCopy];
     }
     
     return self;
+}
+
+- (MSIDLegacyTokenCacheKey *)tokenCacheKey
+{
+    NSURL *authorityURL = [NSURL URLWithString:self.authority];
+    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey keyWithAuthority:authorityURL
+                                                                    clientId:self.clientId
+                                                                    resource:self.resource
+                                                                legacyUserId:self.userInformation.userId];
+    
+    return key;
+}
+
+- (MSIDTokenCacheItem *)tokenCacheItem
+{
+    MSIDTokenCacheItem *cacheItem = [MSIDTokenCacheItem new];
+    cacheItem.clientId = self.clientId;
+    cacheItem.oauthTokenType = self.accessTokenType;
+    cacheItem.accessToken = self.accessToken;
+    cacheItem.refreshToken = self.refreshToken;
+    cacheItem.idToken = self.userInformation.rawIdToken;
+    cacheItem.target = self.resource;
+    cacheItem.expiresOn = self.expiresOn;
+    cacheItem.cachedAt = nil;
+    cacheItem.familyId = self.familyId;
+    cacheItem.authority = [NSURL URLWithString:self.authority];
+    cacheItem.uniqueUserId = self.userInformation.userId;
+    cacheItem.tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
+    cacheItem.additionalInfo = self.additionalServer;
+    cacheItem.additionalClientInfo = self.additionalClient;
+    return cacheItem;
 }
 
 @end
