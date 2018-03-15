@@ -26,11 +26,13 @@
 @class MSIDTokenResponse;
 @class MSIDSharedTokenCache;
 @class ADRequestParameters;
+@class MSIDBaseToken;
+@protocol MSIDRefreshableToken;
 
 @interface ADResponseCacheHandler : NSObject
 
 + (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
-                                   fromRefreshToken:(BOOL)fromRefreshToken
+                                   fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                                               cache:(MSIDSharedTokenCache *)cache
                                              params:(ADRequestParameters *)requestParams;
 

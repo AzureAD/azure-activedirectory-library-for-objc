@@ -166,7 +166,7 @@
          }
          
          ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
-                                                                         fromRefreshToken:cacheItem != nil
+                                                                         fromRefreshToken:cacheItem
                                                                                     cache:self.tokenCache
                                                                                    params:_requestParams];
          
@@ -334,7 +334,50 @@
         _extendedLifetimeAccessTokenItem = item;
     }
 
-    [self tryMRRT:completionBlock];
+    [self tryRT:item completionBlock:completionBlock];
+}
+
+- (void)tryRT:(MSIDLegacySingleResourceToken *)item completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    if (!item.refreshToken)
+    {
+        if (!item.isExtendedLifetimeValid)
+        {
+            NSError *msidError = nil;
+            
+            BOOL result = [self.tokenCache removeTokenForAccount:_requestParams.account
+                                                           token:item
+                                                         context:_requestParams
+                                                           error:&msidError];
+            
+            if (!result)
+            {
+                // If we failed to remove the item with an error, then return that error right away
+                completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
+                return;
+            }
+        }
+        
+        if (!item.idToken)
+        {
+            // If we don't have any id token in this token that means it came from an authority
+            // that doesn't support MRRTs or FRTs either, so fail right now.
+            completionBlock(nil);
+            return;
+        }
+        [self tryMRRT:completionBlock];
+        return;
+    }
+    
+    [self acquireTokenWithItem:item
+                   refreshType:nil
+               completionBlock:completionBlock
+                      fallback:^(ADAuthenticationResult* result)
+     {
+         // If we had an individual RT associated with this item then we aren't
+         // talking to AAD so there won't be an MRRT. End the silent flow immediately.
+         completionBlock(result);
+     }];
 }
 
 /*
