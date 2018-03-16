@@ -21,39 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #import <Foundation/Foundation.h>
 
-@class MSIDLegacySingleResourceToken;
-@class MSIDRefreshToken;
+@class MSIDTokenResponse;
+@class MSIDSharedTokenCache;
+@class ADRequestParameters;
 @class MSIDBaseToken;
 @protocol MSIDRefreshableToken;
-@class MSIDSharedTokenCache;
 
-@interface ADAcquireTokenSilentHandler : NSObject
-{
-    ADRequestParameters *_requestParams;
-    
-    MSIDRefreshToken *_mrrtItem;
-    MSIDLegacySingleResourceToken *_extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
-    
-    // We only return underlying errors from the MRRT Result, because the FRT is a
-    // "best attempt" method, which is not necessarily tied to the client ID we're
-    // trying, so the MRRT error will be more accurate.
-    ADAuthenticationResult *_mrrtResult;
-    
-    BOOL _attemptedFRT;
-}
+@interface ADResponseCacheHandler : NSObject
 
-+ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
-                                        tokenCache:(MSIDSharedTokenCache *)tokenCache;
-
-- (void)getToken:(ADAuthenticationCallback)completionBlock;
-
-// Obtains an access token from the passed refresh token. If "cacheItem" is passed, updates it with the additional
-// information and updates the cache
-- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
-                         cacheItem:(MSIDBaseToken<MSIDRefreshableToken> *)cacheItem
-                   completionBlock:(ADAuthenticationCallback)completionBlock;
++ (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
+                                   fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+                                              cache:(MSIDSharedTokenCache *)cache
+                                             params:(ADRequestParameters *)requestParams;
 
 @end

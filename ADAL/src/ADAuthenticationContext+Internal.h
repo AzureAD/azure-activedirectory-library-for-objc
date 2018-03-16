@@ -27,12 +27,10 @@
 #import "ADAL_Internal.h"
 
 @class ADUserIdentifier;
-@class ADTokenCacheAccessor;
 @protocol ADTokenCacheDataSource;
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADTokenCacheAccessor.h"
 
 #import "MSIDOAuth2Constants.h"
 

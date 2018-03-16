@@ -216,6 +216,8 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         _cloudAuthority = _context.authority;
     }
+    
+    _requestParams.cloudAuthority = _cloudAuthority;
 }
 
 #if AD_BROKER

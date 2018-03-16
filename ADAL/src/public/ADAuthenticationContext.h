@@ -103,7 +103,6 @@ typedef enum
 } ADCredentialsType;
 
 @class ADAuthenticationResult;
-@class ADTokenCacheAccessor;
 @class MSIDSharedTokenCache;
 
 /*!

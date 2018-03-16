@@ -23,14 +23,12 @@
 
 
 #import "ADAcquireTokenSilentHandler.h"
-#import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserInformation.h"
 #import "ADWebAuthRequest.h"
 #import "ADHelpers.h"
-#import "ADTokenCacheAccessor.h"
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
@@ -40,6 +38,9 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAccount.h"
 #import "MSIDAADV1TokenResponse.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDRefreshToken.h"
+#import "ADResponseCacheHandler.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -70,9 +71,6 @@
          // Logic for returning extended lifetime token
          if ([_requestParams extendedLifetime] && [self isServerUnavailable:result] && _extendedLifetimeAccessTokenItem)
          {
-             _extendedLifetimeAccessTokenItem.expiresOn =
-             [_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
-             
              // give the stale token as result
              [[MSIDLogger sharedLogger] logToken:_extendedLifetimeAccessTokenItem.accessToken
                                        tokenType:@"AT (extended lifetime)"
@@ -80,7 +78,10 @@
                                     additionaLog:@"Returning"
                                          context:_requestParams];
              
-             result = [ADAuthenticationResult resultFromTokenCacheItem:_extendedLifetimeAccessTokenItem
+             ADTokenCacheItem *cacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:_extendedLifetimeAccessTokenItem];
+             cacheItem.expiresOn = _extendedLifetimeAccessTokenItem.extendedExpireTime;
+             
+             result = [ADAuthenticationResult resultFromTokenCacheItem:cacheItem
                                              multiResourceRefreshToken:NO
                                                          correlationId:[_requestParams correlationId]];
              [result setExtendedLifeTimeToken:YES];
@@ -95,8 +96,8 @@
 
 //Obtains an access token from the passed refresh token. If "cacheItem" is passed, updates it with the additional
 //information and updates the cache:
-- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
-                         cacheItem:(ADTokenCacheItem*)cacheItem
+- (void)acquireTokenByRefreshToken:(NSString *)refreshToken
+                         cacheItem:(MSIDBaseToken<MSIDRefreshableToken> *)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     [[MSIDLogger sharedLogger] logToken:refreshToken
@@ -107,6 +108,8 @@
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
+    /*
+     TODO!
     if(cacheItem.sessionKey)
     {
         NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem];
@@ -120,13 +123,13 @@
         
     }
     else
-    {
+    {*/
         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         MSID_OAUTH2_REFRESH_TOKEN, MSID_OAUTH2_GRANT_TYPE,
                         refreshToken, MSID_OAUTH2_REFRESH_TOKEN,
                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
                         nil];
-    }
+    //}
     
     request_data[MSID_OAUTH2_CLIENT_INFO] = @YES;
     
@@ -157,24 +160,21 @@
              return;
          }
          
-         ADTokenCacheItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheItem new];
+         NSError *msidError = nil;
+         MSIDTokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response
+                                                                                      refreshToken:cacheItem
+                                                                                             error:&msidError];
          
-         //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
-         //may have empty "resource" property:
-         resultItem.resource = [_requestParams resource];
-         resultItem.clientId = [_requestParams clientId];
-         resultItem.authority = [_requestParams authority];
-         
-         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_requestParams.correlationId];
-         if (cacheItem)//The request came from the cache item, update it:
+         if (msidError)
          {
-             MSIDAADV1TokenResponse *msidResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response error:nil];
-             [self.tokenCache saveTokensWithRequestParams:[_requestParams msidRequestParameters]
-                                                 response:msidResponse
-                                                  context:_requestParams
-                                                    error:nil];
+             completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:_requestParams.correlationId]);
+             return;
          }
-         result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];//Verify the user (just in case)
+         
+         ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
+                                                                         fromRefreshToken:cacheItem
+                                                                                    cache:self.tokenCache
+                                                                                   params:_requestParams];
          
          completionBlock(result);
          
@@ -213,14 +213,14 @@
     return returnValue;
 }
 
-- (void)acquireTokenWithItem:(ADTokenCacheItem *)item
+- (void)acquireTokenWithItem:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                  refreshType:(NSString *)refreshType
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
     [[MSIDTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
-    [self acquireTokenByRefreshToken:item.refreshToken
-                           cacheItem:item
+    [self acquireTokenByRefreshToken:refreshToken.refreshToken
+                           cacheItem:refreshToken
                      completionBlock:^(ADAuthenticationResult *result)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
@@ -278,25 +278,17 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     NSUUID* correlationId = [_requestParams correlationId];
 
-    ADAuthenticationError *error = nil;
     NSError *msidError = nil;
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:_requestParams.identifier.userId
-                                                        uniqueUserId:nil];
-    
-    // TODO: we should be able to get AT wihtout user id.
-    MSIDAccessToken *accessToken = [self.tokenCache getATForAccount:account
-                                                      requestParams:[_requestParams msidRequestParameters]
-                                                            context:_requestParams
-                                                              error:&msidError];
-    
-    ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithAccessToken:accessToken];
-    error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+    MSIDLegacySingleResourceToken *item = [self.tokenCache getLegacyTokenForAccount:_requestParams.account
+                                                                      requestParams:_requestParams.msidParameters
+                                                                            context:_requestParams
+                                                                              error:&msidError];
     
     // If some error ocurred during the cache lookup then we need to fail out right away.
-    if (error)
+    if (msidError)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+        completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:correlationId]);
         return;
     }
 
@@ -304,15 +296,13 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        MSIDLegacySingleResourceToken *token = [self.tokenCache getLegacyTokenWithRequestParams:[_requestParams msidRequestParameters]
+        MSIDLegacySingleResourceToken *item = [self.tokenCache getLegacyTokenWithRequestParams:_requestParams.msidParameters
                                                                                        context:_requestParams
                                                                                          error:&msidError];
-        item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:token];
-        error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
         
-        if (error)
+        if (msidError)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+            completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:correlationId]);
             return;
         }
 
@@ -333,8 +323,11 @@
                               expiresOnDate:item.expiresOn
                                additionaLog:@"Returning"
                                     context:_requestParams];
+        
+        ADTokenCacheItem *adItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:item];
+        
         ADAuthenticationResult* result =
-        [ADAuthenticationResult resultFromTokenCacheItem:item
+        [ADAuthenticationResult resultFromTokenCacheItem:adItem
                                multiResourceRefreshToken:NO
                                            correlationId:correlationId];
         completionBlock(result);
@@ -347,7 +340,50 @@
         _extendedLifetimeAccessTokenItem = item;
     }
 
-    [self tryMRRT:completionBlock];
+    [self tryRT:item completionBlock:completionBlock];
+}
+
+- (void)tryRT:(MSIDLegacySingleResourceToken *)item completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    if (!item.refreshToken)
+    {
+        if (!item.isExtendedLifetimeValid)
+        {
+            NSError *msidError = nil;
+            
+            BOOL result = [self.tokenCache removeTokenForAccount:_requestParams.account
+                                                           token:item
+                                                         context:_requestParams
+                                                           error:&msidError];
+            
+            if (!result)
+            {
+                // If we failed to remove the item with an error, then return that error right away
+                completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
+                return;
+            }
+        }
+        
+        if (!item.idToken)
+        {
+            // If we don't have any id token in this token that means it came from an authority
+            // that doesn't support MRRTs or FRTs either, so fail right now.
+            completionBlock(nil);
+            return;
+        }
+        [self tryMRRT:completionBlock];
+        return;
+    }
+    
+    [self acquireTokenWithItem:item
+                   refreshType:nil
+               completionBlock:completionBlock
+                      fallback:^(ADAuthenticationResult* result)
+     {
+         // If we had an individual RT associated with this item then we aren't
+         // talking to AAD so there won't be an MRRT. End the silent flow immediately.
+         completionBlock(result);
+     }];
 }
 
 /*
@@ -363,16 +399,15 @@
                                                             uniqueUserId:nil];
         NSError *msidError = nil;
         MSIDRefreshToken *refreshToken = [self.tokenCache getRTForAccount:account
-                                                            requestParams:[_requestParams msidRequestParameters]
+                                                            requestParams:_requestParams.msidParameters
                                                                   context:_requestParams
                                                                     error:&msidError];
         
-        _mrrtItem = [[ADTokenCacheItem alloc] initWithRefreshToken:refreshToken];
-        ADAuthenticationError* error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+        _mrrtItem = refreshToken;
         
-        if (!_mrrtItem && error)
+        if (!_mrrtItem && msidError)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+            completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
             return;
         }
     }
@@ -423,25 +458,21 @@
     }
     _attemptedFRT = YES;
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:_requestParams.identifier.userId
-                                                        uniqueUserId:nil];
     NSError *msidError = nil;
     
-    MSIDRefreshToken *refreshToken = [self.tokenCache getFRTforAccount:account
-                                                         requestParams:[_requestParams msidRequestParameters]
+    MSIDRefreshToken *refreshToken = [self.tokenCache getFRTforAccount:_requestParams.account
+                                                         requestParams:_requestParams.msidParameters
                                                               familyId:familyId
                                                                context:_requestParams
                                                                  error:&msidError];
-    ADTokenCacheItem *frtItem = [[ADTokenCacheItem alloc] initWithRefreshToken:refreshToken];
-    ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
     
-    if (!frtItem && error)
+    if (!refreshToken && msidError)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+        completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
         return;
     }
     
-    if (!frtItem)
+    if (!refreshToken)
     {
         if (_mrrtItem)
         {
@@ -456,7 +487,10 @@
         return;
     }
     
-    [self acquireTokenWithItem:frtItem refreshType:@"Family" completionBlock:completionBlock fallback:^(ADAuthenticationResult *result)
+    [self acquireTokenWithItem:refreshToken
+                   refreshType:@"Family"
+               completionBlock:completionBlock
+                      fallback:^(ADAuthenticationResult *result)
      {
          (void)result;
          
@@ -471,7 +505,7 @@
      }];
 }
 
-- (BOOL) isServerUnavailable:(ADAuthenticationResult *)result
+- (BOOL)isServerUnavailable:(ADAuthenticationResult *)result
 {
     if (![[result.error domain] isEqualToString:ADHTTPErrorCodeDomain])
     {

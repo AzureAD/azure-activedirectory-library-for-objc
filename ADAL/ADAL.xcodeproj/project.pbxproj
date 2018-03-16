@@ -246,6 +246,9 @@
 		B227F29C2057685700F7B822 /* ADMSIDDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */; };
 		B227F29D2057686200F7B822 /* ADMSIDDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */; };
 		B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */; };
+		B24D25E92059F67D00025B8B /* ADResponseCacheHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B24D25E72059F67D00025B8B /* ADResponseCacheHandler.h */; };
+		B24D25EA2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */; };
+		B24D25EB2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */; };
 		B24D25CE2058DB6400025B8B /* ADMSIDContext.h in Headers */ = {isa = PBXBuildFile; fileRef = B24D25CC2058DB6400025B8B /* ADMSIDContext.h */; };
 		B24D25D02058DB6400025B8B /* ADMSIDContext.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25CD2058DB6400025B8B /* ADMSIDContext.m */; };
 		B24D25D42058E7C300025B8B /* ADMSIDContext.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25CD2058DB6400025B8B /* ADMSIDContext.m */; };
@@ -895,6 +898,8 @@
 		B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADMSIDDataSourceWrapper.h; sourceTree = "<group>"; };
 		B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADMSIDDataSourceWrapper.m; sourceTree = "<group>"; };
 		B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenPkeyAuthTests.m; sourceTree = "<group>"; };
+		B24D25E72059F67D00025B8B /* ADResponseCacheHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADResponseCacheHandler.h; sourceTree = "<group>"; };
+		B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADResponseCacheHandler.m; sourceTree = "<group>"; };
 		B24D25CC2058DB6400025B8B /* ADMSIDContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADMSIDContext.h; sourceTree = "<group>"; };
 		B24D25CD2058DB6400025B8B /* ADMSIDContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADMSIDContext.m; sourceTree = "<group>"; };
 		B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNegotiateHandler.h; sourceTree = "<group>"; };
@@ -1500,6 +1505,8 @@
 				9453C33E1C57FC2A006B9E79 /* ADTokenCacheKey.h */,
 				9453C33F1C57FC2A006B9E79 /* ADTokenCacheKey.m */,
 				9424B6831CDD1B4600729698 /* ADTokenCacheDataSource.h */,
+				B24D25E72059F67D00025B8B /* ADResponseCacheHandler.h */,
+				B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */,
 				9453C3241C57FC03006B9E79 /* ios */,
 				B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */,
 				B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */,
@@ -2105,6 +2112,7 @@
 				B267CA1B1EE0E9FF00C0B5A8 /* ADNegotiateHandler.h in Headers */,
 				9453C4241C586462006B9E79 /* ADTokenCacheItem+Internal.h in Headers */,
 				D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */,
+				B24D25E92059F67D00025B8B /* ADResponseCacheHandler.h in Headers */,
 				960E93751E296CC9008036C0 /* ADURLSessionDemux.h in Headers */,
 				94DD18D41C5AC8DE00F80C62 /* ADAuthenticationSettings.h in Headers */,
 				94DD18CF1C5AC8DE00F80C62 /* ADAL.h in Headers */,
@@ -2785,6 +2793,7 @@
 				23CF5E2C2040EFB400D348AF /* ADTokenCacheItem+MSIDTokens.m in Sources */,
 				9453C42F1C58646D006B9E79 /* ADAuthenticationRequest+Broker.m in Sources */,
 				B299FF1B1F22BE74004A2CB9 /* NSString+ADURLExtensions.m in Sources */,
+				B24D25EB2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */,
 				9453C4181C586456006B9E79 /* ADUserInformation.m in Sources */,
 				9424B6841CDD39E400729698 /* ADTokenCacheAccessor.m in Sources */,
 				3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */,
@@ -2913,6 +2922,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D69A72191D4FF68300E91DB3 /* ADTelemetry.m in Sources */,
+				B24D25EA2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */,
 				D60B653C1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */,
 				6033892C1D595AD50024A9BF /* ADTelemetryBrokerEvent.m in Sources */,
 				603389281D595AA70024A9BF /* ADTelemetryAPIEvent.m in Sources */,
