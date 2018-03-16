@@ -240,7 +240,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil([mStore allItems:&error]);
     ADAssertNoError;
     
-    //add three (ATs and RTs) items with the same client ID and same user ID but differnet resource
+    //add three items (ATs and RTs) with the same client ID and same user ID but differnet resource
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item1 setResource:@"resource 1"];
     [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
@@ -249,6 +249,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     ADTokenCacheItem* item3 = [self adCreateATCacheItem:@"resource 3" userId:@"eric@contoso.com"];
     [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
+    
     //add another two more items
     ADTokenCacheItem* item4 = [self adCreateCacheItem:@"jack@contoso.com"];
     [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
@@ -262,7 +263,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
 
-    //only item3 and item4 are left in cache 
+    //only item4 and item5 are left in cache
     [self verifyCacheContainsItem:item4];
     [self verifyCacheContainsItem:item5];
 }
