@@ -28,6 +28,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
 #import "MSIDClientInfo.h"
+#import "MSIDBrokerResponse.h"
 
 @interface ADAuthenticationResultTests : ADTestCase
 
@@ -133,7 +134,13 @@
                                @"client_info" : [self adCreateClientInfo].rawClientInfo
                                };
     
-    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNil(result.error);
@@ -165,7 +172,13 @@
                                @"client_info" : [self adCreateClientInfo].rawClientInfo
                                };
     
-    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNil(result.error);
@@ -196,7 +209,13 @@
                                @"user_id" : @"myfakeuser@contoso.com"
                                };
     
-    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNil(result.error);
@@ -227,7 +246,13 @@
                                @"client_info" : [self adCreateClientInfo].rawClientInfo
                                };
     
-    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNil(result.error);
@@ -250,7 +275,13 @@
                                @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784"
                                };
     
-    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNotNil(result.error);
@@ -270,7 +301,13 @@
                                @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784"
                                };
 
-    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNil(result.tokenCacheItem);
@@ -289,7 +326,13 @@
                                @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784"
                                };
     
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    NSError *error = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(error);
+    
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     
     XCTAssertNotNil(result);
     XCTAssertNil(result.tokenCacheItem);
