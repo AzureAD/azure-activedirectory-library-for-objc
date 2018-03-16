@@ -96,6 +96,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     self.sharedGroup = sharedGroup;
     MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    // In case if sharedGroup is nil, keychainTokenCache.keychainGroup will return default group.
+    // Note: it is in the following format: <team id>.<sharedGroup>
+    self.sharedGroup = keychainTokenCache.keychainGroup;
     MSIDSharedTokenCache *tokenCache = [self createIosCache:keychainTokenCache];
     
     return [self initWithAuthority:authority
