@@ -27,7 +27,6 @@
 #import "ADAuthorityValidation.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
-#import "ADTokenCacheKey.h"
 #import "ADAcquireTokenSilentHandler.h"
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
