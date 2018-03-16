@@ -28,6 +28,7 @@
 
 @interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
 
+// Return NO if there is an error in status
 + (BOOL)checkStatus:(OSStatus)status
           operation:(NSString *)operation
       correlationId:(NSUUID *)correlationId
