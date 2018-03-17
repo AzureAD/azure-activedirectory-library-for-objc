@@ -395,7 +395,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     //if item does not exist in cache or does not contain a refresh token, deletion is enough and should return.
     if (deleteStatus != errSecSuccess || [NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        return [ADKeychainTokenCache checkStatus:deleteStatus operation:@"delete" correlationId:nil error:error];
+        return ![ADKeychainTokenCache checkStatus:deleteStatus operation:@"delete" correlationId:nil error:error];
     }
 
     return [self saveWipeTokenData:error];
