@@ -62,11 +62,6 @@
     [self setTelemetryRequestId:telemetryRequestId];
     [self setLogComponent:logComponent];
     
-    MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:identifier.userId
-                                                        uniqueUserId:nil];
-    
-    [self setAccount:account];
-    
     return self;
 }
 
@@ -104,6 +99,14 @@
 - (void)setRedirectUri:(NSString *)redirectUri
 {
     _redirectUri = [redirectUri msidTrimmedString];
+}
+
+- (void)setIdentifier:(ADUserIdentifier *)identifier
+{
+    _identifier = identifier;
+    
+    self.account = [[MSIDAccount alloc] initWithLegacyUserId:self.identifier.userId
+                                                uniqueUserId:nil];
 }
 
 - (MSIDRequestParameters *)msidParameters
