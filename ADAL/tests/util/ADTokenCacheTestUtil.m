@@ -54,7 +54,7 @@ static ADTokenCacheItem *getAT(id<ADTokenCacheDataSource> tokenCache, NSString *
     return getToken(tokenCache, authority, TEST_CLIENT_ID, TEST_RESOURCE);
 }
 
-@implementation ADTokenCache (TestUtil)
+@implementation ADLegacyMacTokenCache (TestUtil)
 
 - (NSString *)getAT:(NSString *)authority
 {
@@ -84,7 +84,7 @@ static ADTokenCacheItem *getAT(id<ADTokenCacheDataSource> tokenCache, NSString *
 @end
 
 #if TARGET_OS_IPHONE
-@implementation ADKeychainTokenCache (TestUtil)
+@implementation ADLegacyKeychainTokenCache (TestUtil)
 
 - (NSString *)getAT:(NSString *)authority
 {

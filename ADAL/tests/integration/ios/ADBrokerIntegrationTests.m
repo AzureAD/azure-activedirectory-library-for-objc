@@ -39,7 +39,9 @@
 #import "ADUserInformation.h"
 #import "ADRefreshResponseBuilder.h"
 #import "MSIDClientInfo.h"
-
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDSharedTokenCache.h"
+#import "MSIDKeychainTokenCache.h"
 
 @interface ADBrokerIntegrationTests : ADTestCase
 
@@ -47,12 +49,14 @@
 
 @implementation ADBrokerIntegrationTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
     [[ADKeychainTokenCache keychainCacheForGroup:nil] testRemoveAll:nil];
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     [super tearDown];
 }
 
@@ -186,7 +190,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1.0];
     
-    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     
     XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
@@ -287,7 +291,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1.0];
     
-    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
@@ -377,10 +381,21 @@
     ADAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     
-    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context];
-    req.requestParams.resource = TEST_RESOURCE;
-    req.requestParams.clientId = TEST_CLIENT_ID;
-    req.requestParams.redirectUri = redirectUri;
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.resource = TEST_RESOURCE;
+    params.clientId = TEST_CLIENT_ID;
+    params.redirectUri = redirectUri;
+    params.scope = @"aza bzb";
+    
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    MSIDSharedTokenCache *sharedTokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
+                                                                 requestParams:params
+                                                                    tokenCache:sharedTokenCache
+                                                                         error:nil];
+    
     req.requestParams.scope = @"aza bzb";
     
     [req acquireToken:@"1234567890"
@@ -397,7 +412,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1.0];
     
-    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
@@ -406,3 +421,5 @@
 }
 
 @end
+
+
