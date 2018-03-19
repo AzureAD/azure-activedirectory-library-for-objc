@@ -51,16 +51,20 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorInternal):@(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInvalidInternalParameter):@(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInvalidDeveloperParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+                                   @(MSIDErrorAmbiguousAuthority): @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInteractionRequired):@(AD_ERROR_SERVER_USER_INPUT_NEEDED),
                                    @(MSIDErrorCacheMultipleUsers):@(AD_ERROR_CACHE_MULTIPLE_USERS),
                                    @(MSIDErrorTokenCacheItemFailure):@(AD_ERROR_CACHE_BAD_FORMAT),
+                                   @(MSIDErrorWrapperCacheFailure): @(AD_ERROR_CACHE_BAD_FORMAT),
                                    @(MSIDErrorCacheBadFormat): @(AD_ERROR_CACHE_BAD_FORMAT),
+                                   @(MSIDErrorCacheVersionMismatch): @(AD_ERROR_CACHE_VERSION_MISMATCH),
                                    @(MSIDErrorServerInvalidResponse):@(AD_ERROR_SERVER_INVALID_RESPONSE),
                                    @(MSIDErrorServerRefreshTokenRejected):@(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
                                    @(MSIDErrorServerOauth): @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorInvalidRequest): @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorInvalidClient): @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorInvalidGrant): @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
+                                   @(MSIDErrorInvalidParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
                                    @(MSIDErrorDeveloperAuthorityValidation):@(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
                                    }
                            };
