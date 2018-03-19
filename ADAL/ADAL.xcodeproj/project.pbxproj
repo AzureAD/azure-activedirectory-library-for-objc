@@ -81,6 +81,8 @@
 		23F4935020603AAD00BDD7D5 /* ADLegacyKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A312055DBF800390B6E /* ADLegacyKeychainTokenCache.m */; };
 		23F4935120603ABF00BDD7D5 /* ADLegacyMacTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A2D2055D67200390B6E /* ADLegacyMacTokenCache.m */; };
 		23F4935220603AC000BDD7D5 /* ADLegacyMacTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A2D2055D67200390B6E /* ADLegacyMacTokenCache.m */; };
+		23F4935320605EF400BDD7D5 /* AADAuthorityValidationIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6111F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m */; };
+		23F4935420605EF500BDD7D5 /* AADAuthorityValidationIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6111F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m */; };
 		290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */; };
 		2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
 		2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
@@ -2874,6 +2876,7 @@
 				D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */,
 				232153371FE0601D00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */,
 				D6BA665020167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
+				23F4935320605EF400BDD7D5 /* AADAuthorityValidationIntegrationTests.m in Sources */,
 				236BF403205B49EF006E3897 /* ADWipeTokensTelemetryTests.m in Sources */,
 				D632B54D1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
@@ -2911,6 +2914,7 @@
 				D632B54F1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				D62256541F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
+				23F4935420605EF500BDD7D5 /* AADAuthorityValidationIntegrationTests.m in Sources */,
 				B2908C0E1FCA4E5900AFE98E /* ADTelemetryIntegrationTests.m in Sources */,
 				B2822A302055D67200390B6E /* ADLegacyMacTokenCache.m in Sources */,
 				B20DC5C81F0D96A700957806 /* ADTestAuthenticationViewController.m in Sources */,
