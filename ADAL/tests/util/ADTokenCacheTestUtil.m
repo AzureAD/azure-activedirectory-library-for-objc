@@ -54,7 +54,9 @@ static ADTokenCacheItem *getAT(id<ADTokenCacheDataSource> tokenCache, NSString *
     return getToken(tokenCache, authority, TEST_CLIENT_ID, TEST_RESOURCE);
 }
 
-@implementation ADLegacyMacTokenCache (TestUtil)
+@implementation ADTokenCache (TestUtil)
+
+@dynamic macTokenCache;
 
 - (NSString *)getAT:(NSString *)authority
 {

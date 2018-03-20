@@ -42,6 +42,8 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
+#import "ADAuthenticationContext+TestUtil.h"
+#import "MSIDSharedTokenCache.h"
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
@@ -49,6 +51,7 @@
 @interface AADAuthorityValidationTests : ADTestCase
 
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) ADTokenCache *adTokenCache;
 
 @end
 
@@ -58,13 +61,11 @@
 {
     [super setUp];
     
-#if TARGET_OS_IPHONE
-    [[ADKeychainTokenCache defaultKeychainCache] testRemoveAll:nil];
+    self.adTokenCache = [ADTokenCache new];
     
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache];
     
     self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
-#endif
 }
 
 - (void)tearDown
@@ -261,11 +262,12 @@
     ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
     mrrt.authority = authority;
     
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
 
     ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:NO
                                                                                     error:&error];
+    context.tokenCache = self.tokenCache;
     [context setCorrelationId:TEST_CORRELATION_ID];
 
     XCTAssertNotNil(context);
@@ -300,13 +302,11 @@
      }];
 
     [self waitForExpectations:@[expectation] timeout:1.0];
-    
-    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    XCTAssertEqualObjects([tokenCache getMRRT:authority], updatedRT);
-    XCTAssertEqualObjects([tokenCache getFRT:authority], updatedRT);
-    XCTAssertEqualObjects([tokenCache getAT:authority], updatedAT);
+    XCTAssertEqualObjects([self.adTokenCache getMRRT:authority], updatedRT);
+    XCTAssertEqualObjects([self.adTokenCache getFRT:authority], updatedRT);
+    XCTAssertEqualObjects([self.adTokenCache getAT:authority], updatedAT);
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
@@ -397,12 +397,12 @@
     __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"acquire thread 1"];
     dispatch_async(concurrentQueue, ^{
         ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+        context.tokenCache = self.tokenCache;
         XCTAssertNotNil(context);
         
         ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
         mrrt.authority = authority;
-        [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
-        
+        [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
         
         [context setCorrelationId:correlationId1];
 
@@ -432,7 +432,7 @@
         ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
         ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
         mrrt.authority = authority;
-        [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+        [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
         [context setCorrelationId:correlationId2];
         XCTAssertNotNil(context);
         [context acquireTokenSilentWithResource:resource2
@@ -473,9 +473,10 @@
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
     ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    context.tokenCache = self.tokenCache;
     ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
-    mrrt.authority = authority;;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    mrrt.authority = authority;
+    [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
     
     [context setCorrelationId:TEST_CORRELATION_ID];
     XCTAssertNotNil(context);
@@ -519,9 +520,10 @@
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
     ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:nil];
+    context.tokenCache = self.tokenCache;
     ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
     mrrt.authority = authority;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
     [context setCorrelationId:TEST_CORRELATION_ID];
     XCTAssertNotNil(context);
 
@@ -637,9 +639,10 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
 
     ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
     mrrt.authority = authority;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
     
     ADAuthenticationContext *context = CreateAuthContext(authority);
+    context.tokenCache = self.tokenCache;
 
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
     [context acquireTokenSilentWithResource:TEST_RESOURCE
@@ -659,15 +662,14 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
     [self waitForExpectations:@[expectation] timeout:1.0];
 
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    XCTAssertEqualObjects([tokenCache getMRRT:preferredAuthority], updatedRT);
-    XCTAssertEqualObjects([tokenCache getFRT:preferredAuthority], updatedRT);
-    XCTAssertEqualObjects([tokenCache getAT:preferredAuthority], updatedAT);
+    XCTAssertEqualObjects([self.adTokenCache getMRRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([self.adTokenCache getFRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([self.adTokenCache getAT:preferredAuthority], updatedAT);
 
     // And that the non-preferred location did not get touched
-    XCTAssertEqualObjects([tokenCache getMRRT:authority], TEST_REFRESH_TOKEN);
-    XCTAssertNil([tokenCache getFRT:authority]);
-    XCTAssertNil([tokenCache getAT:authority]);
+    XCTAssertEqualObjects([self.adTokenCache getMRRT:authority], TEST_REFRESH_TOKEN);
+    XCTAssertNil([self.adTokenCache getFRT:authority]);
+    XCTAssertNil([self.adTokenCache getAT:authority]);
 }
 
 - (void)testAcquireTokenSilent_whenDifferentPreferredCache_shouldUsePreferred
@@ -692,15 +694,16 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
 
     ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
     mrrt.authority = preferredAuthority;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
     
     // Also add a MRRT in the non-preferred location to ignore
     ADTokenCacheItem *otherMrrt = [self adCreateMRRTCacheItem];
     otherMrrt.authority = authority;
     otherMrrt.refreshToken = s_doNotUseRT;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
+    [self.adTokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
     
     ADAuthenticationContext *context = CreateAuthContext(authority);
+    context.tokenCache = self.tokenCache;
 
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
     [context acquireTokenSilentWithResource:TEST_RESOURCE
@@ -717,18 +720,17 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
          [expectation fulfill];
      }];
 
-    [self waitForExpectations:@[expectation] timeout:1.0];
+    [self waitForExpectations:@[expectation] timeout:1];
 
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    XCTAssertEqualObjects([tokenCache getMRRT:preferredAuthority], updatedRT);
-    XCTAssertEqualObjects([tokenCache getFRT:preferredAuthority], updatedRT);
-    XCTAssertEqualObjects([tokenCache getAT:preferredAuthority], updatedAT);
+    XCTAssertEqualObjects([self.adTokenCache getMRRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([self.adTokenCache getFRT:preferredAuthority], updatedRT);
+    XCTAssertEqualObjects([self.adTokenCache getAT:preferredAuthority], updatedAT);
 
     // And that the non-preferred location did not get touched
-    XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
-    XCTAssertNil([tokenCache getFRT:authority]);
-    XCTAssertNil([tokenCache getAT:authority]);
+    XCTAssertEqualObjects([self.adTokenCache getMRRT:authority], s_doNotUseRT);
+    XCTAssertNil([self.adTokenCache getFRT:authority]);
+    XCTAssertNil([self.adTokenCache getAT:authority]);
 }
 
 - (void)testAcquireTokenSilent_whenDifferentPreferredCacheAndTokenFails_shouldRemoveCorrectToken
@@ -751,15 +753,17 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
 
     ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
     mrrt.authority = preferredAuthority;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:mrrt correlationId:nil error:nil];
+    [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
     
     // Also add a MRRT in the non-preferred location to ignore
     ADTokenCacheItem *otherMrrt = [self adCreateMRRTCacheItem];
     otherMrrt.authority = authority;
     otherMrrt.refreshToken = s_doNotUseRT;
-    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
+    BOOL result = [self.adTokenCache addOrUpdateItem:otherMrrt correlationId:nil error:nil];
+    XCTAssertTrue(result);
     
     ADAuthenticationContext *context = CreateAuthContext(authority);
+    context.tokenCache = self.tokenCache;
 
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
     [context acquireTokenSilentWithResource:TEST_RESOURCE
@@ -776,16 +780,14 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
     [self waitForExpectations:@[expectation] timeout:1.0];
 
     // Make sure the cache properly updated the AT, MRRT and FRT...
-    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    
     ADTokenCacheKey *mrrtKey = [ADTokenCacheKey keyWithAuthority:preferredAuthority resource:nil clientId:TEST_CLIENT_ID error:nil];
-    ADTokenCacheItem *preferredMRRT = [tokenCache getItemsWithKey:mrrtKey userId:TEST_USER_ID correlationId:nil error:nil].firstObject;
+    ADTokenCacheItem *preferredMRRT = [self.adTokenCache getItemsWithKey:mrrtKey userId:TEST_USER_ID correlationId:nil error:nil].firstObject;
     XCTAssertNil(preferredMRRT);
 
     // And that the non-preferred location did not get touched
-    XCTAssertEqualObjects([tokenCache getMRRT:authority], s_doNotUseRT);
-    XCTAssertNil([tokenCache getFRT:authority]);
-    XCTAssertNil([tokenCache getAT:authority]);
+    XCTAssertEqualObjects([self.adTokenCache getMRRT:authority], s_doNotUseRT);
+    XCTAssertNil([self.adTokenCache getFRT:authority]);
+    XCTAssertNil([self.adTokenCache getAT:authority]);
 }
 
 @end

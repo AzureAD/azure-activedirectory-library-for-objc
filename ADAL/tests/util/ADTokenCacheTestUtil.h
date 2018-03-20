@@ -23,10 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ADLegacyMacTokenCache.h"
+#import "ADTokenCache.h"
+
 #if TARGET_OS_IPHONE
 #import "ADLegacyKeychainTokenCache.h"
 #endif
+
+@class MSIDMacTokenCache;
 
 @protocol ADTokenCacheTestUtil
 
@@ -38,7 +41,10 @@
 
 @end
 
-@interface ADLegacyMacTokenCache (TestUtil) <ADTokenCacheTestUtil>
+@interface ADTokenCache (TestUtil) <ADTokenCacheTestUtil>
+
+@property (nonatomic) MSIDMacTokenCache *macTokenCache;
+
 @end
 
 #if TARGET_OS_IPHONE
