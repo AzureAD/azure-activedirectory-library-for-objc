@@ -296,9 +296,9 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        MSIDLegacySingleResourceToken *item = [self.tokenCache getLegacyTokenWithRequestParams:_requestParams.msidParameters
-                                                                                       context:_requestParams
-                                                                                         error:&msidError];
+        item = [self.tokenCache getLegacyTokenWithRequestParams:_requestParams.msidParameters
+                                                        context:_requestParams
+                                                          error:&msidError];
         
         if (msidError)
         {
