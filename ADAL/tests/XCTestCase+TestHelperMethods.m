@@ -249,7 +249,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       @"given_name" : @"Eric"
                                       };
     
-    NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
+    NSString* idtoken = [NSString stringWithFormat:@"%@.%@.",
                          [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
                          [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
