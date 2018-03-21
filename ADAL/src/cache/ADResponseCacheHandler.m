@@ -49,10 +49,18 @@
     {
         if (response.oauthErrorCode == MSIDErrorInvalidGrant && refreshToken)
         {
-            [cache removeRTForAccount:requestParams.account
-                                token:refreshToken
-                              context:requestParams
-                                error:&msidError];
+            NSError *removeError = nil;
+            
+            BOOL result = [cache removeRTForAccount:requestParams.account
+                                              token:refreshToken
+                                            context:requestParams
+                                              error:&removeError];
+            
+            if (!result)
+            {
+                MSID_LOG_WARN(requestParams, @"Failed removing refresh token");
+                MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
+            }
         }
         
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
@@ -72,6 +80,8 @@
                                                                                                       request:requestParams.msidParameters];
     
     ADTokenCacheItem *adTokenCacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
+    MSIDAADV1TokenResponse *aadTokenResponse = (MSIDAADV1TokenResponse *)response;
+    adTokenCacheItem.familyId = aadTokenResponse.familyId;
     
     ADAuthenticationResult *adResult = [ADAuthenticationResult resultFromTokenCacheItem:adTokenCacheItem
                                                               multiResourceRefreshToken:response.isMultiResource
