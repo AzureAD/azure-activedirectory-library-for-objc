@@ -29,7 +29,6 @@
 
 @interface ADTokenCacheItem ()
 
-@property (readwrite) NSMutableDictionary * additionalClient;
 @property (readonly) NSDictionary * additionalServer;
 
 @end

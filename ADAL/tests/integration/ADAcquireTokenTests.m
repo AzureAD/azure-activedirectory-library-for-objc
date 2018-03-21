@@ -1114,59 +1114,6 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
-- (void)testAdditionalClientRetainedOnRefresh
-{
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
-
-    id<ADTokenCacheDataSource> cache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    XCTAssertNotNil(cache);
-
-    ADTokenCacheItem* item = [self adCreateMRRTCacheItem];
-    NSMutableDictionary* additional = [NSMutableDictionary new];
-    additional[@"client_prop_1"] = @"something-client-side";
-    item.additionalClient = additional;
-
-    XCTAssertTrue([cache addOrUpdateItem:item correlationId:nil error:&error]);
-    XCTAssertNil(error);
-
-    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                                                     authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
-                                                      clientId:TEST_CLIENT_ID
-                                                 correlationId:TEST_CORRELATION_ID
-                                               newRefreshToken:@"new-mrrt"
-                                                newAccessToken:TEST_ACCESS_TOKEN
-                                              additionalFields:nil];
-    [ADTestURLSession addResponse:response];
-
-    [context acquireTokenSilentWithResource:TEST_RESOURCE
-                                   clientId:TEST_CLIENT_ID
-                                redirectUri:TEST_REDIRECT_URL
-                                     userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         XCTAssertNotNil(result.tokenCacheItem);
-         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
-         [expectation fulfill];
-     }];
-
-    [self waitForExpectations:@[expectation] timeout:1];
-
-    // Pull the MRRT directly out of the cache after the acquireTokenSilent operation
-    ADTokenCacheKey* mrrtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:nil clientId:TEST_CLIENT_ID error:nil];
-    XCTAssertNotNil(mrrtKey);
-    ADTokenCacheItem* itemFromCache = [cache getItemWithKey:mrrtKey userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
-    XCTAssertNotNil(itemFromCache);
-
-    // And make sure the additionalClient dictionary is still there unharmed
-    XCTAssertEqualObjects(itemFromCache.additionalClient, additional);
-    XCTAssertEqualObjects(itemFromCache.refreshToken, @"new-mrrt");
-}
-
 // Make sure that if we get a token response from the server that includes a family ID we cache it properly
 - (void)testAcquireRefreshFamilyTokenNetwork
 {
