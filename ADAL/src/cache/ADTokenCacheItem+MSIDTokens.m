@@ -129,7 +129,7 @@
     {
         _clientId = baseToken.clientId;
         _authority = baseToken.authority.absoluteString;
-        _additionalServer = baseToken.additionaServerInfo;
+        _additionalServer = baseToken.additionalServerInfo;
     }
     
     return self;

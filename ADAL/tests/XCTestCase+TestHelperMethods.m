@@ -625,7 +625,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [baseToken setValue:@"unique User Id" forKey:@"uniqueUserId"];
     MSIDClientInfo *clientInfo = [self adCreateClientInfo];
     [baseToken setValue:clientInfo forKey:@"clientInfo"];
-    [baseToken setValue:@{@"key2" : @"value2"} forKey:@"additionaServerInfo"];
+    [baseToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
     [baseToken setValue:@"Eric Cartman" forKey:@"username"];
 }
 
