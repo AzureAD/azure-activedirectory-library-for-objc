@@ -100,7 +100,7 @@
     [self loadCache];
 }
 
-- (void)deleteAllAtPath:(NSIndexPath*)indexPath
+- (void)deleteAllForUserIdClientIdAtPath:(NSIndexPath*)indexPath
 {
     ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
     if (!rowItem.clientId)
@@ -113,6 +113,21 @@
     
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
     [cache removeAllForUserId:userId clientId:rowItem.title error:nil];
+    
+    [self loadCache];
+}
+
+- (void)deleteAllForClientIdAtPath:(NSIndexPath*)indexPath
+{
+    ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
+    if (!rowItem.clientId)
+    {
+        NSLog(@"Trying to delete all from a non-client-id item?");
+        return;
+    }
+    
+    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    [cache removeAllForClientId:rowItem.title error:nil];
     
     [self loadCache];
 }
@@ -175,17 +190,26 @@
     [expireTokenAction setBackgroundColor:[UIColor orangeColor]];
     
     
-    UITableViewRowAction* deleteAllAction =
+    UITableViewRowAction* deleteAllForUserIdClientIdAction =
     [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive
-                                       title:@"Delete All"
+                                       title:@"Delete this user for this Client"
                                      handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath)
     {
-        [self deleteAllAtPath:indexPath];
+        [self deleteAllForUserIdClientIdAtPath:indexPath];
     }];
+    [deleteAllForUserIdClientIdAction setBackgroundColor:[UIColor orangeColor]];
+    
+    UITableViewRowAction* deleteAllForClientIdAction =
+    [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive
+                                       title:@"Delete all users for this Client!"
+                                     handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath)
+     {
+         [self deleteAllForClientIdAtPath:indexPath];
+     }];
     
     _tokenRowActions = @[ deleteTokenAction, expireTokenAction ];
     _mrrtRowActions = @[ deleteTokenAction, invalidateAction ];
-    _clientIdRowActions = @[ deleteAllAction ];
+    _clientIdRowActions = @[ deleteAllForClientIdAction, deleteAllForUserIdClientIdAction ];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:ADTestAppCacheChangeNotification
                                                       object:nil
