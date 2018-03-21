@@ -80,8 +80,6 @@
                                                                                                       request:requestParams.msidParameters];
     
     ADTokenCacheItem *adTokenCacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
-    MSIDAADV1TokenResponse *aadTokenResponse = (MSIDAADV1TokenResponse *)response;
-    adTokenCacheItem.familyId = aadTokenResponse.familyId;
     
     ADAuthenticationResult *adResult = [ADAuthenticationResult resultFromTokenCacheItem:adTokenCacheItem
                                                               multiResourceRefreshToken:response.isMultiResource

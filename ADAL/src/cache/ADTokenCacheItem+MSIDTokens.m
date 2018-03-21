@@ -79,6 +79,7 @@
     if (self)
     {
         _refreshToken = legacySingleResourceToken.refreshToken;
+        _familyId = legacySingleResourceToken.familyId;
     }
     
     [self calculateHash];
