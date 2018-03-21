@@ -47,7 +47,7 @@
     
     if (!result)
     {
-        if (response.oauthErrorCode == MSIDErrorInvalidGrant)
+        if (response.oauthErrorCode == MSIDErrorInvalidGrant && refreshToken)
         {
             [cache removeRTForAccount:requestParams.account
                                 token:refreshToken
