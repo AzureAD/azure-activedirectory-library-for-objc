@@ -47,11 +47,6 @@
     // coming from the server that we didn't process, but potentially want to
     // retain to make sure we have as much information as possible,
     NSDictionary* _additionalServer;
-    
-    // Any extra properties we generate on the client side on an item that we
-    // potentially want to make sure don't get clobbered in old versions of ADAL.
-    // NOTE: Will get clobbered by versions of ADAL prior to 2.2
-    NSMutableDictionary* _additionalClient;
 }
 
 NS_ASSUME_NONNULL_BEGIN

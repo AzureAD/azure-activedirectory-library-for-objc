@@ -47,12 +47,20 @@
     
     if (!result)
     {
-        if (response.oauthErrorCode == MSIDErrorInvalidGrant)
+        if (response.oauthErrorCode == MSIDErrorInvalidGrant && refreshToken)
         {
-            [cache removeRTForAccount:requestParams.account
-                                token:refreshToken
-                              context:requestParams
-                                error:&msidError];
+            NSError *removeError = nil;
+            
+            BOOL result = [cache removeRTForAccount:requestParams.account
+                                              token:refreshToken
+                                            context:requestParams
+                                              error:&removeError];
+            
+            if (!result)
+            {
+                MSID_LOG_WARN(requestParams, @"Failed removing refresh token");
+                MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
+            }
         }
         
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];

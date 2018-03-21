@@ -255,105 +255,118 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
-//- (void)testAssertionCached
-//{
-//    ADAuthenticationError* error = nil;
-//    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-//
-//    // Add a token item to return in the cache
-//    ADTokenCacheItem* item = [self adCreateCacheItem];
-//    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:item correlationId:nil error:&error];
-//    XCTAssertNil(error);
-//
-//    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenForAssertion with cached assertion."];
-//    [context acquireTokenForAssertion:@"some assertion"
-//                        assertionType:AD_SAML1_1
-//                             resource:TEST_RESOURCE
-//                             clientId:TEST_CLIENT_ID
-//                               userId:TEST_USER_ID
-//                      completionBlock:^(ADAuthenticationResult *result)
-//    {
-//        XCTAssertNotNil(result);
-//        XCTAssertEqual(result.status, AD_SUCCEEDED);
-//        XCTAssertNotNil(result.tokenCacheItem);
-//        XCTAssertEqualObjects(result.tokenCacheItem, item);
-//
-//        [expectation fulfill];
-//    }];
-//
-//    [self waitForExpectations:@[expectation] timeout:1];
-//}
+- (void)testAssertionCached
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
 
-//- (void)testAssertionNetwork
-//{
-//    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-//    NSUUID* correlationId = TEST_CORRELATION_ID;
-//
-//    NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
-//    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
-//    NSString* assertion = @"some assertion";
-//    NSString* base64Assertion = [[assertion dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
-//
-//    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
-//    headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [correlationId UUIDString];
-//
-//    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
-//                                                       requestHeaders:headers
-//                                                    requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_SAML11_BEARER_VALUE,
-//                                                                         MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
-//                                                                         MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
-//                                                                         MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-//                                                                         MSID_OAUTH2_ASSERTION : base64Assertion }
-//                                                    responseURLString:@"https://contoso.com"
-//                                                         responseCode:400
-//                                                     httpHeaderFields:@{ MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] }
-//                                                     dictionaryAsJSON:@{ MSID_OAUTH2_ACCESS_TOKEN : anotherAccessToken,
-//                                                                         MSID_OAUTH2_REFRESH_TOKEN : broadRefreshToken,
-//                                                                         MSID_OAUTH2_TOKEN_TYPE : TEST_ACCESS_TOKEN_TYPE,
-//                                                                         MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
-//                                                                         MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_SAML11_BEARER_VALUE,
-//                                                                         MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE
-//                                                                         }];
-//    [ADTestURLSession addResponse:response];
-//
-//    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenForAssertion"];
-//    [context acquireTokenForAssertion:assertion
-//                        assertionType:AD_SAML1_1
-//                             resource:TEST_RESOURCE
-//                             clientId:TEST_CLIENT_ID
-//                               userId:TEST_USER_ID
-//                      completionBlock:^(ADAuthenticationResult *result)
-//     {
-//         XCTAssertNotNil(result);
-//         XCTAssertEqual(result.status, AD_SUCCEEDED);
-//         XCTAssertNil(result.error);
-//         XCTAssertNotNil(result.tokenCacheItem);
-//         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, broadRefreshToken);
-//         XCTAssertEqualObjects(result.accessToken, anotherAccessToken);
-//         XCTAssertEqualObjects(result.correlationId, correlationId);
-//         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-//
-//         [expectation fulfill];
-//     }];
-//
-//    [self waitForExpectations:@[expectation] timeout:1];
-//
-//    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-//
-//    ADAuthenticationError *error = nil;
-//
-//    ADTokenCacheAccessor *cache = [[ADTokenCacheAccessor alloc] initWithDataSource:ADKeychainTokenCache.defaultKeychainCache
-//                                                                         authority:TEST_AUTHORITY];
-//    ADTokenCacheItem *item = [cache getATRTItemForUser:nil resource:TEST_RESOURCE clientId:TEST_CLIENT_ID context:nil error:&error];
-//    XCTAssertNotNil(item);
-//    XCTAssertNil(error);
-//    XCTAssertNotNil(item.accessToken);
-//
-//    ADTokenCacheItem *mrrtItem = [cache getMRRTItemForUser:nil clientId:TEST_CLIENT_ID context:nil error:&error];
-//    XCTAssertNotNil(mrrtItem);
-//    XCTAssertNil(error);
-//    XCTAssertNotNil(mrrtItem.refreshToken);
-//}
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenForAssertion with cached assertion."];
+    [context acquireTokenForAssertion:@"some assertion"
+                        assertionType:AD_SAML1_1
+                             resource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.status, AD_SUCCEEDED);
+        XCTAssertNotNil(result.tokenCacheItem);
+        XCTAssertEqualObjects(result.tokenCacheItem, item);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAssertionNetwork
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    NSUUID* correlationId = TEST_CORRELATION_ID;
+
+    NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
+    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
+    NSString* assertion = @"some assertion";
+    NSString* base64Assertion = [[assertion dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
+
+    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [correlationId UUIDString];
+
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                       requestHeaders:headers
+                                                    requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_SAML11_BEARER_VALUE,
+                                                                         MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                                                         MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                                                         MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                                                         MSID_OAUTH2_ASSERTION : base64Assertion }
+                                                    responseURLString:@"https://contoso.com"
+                                                         responseCode:400
+                                                     httpHeaderFields:@{ MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] }
+                                                     dictionaryAsJSON:@{ MSID_OAUTH2_ACCESS_TOKEN : anotherAccessToken,
+                                                                         MSID_OAUTH2_REFRESH_TOKEN : broadRefreshToken,                                                                         MSID_OAUTH2_TOKEN_TYPE : TEST_ACCESS_TOKEN_TYPE,
+                                                                         MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                                                         MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_SAML11_BEARER_VALUE,
+                                                                         MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE                                                                         }];
+    [ADTestURLSession addResponse:response];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenForAssertion"];
+    [context acquireTokenForAssertion:assertion
+                        assertionType:AD_SAML1_1
+                             resource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, broadRefreshToken);
+         XCTAssertEqualObjects(result.accessToken, anotherAccessToken);
+         XCTAssertEqualObjects(result.correlationId, correlationId);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+
+    ADAuthenticationError *error = nil;
+    
+    NSArray* allItems = [ADLegacyKeychainTokenCache.defaultKeychainCache allItems:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 2);
+    
+    ADTokenCacheItem* mrrtItem = nil;
+    ADTokenCacheItem* atItem = nil;
+    
+    // Pull the MRRT and AT items out of the cache
+    for (ADTokenCacheItem * item in allItems)
+    {
+        if (item.refreshToken)
+        {
+            mrrtItem = item;
+        }
+        else if (item.accessToken)
+        {
+            atItem = item;
+        }
+    }
+
+    XCTAssertNotNil(atItem);
+    XCTAssertNotNil(atItem.accessToken);
+
+    XCTAssertNotNil(mrrtItem);
+    XCTAssertNotNil(mrrtItem.refreshToken);
+}
 
 
 - (void)testCachedWithNilUserId
@@ -727,7 +740,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
+    XCTAssertNil([firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
@@ -758,10 +771,10 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"], @"not_found");
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"6"]);
+    XCTAssertNil([secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"]);
+    XCTAssertNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"]);
+    XCTAssertNil([secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
@@ -1114,59 +1127,6 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
-- (void)testAdditionalClientRetainedOnRefresh
-{
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
-
-    id<ADTokenCacheDataSource> cache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    XCTAssertNotNil(cache);
-
-    ADTokenCacheItem* item = [self adCreateMRRTCacheItem];
-    NSMutableDictionary* additional = [NSMutableDictionary new];
-    additional[@"client_prop_1"] = @"something-client-side";
-    item.additionalClient = additional;
-
-    XCTAssertTrue([cache addOrUpdateItem:item correlationId:nil error:&error]);
-    XCTAssertNil(error);
-
-    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                                                     authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
-                                                      clientId:TEST_CLIENT_ID
-                                                 correlationId:TEST_CORRELATION_ID
-                                               newRefreshToken:@"new-mrrt"
-                                                newAccessToken:TEST_ACCESS_TOKEN
-                                              additionalFields:nil];
-    [ADTestURLSession addResponse:response];
-
-    [context acquireTokenSilentWithResource:TEST_RESOURCE
-                                   clientId:TEST_CLIENT_ID
-                                redirectUri:TEST_REDIRECT_URL
-                                     userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         XCTAssertNotNil(result.tokenCacheItem);
-         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
-         [expectation fulfill];
-     }];
-
-    [self waitForExpectations:@[expectation] timeout:1];
-
-    // Pull the MRRT directly out of the cache after the acquireTokenSilent operation
-    ADTokenCacheKey* mrrtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:nil clientId:TEST_CLIENT_ID error:nil];
-    XCTAssertNotNil(mrrtKey);
-    ADTokenCacheItem* itemFromCache = [cache getItemWithKey:mrrtKey userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
-    XCTAssertNotNil(itemFromCache);
-
-    // And make sure the additionalClient dictionary is still there unharmed
-    XCTAssertEqualObjects(itemFromCache.additionalClient, additional);
-    XCTAssertEqualObjects(itemFromCache.refreshToken, @"new-mrrt");
-}
-
 // Make sure that if we get a token response from the server that includes a family ID we cache it properly
 - (void)testAcquireRefreshFamilyTokenNetwork
 {
@@ -1305,9 +1265,9 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"succeeded"]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.user_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"7"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"8"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.token_rt_status"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SUCCEEDED"]);

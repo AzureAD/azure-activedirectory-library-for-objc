@@ -69,7 +69,6 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithNilAccessToken_shouldReturnNil
@@ -99,7 +98,6 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertNil(adToken.resource);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithNilRefreshToken_shouldReturnNil
@@ -129,7 +127,6 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithTokenCacheItem_whenAccessToken_shouldInitADTokenCacheItem
@@ -152,7 +149,6 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithTokenCacheItem_whenRefreshToken_shouldInitADTokenCacheItem
@@ -175,7 +171,6 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertNil(adToken.resource);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testInitWithTokenCacheItem_whenSingleResourceRefreshToken_shouldInitADTokenCacheItem
@@ -198,7 +193,6 @@
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
-    XCTAssertNil(adToken.additionalClient);
 }
 
 - (void)testCreateTokenCacheIten_whenAccessToken_shouldReturnMSIDTokenCacheItem

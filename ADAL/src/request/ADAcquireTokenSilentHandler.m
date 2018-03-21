@@ -395,10 +395,8 @@
     // If we don't have an item yet see if we can pull one out of the cache
     if (!_mrrtItem)
     {
-        MSIDAccount *account = [[MSIDAccount alloc] initWithLegacyUserId:_requestParams.identifier.userId
-                                                            uniqueUserId:nil];
         NSError *msidError = nil;
-        MSIDRefreshToken *refreshToken = [self.tokenCache getRTForAccount:account
+        MSIDRefreshToken *refreshToken = [self.tokenCache getRTForAccount:_requestParams.account
                                                             requestParams:_requestParams.msidParameters
                                                                   context:_requestParams
                                                                     error:&msidError];
