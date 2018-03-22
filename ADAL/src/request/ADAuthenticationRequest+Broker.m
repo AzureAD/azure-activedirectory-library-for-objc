@@ -341,10 +341,10 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"claims"         : _claims ? _claims : @"",
       };
     
-    NSString *sharedGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
-    
     NSDictionary<NSString *, NSString *> *resumeDictionary = nil;
 #if TARGET_OS_IPHONE
+        NSString *sharedGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    
     resumeDictionary =
     @{
       @"authority"        : _requestParams.authority,

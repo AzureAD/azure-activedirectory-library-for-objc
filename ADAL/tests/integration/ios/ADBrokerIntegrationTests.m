@@ -42,6 +42,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDSharedTokenCache.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
 @interface ADBrokerIntegrationTests : ADTestCase
 
@@ -52,7 +53,8 @@
 - (void)setUp
 {
     [super setUp];
-    [[ADKeychainTokenCache keychainCacheForGroup:nil] testRemoveAll:nil];
+    
+    [MSIDKeychainTokenCache reset];
 }
 
 - (void)tearDown
