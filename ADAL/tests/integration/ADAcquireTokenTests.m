@@ -30,20 +30,25 @@
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
 #import "ADAuthenticationSettings.h"
-#import "ADKeychainTokenCache+Internal.h"
-#import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
-#import "ADTokenCacheKey.h"
 #import "ADTokenCacheDataSource.h"
 #import "ADTelemetryTestDispatcher.h"
 #import "ADUserIdentifier.h"
 #import "ADTestAuthenticationViewController.h"
 #import "ADAuthorityValidation.h"
-#import "ADLegacyKeychainTokenCache.h"
 #import "MSIDSharedTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
-#import "MSIDKeychainTokenCache.h"
 #import "ADAuthenticationContext+TestUtil.h"
+
+#import "ADTokenCacheKey.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDKeychainTokenCache.h"
+#import "ADLegacyKeychainTokenCache.h"
+#else
+#import "ADTokenCache+Internal.h"
+#endif
 
 const int sAsyncContextTimeout = 10;
 
@@ -65,7 +70,6 @@ const int sAsyncContextTimeout = 10;
 @interface ADAcquireTokenTests : ADTestCase
 
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
-@property (nonatomic) ADTokenCache *adTokenCache;
 @property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
 
 @end
@@ -78,12 +82,22 @@ const int sAsyncContextTimeout = 10;
     
     [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
     
-    self.adTokenCache = [ADTokenCache new];
-    self.cacheDataSource = self.adTokenCache;
+#if TARGET_OS_IPHONE
+    [MSIDKeychainTokenCache reset];
     
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache];
+    self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
+    
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
     
     self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+#else
+    ADTokenCache *adTokenCache = [ADTokenCache new];
+    self.cacheDataSource = adTokenCache;
+    
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache];
+    
+    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+#endif
 }
 
 - (void)tearDown
