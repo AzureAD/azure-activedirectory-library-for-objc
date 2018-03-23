@@ -389,6 +389,9 @@
 		B2EE688D20EA8ECC00AA78A9 /* ADAutoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688B20EA8ECC00AA78A9 /* ADAutoWebViewController.m */; };
 		B2FBFD8120D37E4E001EB7AA /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2FBFD8220D47528001EB7AA /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
+		B2B785101F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */; };
+		B2B785111F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */; };
+		B2CD211620632C09009869D5 /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CD211520632C09009869D5 /* GSS.framework */; };
 		D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */; };
 		D60B653C1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */; };
 		D60B653D1F355C5700A89487 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */; };
@@ -1208,6 +1211,8 @@
 		B2EE688620EA8E5700AA78A9 /* ADAutoMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoMainViewController.h; sourceTree = "<group>"; };
 		B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoMainViewController.m; sourceTree = "<group>"; };
 		B2EE688B20EA8ECC00AA78A9 /* ADAutoWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoWebViewController.m; sourceTree = "<group>"; };
+		B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTelemetryExtensionsTests.m; sourceTree = "<group>"; };
+		B2CD211520632C09009869D5 /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/GSS.framework; sourceTree = DEVELOPER_DIR; };
 		D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
 		D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALConstants.h; sourceTree = "<group>"; };
@@ -1402,6 +1407,8 @@
 				D6CF4ED91FC37A4C00CD70C5 /* Security.framework in Frameworks */,
 				D6CF4ED81FC37A4500CD70C5 /* Cocoa.framework in Frameworks */,
 				D6D9A47C1FBD7D9500EFA430 /* libIdentityCore.a in Frameworks */,
+				B2CD211620632C09009869D5 /* GSS.framework in Frameworks */,
+				D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1657,6 +1664,7 @@
 				D6CF4EC91FC3784900CD70C5 /* UIKit.framework */,
 				D6D9A56A1FBFBF8900EFA430 /* Security.framework */,
 				D6D9A5681FBFBF8100EFA430 /* Cocoa.framework */,
+				B2CD211520632C09009869D5 /* GSS.framework */,
 				D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */,
 				97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */,
 				8BA729B017FE0BDA00CACB46 /* UIKit.framework */,
