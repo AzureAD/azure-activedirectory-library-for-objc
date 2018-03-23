@@ -26,7 +26,7 @@
 
 @interface ADNegotiateHandler : NSObject <ADAuthMethodHandler>
 
-// Handles a client authentication challenge by rejecting it, which clearly tells OS that it's not supported.
+// Handles a client authentication challenge by either using default handling or rejecting it, which clearly tells OS that it's not supported.
 // Always returns YES, OS will then try another auth method if that's available.
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 session:(NSURLSession *)session
