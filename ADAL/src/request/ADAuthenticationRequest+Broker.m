@@ -44,11 +44,13 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 
+
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
 #import "ADKeychainUtil.h"
+#import "MSIDBrokerResponse+ADAL.h"
 #endif // TARGET_OS_IPHONE
 
 NSString* s_brokerAppVersion = nil;
@@ -268,7 +270,10 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         
         MSIDSharedTokenCache *cache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:primaryAccessor otherCacheAccessors:@[defaultAccessor]];
         
-        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse context:nil error:&msidError];
+        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                         saveRefreshTokenOnly:brokerResponse.isAccessTokenInvalid
+                                                      context:nil
+                                                        error:&msidError];
         
         if (!saveResult)
         {

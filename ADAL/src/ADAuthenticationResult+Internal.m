@@ -32,6 +32,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTokenResponseHandler.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
+#import "MSIDBrokerResponse+ADAL.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -255,14 +256,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     
-    // A bug in previous versions of broker would override the provided authority in some cases with
-    // common. If the intended tenant was something other then common then the access token may
-    // be bad, so clear it out. We will force a token refresh later.
-    NSArray *pathComponents = [[NSURL URLWithString:response.authority] pathComponents];
-    NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
-    BOOL fValidTenant = response.validAuthority != nil || [tenant isEqualToString:@"common"];
-    BOOL replay = [NSString msidIsStringNilOrBlank:response.clientInfo];
-    if (!fValidTenant || replay)
+    if (response.isAccessTokenInvalid)
     {
         item.accessToken = nil;
     }
