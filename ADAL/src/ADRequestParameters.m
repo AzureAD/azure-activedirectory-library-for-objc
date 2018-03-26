@@ -74,9 +74,6 @@
     parameters->_clientId = [_clientId copyWithZone:zone];
     parameters->_redirectUri = [_redirectUri copyWithZone:zone];
     parameters->_identifier = [_identifier copyWithZone:zone];
-    
-//    // "copy" doesn't make much sense on the token cache object, as it's just a proxy around a data source
-//    parameters->_tokenCache = _tokenCache;
     parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
