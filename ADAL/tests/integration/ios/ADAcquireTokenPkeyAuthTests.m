@@ -127,8 +127,6 @@
                                                  error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-//    ADTokenCache *tokenCache = [ADTokenCache new];
-//    [context setTokenCacheStore:tokenCache];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     return context;
