@@ -68,29 +68,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     s_interactionLock = dispatch_semaphore_create(1);
 }
 
-+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
-{
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:NO error:nil];
-    
-    return [self requestWithContext:context];
-}
-
-+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context
-{
-    ADAuthenticationRequest* request = [[ADAuthenticationRequest alloc] init];
-    if (!request)
-    {
-        return nil;
-    }
-    
-    request->_context = context;
-    ADRequestParameters *params = [ADRequestParameters new];
-    params.authority = context.authority;
-    request->_requestParams = params;
-    
-    return request;
-}
-
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
                                     tokenCache:(MSIDSharedTokenCache *)tokenCache

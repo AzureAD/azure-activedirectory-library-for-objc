@@ -84,11 +84,6 @@
 
 @property (retain) NSString* logComponent;
 
-// These constructors exists *solely* to be used when trying to use some of the caching logic.
-// You can't actually send requests with it. They will fail.
-//+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority;
-//+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context;
-
 // The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
