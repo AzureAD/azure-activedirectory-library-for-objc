@@ -79,6 +79,7 @@
     if (self)
     {
         _refreshToken = legacySingleResourceToken.refreshToken;
+        _familyId = legacySingleResourceToken.familyId;
     }
     
     [self calculateHash];
@@ -121,13 +122,14 @@
 
 - (instancetype)initWithBaseToken:(MSIDBaseToken *)baseToken
 {
+    if (!baseToken) return nil;
+    
     self = [super init];
     if (self)
     {
         _clientId = baseToken.clientId;
         _authority = baseToken.authority.absoluteString;
-        _additionalServer = baseToken.additionaServerlInfo;
-        _additionalClient = [baseToken.additionalClientInfo mutableCopy];
+        _additionalServer = baseToken.additionalServerInfo;
     }
     
     return self;
@@ -160,7 +162,6 @@
     cacheItem.uniqueUserId = self.userInformation.userId;
     cacheItem.tokenType = [MSIDTokenTypeHelpers tokenTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
     cacheItem.additionalInfo = self.additionalServer;
-    cacheItem.additionalClientInfo = self.additionalClient;
     return cacheItem;
 }
 

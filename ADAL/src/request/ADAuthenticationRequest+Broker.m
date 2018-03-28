@@ -36,12 +36,21 @@
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryBrokerEvent.h"
 #import "MSIDAuthority.h"
+#import "MSIDKeychainTokenCache.h"
+#import "ADTokenCacheAccessor.h"
+#import "MSIDSharedTokenCache.h"
+#import "MSIDBrokerResponse.h"
+#import "ADResponseCacheHandler.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+
 
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
 #import "ADKeychainUtil.h"
+#import "MSIDBrokerResponse+ADAL.h"
 #endif // TARGET_OS_IPHONE
 
 NSString* s_brokerAppVersion = nil;
@@ -187,9 +196,10 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
     
-    if([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
+    if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
-        return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+        MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:queryParamsMap error:nil];
+        return [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     }
     
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
@@ -237,19 +247,40 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     // create response from the decrypted payload
     queryParamsMap = [NSDictionary msidURLFormDecode:decryptedString];
     [ADHelpers removeNullStringFrom:queryParamsMap];
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     
-    s_brokerAppVersion = [queryParamsMap valueForKey:ADAL_BROKER_APP_VERSION];
+    NSError *msidError = nil;
+    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:queryParamsMap error:&msidError];
     
-    NSString* keychainGroup = resumeDictionary[@"keychain_group"];
+    if (msidError)
+    {
+        return [ADAuthenticationResult resultFromMSIDError:msidError];
+    }
+    
+    s_brokerAppVersion = brokerResponse.brokerAppVer;
+    
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
+    
+    NSString *keychainGroup = resumeDictionary[@"keychain_group"];
+    
     if (AD_SUCCEEDED == result.status && keychainGroup)
     {
-        ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
-                                                                             authority:result.tokenCacheItem.authority];
+        MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
+        MSIDLegacyTokenCacheAccessor *primaryAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource];
+        MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource];
         
-        [cache updateCacheToResult:result cacheItem:nil refreshToken:nil context:nil];
+        MSIDSharedTokenCache *cache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:primaryAccessor otherCacheAccessors:@[defaultAccessor]];
         
-        NSString* userId = [[[result tokenCacheItem] userInformation] userId];
+        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                         saveRefreshTokenOnly:brokerResponse.isAccessTokenInvalid
+                                                      context:nil
+                                                        error:&msidError];
+        
+        if (!saveResult)
+        {
+            return [ADAuthenticationResult resultFromMSIDError:msidError];
+        }
+        
+        NSString *userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]];
     }
@@ -315,44 +346,29 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"claims"         : _claims ? _claims : @"",
       };
     
-    NSDictionary<NSString *, NSString *>* resumeDictionary = nil;
+    NSDictionary<NSString *, NSString *> *resumeDictionary = nil;
 #if TARGET_OS_IPHONE
-    id<ADTokenCacheDataSource> dataSource = [_requestParams.tokenCache dataSource];
-    if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
-    {
-        NSString* keychainGroup = [(ADKeychainTokenCache*)dataSource sharedGroup];
-        NSString* teamId = [ADKeychainUtil keychainTeamId:error];
-        if (!teamId)
-        {
-            return nil;
-        }
-        if (teamId && [keychainGroup hasPrefix:teamId])
-        {
-            keychainGroup = [keychainGroup substringFromIndex:teamId.length + 1];
-        }
-        resumeDictionary =
-        @{
-          @"authority"        : _requestParams.authority,
-          @"resource"         : _requestParams.resource,
-          @"client_id"        : _requestParams.clientId,
-          @"redirect_uri"     : _requestParams.redirectUri,
-          @"correlation_id"   : _requestParams.correlationId.UUIDString,
-          @"keychain_group"   : keychainGroup
-          };
-
-    }
-    else
+        NSString *sharedGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    
+    resumeDictionary =
+    @{
+      @"authority"        : _requestParams.authority,
+      @"resource"         : _requestParams.resource,
+      @"client_id"        : _requestParams.clientId,
+      @"redirect_uri"     : _requestParams.redirectUri,
+      @"correlation_id"   : _requestParams.correlationId.UUIDString,
+      @"keychain_group"   : sharedGroup
+      };
+#else
+    resumeDictionary =
+    @{
+      @"authority"        : _requestParams.authority,
+      @"resource"         : _requestParams.resource,
+      @"client_id"        : _requestParams.clientId,
+      @"redirect_uri"     : _requestParams.redirectUri,
+      @"correlation_id"   : _requestParams.correlationId.UUIDString,
+      };
 #endif
-    {
-        resumeDictionary =
-        @{
-          @"authority"        : _requestParams.authority,
-          @"resource"         : _requestParams.resource,
-          @"client_id"        : _requestParams.clientId,
-          @"redirect_uri"     : _requestParams.redirectUri,
-          @"correlation_id"   : _requestParams.correlationId.UUIDString,
-          };
-    }
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     

@@ -39,7 +39,10 @@
 #import "ADUserInformation.h"
 #import "ADRefreshResponseBuilder.h"
 #import "MSIDClientInfo.h"
-
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDSharedTokenCache.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
 @interface ADBrokerIntegrationTests : ADTestCase
 
@@ -47,68 +50,19 @@
 
 @implementation ADBrokerIntegrationTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    [[ADKeychainTokenCache keychainCacheForGroup:nil] testRemoveAll:nil];
+    
+    [MSIDKeychainTokenCache reset];
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     [super tearDown];
 }
 
-+ (NSURL *)createV2BrokerResponse:(NSDictionary *)parameters
-                      redirectUri:(NSString *)redirectUri
-{
-    NSData *payload = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
-    
-    size_t bufferSize = [payload length] + kCCBlockSizeAES128;
-    void *buffer = malloc(bufferSize);
-    size_t numBytesEncrypted = 0;
-    
-    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
-                                          [brokerKey bytes], kCCKeySizeAES256,
-                                          NULL /* initialization vector (optional) */,
-                                          [payload bytes], [payload length], /* input */
-                                          buffer, bufferSize, /* output */
-                                          &numBytesEncrypted);
-    if (cryptStatus != kCCSuccess)
-    {
-        return nil;
-    }
-    
-    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256([payload bytes], (CC_LONG)[payload length], hash);
-    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 3];
-    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; ++i)
-    {
-        [fingerprint appendFormat:@"%02x", hash[i]];
-    }
-    
-    NSDictionary *message =
-    @{
-      @"msg_protocol_ver" : @"2",
-      @"response" :  [NSString msidBase64UrlEncodeData:[NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted]],
-      @"hash" : [fingerprint uppercaseString],
-      };
-    
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidURLFormEncode]]];
-}
-
-- (ADAuthenticationContext *)getBrokerTestContext:(NSString *)authority
-{
-    ADAuthenticationContext *context =
-    [[ADAuthenticationContext alloc] initWithAuthority:authority
-                                     validateAuthority:YES
-                                           sharedGroup:nil
-                                                 error:nil];
-    
-    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setCorrelationId:TEST_CORRELATION_ID];
-    [context setCredentialsType:AD_CREDENTIALS_AUTO];
-    
-    return context;
-}
+#pragma mark - Tests
 
 - (void)testBroker_whenSimpleAcquireToken_shouldSucceed
 {
@@ -186,7 +140,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1.0];
     
-    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     
     XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
@@ -287,7 +241,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1.0];
     
-    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
@@ -377,10 +331,21 @@
     ADAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     
-    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context];
-    req.requestParams.resource = TEST_RESOURCE;
-    req.requestParams.clientId = TEST_CLIENT_ID;
-    req.requestParams.redirectUri = redirectUri;
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.resource = TEST_RESOURCE;
+    params.clientId = TEST_CLIENT_ID;
+    params.redirectUri = redirectUri;
+    params.scope = @"aza bzb";
+    
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    MSIDSharedTokenCache *sharedTokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
+                                                                 requestParams:params
+                                                                    tokenCache:sharedTokenCache
+                                                                         error:nil];
+    
     req.requestParams.scope = @"aza bzb";
     
     [req acquireToken:@"1234567890"
@@ -397,7 +362,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1.0];
     
-    ADKeychainTokenCache *tokenCache = (ADKeychainTokenCache *)[context tokenCacheStore].dataSource;
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
@@ -405,4 +370,61 @@
     XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
 }
 
+#pragma mark - Private
+
++ (NSURL *)createV2BrokerResponse:(NSDictionary *)parameters
+                      redirectUri:(NSString *)redirectUri
+{
+    NSData *payload = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
+    
+    size_t bufferSize = [payload length] + kCCBlockSizeAES128;
+    void *buffer = malloc(bufferSize);
+    size_t numBytesEncrypted = 0;
+    
+    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
+                                          [brokerKey bytes], kCCKeySizeAES256,
+                                          NULL /* initialization vector (optional) */,
+                                          [payload bytes], [payload length], /* input */
+                                          buffer, bufferSize, /* output */
+                                          &numBytesEncrypted);
+    if (cryptStatus != kCCSuccess)
+    {
+        return nil;
+    }
+    
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256([payload bytes], (CC_LONG)[payload length], hash);
+    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 3];
+    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; ++i)
+    {
+        [fingerprint appendFormat:@"%02x", hash[i]];
+    }
+    
+    NSDictionary *message =
+    @{
+      @"msg_protocol_ver" : @"2",
+      @"response" :  [NSString msidBase64UrlEncodeData:[NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted]],
+      @"hash" : [fingerprint uppercaseString],
+      };
+    
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidURLFormEncode]]];
+}
+
+- (ADAuthenticationContext *)getBrokerTestContext:(NSString *)authority
+{
+    ADAuthenticationContext *context =
+    [[ADAuthenticationContext alloc] initWithAuthority:authority
+                                     validateAuthority:YES
+                                                 error:nil];
+    
+    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    [context setCredentialsType:AD_CREDENTIALS_AUTO];
+    
+    return context;
+}
+
 @end
+
+

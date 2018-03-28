@@ -21,9 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface ADAuthenticationRequest (AcquireAssertion)
+#import "MSIDBrokerResponse+ADAL.h"
 
-// Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
-- (void)requestTokenByAssertion:(MSIDTokenResponseCallback)completionBlock;
+@implementation MSIDBrokerResponse (ADAL)
+
+- (BOOL)isAccessTokenInvalid
+{
+    // A bug in previous versions of broker would override the provided authority in some cases with
+    // common. If the intended tenant was something other then common then the access token may
+    // be bad, so clear it out. We will force a token refresh later.
+    NSArray *pathComponents = [[NSURL URLWithString:self.authority] pathComponents];
+    NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
+    BOOL fValidTenant = self.validAuthority != nil || [tenant isEqualToString:@"common"];
+    BOOL replay = [NSString msidIsStringNilOrBlank:self.clientInfo];
+    
+    return !fValidTenant || replay;
+}
 
 @end

@@ -78,7 +78,7 @@
     XCTAssertNil(tokenCacheItem.cachedAt);
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
-    XCTAssertNil(tokenCacheItem.uniqueUserId);
+    XCTAssertEqualObjects(tokenCacheItem.uniqueUserId, TEST_USER_ID);
     XCTAssertNil(tokenCacheItem.username);
     XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
@@ -116,7 +116,7 @@
     XCTAssertNil(tokenCacheItem.cachedAt);
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
-    XCTAssertNil(tokenCacheItem.uniqueUserId);
+    XCTAssertEqualObjects(tokenCacheItem.uniqueUserId, TEST_USER_ID);
     XCTAssertNil(tokenCacheItem.username);
     XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
@@ -154,7 +154,7 @@
     XCTAssertNil(tokenCacheItem.cachedAt);
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
-    XCTAssertNil(tokenCacheItem.uniqueUserId);
+    XCTAssertEqualObjects(tokenCacheItem.uniqueUserId, TEST_USER_ID);
     XCTAssertNil(tokenCacheItem.username);
     XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);

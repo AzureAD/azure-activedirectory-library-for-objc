@@ -28,6 +28,8 @@
 #import "ADTestURLSession.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "ADLegacyKeychainTokenCache.h"
 
 @interface ADAcquireTokenPkeyAuthTests : ADTestCase
 
@@ -38,11 +40,15 @@
 - (void)setUp
 {
     [super setUp];
+    
+    [MSIDKeychainTokenCache reset];
 }
 
 - (void)tearDown
 {
     [super tearDown];
+    
+    [MSIDKeychainTokenCache reset];
 }
 
 #pragma mark - Tests
@@ -53,7 +59,7 @@
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
     // Add an MRRT to the cache
-    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
     [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:TEST_AUTHORITY trustedHost:@"login.windows.net"],
@@ -79,7 +85,7 @@
     
     [self waitForExpectations:@[expectation] timeout:1];
     
-    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    NSArray* allItems = [ADLegacyKeychainTokenCache.defaultKeychainCache allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
     XCTAssertEqual(allItems.count, 2);
@@ -121,8 +127,6 @@
                                                  error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    [context setTokenCacheStore:tokenCache];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     return context;

@@ -34,55 +34,6 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
 @implementation ADAuthenticationContext (Internal)
 
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error
-{
-    API_ENTRY;
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
-    if (!extractedAuthority)
-    {
-        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    }
-    
-    _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _extendedLifetimeEnabled = NO;
-    [self setTokenCacheStore:tokenCache];
-    
-    return self;
-}
-
-/*! Verifies that the string parameter is not nil or empty. If it is,
- the method generates an error and set it to an authentication result.
- Then the method calls the callback with the result.
- The method returns if the argument is valid. If the method returns false,
- the calling method should return. */
-+ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
-                     argumentName:(NSString *)argumentName
-                    correlationId:(NSUUID *)correlationId
-                  completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString msidIsStringNilOrBlank:(NSString*)argumentValue]))
-    {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
-        completionBlock(result);//Call the callback to tell about the result
-        return NO;
-    }
-    else
-    {
-        return YES;
-    }
-}
-
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult
@@ -160,11 +111,6 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 {
     //If prompt parameter needs to be passed, re-authorization is needed.
     return [ADAuthenticationContext getPromptParameter:prompt] != nil;
-}
-
-- (BOOL)hasCacheStore
-{
-    return self.tokenCacheStore != nil;
 }
 
 //Used in the flows, where developer requested an explicit user. The method compares

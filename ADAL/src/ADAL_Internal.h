@@ -58,10 +58,12 @@
 #import "ADALConstants.h"
 
 @class ADAuthenticationResult;
+@class MSIDTokenResponse;
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADAuthenticationError *error);
 
 #if TARGET_OS_IPHONE
 //iOS:

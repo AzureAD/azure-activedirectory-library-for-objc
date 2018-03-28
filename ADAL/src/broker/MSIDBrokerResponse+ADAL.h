@@ -21,9 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface ADAuthenticationRequest (AcquireAssertion)
+#import "MSIDBrokerResponse.h"
 
-// Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
-- (void)requestTokenByAssertion:(MSIDTokenResponseCallback)completionBlock;
+@interface MSIDBrokerResponse (ADAL)
+
+- (BOOL)isAccessTokenInvalid;
 
 @end

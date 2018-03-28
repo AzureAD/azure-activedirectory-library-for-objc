@@ -36,15 +36,13 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
 #import "NSString+ADURLExtensions.h"
-
 #import "MSIDDeviceId.h"
-
-#import <libkern/OSAtomic.h>
+#import "MSIDAADV1TokenResponse.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
 
 - (void)executeRequest:(NSDictionary *)request_data
-            completion:(ADAuthenticationCallback)completionBlock
+            completion:(MSIDTokenResponseCallback)completionBlock
 {
     NSString *authority = [NSString msidIsStringNilOrBlank:_cloudAuthority] ? _context.authority : _cloudAuthority;
     NSString* urlString = [authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX];
@@ -55,20 +53,14 @@
      {
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error]);
+             completionBlock(nil, error);
              [req invalidate];
              return;
          }
          
-         //Prefill the known elements in the item. These can be overridden by the response:
-         ADTokenCacheItem* item = [ADTokenCacheItem new];
-         item.resource = [_requestParams resource];
-         item.clientId = [_requestParams clientId];
-         item.authority = authority;
-         ADAuthenticationResult* result = [item processTokenResponse:response
-                                                         fromRefresh:NO
-                                                requestCorrelationId:[_requestParams correlationId]];
-         completionBlock(result);
+         MSIDAADV1TokenResponse *msidResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response error:nil];
+         
+         completionBlock(msidResponse, nil);
          
          [req invalidate];
      }];

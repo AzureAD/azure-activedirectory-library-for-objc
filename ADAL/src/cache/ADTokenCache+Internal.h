@@ -27,6 +27,8 @@
 
 @interface ADTokenCache (Internal) <MSIDMacTokenCacheDelegate, ADTokenCacheDataSource>
 
+@property (nonatomic, nullable, readonly) MSIDMacTokenCache *macTokenCache;
+
 - (nullable id<ADTokenCacheDelegate>)delegate;
 
 - (BOOL)addOrUpdateItem:(nullable ADTokenCacheItem *)item
