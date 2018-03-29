@@ -45,6 +45,11 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "ADTokenCache+Internal.h"
 #import "ADMSIDDataSourceWrapper.h"
+#import "ADTokenCacheItem.h"
+#import "ADUserInformation.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "ADHelpers.h"
+#import "ADAL_Internal.h"
 
 #include <pthread.h>
 
@@ -154,6 +159,66 @@
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self.msidDataSourceWrapper allItems:error];
+}
+
+- (BOOL)removeAllForClientId:(NSString *)clientId
+                       error:(ADAuthenticationError **)error
+{
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:clientId], clientId, NO);
+    
+    MSID_LOG_WARN(nil, @"Removing all items for client");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
+    
+    return [self removeAllForUserIdImpl:nil clientId:clientId error:error];
+}
+
+
+- (BOOL)removeAllForUserId:(NSString *)userId
+                  clientId:(NSString *)clientId
+                     error:(ADAuthenticationError **)error
+{
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:userId], userId, NO);
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:clientId], clientId, NO);
+    
+    MSID_LOG_WARN(nil, @"Removing all items for user");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
+    
+    return [self removeAllForUserIdImpl:userId clientId:clientId error:error];
+}
+
+- (BOOL)wipeAllItemsForUserId:(NSString *)userId
+                        error:(ADAuthenticationError **)error
+{
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:userId], userId, NO);
+    
+    MSID_LOG_WARN(nil, @"Removing all items for user.");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
+    
+    return [self removeAllForUserIdImpl:userId clientId:nil error:error];
+}
+
+- (BOOL)removeAllForUserIdImpl:(NSString *)userId
+                      clientId:(NSString *)clientId
+                         error:(ADAuthenticationError **)error
+{
+    NSArray *items = [self allItems:nil];
+    
+    if (!items)
+    {
+        return NO;
+    }
+    
+    for (ADTokenCacheItem *item in items)
+    {
+        if ((!userId || [userId isEqualToString:[[item userInformation] userId]])
+            && (!clientId || [clientId isEqualToString:[item clientId]])
+            && ![self removeItem:item error:error])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 #pragma mark - MSIDMacTokenCacheDelegate
