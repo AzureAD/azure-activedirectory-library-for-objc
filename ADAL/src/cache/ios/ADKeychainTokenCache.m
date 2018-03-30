@@ -108,12 +108,10 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (BOOL)removeAllForClientId:(NSString *)clientId
                        error:(ADAuthenticationError **)error
 {
+    clientId = [clientId msidTrimmedString];
     RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:clientId], clientId, NO);
     
-    MSID_LOG_WARN(nil, @"Removing all items for client");
-    MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
-    
-    return [self removeAllForUserIdImpl:nil clientId:clientId error:error];
+    return [self.msidDataSourceWrapper removeAllForClientId:clientId error:error];
 }
 
 
@@ -121,70 +119,23 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                   clientId:(NSString *)clientId
                      error:(ADAuthenticationError **)error
 {
+    userId = [ADHelpers normalizeUserId:userId];
+    clientId = [clientId msidTrimmedString];
     RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:userId], userId, NO);
     RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:clientId], clientId, NO);
     
-    MSID_LOG_WARN(nil, @"Removing all items for user");
-    MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
-    
-    return [self removeAllForUserIdImpl:userId clientId:clientId error:error];
-}
-
-- (BOOL)removeAllForUserIdImpl:(NSString *)userId
-                      clientId:(NSString *)clientId
-                         error:(ADAuthenticationError **)error
-{
-    NSArray *items = [self allItems:nil];
-    
-    if (!items)
-    {
-        return NO;
-    }
-    
-    for (ADTokenCacheItem *item in items)
-    {
-        if ((!userId || [userId isEqualToString:[[item userInformation] userId]])
-            && (!clientId || [clientId isEqualToString:[item clientId]])
-            && ![self removeItem:item error:error])
-        {
-            return NO;
-        }
-    }
-    
-    return YES;
+    return [self.msidDataSourceWrapper removeAllForUserId:userId
+                                                 clientId:clientId
+                                                    error:error];
 }
 
 - (BOOL)wipeAllItemsForUserId:(NSString *)userId
                         error:(ADAuthenticationError **)error
 {
+    userId = [ADHelpers normalizeUserId:userId];
     RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:userId], userId, NO);
     
-    MSID_LOG_WARN(nil, @"Removing all items for user.");
-    MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
-    
-    NSError *cacheError = nil;
-    
-    MSIDLegacyTokenCacheKey *key = [MSIDLegacyTokenCacheKey queryWithAuthority:nil
-                                                                      clientId:nil
-                                                                      resource:nil
-                                                                  legacyUserId:[ADHelpers normalizeUserId:userId]];
-    
-    BOOL result = [self.keychainTokenCache removeItemsWithKey:key context:nil error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
-        return NO;
-    }
-    
-    result = [self.keychainTokenCache saveWipeInfoWithContext:nil error:&cacheError];
-    
-    if (cacheError)
-    {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
-    }
-    
-    return result;
+    return [self.msidDataSourceWrapper wipeAllItemsForUserId:userId error:error];
 }
 
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError **)error
