@@ -414,6 +414,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     CHECK_STRING_ARG_BLOCK(refreshToken);
     [request setRefreshToken:refreshToken];
+    [request setScope:OAUTH2_SCOPE_OPENID_VALUE];
     [request setSilent:YES];
     
     [request acquireToken:@"136" completionBlock:completionBlock];

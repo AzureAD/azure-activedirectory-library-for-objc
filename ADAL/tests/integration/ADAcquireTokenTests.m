@@ -2170,13 +2170,23 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // the request should be using refresh token from developer
-    [ADTestURLSession addResponse:[self adResponseRefreshToken:@"refresh token from developer"
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
                                                       resource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"]];
+                                                newAccessToken:@"access token from server"];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
@@ -2206,13 +2216,23 @@ const int sAsyncContextTimeout = 10;
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
     
     // the request should be using refresh token from developer
-    [ADTestURLSession addResponse:[self adResponseRefreshToken:@"refresh token from developer"
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
                                                       resource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"]];
+                                                newAccessToken:@"access token from server"];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
@@ -2264,12 +2284,22 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Network Response to reject developer's refresh token
-    [ADTestURLSession addResponse:[self adResponseBadRefreshToken:@"refresh token from developer"
+    ADTestURLResponse *response = [self adResponseBadRefreshToken:@"refresh token from developer"
                                                         authority:TEST_AUTHORITY
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
                                                        oauthError:@"invalid_grant"
-                                                    correlationId:TEST_CORRELATION_ID]];
+                                                    correlationId:TEST_CORRELATION_ID];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
