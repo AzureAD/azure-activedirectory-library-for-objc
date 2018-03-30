@@ -2179,11 +2179,12 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:@"access token from server"];
     
     // explicitly set scope=open as the required field in request body
-    [response setUrlFormEncodedBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                       OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
-                                       OAUTH2_RESOURCE : TEST_RESOURCE,
-                                       OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                       OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
     
     [ADTestURLSession addResponse:response];
@@ -2225,11 +2226,12 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:@"access token from server"];
     
     // explicitly set scope=open as the required field in request body
-    [response setUrlFormEncodedBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                       OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
-                                       OAUTH2_RESOURCE : TEST_RESOURCE,
-                                       OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                       OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
     
     [ADTestURLSession addResponse:response];
@@ -2292,11 +2294,12 @@ const int sAsyncContextTimeout = 10;
                                                     correlationId:TEST_CORRELATION_ID];
     
     // explicitly set scope=open as the required field in request body
-    [response setUrlFormEncodedBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                       OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
-                                       OAUTH2_RESOURCE : TEST_RESOURCE,
-                                       OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                       OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
     
     [ADTestURLSession addResponse:response];
