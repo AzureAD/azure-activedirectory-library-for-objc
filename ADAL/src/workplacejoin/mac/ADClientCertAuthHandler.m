@@ -159,6 +159,15 @@
     
     // Otherwise check if a preferred identity is set for this host
     SecIdentityRef identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
+    
+    if (!identity)
+    {
+        // If there was no identity matched for the exact host, try to match by URL
+        // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
+        // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
+        identity = SecIdentityCopyPreferred((CFStringRef)task.currentRequest.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
+    }
+    
     if (identity != NULL)
     {
         AD_LOG_INFO(correlationId, @"Using preferred identity");
