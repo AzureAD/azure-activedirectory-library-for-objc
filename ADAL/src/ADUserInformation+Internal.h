@@ -24,6 +24,19 @@
 #import <Foundation/Foundation.h>
 #import "ADUserInformation.h"
 
+extern NSString *const ID_TOKEN_SUBJECT;
+extern NSString *const ID_TOKEN_TENANTID;
+extern NSString *const ID_TOKEN_UPN;
+extern NSString *const ID_TOKEN_GIVEN_NAME;
+extern NSString *const ID_TOKEN_FAMILY_NAME;
+extern NSString *const ID_TOKEN_UNIQUE_NAME;
+extern NSString *const ID_TOKEN_EMAIL;
+extern NSString *const ID_TOKEN_IDENTITY_PROVIDER;
+extern NSString *const ID_TOKEN_TYPE;
+extern NSString *const ID_TOKEN_JWT_TYPE;
+extern NSString *const ID_TOKEN_OBJECT_ID;
+extern NSString *const ID_TOKEN_GUEST_ID;
+
 @interface ADUserInformation (Internal)
 
 /*! Factory method to extract user information from the AAD id_token parameter.
