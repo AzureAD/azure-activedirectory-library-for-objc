@@ -23,26 +23,6 @@
 
 #import "ADUserInformation+Internal.h"
 
-static NSString* const ID_TOKEN_SUBJECT = @"sub";
-static NSString* const ID_TOKEN_TENANTID = @"tid";
-static NSString* const ID_TOKEN_UPN = @"upn";
-static NSString* const ID_TOKEN_GIVEN_NAME = @"given_name";
-static NSString* const ID_TOKEN_FAMILY_NAME = @"family_name";
-static NSString* const ID_TOKEN_UNIQUE_NAME = @"unique_name";
-static NSString* const ID_TOKEN_EMAIL = @"email";
-static NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
-static NSString* const ID_TOKEN_TYPE = @"typ";
-static NSString* const ID_TOKEN_JWT_TYPE = @"JWT";
-static NSString* const ID_TOKEN_OBJECT_ID = @"oid";
-static NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
-
-//Declares a propperty getter, which extracts the property from the claims dictionary
-#define ID_TOKEN_PROPERTY_GETTER(property, claimName) \
--(NSString*) property \
-{ \
-return [self.allClaims objectForKey:claimName]; \
-}
-
 #define RETURN_ID_TOKEN_ERROR \
 { \
 ADAuthenticationError* idTokenError = [ADUserInformation invalidIdTokenError]; \
@@ -53,18 +33,20 @@ if (error) \
 return nil; \
 }
 
-@implementation ADUserInformation (Internal)
+NSString *const ID_TOKEN_SUBJECT = @"sub";
+NSString *const ID_TOKEN_TENANTID = @"tid";
+NSString *const ID_TOKEN_UPN = @"upn";
+NSString *const ID_TOKEN_GIVEN_NAME = @"given_name";
+NSString *const ID_TOKEN_FAMILY_NAME = @"family_name";
+NSString *const ID_TOKEN_UNIQUE_NAME = @"unique_name";
+NSString *const ID_TOKEN_EMAIL = @"email";
+NSString *const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
+NSString *const ID_TOKEN_TYPE = @"typ";
+NSString *const ID_TOKEN_JWT_TYPE = @"JWT";
+NSString *const ID_TOKEN_OBJECT_ID = @"oid";
+NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
 
-ID_TOKEN_PROPERTY_GETTER(givenName, ID_TOKEN_GIVEN_NAME);
-ID_TOKEN_PROPERTY_GETTER(familyName, ID_TOKEN_FAMILY_NAME);
-ID_TOKEN_PROPERTY_GETTER(subject, ID_TOKEN_SUBJECT);
-ID_TOKEN_PROPERTY_GETTER(tenantId, ID_TOKEN_TENANTID);
-ID_TOKEN_PROPERTY_GETTER(upn, ID_TOKEN_UPN);
-ID_TOKEN_PROPERTY_GETTER(uniqueName, ID_TOKEN_UNIQUE_NAME);
-ID_TOKEN_PROPERTY_GETTER(eMail, ID_TOKEN_EMAIL);
-ID_TOKEN_PROPERTY_GETTER(identityProvider, ID_TOKEN_IDENTITY_PROVIDER);
-ID_TOKEN_PROPERTY_GETTER(userObjectId, ID_TOKEN_OBJECT_ID);
-ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
+@implementation ADUserInformation (Internal)
 
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
                                       homeUserId:(NSString *)homeUserId
@@ -145,7 +127,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
                     }
                 }
             }
-            
+
             [allClaims addEntriesFromDictionary:contents];
         }
     }
