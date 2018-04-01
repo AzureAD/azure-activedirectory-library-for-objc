@@ -42,7 +42,7 @@
 {
     NSInteger errorCode = MSIDErrorCodeFirst;
     
-    while (errorCode >= MSIDErrorInvalidParameter)
+    while (errorCode >= MSIDErrorCodeLast)
     {
         NSError *msidError = MSIDCreateError(MSIDErrorDomain, errorCode, @"test", nil, nil, nil, nil, nil);
         ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
