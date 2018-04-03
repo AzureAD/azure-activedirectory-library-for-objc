@@ -756,9 +756,11 @@ const int sAsyncContextTimeout = 10;
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
+    // 6 cache event: read AT (Legacy accessor), delete AT (L) read MRRT (L), delete MRRT(L), read FRT (L), read FRT (Default accessor)
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"6"]);
 #else
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"3"]);
+    // 5 cache event: read AT (Legacy accessor), delete AT (L) read MRRT (L), delete MRRT(L), read FRT(L)
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"5"]);
 #endif
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
@@ -791,8 +793,10 @@ const int sAsyncContextTimeout = 10;
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+    // 6 cache event: read AT (Legacy accessor), read ADFS AT (L), read MRRT (L), read MRRT (Default accessor), read FRT (L), read FRT (D)
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"6"]);
 #else
+    // 4 cache event: read AT (Legacy accessor), read ADFS AT (L), read MRRT (L), read FRT (L)
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
 #endif
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
@@ -1286,8 +1290,12 @@ const int sAsyncContextTimeout = 10;
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
+    // 10 cache event: read AT (Legacy accessor), read ADFS AT (L), read MRRT (L), read MRRT (Default accessor), read FRT (L), write AT (L),
+    // write MRRT (L), write MRRT (D), write FRT (L), write FRT (D)
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"10"]);
 #else
+    // 7 cache event: read AT (Legacy accessor), read ADFS AT (L), read MRRT (L), read FRT (L), write AT (L),
+    // write MRRT (L), write FRT (L)
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"7"]);
 #endif
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
