@@ -38,7 +38,6 @@
 #import "MSIDSharedTokenCache.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
-#import "MSIDAADV1TokenResponse.h"
 #import "ADUserInformation.h"
 #import "ADResponseCacheHandler.h"
 

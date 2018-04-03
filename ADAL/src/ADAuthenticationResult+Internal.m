@@ -30,9 +30,9 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDLegacySingleResourceToken.h"
-#import "MSIDTokenResponseHandler.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDBrokerResponse+ADAL.h"
+#import "MSIDAADV1Oauth2Strategy.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -237,11 +237,13 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     }
     
     NSError *msidError = nil;
+
+    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
     
-    BOOL processResult = [MSIDTokenResponseHandler verifyResponse:response.tokenResponse
-                                                 fromRefreshToken:NO
-                                                          context:nil
-                                                            error:&msidError];
+    BOOL processResult = [strategy verifyResponse:response.tokenResponse
+                                 fromRefreshToken:NO
+                                          context:nil
+                                            error:&msidError];
     
     if (!processResult)
     {
@@ -252,7 +254,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority] redirectUri:nil clientId:response.clientId target:response.resource];
     
-    MSIDLegacySingleResourceToken *resultToken = [[MSIDLegacySingleResourceToken alloc] initWithTokenResponse:response.tokenResponse request:parameters];
+    MSIDLegacySingleResourceToken *resultToken = [strategy legacyTokenFromResponse:response.tokenResponse request:parameters];
     
     ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     

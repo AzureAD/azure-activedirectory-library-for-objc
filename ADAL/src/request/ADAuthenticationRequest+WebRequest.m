@@ -37,7 +37,8 @@
 #import "ADWebAuthRequest.h"
 #import "NSString+ADURLExtensions.h"
 #import "MSIDDeviceId.h"
-#import "MSIDAADV1TokenResponse.h"
+#import "MSIDAADV1Oauth2Strategy.h"
+#import "ADAuthenticationErrorConverter.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
 
@@ -57,10 +58,21 @@
              [req invalidate];
              return;
          }
-         
-         MSIDAADV1TokenResponse *msidResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response error:nil];
-         
-         completionBlock(msidResponse, nil);
+
+         MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+
+         NSError *msidError = nil;
+         MSIDTokenResponse *tokenResponse = [strategy tokenResponseFromJSON:response context:nil error:&msidError];
+
+         if (!tokenResponse)
+         {
+             ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+             completionBlock(nil, adError);
+         }
+         else
+         {
+             completionBlock(tokenResponse, nil);
+         }
          
          [req invalidate];
      }];
