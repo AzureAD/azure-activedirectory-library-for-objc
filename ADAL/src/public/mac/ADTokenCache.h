@@ -59,24 +59,18 @@
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-/* Removes all token cache items for a specific client from the keychain.
+/* Removes all token cache items for a specific client and all users
  */
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-/* Removes all token cache items for a specific user and a specific clientId from the keychain
+/* Removes all token cache items for a specific user and a specific clientId
  */
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                   clientId:(NSString * __nonnull)clientId
                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-/*
- Removes all token cache items for a specific user from the keychain with
- either com.microsoft.adalcache shared group by default or the one provided in setDefaultKeychainGroup method.
- 
- This is a destructive action and will remove the SSO state from all apps sharing the same cache!
- It's indended to be used only as a way to achieve GDPR compliance and make sure all user artifacts are cleaned on user sign out.
- It's not indended to be used as a way to reset or fix token cache.
+/* Removes all token cache items for a specific user and all clients
  */
 - (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId
                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
