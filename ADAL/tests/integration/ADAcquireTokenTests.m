@@ -38,7 +38,9 @@
 #import "ADAuthorityValidation.h"
 #import "MSIDSharedTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 #import "ADAuthenticationContext+TestUtil.h"
+#import "MSIDAADV2TokenResponse.h"
 
 #import "ADTokenCacheKey.h"
 
@@ -70,6 +72,7 @@ const int sAsyncContextTimeout = 10;
 @interface ADAcquireTokenTests : ADTestCase
 
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDSharedTokenCache *msalTokenCache;
 @property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
 
 @end
@@ -89,7 +92,10 @@ const int sAsyncContextTimeout = 10;
     
     MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
     
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    
+    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:@[defaultTokenCacheAccessor]];
+    self.msalTokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:defaultTokenCacheAccessor otherCacheAccessors:@[legacyTokenCacheAccessor]];
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
@@ -750,6 +756,9 @@ const int sAsyncContextTimeout = 10;
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
+#else
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"3"]);
 #endif
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
@@ -762,7 +771,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"3"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertNil([firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
@@ -783,6 +791,9 @@ const int sAsyncContextTimeout = 10;
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"6"]);
+#else
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
 #endif
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
@@ -795,7 +806,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
     XCTAssertNil([secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"]);
     XCTAssertNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"]);
     XCTAssertNil([secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"]);
@@ -1276,6 +1286,9 @@ const int sAsyncContextTimeout = 10;
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"10"]);
+#else
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"7"]);
 #endif
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
@@ -1289,7 +1302,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"succeeded"]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.user_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"7"]);
     XCTAssertNil([event objectForKey:@"Microsoft.ADAL.token_rt_status"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"tried"]);
@@ -2293,5 +2305,47 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheItem *rtInCache = [self.cacheDataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
     XCTAssertNotNil(rtInCache);
 }
+
+#if TARGET_OS_IPHONE
+- (void)testAcquireToken_whenMrrtInCacheWrittenByMSAL_shouldBeAbleToFindAndUseIt
+{
+    // Write refresh token into keychain by using v2 token response
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
+
+    BOOL result = [_msalTokenCache saveTokensWithRequestParams:[self adCreateV2DefaultParams] response:[self adCreateV2TokenResponse] context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    ADTestURLResponse* mrrtResponse =
+    [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                       authority:TEST_AUTHORITY
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:@"new family refresh token"
+                  newAccessToken:@"new access token"
+                additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
+    [ADTestURLSession addResponse:mrrtResponse];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
+         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+#endif
 
 @end
