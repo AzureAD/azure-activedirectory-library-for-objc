@@ -2310,15 +2310,15 @@ const int sAsyncContextTimeout = 10;
 - (void)testAcquireToken_whenMrrtInCacheWrittenByMSAL_shouldBeAbleToFindAndUseIt
 {
     // Write refresh token into keychain by using v2 token response
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    ADAuthenticationError *error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
 
     BOOL result = [_msalTokenCache saveTokensWithRequestParams:[self adCreateV2DefaultParams] response:[self adCreateV2TokenResponse] context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    ADTestURLResponse* mrrtResponse =
+    ADTestURLResponse *mrrtResponse =
     [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                        authority:TEST_AUTHORITY
                         resource:TEST_RESOURCE
