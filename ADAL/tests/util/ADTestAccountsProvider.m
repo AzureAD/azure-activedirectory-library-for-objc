@@ -55,6 +55,35 @@ static NSString *kAPIPath = @"api path";
 
 @implementation ADTestAccountsProvider
 
+/*! WW is a world wide entirely on-cloud account */
+ADTestAccountProvider ADTestAccountProviderWW = @"ww";
+/*! Black Forest is an AAD account hosted in the Black Forest sovereign cloud (.de) */
+ADTestAccountProvider ADTestAccountProviderBlackForest = @"bf";
+/*! A WW account federated using ADFSv2 (these accounts can also be used for on-prem tests) */
+ADTestAccountProvider ADTestAccountProviderAdfsv2 = @"adfsv2";
+/*! A WW account federated using ADFSv3 (these accounts can also be used for on-prem tests) */
+ADTestAccountProvider ADTestAccountProviderAdfsv3 = @"adfsv3";
+/*! A WW account federated using ADFSv4 (these accounts can also be used for on-prem tests) */
+ADTestAccountProvider ADTestAccountProviderAdfsv4 = @"adfsv4";
+/*! A WW account federated using Shibboleth */
+ADTestAccountProvider ADTestAccountProviderShibboleth = @"shib";
+/*! A WW account federated using Ping */
+ADTestAccountProvider ADTestAccountProviderPing = @"ping";
+
+ADTestAccountFeature ADTestAccountFeatureMDMEnabled = @"mam";
+ADTestAccountFeature ADTestAccountFeatureMAMEnabled = @"mdm";
+ADTestAccountFeature ADTestAccountFeatureDeviceAuth = @"device";
+ADTestAccountFeature ADTestAccountFeatureMFAEnabled = @"mfa";
+
+ADTestApplication ADTestApplicationCloud = @"cloud";
+ADTestApplication ADTestApplicationOnPremAdfsv2 = @"adfsv2";
+ADTestApplication ADTestApplicationOnPremAdfsv3 = @"adfsv3";
+ADTestApplication ADTestApplicationOnPremAdfsv4 = @"adfsv4";
+ADTestApplication ADTestApplicationRequiresDeviceAuth = @"device";
+ADTestApplication ADTestApplicationRequiresMFA = @"mfa";
+ADTestApplication ADTestApplicationRequiresMDM = @"mdm";
+ADTestApplication ADTestApplicationRequiresMAM = @"mam";
+
 - (instancetype)init
 {
     self = [super init];
@@ -146,6 +175,129 @@ static NSString *kAPIPath = @"api path";
 
     }] resume];
 }
+
++ (NSArray *)accounts {
+    static NSArray *accounts = nil;
+    static dispatch_once_t once;
+    
+    dispatch_once(&once, ^{
+        accounts = @[ @{ @"upn" : @"aduser1@msidlab13.com",
+                         @"username" : @"aduser1",
+                         @"provider" : ADTestAccountProviderShibboleth,
+                         @"secret_id" : @"msidlab13", },
+                      @{ @"upn" : @"fIDLAB@msidlab9.com",
+                         @"username" : @"fIDLAB",
+                         @"provider" : ADTestAccountProviderPing,
+                         @"secret_id" : @"msidlab9" },
+                      @{ @"upn" : @"IDLAB@msidlab12.onmicrosoft.com",
+                         @"secret_id" : @"msidlab12",
+                         @"provider" : ADTestAccountProviderWW },
+                      @{ @"upn" : @"fIDLAB@msidlab7.com",
+                         @"secret_id" : @"msidlab7",
+                         @"provider" : ADTestAccountProviderAdfsv2 },
+                      @{ @"upn" : @"fIDLAB@msidlab5.com",
+                         @"secret_id" : @"msidlab5",
+                         @"provider" : ADTestAccountProviderAdfsv3 },
+                      @{ @"upn" : @"fIDLAB@msidlab12.com",
+                         @"secret_id" : @"msidlab12",
+                         @"provider" : ADTestAccountProviderAdfsv4 },
+                      @{ @"upn" : @"IDLABMAMCA@msidlab4.onmicrosoft.com",
+                         @"secret_id" : @"msidlab4",
+                         @"provider" : ADTestAccountProviderWW,
+                         @"features" : [NSSet setWithArray:@[ ADTestAccountFeatureMAMEnabled, ADTestAccountFeatureDeviceAuth ]] }
+                      ];
+    });
+    
+    return accounts;
+}
+
+- (void)getMetadataForProvider:(ADTestAccountProvider)provider
+                  withFeatures:(NSSet<ADTestAccountFeature> *)features
+               completionBlock:(void (^)(NSDictionary *))completionBlock
+{
+    // This is async because it'll eventually need to be when we get the data from the API server instead
+    // of hardcoded
+    
+    NSArray *accounts = [[self class] accounts];
+    for (NSDictionary *account in accounts)
+    {
+        if ([provider isEqualToString:account[@"provider"]])
+        {
+            NSSet *accountFeatures = account[@"features"];
+            if (accountFeatures == nil)
+            {
+                if (features == nil)
+                {
+                    completionBlock(account);
+                    return;
+                }
+                
+                continue;
+            }
+            
+            if ([accountFeatures isEqualToSet:features])
+            {
+                completionBlock(account);
+                return;
+            }
+        }
+    }
+    
+    completionBlock(nil);
+    return;
+}
+
+- (void)getAccountForProvider:(ADTestAccountProvider)provider
+                 withFeatures:(NSArray<ADTestAccountFeature> *)features
+              completionBlock:(void (^)(ADTestAccount *))completionBlock
+{
+    NSSet<ADTestAccountFeature> *featureSet = features ? [NSSet setWithArray:features] : nil;
+    [self getMetadataForProvider:provider withFeatures:featureSet completionBlock:^(NSDictionary *account) {
+        if (!account)
+        {
+            completionBlock(nil);
+            return;
+        }
+        
+        NSString *secretId = account[@"secret_id"];
+        NSAssert(secretId, @"secret id must be defined");
+        NSString *secretUrlString = [NSString stringWithFormat:@"https://msidlabs.vault.azure.net/secrets/%@", secretId];
+        NSAssert(secretUrlString, @"secret id must form good string");
+        NSURL *secretUrl = [NSURL URLWithString:secretUrlString];
+        NSAssert(secretUrl, @"secret url must be valid");
+        
+        ADTestAccount *testAccount = [ADTestAccount new];
+        testAccount.account = account[@"upn"];
+        const char *envSecret = getenv(secretId.UTF8String);
+        if (envSecret)
+        {
+            testAccount.password = [NSString stringWithUTF8String:envSecret];
+        }
+        testAccount.username = account[@"username"];
+        
+        completionBlock(testAccount);
+    }];
+}
+
+// Synchronous helper version of above, note this call *will* block until it receives a network
+// response
+- (ADTestAccount *)getAccountForProvider:(ADTestAccountProvider)provider
+                            withFeatures:(NSArray<ADTestAccountFeature> *)features
+{
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block ADTestAccount *account = nil;
+    
+    [self getAccountForProvider:provider withFeatures:features completionBlock:^(ADTestAccount *outAccount) {
+        account = outAccount;
+        
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    return account;
+}
+
 
 - (NSString *)accountTypeToString:(ADTestAccountType)type
 {

@@ -191,6 +191,7 @@
 		9453C46E1C5872B0006B9E79 /* ADJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C46C1C5872AD006B9E79 /* ADJwtHelper.m */; };
 		9453C4741C5874FB006B9E79 /* ADBrokerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */; };
 		946818A71C59B7F200CA0378 /* ADWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 946818A41C59B7EE00CA0378 /* ADWebAuthController.m */; };
+		946B0E77203621CA00F5FC04 /* KeyVaultClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 946B0E78203621CA00F5FC04 /* KeyVaultClient.framework */; };
 		94D188CD201D4A780093B799 /* ADTestAppClaimsPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D188CC201D4A780093B799 /* ADTestAppClaimsPickerController.m */; };
 		94D188CF201D4ABA0093B799 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94D188CE201D4ABA0093B799 /* CoreGraphics.framework */; };
 		94D188D0201D4AEF0093B799 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */; };
@@ -267,6 +268,7 @@
 		B24D25FA205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25F8205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m */; };
 		B258482320744753007FAD22 /* ADTestConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B258482220744752007FAD22 /* ADTestConfigurationRequest.m */; };
 		B258482920744814007FAD22 /* ADTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B258482820744814007FAD22 /* ADTestConfiguration.m */; };
+		B258484420746981007FAD22 /* KeyVault.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B258484320746981007FAD22 /* KeyVault.framework */; };
 		B267CA1B1EE0E9FF00C0B5A8 /* ADNegotiateHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */; };
 		B267CA1C1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */; };
 		B267CA1D1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */; };
@@ -873,6 +875,7 @@
 		946818A41C59B7EE00CA0378 /* ADWebAuthController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthController.m; sourceTree = "<group>"; };
 		946818A51C59B7EE00CA0378 /* ADWebAuthController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADWebAuthController+Internal.h"; sourceTree = "<group>"; };
 		946818A81C59B80800CA0378 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
+		946B0E78203621CA00F5FC04 /* KeyVaultClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVaultClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		94D188CB201D4A770093B799 /* ADTestAppClaimsPickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppClaimsPickerController.h; sourceTree = "<group>"; };
 		94D188CC201D4A780093B799 /* ADTestAppClaimsPickerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppClaimsPickerController.m; sourceTree = "<group>"; };
 		94D188CE201D4ABA0093B799 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.2.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
@@ -923,6 +926,7 @@
 		B258482220744752007FAD22 /* ADTestConfigurationRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestConfigurationRequest.m; sourceTree = "<group>"; };
 		B258482720744814007FAD22 /* ADTestConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestConfiguration.h; sourceTree = "<group>"; };
 		B258482820744814007FAD22 /* ADTestConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestConfiguration.m; sourceTree = "<group>"; };
+		B258484320746981007FAD22 /* KeyVault.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVault.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNegotiateHandler.h; sourceTree = "<group>"; };
 		B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNegotiateHandler.m; sourceTree = "<group>"; };
 		B2822A2C2055D67200390B6E /* ADLegacyMacTokenCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADLegacyMacTokenCache.h; sourceTree = "<group>"; };
@@ -1083,6 +1087,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				946B0E77203621CA00F5FC04 /* KeyVaultClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1167,6 +1172,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B258484420746981007FAD22 /* KeyVault.framework in Frameworks */,
 				D6CF4EE51FC3818600CD70C5 /* Security.framework in Frameworks */,
 				D6CF4EE41FC3817D00CD70C5 /* UIKit.framework in Frameworks */,
 				D64C1F631DB9C64E00850036 /* libADAL-core.a in Frameworks */,
@@ -1331,6 +1337,8 @@
 		8B0965AC17F25770002BDFB8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B258484320746981007FAD22 /* KeyVault.framework */,
+				946B0E78203621CA00F5FC04 /* KeyVaultClient.framework */,
 				94D188CE201D4ABA0093B799 /* CoreGraphics.framework */,
 				D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */,
 				D6CF4EDC1FC37A6900CD70C5 /* IOKit.framework */,
@@ -2405,6 +2413,7 @@
 		8B0965A217F25770002BDFB8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "MS Open Tech";
 				TargetAttributes = {
@@ -3275,6 +3284,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -3282,6 +3292,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -3423,6 +3434,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -3430,6 +3442,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
