@@ -31,6 +31,7 @@
 @property (nonatomic) ADTestAccountsProvider *accountsProvider;
 @property (nonatomic) ADTestAccount *accountInfo;
 @property (nonatomic) NSMutableDictionary *baseConfigParams;
+@property (nonatomic) ADTestConfiguration *testConfiguration;
 
 - (NSMutableDictionary *)fociConfig;
 - (NSMutableDictionary *)basicConfig;

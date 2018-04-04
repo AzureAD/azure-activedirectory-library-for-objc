@@ -47,14 +47,55 @@
 // #290995 iteration 1
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView
 {
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.testUserType = ADUserTypeCloud;
+    configurationRequest.sovereignEnvironment = ADEnvironmentTypeGlobal;
+
+    __block ADTestConfiguration *testConfig = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
+
+    [self.accountsProvider configurationWithRequest:configurationRequest
+                                  completionHandler:^(ADTestConfiguration *configuration) {
+
+                                      testConfig = configuration;
+
+                                      [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:60 handler:nil];
+
+    if (!testConfig || ![testConfig.accounts count])
+    {
+        XCTAssertTrue(NO);
+    }
+
+    expectation = [self expectationWithDescription:@"Get password"];
+
+    [self.accountsProvider passwordForAccount:testConfig.accounts[0]
+                            completionHandler:^(NSString *password) {
+
+                                [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:60 handler:nil];
+
+    if (![testConfig.accounts[0] password])
+    {
+        XCTAssertTrue(NO);
+    }
+
+    self.testConfiguration = testConfig;
+    self.accountInfo = self.testConfiguration.accounts[0];
+
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -64,7 +105,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self assertAuthUIAppear];
 }

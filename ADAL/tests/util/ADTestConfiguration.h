@@ -22,38 +22,30 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADTestConfigurationRequest.h"
-#import "ADTestConfiguration.h"
 
-typedef NS_ENUM(NSInteger, ADTestAccountType)
-{
-    ADTestAccountTypeAAD,
-    ADTestAccountTypeAADMDM,
-    ADTestAccountTypePing,
-    ADTestAccountTypeADFSv3,
-    ADTestAccountTypeBlackforest,
-    ADTestAccountTypeShib
-};
+@interface ADTestAccount : NSObject
 
-typedef NS_ENUM(NSInteger, ADTestProfileType)
-{
-    ADTestProfileTypeBasic,
-    ADTestProfileTypeBasicMDM,
-    ADTestProfileTypeFoci,
-    ADTestProfileTypeSovereign,
-};
+@property (nonatomic) NSString *account;
+@property (nonatomic) NSString *username;
+@property (nonatomic) NSString *password;
+@property (nonatomic) NSString *keyvaultName;
+@property (nonatomic) NSString *labName;
 
-@interface ADTestAccountsProvider : NSObject
+- (instancetype)initWithJSONResponse:(NSDictionary *)response;
+- (NSString *)passwordFromData:(NSData *)responseData;
 
-- (void)configurationWithRequest:(ADTestConfigurationRequest *)request
-               completionHandler:(void (^)(ADTestConfiguration *configuration))completionHandler;
+@end
 
-- (void)passwordForAccount:(ADTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
+@interface ADTestConfiguration : NSObject
 
-- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
-- (NSArray <ADTestAccount *> *)testAccountsOfType:(ADTestAccountType)type;
+@property (nonatomic) NSString *authority;
+@property (nonatomic) NSString *clientId;
+@property (nonatomic) NSString *redirectUri;
+@property (nonatomic) NSString *resource;
+@property (nonatomic) NSArray<ADTestAccount *> *accounts;
 
-- (NSDictionary *)testProfileOfType:(ADTestProfileType)type;
+- (instancetype)initWithJSONResponseData:(NSData *)response;
+- (NSDictionary *)configParameters;
+- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams;
 
 @end

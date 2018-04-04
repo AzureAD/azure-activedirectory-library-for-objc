@@ -108,7 +108,7 @@
 
 - (void)aadEnterEmail:(NSString *)email
 {
-    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
     [self waitForElement:emailTextField];
     if ([email isEqualToString:emailTextField.value])
     {
@@ -164,6 +164,7 @@
     [self.testApp.buttons[@"Acquire Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 

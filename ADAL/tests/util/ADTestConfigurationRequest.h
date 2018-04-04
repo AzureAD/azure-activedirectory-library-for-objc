@@ -22,38 +22,38 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADTestConfigurationRequest.h"
-#import "ADTestConfiguration.h"
 
-typedef NS_ENUM(NSInteger, ADTestAccountType)
+typedef NS_ENUM(NSInteger, ADTestUserType)
 {
-    ADTestAccountTypeAAD,
-    ADTestAccountTypeAADMDM,
-    ADTestAccountTypePing,
-    ADTestAccountTypeADFSv3,
-    ADTestAccountTypeBlackforest,
-    ADTestAccountTypeShib
+    ADUserTypeFederated,
+    ADUserTypeCloud,
+    ADUserTypeMAM,
+    ADUserTypeMDM,
+    ADUserTypeNTLM,
+    ADUserTypeGuest
 };
 
-typedef NS_ENUM(NSInteger, ADTestProfileType)
+typedef NS_ENUM(NSInteger, ADSovereignEnvironmentType)
 {
-    ADTestProfileTypeBasic,
-    ADTestProfileTypeBasicMDM,
-    ADTestProfileTypeFoci,
-    ADTestProfileTypeSovereign,
+    ADEnvironmentTypeGlobal,
+    ADEnvironmentTypeGermanCloud
 };
 
-@interface ADTestAccountsProvider : NSObject
+typedef NS_ENUM(NSInteger, ADFederationProviderType)
+{
+    ADFederationProviderShib,
+    ADFederationProviderPing,
+    ADFederationProviderADFSv3,
+    ADFederationProviderADFSv4
+};
 
-- (void)configurationWithRequest:(ADTestConfigurationRequest *)request
-               completionHandler:(void (^)(ADTestConfiguration *configuration))completionHandler;
+@interface ADTestConfigurationRequest : NSObject <NSCopying>
 
-- (void)passwordForAccount:(ADTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
+@property (nonatomic) ADTestUserType testUserType;
+@property (nonatomic) ADFederationProviderType federationProviderType;
+@property (nonatomic) ADSovereignEnvironmentType sovereignEnvironment;
+@property (nonatomic) BOOL needsMultipleUsers;
 
-- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
-- (NSArray <ADTestAccount *> *)testAccountsOfType:(ADTestAccountType)type;
-
-- (NSDictionary *)testProfileOfType:(ADTestProfileType)type;
+- (NSURL *)requestURLWithAPIScheme:(NSString *)scheme host:(NSString *)host path:(NSString *)path;
 
 @end

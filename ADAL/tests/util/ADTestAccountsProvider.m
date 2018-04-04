@@ -38,52 +38,114 @@ static NSDictionary* _testProfiles()
 {
     return nil;
 }
+
+static NSString *kPwdAPIUrl = @"not a valid URL";
+static NSString *kPwdAuthCookie = @"not a valid cookie";
+
+static NSString *kAPIScheme = @"https";
+static NSString *kAPIHost = @"api url";
+static NSString *kAPIPath = @"api path";
 #endif
 
-@implementation ADTestAccount
+@interface ADTestAccountsProvider()
 
-- (BOOL)isEqualToTestAccount:(ADTestAccount *)accountInfo
-{
-    if (!accountInfo)
-    {
-        return NO;
-    }
-    
-    BOOL result = YES;
-    result &= (!self.account && !accountInfo.account) || [self.account isEqualToString:accountInfo.account];
-    result &= (!self.username && !accountInfo.username) || [self.username isEqualToString:accountInfo.username];
-    
-    return result;
-}
-
-#pragma mark - NSObject
-
-- (BOOL)isEqual:(id)object
-{
-    if (self == object)
-    {
-        return YES;
-    }
-    
-    if (![object isKindOfClass:ADTestAccount.class])
-    {
-        return NO;
-    }
-    
-    return [self isEqualToTestAccount:(ADTestAccount *)object];
-}
-
-- (NSUInteger)hash
-{
-    NSUInteger hash = self.account.hash;
-    hash ^= self.username.hash;
-    
-    return hash;
-}
+@property (nonatomic, strong) NSMutableDictionary *cachedConfigurations;
 
 @end
 
 @implementation ADTestAccountsProvider
+
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self)
+    {
+        _cachedConfigurations = [NSMutableDictionary dictionary];
+    }
+
+    return self;
+}
+
+- (void)configurationWithRequest:(ADTestConfigurationRequest *)request
+               completionHandler:(void (^)(ADTestConfiguration *configuration))completionHandler
+{
+    if (_cachedConfigurations[request])
+    {
+        if (completionHandler)
+        {
+            completionHandler(_cachedConfigurations[request]);
+        }
+
+        return;
+    }
+
+    NSURL *resultURL = [request requestURLWithAPIScheme:kAPIScheme host:kAPIHost path:kAPIPath];
+
+    [[[NSURLSession sharedSession] dataTaskWithURL:resultURL
+                                 completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+      {
+          if (error)
+          {
+              if (completionHandler)
+              {
+                  completionHandler(nil);
+              }
+
+              return;
+          }
+
+          ADTestConfiguration *configuration = [[ADTestConfiguration alloc] initWithJSONResponseData:data];
+          _cachedConfigurations[request] = configuration;
+
+          if (completionHandler)
+          {
+              completionHandler(configuration);
+          }
+
+      }] resume];
+}
+
+- (void)passwordForAccount:(ADTestAccount *)account
+         completionHandler:(void (^)(NSString *password))completionHandler
+{
+    if (account.password)
+    {
+        completionHandler(account.password);
+    }
+
+    NSString *urlString = [NSString stringWithFormat:kPwdAPIUrl, account.labName];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setValue:kPwdAuthCookie forHTTPHeaderField:@"Cookie"];
+
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+
+        if (error)
+        {
+            if (completionHandler)
+            {
+                completionHandler(nil);
+            }
+
+            return;
+        }
+
+        NSString *password = [account passwordFromData:data];
+
+        if (password)
+        {
+            account.password = password;
+        }
+
+        if (completionHandler)
+        {
+            completionHandler(password);
+        }
+
+    }] resume];
+}
 
 - (NSString *)accountTypeToString:(ADTestAccountType)type
 {
@@ -143,5 +205,7 @@ static NSDictionary* _testProfiles()
     
     return _testProfiles()[stringType];
 }
+
+#pragma mark - Get configuration
 
 @end
