@@ -99,6 +99,7 @@
 		6010EDE71D47B21600B62072 /* ADTelemetryAPIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDE51D47B21600B62072 /* ADTelemetryAPIEvent.m */; };
 		6010EDF81D47B2E300B62072 /* ADTelemetryBrokerEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 6010EDF71D47B2E300B62072 /* ADTelemetryBrokerEvent.h */; };
 		6010EDFB1D47B2F300B62072 /* ADTelemetryBrokerEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */; };
+		601329AA206B237C00E70844 /* ADTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 601329A9206B237C00E70844 /* ADTokenCacheTests.m */; };
 		601BEE311C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */; };
 		601BEE321C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */; };
 		603389271D595A920024A9BF /* ADRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2F4001D531F16008725D9 /* ADRequestParameters.m */; };
@@ -754,6 +755,7 @@
 		6010EDE51D47B21600B62072 /* ADTelemetryAPIEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryAPIEvent.m; sourceTree = "<group>"; };
 		6010EDF71D47B2E300B62072 /* ADTelemetryBrokerEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryBrokerEvent.h; sourceTree = "<group>"; };
 		6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryBrokerEvent.m; sourceTree = "<group>"; };
+		601329A9206B237C00E70844 /* ADTokenCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheTests.m; sourceTree = "<group>"; };
 		601BEE2F1C6D9CCE004AA8C1 /* ADTestAuthenticationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAuthenticationViewController.h; sourceTree = "<group>"; };
 		601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAuthenticationViewController.m; sourceTree = "<group>"; };
 		6038419E1DF9246D00D30F3D /* ADTelemetryTestDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTelemetryTestDispatcher.h; sourceTree = "<group>"; };
@@ -1809,6 +1811,7 @@
 			isa = PBXGroup;
 			children = (
 				B20DC5D91F0D97CD00957806 /* ADAL_Mac_UTs-Info.plist */,
+				601329A9206B237C00E70844 /* ADTokenCacheTests.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -2864,6 +2867,7 @@
 				D62256531F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				D66A9F2A1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */,
 				230E16DC1FAD45E700ADC904 /* ADAuthorityUtilsTests.m in Sources */,
+				601329AA206B237C00E70844 /* ADTokenCacheTests.m in Sources */,
 				D632B54E1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				230E16E51FB17A7900ADC904 /* ADTelemetryAPIEventTests.m in Sources */,
 				236BF3E72059C1D3006E3897 /* ADAuthenticationContext+TestUtil.m in Sources */,
