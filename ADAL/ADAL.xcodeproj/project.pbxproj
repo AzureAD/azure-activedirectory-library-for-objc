@@ -191,7 +191,6 @@
 		9453C46E1C5872B0006B9E79 /* ADJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C46C1C5872AD006B9E79 /* ADJwtHelper.m */; };
 		9453C4741C5874FB006B9E79 /* ADBrokerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */; };
 		946818A71C59B7F200CA0378 /* ADWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 946818A41C59B7EE00CA0378 /* ADWebAuthController.m */; };
-		946B0E77203621CA00F5FC04 /* KeyVaultClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 946B0E78203621CA00F5FC04 /* KeyVaultClient.framework */; };
 		94D188CD201D4A780093B799 /* ADTestAppClaimsPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D188CC201D4A780093B799 /* ADTestAppClaimsPickerController.m */; };
 		94D188CF201D4ABA0093B799 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94D188CE201D4ABA0093B799 /* CoreGraphics.framework */; };
 		94D188D0201D4AEF0093B799 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */; };
@@ -268,7 +267,9 @@
 		B24D25FA205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25F8205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m */; };
 		B258482320744753007FAD22 /* ADTestConfigurationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B258482220744752007FAD22 /* ADTestConfigurationRequest.m */; };
 		B258482920744814007FAD22 /* ADTestConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = B258482820744814007FAD22 /* ADTestConfiguration.m */; };
-		B258484420746981007FAD22 /* KeyVault.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B258484320746981007FAD22 /* KeyVault.framework */; };
+		B25848B42075695E007FAD22 /* KeyVaultClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B25848AE20756685007FAD22 /* KeyVaultClient.framework */; };
+		B25848B520756A7F007FAD22 /* KeyVaultClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B25848AE20756685007FAD22 /* KeyVaultClient.framework */; };
+		B25848B820756AC6007FAD22 /* KeyVaultClient.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B25848AE20756685007FAD22 /* KeyVaultClient.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B267CA1B1EE0E9FF00C0B5A8 /* ADNegotiateHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */; };
 		B267CA1C1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */; };
 		B267CA1D1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */; };
@@ -520,6 +521,83 @@
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
 		};
+		B258488A20747B01007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D63C0F7120322128008343BC;
+			remoteInfo = KeyVaultMessageServer;
+		};
+		B258488C20747B01007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D63C0FA42032403F008343BC;
+			remoteInfo = KeyVaultTestApp;
+		};
+		B258488E20747B01007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D63C0FBB2032406D008343BC;
+			remoteInfo = KeyVaultClient;
+		};
+		B258489020747B01007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 94AA776B20351978006F1526;
+			remoteInfo = KeyVault;
+		};
+		B258489220747B01007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B2584857207477D7007FAD22;
+			remoteInfo = KeyVaultMac;
+		};
+		B25848A920756685007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D63C0F7120322128008343BC;
+			remoteInfo = KeyVaultMessageServer;
+		};
+		B25848AB20756685007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D63C0FA42032403F008343BC;
+			remoteInfo = KeyVaultTestApp;
+		};
+		B25848AD20756685007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D63C0FBB2032406D008343BC;
+			remoteInfo = KeyVaultClient;
+		};
+		B25848AF20756685007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 94AA776B20351978006F1526;
+			remoteInfo = KeyVault;
+		};
+		B25848B120756685007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B2584857207477D7007FAD22;
+			remoteInfo = KeyVaultMac;
+		};
+		B25848B620756AB8007FAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D63C0FBA2032406D008343BC;
+			remoteInfo = KeyVaultClient;
+		};
 		D61000E91D3984C20087AB81 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -678,6 +756,17 @@
 				D69A72181D4FF65200E91DB3 /* ADKeychainTokenCache.h in Copy Files */,
 			);
 			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B258487F20747A06007FAD22 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B25848B820756AC6007FAD22 /* KeyVaultClient.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -927,6 +1016,10 @@
 		B258482720744814007FAD22 /* ADTestConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestConfiguration.h; sourceTree = "<group>"; };
 		B258482820744814007FAD22 /* ADTestConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestConfiguration.m; sourceTree = "<group>"; };
 		B258484320746981007FAD22 /* KeyVault.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVault.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B258487B20747998007FAD22 /* KeyVaultClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVaultClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B258488020747A54007FAD22 /* KeyVault.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVault.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeyVaultClient.xcodeproj; path = ../KeyVaultClient/KeyVaultClient.xcodeproj; sourceTree = "<group>"; };
+		B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeyVaultClient.xcodeproj; path = ../../KeyVaultClient/KeyVaultClient.xcodeproj; sourceTree = "<group>"; };
 		B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNegotiateHandler.h; sourceTree = "<group>"; };
 		B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNegotiateHandler.m; sourceTree = "<group>"; };
 		B2822A2C2055D67200390B6E /* ADLegacyMacTokenCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADLegacyMacTokenCache.h; sourceTree = "<group>"; };
@@ -1087,7 +1180,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				946B0E77203621CA00F5FC04 /* KeyVaultClient.framework in Frameworks */,
+				B25848B42075695E007FAD22 /* KeyVaultClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1172,7 +1265,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B258484420746981007FAD22 /* KeyVault.framework in Frameworks */,
+				B25848B520756A7F007FAD22 /* KeyVaultClient.framework in Frameworks */,
 				D6CF4EE51FC3818600CD70C5 /* Security.framework in Frameworks */,
 				D6CF4EE41FC3817D00CD70C5 /* UIKit.framework in Frameworks */,
 				D64C1F631DB9C64E00850036 /* libADAL-core.a in Frameworks */,
@@ -1242,6 +1335,7 @@
 		23658C7E201023F70055CE7D /* ADALiOSUITests */ = {
 			isa = PBXGroup;
 			children = (
+				B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */,
 				23B791C82012B54B008D4BD2 /* ADALBaseUITest.h */,
 				23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */,
 				23B791CB2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.h */,
@@ -1337,6 +1431,9 @@
 		8B0965AC17F25770002BDFB8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */,
+				B258488020747A54007FAD22 /* KeyVault.framework */,
+				B258487B20747998007FAD22 /* KeyVaultClient.framework */,
 				B258484320746981007FAD22 /* KeyVault.framework */,
 				946B0E78203621CA00F5FC04 /* KeyVaultClient.framework */,
 				94D188CE201D4ABA0093B799 /* CoreGraphics.framework */,
@@ -1847,6 +1944,30 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
+		B258488320747B01007FAD22 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B258488B20747B01007FAD22 /* KeyVaultMessageServer.app */,
+				B258488D20747B01007FAD22 /* KeyVaultTestApp.app */,
+				B258488F20747B01007FAD22 /* KeyVaultClient.framework */,
+				B258489120747B01007FAD22 /* KeyVault.framework */,
+				B258489320747B01007FAD22 /* KeyVaultMac.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B25848A220756685007FAD22 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B25848AA20756685007FAD22 /* KeyVaultMessageServer.app */,
+				B25848AC20756685007FAD22 /* KeyVaultTestApp.app */,
+				B25848AE20756685007FAD22 /* KeyVaultClient.framework */,
+				B25848B020756685007FAD22 /* KeyVault.framework */,
+				B25848B220756685007FAD22 /* KeyVaultMac.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		B2822A282055D63200390B6E /* legacytest */ = {
 			isa = PBXGroup;
 			children = (
@@ -2343,10 +2464,12 @@
 				D64C1F441DB9B05900850036 /* Sources */,
 				D64C1F451DB9B05900850036 /* Frameworks */,
 				D64C1F461DB9B05900850036 /* Resources */,
+				B258487F20747A06007FAD22 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B25848B720756AB8007FAD22 /* PBXTargetDependency */,
 				D64C1F651DB9C65400850036 /* PBXTargetDependency */,
 			);
 			name = ADALAutomation;
@@ -2494,6 +2617,14 @@
 					ProductGroup = D626FFC11FBD1B1300EE4487 /* Products */;
 					ProjectRef = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
 				},
+				{
+					ProductGroup = B25848A220756685007FAD22 /* Products */;
+					ProjectRef = B25848A120756685007FAD22 /* KeyVaultClient.xcodeproj */;
+				},
+				{
+					ProductGroup = B258488320747B01007FAD22 /* Products */;
+					ProjectRef = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -2521,6 +2652,76 @@
 			fileType = wrapper.application;
 			path = MSIDTestsHostApp.app;
 			remoteRef = 23F32F201FFD793100B2905E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B258488B20747B01007FAD22 /* KeyVaultMessageServer.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = KeyVaultMessageServer.app;
+			remoteRef = B258488A20747B01007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B258488D20747B01007FAD22 /* KeyVaultTestApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = KeyVaultTestApp.app;
+			remoteRef = B258488C20747B01007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B258488F20747B01007FAD22 /* KeyVaultClient.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KeyVaultClient.framework;
+			remoteRef = B258488E20747B01007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B258489120747B01007FAD22 /* KeyVault.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KeyVault.framework;
+			remoteRef = B258489020747B01007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B258489320747B01007FAD22 /* KeyVaultMac.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KeyVaultMac.framework;
+			remoteRef = B258489220747B01007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B25848AA20756685007FAD22 /* KeyVaultMessageServer.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = KeyVaultMessageServer.app;
+			remoteRef = B25848A920756685007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B25848AC20756685007FAD22 /* KeyVaultTestApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = KeyVaultTestApp.app;
+			remoteRef = B25848AB20756685007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B25848AE20756685007FAD22 /* KeyVaultClient.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KeyVaultClient.framework;
+			remoteRef = B25848AD20756685007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B25848B020756685007FAD22 /* KeyVault.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KeyVault.framework;
+			remoteRef = B25848AF20756685007FAD22 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B25848B220756685007FAD22 /* KeyVaultMac.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = KeyVaultMac.framework;
+			remoteRef = B25848B120756685007FAD22 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D62600001FBD253E00EE4487 /* libIdentityTest.a */ = {
@@ -3115,6 +3316,11 @@
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = B20DC5B11F0D96A700957806 /* PBXContainerItemProxy */;
 		};
+		B25848B720756AB8007FAD22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KeyVaultClient;
+			targetProxy = B25848B620756AB8007FAD22 /* PBXContainerItemProxy */;
+		};
 		D61000EA1D3984C20087AB81 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
@@ -3434,6 +3640,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -3442,6 +3649,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;

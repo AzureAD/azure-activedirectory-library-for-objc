@@ -40,7 +40,7 @@
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
                                             error:(ADAuthenticationError * __autoreleasing *)error;
 
-/* This is the only unique property, as it is used in the key generation for the cache.
+/* This is the only unique property, as it is used in the key generation for the cache.user
  Two ADUserInformation objects are considered the same if this property is the same. Using RequiredDisplayableId
  will validate against this property. */
 @property (readonly) NSString *userId;

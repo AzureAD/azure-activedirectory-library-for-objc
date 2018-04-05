@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "ADTestAccountsProvider.h"
+#import <KeyVault/KeyVault.h>
+#import <KeyVaultClient/KeyVaultClient.h>
 
 #define StringName(arg) (@""#arg)
 
@@ -50,6 +52,7 @@ static NSString *kAPIPath = @"api path";
 @interface ADTestAccountsProvider()
 
 @property (nonatomic, strong) NSMutableDictionary *cachedConfigurations;
+@property (nonatomic, strong) KeyVaultClient *keyvaultClient;
 
 @end
 
@@ -91,6 +94,7 @@ ADTestApplication ADTestApplicationRequiresMAM = @"mam";
     if (self)
     {
         _cachedConfigurations = [NSMutableDictionary dictionary];
+        _keyvaultClient = [[KeyVaultClient alloc] init];
     }
 
     return self;
@@ -143,13 +147,9 @@ ADTestApplication ADTestApplicationRequiresMAM = @"mam";
         completionHandler(account.password);
     }
 
-    NSString *urlString = [NSString stringWithFormat:kPwdAPIUrl, account.labName];
-    NSURL *url = [NSURL URLWithString:urlString];
+    NSURL *url = [NSURL URLWithString:account.keyvaultName];
 
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setValue:kPwdAuthCookie forHTTPHeaderField:@"Cookie"];
-
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [self.keyvaultClient getSecret:url completionBlock:^(NSString *secret, NSError *error) {
 
         if (error)
         {
@@ -161,19 +161,17 @@ ADTestApplication ADTestApplicationRequiresMAM = @"mam";
             return;
         }
 
-        NSString *password = [account passwordFromData:data];
-
-        if (password)
+        if (secret)
         {
-            account.password = password;
+            account.password = secret;
         }
 
         if (completionHandler)
         {
-            completionHandler(password);
+            completionHandler(secret);
         }
 
-    }] resume];
+    }];
 }
 
 + (NSArray *)accounts {

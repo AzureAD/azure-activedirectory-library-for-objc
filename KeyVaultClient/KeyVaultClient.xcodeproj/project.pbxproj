@@ -10,14 +10,21 @@
 		946B0E672035989900F5FC04 /* AdalCacheDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946B0E662035989900F5FC04 /* AdalCacheDelegate.swift */; };
 		948C15C22035219900195B5F /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948C15C12035219900195B5F /* Logger.swift */; };
 		94AA776F20351979006F1526 /* KeyVault.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AA776D20351979006F1526 /* KeyVault.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		94AA777220351979006F1526 /* KeyVault.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94AA776B20351978006F1526 /* KeyVault.framework */; };
-		94AA777320351979006F1526 /* KeyVault.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 94AA776B20351978006F1526 /* KeyVault.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		94AA7778203519C1006F1526 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F92203227DC008343BC /* KeyVaultError.swift */; };
 		94AA7779203519C1006F1526 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F91203227DC008343BC /* AuthHeader.swift */; };
 		94AA777A203519C1006F1526 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F93203227DC008343BC /* Network.swift */; };
 		94AA777B203519C1006F1526 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F90203227DC008343BC /* Secret.swift */; };
 		94AA777C203519C7006F1526 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F8F203227DC008343BC /* Result.swift */; };
 		94AA777D203519C7006F1526 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F8E203227DC008343BC /* Authentication.swift */; };
+		B2584869207477D8007FAD22 /* KeyVault.h in Headers */ = {isa = PBXBuildFile; fileRef = B2584859207477D7007FAD22 /* KeyVault.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B258486C207477D8007FAD22 /* KeyVault.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2584857207477D7007FAD22 /* KeyVault.framework */; };
+		B258486D207477D8007FAD22 /* KeyVault.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B2584857207477D7007FAD22 /* KeyVault.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B2584875207477FA007FAD22 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F93203227DC008343BC /* Network.swift */; };
+		B2584876207477FA007FAD22 /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F90203227DC008343BC /* Secret.swift */; };
+		B2584877207477FA007FAD22 /* KeyVaultError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F92203227DC008343BC /* KeyVaultError.swift */; };
+		B2584878207477FA007FAD22 /* AuthHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F91203227DC008343BC /* AuthHeader.swift */; };
+		B2584879207477FA007FAD22 /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F8E203227DC008343BC /* Authentication.swift */; };
+		B258487A207477FA007FAD22 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F8F203227DC008343BC /* Result.swift */; };
 		D60CF6952033E7F600A43193 /* HTTPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60CF6942033E7F600A43193 /* HTTPConnection.swift */; };
 		D60CF6972034BD3100A43193 /* HTTPMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60CF6962034BD3100A43193 /* HTTPMessage.swift */; };
 		D63C0F7520322128008343BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63C0F7420322128008343BC /* AppDelegate.swift */; };
@@ -135,12 +142,12 @@
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
 		};
-		94AA777020351979006F1526 /* PBXContainerItemProxy */ = {
+		B258486A207477D8007FAD22 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D63C0F6920322128008343BC /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 94AA776A20351978006F1526;
-			remoteInfo = KeyVault;
+			remoteGlobalIDString = B2584856207477D7007FAD22;
+			remoteInfo = KeyvaultMac;
 		};
 		D63C0FC02032406D008343BC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -158,7 +165,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				94AA777320351979006F1526 /* KeyVault.framework in Embed Frameworks */,
+				B258486D207477D8007FAD22 /* KeyVault.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -183,6 +190,9 @@
 		94AA776B20351978006F1526 /* KeyVault.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeyVault.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		94AA776D20351979006F1526 /* KeyVault.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyVault.h; sourceTree = "<group>"; };
 		94AA776E20351979006F1526 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B2584857207477D7007FAD22 /* KeyVault.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeyVault.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2584859207477D7007FAD22 /* KeyVault.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyVault.h; sourceTree = "<group>"; };
+		B258485A207477D7007FAD22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D60CF6942033E7F600A43193 /* HTTPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPConnection.swift; sourceTree = "<group>"; };
 		D60CF6962034BD3100A43193 /* HTTPMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMessage.swift; sourceTree = "<group>"; };
 		D63C0F7120322128008343BC /* KeyVaultMessageServer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeyVaultMessageServer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -223,11 +233,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B2584853207477D7007FAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D63C0F6E20322128008343BC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				94AA777220351979006F1526 /* KeyVault.framework in Frameworks */,
+				B258486C207477D8007FAD22 /* KeyVault.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +301,15 @@
 			path = KeyVault;
 			sourceTree = "<group>";
 		};
+		B2584858207477D7007FAD22 /* KeyvaultMac */ = {
+			isa = PBXGroup;
+			children = (
+				B2584859207477D7007FAD22 /* KeyVault.h */,
+				B258485A207477D7007FAD22 /* Info.plist */,
+			);
+			path = KeyvaultMac;
+			sourceTree = "<group>";
+		};
 		D63C0F6820322128008343BC = {
 			isa = PBXGroup;
 			children = (
@@ -292,6 +318,7 @@
 				D63C0FA520324040008343BC /* KeyVaultTestApp */,
 				D63C0FBC2032406D008343BC /* KeyVaultClient */,
 				94AA776C20351979006F1526 /* KeyVault */,
+				B2584858207477D7007FAD22 /* KeyvaultMac */,
 				D63C0F7220322128008343BC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -303,6 +330,7 @@
 				D63C0FA42032403F008343BC /* KeyVaultTestApp.app */,
 				D63C0FBB2032406D008343BC /* KeyVaultClient.framework */,
 				94AA776B20351978006F1526 /* KeyVault.framework */,
+				B2584857207477D7007FAD22 /* KeyVault.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -362,6 +390,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B2584854207477D7007FAD22 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2584869207477D8007FAD22 /* KeyVault.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D63C0FB82032406D008343BC /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -391,6 +427,24 @@
 			productReference = 94AA776B20351978006F1526 /* KeyVault.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		B2584856207477D7007FAD22 /* KeyVaultMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B258486E207477D8007FAD22 /* Build configuration list for PBXNativeTarget "KeyVaultMac" */;
+			buildPhases = (
+				B2584852207477D7007FAD22 /* Sources */,
+				B2584853207477D7007FAD22 /* Frameworks */,
+				B2584854207477D7007FAD22 /* Headers */,
+				B2584855207477D7007FAD22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeyVaultMac;
+			productName = KeyvaultMac;
+			productReference = B2584857207477D7007FAD22 /* KeyVault.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		D63C0F7020322128008343BC /* KeyVaultMessageServer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D63C0F7F20322128008343BC /* Build configuration list for PBXNativeTarget "KeyVaultMessageServer" */;
@@ -404,7 +458,7 @@
 			);
 			dependencies = (
 				948C15BC20351F1400195B5F /* PBXTargetDependency */,
-				94AA777120351979006F1526 /* PBXTargetDependency */,
+				B258486B207477D8007FAD22 /* PBXTargetDependency */,
 			);
 			name = KeyVaultMessageServer;
 			productName = KeyVaultClient;
@@ -462,6 +516,10 @@
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 					};
+					B2584856207477D7007FAD22 = {
+						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
+					};
 					D63C0F7020322128008343BC = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
@@ -509,6 +567,7 @@
 				D63C0FA32032403F008343BC /* KeyVaultTestApp */,
 				D63C0FBA2032406D008343BC /* KeyVaultClient */,
 				94AA776A20351978006F1526 /* KeyVault */,
+				B2584856207477D7007FAD22 /* KeyVaultMac */,
 			);
 		};
 /* End PBXProject section */
@@ -615,6 +674,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B2584855207477D7007FAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D63C0F6F20322128008343BC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -657,6 +723,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B2584852207477D7007FAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B258487A207477FA007FAD22 /* Result.swift in Sources */,
+				B2584875207477FA007FAD22 /* Network.swift in Sources */,
+				B2584877207477FA007FAD22 /* KeyVaultError.swift in Sources */,
+				B2584878207477FA007FAD22 /* AuthHeader.swift in Sources */,
+				B2584879207477FA007FAD22 /* Authentication.swift in Sources */,
+				B2584876207477FA007FAD22 /* Secret.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D63C0F6D20322128008343BC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -696,10 +775,10 @@
 			name = "ADAL Mac";
 			targetProxy = 948C15BB20351F1400195B5F /* PBXContainerItemProxy */;
 		};
-		94AA777120351979006F1526 /* PBXTargetDependency */ = {
+		B258486B207477D8007FAD22 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 94AA776A20351978006F1526 /* KeyVault */;
-			targetProxy = 94AA777020351979006F1526 /* PBXContainerItemProxy */;
+			target = B2584856207477D7007FAD22 /* KeyVaultMac */;
+			targetProxy = B258486A207477D8007FAD22 /* PBXContainerItemProxy */;
 		};
 		D63C0FC12032406D008343BC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -781,6 +860,62 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.KeyVault;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		B258486F207477D8007FAD22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = KeyvaultMac/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.KeyvaultMac;
+				PRODUCT_NAME = KeyVault;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		B2584870207477D8007FAD22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = KeyvaultMac/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.KeyvaultMac;
+				PRODUCT_NAME = KeyVault;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1028,6 +1163,15 @@
 			buildConfigurations = (
 				94AA777520351979006F1526 /* Debug */,
 				94AA777620351979006F1526 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B258486E207477D8007FAD22 /* Build configuration list for PBXNativeTarget "KeyVaultMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B258486F207477D8007FAD22 /* Debug */,
+				B2584870207477D8007FAD22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
