@@ -23,37 +23,60 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, ADTestUserType)
-{
-    ADUserTypeFederated,
-    ADUserTypeCloud,
-    ADUserTypeMAM,
-    ADUserTypeMDM,
-    ADUserTypeNTLM,
-    ADUserTypeGuest
-};
+/*! ADTestAccountProvider is the federation provider of the AAD account, or none in the case of
+ entirely in cloud accounts like WW and Black Forest. They are mutally exclusive of each other. */
+typedef NSString *ADTestAccountProvider;
+/*! WW is a world wide entirely on-cloud account */
+extern ADTestAccountProvider ADTestAccountProviderWW;
+/*! Black Forest is an AAD account hosted in the Black Forest sovereign cloud (.de) */
+extern ADTestAccountProvider ADTestAccountProviderBlackForest;
+/*! A WW account federated using ADFSv2 (these accounts can also be used for on-prem tests) */
+extern ADTestAccountProvider ADTestAccountProviderAdfsv2;
+/*! A WW account federated using ADFSv3 (these accounts can also be used for on-prem tests) */
+extern ADTestAccountProvider ADTestAccountProviderAdfsv3;
+/*! A WW account federated using ADFSv4 (these accounts can also be used for on-prem tests) */
+extern ADTestAccountProvider ADTestAccountProviderAdfsv4;
+/*! A WW account federated using Shibboleth */
+extern ADTestAccountProvider ADTestAccountProviderShibboleth;
+/*! A WW account federated using Ping */
+extern ADTestAccountProvider ADTestAccountProviderPing;
 
-typedef NS_ENUM(NSInteger, ADSovereignEnvironmentType)
-{
-    ADEnvironmentTypeGlobal,
-    ADEnvironmentTypeGermanCloud
-};
+/*! ADTestAccountFeatures are things that can be enabled for a given account, multiple of these can
+ be enabled at a time */
+typedef NSString *ADTestAccountFeature;
+/*! The account has a license and is capable of MDM-ing a device. */
+extern ADTestAccountFeature ADTestAccountFeatureMDMEnabled;
+/*! The account has a license to be able to use MAM features */
+extern ADTestAccountFeature ADTestAccountFeatureMAMEnabled;
+/*! The account is capable of registering a device so that it can respond to device auth challenges. */
+extern ADTestAccountFeature ADTestAccountFeatureDeviceAuth;
+/*! The account is MFA enabled */
+extern ADTestAccountFeature ADTestAccountFeatureMFAEnabled;
+/*! The account is a guest user */
+extern ADTestAccountFeature ADTestAccountFeatureGuestUser;
 
-typedef NS_ENUM(NSInteger, ADFederationProviderType)
-{
-    ADFederationProviderShib,
-    ADFederationProviderPing,
-    ADFederationProviderADFSv3,
-    ADFederationProviderADFSv4
-};
+typedef NSString *ADTestApplication;
+extern ADTestApplication ADTestApplicationCloud;
+extern ADTestApplication ADTestApplicationOnPremAdfsv2;
+extern ADTestApplication ADTestApplicationOnPremAdfsv3;
+extern ADTestApplication ADTestApplicationOnPremAdfsv4;
+extern ADTestApplication ADTestApplicationRequiresDeviceAuth;
+extern ADTestApplication ADTestApplicationRequiresMFA;
+extern ADTestApplication ADTestApplicationRequiresMDM;
+extern ADTestApplication ADTestApplicationRequiresMAM;
+
+typedef NSString *AppVersion;
+extern AppVersion ADAppVersionV1;
+extern AppVersion ADAppVersionV2;
 
 @interface ADTestConfigurationRequest : NSObject <NSCopying>
 
-@property (nonatomic) ADTestUserType testUserType;
-@property (nonatomic) ADFederationProviderType federationProviderType;
-@property (nonatomic) ADSovereignEnvironmentType sovereignEnvironment;
+@property (nonatomic) ADTestApplication testApplication;
+@property (nonatomic) ADTestAccountProvider accountProvider;
+@property (nonatomic) NSArray<ADTestAccountFeature> *accountFeatures;
 @property (nonatomic) BOOL needsMultipleUsers;
+@property (nonatomic) AppVersion appVersion;
 
-- (NSURL *)requestURLWithAPIScheme:(NSString *)scheme host:(NSString *)host path:(NSString *)path;
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;
 
 @end

@@ -33,16 +33,14 @@
 - (void)setUp
 {
     [super setUp];
-    
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeBlackforest];
-    self.baseConfigParams = [self sovereignConfig];
-    
+
     [self clearCache];
     [self clearCookies];
 }
 
 #pragma mark - Tests
 
+/*
 // #290995 iteration 13
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_withLoginHint_ADALWebView
 {
@@ -91,7 +89,7 @@
     [self acquireToken:jsonString];
     [self assertAuthUIAppear];
 }
-
+*/
 #pragma mark - Private
 
 - (void)blackforestComEnterEmail
@@ -99,7 +97,7 @@
     XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
     [emailTextField pressForDuration:0.5f];
-    [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
+    [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
 }
 
 - (void)blackforestComEnterPassword
@@ -107,7 +105,7 @@
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

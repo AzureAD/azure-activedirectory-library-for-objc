@@ -25,17 +25,14 @@
 #import "ADTestAccountsProvider.h"
 #import "XCUIElement+ADALiOSUITests.h"
 
+@class ADTestConfigurationRequest;
+
 @interface ADALBaseUITest : XCTestCase
 
 @property (nonatomic) XCUIApplication *testApp;
 @property (nonatomic) ADTestAccountsProvider *accountsProvider;
-@property (nonatomic) ADTestAccount *accountInfo;
-@property (nonatomic) NSMutableDictionary *baseConfigParams;
+@property (nonatomic) ADTestAccount *primaryAccount;
 @property (nonatomic) ADTestConfiguration *testConfiguration;
-
-- (NSMutableDictionary *)fociConfig;
-- (NSMutableDictionary *)basicConfig;
-- (NSMutableDictionary *)sovereignConfig;
 
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
@@ -56,9 +53,8 @@
 - (void)closeAuthUI;
 
 - (void)waitForElement:(id)object;
-- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
-                    additionalParams:(NSDictionary *)additionalParams;
-- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams;
 - (NSDictionary *)resultDictionary;
+- (void)loadTestConfiguration:(ADTestConfigurationRequest *)request;
+- (void)loadPasswordForAccount:(ADTestAccount *)account;
 
 @end

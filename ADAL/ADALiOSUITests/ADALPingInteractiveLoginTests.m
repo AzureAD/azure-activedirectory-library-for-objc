@@ -34,15 +34,13 @@
 {
     [super setUp];
     
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypePing];
-    self.baseConfigParams = [self basicConfig];
-    
     [self clearCache];
     [self clearCookies];
 }
 
 #pragma mark - Tests
 
+/*
 // #290995 iteration 9
 - (void)testInteractivePingLogin_withPromptAlways_noLoginHint_ADALWebView
 {
@@ -91,7 +89,7 @@
     
     // Wait for result, no user action required.
     [self assertAccessTokenNotNil];
-}
+}*/
 
 #pragma mark - Private
 
@@ -100,7 +98,7 @@
     XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
     [usernameTextField pressForDuration:0.5f];
-    [usernameTextField typeText:self.accountInfo.username];
+    [usernameTextField typeText:self.primaryAccount.username];
 }
 
 - (void)pingEnterPassword
@@ -108,7 +106,7 @@
     XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
     [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

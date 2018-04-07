@@ -35,9 +35,6 @@
 {
     [super setUp];
     
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeAAD];
-    self.baseConfigParams = [self basicConfig];
-    
     [self clearCache];
     [self clearCookies];
 }
@@ -48,45 +45,10 @@
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView
 {
     ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.testUserType = ADUserTypeCloud;
-    configurationRequest.sovereignEnvironment = ADEnvironmentTypeGlobal;
-
-    __block ADTestConfiguration *testConfig = nil;
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
-
-    [self.accountsProvider configurationWithRequest:configurationRequest
-                                  completionHandler:^(ADTestConfiguration *configuration) {
-
-                                      testConfig = configuration;
-
-                                      [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:60 handler:nil];
-
-    if (!testConfig || ![testConfig.accounts count])
-    {
-        XCTAssertTrue(NO);
-    }
-
-    expectation = [self expectationWithDescription:@"Get password"];
-
-    [self.accountsProvider passwordForAccount:testConfig.accounts[0]
-                            completionHandler:^(NSString *password) {
-
-                                [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:60 handler:nil];
-
-    if (![testConfig.accounts[0] password])
-    {
-        XCTAssertTrue(NO);
-    }
-
-    self.testConfiguration = testConfig;
-    self.accountInfo = self.testConfiguration.accounts[0];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
@@ -96,7 +58,6 @@
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
     [self acquireToken:configJson];
-    
     [self aadEnterEmail];
     [self aadEnterPassword];
     
@@ -113,24 +74,28 @@
 // #290995 iteration 2
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_ADALWebView
 {
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
-    
+    [self acquireToken:configJson];
     [self aadEnterPassword];
     
     [self assertAccessTokenNotNil];;
-    
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self assertAuthUIAppear];
 }
@@ -138,14 +103,21 @@
 // #290995 iteration 3
 - (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_ADALWebView
 {
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
     NSDictionary *params = @{
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterPassword];
     
@@ -154,7 +126,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     // Wait for result immediately, no user action required.
     [self assertAccessTokenNotNil];
@@ -163,16 +135,22 @@
 // #290995 iteration 4
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_PassedInWebView
 {
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
                              @"web_view" : @"passed_in"
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterPassword];
     
@@ -181,11 +159,12 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self assertAuthUIAppear];
 }
 
+/*
 // #296277: FoCI: Acquire a token using an FRT
 - (void)testAADLogin_withPromptAlways_noLoginHint_acquireTokenUsingFRT
 {
@@ -216,10 +195,11 @@
     [self acquireTokenSilent:jsonString];
     
     [self assertAccessTokenNotNil];
-}
+}*/
 
 // #296755: FoCI : MRRT Fallback when FRT Fails
 
+/*
 - (void)testAADLogin_withPromptAlways_noLoginHint_MRRTFallbackWhenFRTFails
 {
     NSDictionary *params = @{
@@ -239,7 +219,7 @@
     [self closeResultView];
     
     NSDictionary *keyParams = @{
-                                @"user_id" : self.accountInfo.account,
+                                @"user_id" : self.primaryAccount.account,
                                 @"client_id" : @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
                                 @"authority" : @"https://login.windows.net/common",
                                 @"resource" : @"https://graph.windows.net"
@@ -250,7 +230,7 @@
     [self closeResultView];
     
     keyParams = @{
-                  @"user_id" : self.accountInfo.account,
+                  @"user_id" : self.primaryAccount.account,
                   @"client_id" : @"foci-1",
                   @"authority" : @"https://login.windows.net/common"
                   };
@@ -263,26 +243,30 @@
     
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
-}
+}*/
 
 // #296753: Login Multiple Accounts
 - (void)testAADLogin_withPromptAlways_LoginHint_loginMultipleAccounts
 {
-    NSArray *accounts = [self.accountsProvider testAccountsOfType:ADTestAccountTypeAAD];
-    XCTAssertTrue(accounts.count > 1);
-    self.accountInfo = [accounts firstObject];
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.needsMultipleUsers = YES;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
     
     // User 1.
-    NSDictionary *params = @{
+    NSMutableDictionary *params = [@{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
-                             };
-    [self.baseConfigParams addEntriesFromDictionary:params];
-    NSString *jsonString = [self.baseConfigParams toJsonString];
+                             } mutableCopy];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterPassword];
     
@@ -292,28 +276,30 @@
     [self closeResultView];
     
     // User 2.
-    ADTestAccount *accountInfo2 = accounts[1];
-    self.baseConfigParams[@"user_identifier"] = accountInfo2.account;
-    NSString *jsonString2 = [self.baseConfigParams toJsonString];
+    self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
+
+    params[@"user_identifier"] = self.primaryAccount.account;
+    NSString *configJson2 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    [self acquireToken:configJson2];
     
-    [self acquireToken:jsonString2];
-    
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", accountInfo2.password]];
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
     
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
     [self closeResultView];
     
     // User 1, silent login.
-    [self acquireTokenSilent:jsonString];
+    [self acquireTokenSilent:configJson];
     [self assertAccessTokenNotNil];
     [self closeResultView];
     
     // User 2, silent login.
-    [self acquireTokenSilent:jsonString2];
+    [self acquireTokenSilent:configJson2];
     [self assertAccessTokenNotNil];
 }
 
+/*
 // #296758: Different ADUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
@@ -404,7 +390,7 @@
     [self waitForElement:getTheAppButton];
     
     [self.testApp activate];
-}
+}*/
 
 #pragma mark - Private
 
@@ -417,7 +403,7 @@
 
 - (void)aadEnterPassword
 {
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 - (void)aadEnterPassword:(NSString *)password

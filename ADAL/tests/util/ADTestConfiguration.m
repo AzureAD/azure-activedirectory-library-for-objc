@@ -148,17 +148,30 @@
 
     if (self)
     {
-        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:response options:0 error:nil];
+        id responseObj = [NSJSONSerialization JSONObjectWithData:response options:0 error:nil];
 
-        if (!responseDict)
+        if (!responseObj)
         {
             return nil;
+        }
+
+        NSDictionary *responseDict = nil;
+
+        // TODO: fix this hack on server side
+        if ([responseObj isKindOfClass:[NSArray class]])
+        {
+            NSArray *responseArray = (NSArray *) responseObj;
+            responseDict = responseArray[0];
+        }
+        else if ([responseObj isKindOfClass:[NSDictionary class]])
+        {
+            responseDict = responseObj;
         }
 
         _clientId = responseDict[@"AppID"];
         _redirectUri = [self redirectURIFromArray:responseDict[@"RedirectURI"]];
         _resource = responseDict[@"Resource_ids"][0];
-        // TODO: fix this hack
+        // TODO: fix this hack on server side
         _authority = [responseDict[@"Authority"][0] stringByAppendingString:@"common"];
 
         NSMutableArray *accounts = [NSMutableArray array];

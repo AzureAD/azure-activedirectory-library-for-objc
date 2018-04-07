@@ -34,15 +34,13 @@
 {
     [super setUp];
     
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeADFSv3];
-    self.baseConfigParams = [self basicConfig];
-    
     [self clearCache];
     [self clearCookies];
 }
 
 #pragma mark - Tests
 
+/*
 // #290995 iteration 11
 - (void)testInteractiveADFSv3Login_withPromptAlways_noLoginHint_ADALWebView
 {
@@ -71,7 +69,7 @@
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
     NSString *jsonString = [self configParamsJsonString:params];
@@ -86,7 +84,7 @@
     // Acquire token again.
     [self acquireToken:jsonString];
     [self assertAuthUIAppear];
-}
+}*/
 
 #pragma mark - Private
 
@@ -95,7 +93,7 @@
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

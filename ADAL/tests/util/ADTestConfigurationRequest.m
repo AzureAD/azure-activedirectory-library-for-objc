@@ -23,70 +23,88 @@
 
 #import "ADTestConfigurationRequest.h"
 
+/*! WW is a world wide entirely on-cloud account */
+ADTestAccountProvider ADTestAccountProviderWW = @"AzureCloud";
+/*! Black Forest is an AAD account hosted in the Black Forest sovereign cloud (.de) */
+ADTestAccountProvider ADTestAccountProviderBlackForest = @"AzureGermanyCloud";
+/*! A WW account federated using ADFSv2 (these accounts can also be used for on-prem tests) */
+ADTestAccountProvider ADTestAccountProviderAdfsv2 = @"ADFSv2";
+/*! A WW account federated using ADFSv3 (these accounts can also be used for on-prem tests) */
+ADTestAccountProvider ADTestAccountProviderAdfsv3 = @"ADFSv3";
+/*! A WW account federated using ADFSv4 (these accounts can also be used for on-prem tests) */
+ADTestAccountProvider ADTestAccountProviderAdfsv4 = @"ADFSv4";
+/*! A WW account federated using Shibboleth */
+ADTestAccountProvider ADTestAccountProviderShibboleth = @"Shibboleth";
+/*! A WW account federated using Ping */
+ADTestAccountProvider ADTestAccountProviderPing = @"Ping";
+
+ADTestAccountFeature ADTestAccountFeatureMDMEnabled = @"mam";
+ADTestAccountFeature ADTestAccountFeatureMAMEnabled = @"mdm";
+ADTestAccountFeature ADTestAccountFeatureDeviceAuth = @"device";
+ADTestAccountFeature ADTestAccountFeatureMFAEnabled = @"mfa";
+ADTestAccountFeature ADTestAccountFeatureGuestUser = @"Guest";
+
+ADTestApplication ADTestApplicationCloud = @"cloud";
+ADTestApplication ADTestApplicationOnPremAdfsv2 = @"adfsv2";
+ADTestApplication ADTestApplicationOnPremAdfsv3 = @"adfsv3";
+ADTestApplication ADTestApplicationOnPremAdfsv4 = @"adfsv4";
+ADTestApplication ADTestApplicationRequiresDeviceAuth = @"device";
+ADTestApplication ADTestApplicationRequiresMFA = @"mfa";
+ADTestApplication ADTestApplicationRequiresMDM = @"mdm";
+ADTestApplication ADTestApplicationRequiresMAM = @"mam";
+
+AppVersion ADAppVersionV1 = @"V1";
+AppVersion ADAppVersionV2 = @"V2";
+
 @implementation ADTestConfigurationRequest
 
-- (NSString *)federatedValue:(ADTestUserType)userType
+- (BOOL)federated
 {
-    switch (userType) {
-        case ADUserTypeFederated:
-            return @"True";
-
-        default:
-            return @"False";
+    if ([self.accountProvider isEqualToString:ADTestAccountProviderWW]
+        || [self.accountProvider isEqualToString:ADTestAccountProviderBlackForest])
+    {
+        return NO;
     }
+
+    return YES;
 }
 
-- (NSString *)caValue:(ADTestUserType)userType
+- (NSString *)federatedValue
 {
-    switch (userType) {
-        case ADUserTypeMAM:
-            return @"mamca";
-
-        case ADUserTypeMDM:
-            return @"mdmca";
-
-        default:
-            return nil;
+    if (self.federated)
+    {
+        return @"True";
     }
+
+    return @"False";
 }
 
-- (NSString *)userTypeValue:(ADTestUserType)userType
+- (NSString *)caValue
 {
-    switch (userType) {
-        case ADUserTypeGuest:
-            return @"Guest";
-
-        default:
-            return @"Member";
+    if ([self.accountFeatures containsObject:ADTestAccountFeatureMAMEnabled])
+    {
+        return @"mamca";
     }
+    else if ([self.accountFeatures containsObject:ADTestAccountFeatureMDMEnabled])
+    {
+        return @"mdmca";
+    }
+    else if([self.accountFeatures containsObject:ADTestAccountFeatureMFAEnabled])
+    {
+        return @"mfa";
+    }
+
+    return nil;
 }
 
-- (NSString *)federationProviderValue:(ADFederationProviderType)type
+- (NSString *)userTypeValue
 {
-    switch (type) {
-        case ADFederationProviderShib:
-            return @"Shibboleth";
-
-        case ADFederationProviderPing:
-            return @"Ping";
-
-        case ADFederationProviderADFSv3:
-            return @"ADFSv3";
-
-        case ADFederationProviderADFSv4:
-            return @"ADFSv4";
+    if ([self.accountFeatures containsObject:ADTestAccountFeatureGuestUser])
+    {
+        return @"Guest";
     }
-}
 
-- (NSString *)sovereignValue:(ADSovereignEnvironmentType)type
-{
-    switch (type) {
-        case ADEnvironmentTypeGermanCloud:
-            return @"AzureGermanyCloud";
-
-        default:
-            return @"AzureCloud";
-    }
+    return @"Member";
 }
 
 - (BOOL)isEqualToRequest:(ADTestConfigurationRequest *)request
@@ -97,9 +115,9 @@
     }
 
     BOOL result = YES;
-    result &= self.testUserType == request.testUserType;
-    result &= self.federationProviderType == request.federationProviderType;
-    result &= self.sovereignEnvironment == request.sovereignEnvironment;
+    result &= (!self.testApplication && !request.testApplication) || [self.testApplication isEqualToString:request.testApplication];
+    result &= (!self.accountProvider && !request.accountProvider) || [self.accountProvider isEqualToString:request.accountProvider];
+    result &= (!self.accountFeatures && !request.accountFeatures) || [self.accountFeatures isEqualToArray:request.accountFeatures];
     result &= self.needsMultipleUsers == request.needsMultipleUsers;
 
     return result;
@@ -124,43 +142,52 @@
 
 - (NSUInteger)hash
 {
-    NSUInteger hash = self.testUserType;
-    hash ^= self.federationProviderType;
-    hash ^= self.sovereignEnvironment;
-    hash ^= self.needsMultipleUsers;
+    NSUInteger hash = self.needsMultipleUsers;
+    hash ^= self.testApplication.hash;
+    hash ^= self.accountProvider.hash;
+    hash ^= self.accountFeatures.hash;
 
     return hash;
 }
 
-- (NSURL *)requestURLWithAPIScheme:(NSString *)scheme host:(NSString *)host path:(NSString *)path
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath
 {
-    NSURLComponents *components = [NSURLComponents new];
-    components.scheme = scheme;
-    components.host = host;
-    components.path = path;
+    NSURLComponents *components = [[NSURLComponents alloc] initWithString:apiPath];;
 
     NSMutableArray *queryItems = [NSMutableArray array];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"isFederated" value:[self federatedValue:self.testUserType]]];
+    
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"isFederated" value:self.federatedValue]];
 
-    NSString *caValue = [self caValue:self.testUserType];
+    NSString *caValue = self.caValue;
+
     if (caValue)
     {
         [queryItems addObject:[[NSURLQueryItem alloc] initWithName:caValue value:@"True"]];
     }
-
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"usertype" value:[self userTypeValue:self.testUserType]]];
-
-    if (self.testUserType == ADUserTypeFederated)
+    else
     {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"federationProvider" value:[self federationProviderValue:self.federationProviderType]]];
+        //[queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mdmca" value:@"False"]];
+        // TODO: uncomment me, when server adds accounts
+        //[queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mamca" value:@"False"]];
     }
 
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"AzureEnvironment" value:[self sovereignValue:self.sovereignEnvironment]]];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"usertype" value:self.userTypeValue]];
+
+    if (self.federated)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"federationProvider" value:self.accountProvider]];
+    }
+    else
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"AzureEnvironment" value:self.accountProvider]];
+    }
 
     if (self.needsMultipleUsers)
     {
         [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"DisplayAll" value:@"True"]];
     }
+
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"AppVersion" value:self.appVersion]];
 
     components.queryItems = queryItems;
     NSURL *resultURL = [components URL];
@@ -170,9 +197,9 @@
 - (nonnull id)copyWithZone:(nullable NSZone *)zone
 {
     ADTestConfigurationRequest *request = [[ADTestConfigurationRequest allocWithZone:zone] init];
-    request->_testUserType = _testUserType;
-    request->_federationProviderType = _federationProviderType;
-    request->_sovereignEnvironment = _sovereignEnvironment;
+    request->_testApplication = _testApplication;
+    request->_accountFeatures = _accountFeatures;
+    request->_accountProvider = _accountProvider;
     request->_needsMultipleUsers = _needsMultipleUsers;
     return request;
 }

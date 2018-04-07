@@ -34,15 +34,13 @@
 {
     [super setUp];
     
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeShib];
-    self.baseConfigParams = [self basicConfig];
-    
     [self clearCache];
     [self clearCookies];
 }
 
 #pragma mark - Tests
 
+/*
 // #290995 iteration 5
 - (void)testInteractiveShibLogin_withPromptAlways_noLoginHint_ADALWebView
 {
@@ -73,7 +71,7 @@
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
     NSString *jsonString = [self configParamsJsonString:params];
@@ -89,7 +87,7 @@
     // Acquire token again.
     [self acquireToken:jsonString];
     [self assertAuthUIAppear];
-}
+}*/
 
 #pragma mark - Private
 
@@ -98,7 +96,7 @@
     XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
     [usernameTextField pressForDuration:0.5f];
-    [usernameTextField typeText:self.accountInfo.username];
+    [usernameTextField typeText:self.primaryAccount.username];
 }
 
 - (void)shibEnterPassword
@@ -106,7 +104,7 @@
     XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
     [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

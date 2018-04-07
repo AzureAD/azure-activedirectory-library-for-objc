@@ -23,6 +23,7 @@
 
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "ADTestConfigurationRequest.h"
 
 @implementation ADALBaseUITest
 
@@ -36,23 +37,6 @@
     [self.testApp launch];
     
     self.accountsProvider = [ADTestAccountsProvider new];
-}
-
-#pragma mark - Profiles
-
-- (NSMutableDictionary *)fociConfig
-{
-    return [[self.accountsProvider testProfileOfType:ADTestProfileTypeFoci] mutableCopy];
-}
-
-- (NSMutableDictionary *)sovereignConfig
-{
-    return [[self.accountsProvider testProfileOfType:ADTestProfileTypeSovereign] mutableCopy];
-}
-
-- (NSMutableDictionary *)basicConfig
-{
-    return [[self.accountsProvider testProfileOfType:ADTestProfileTypeBasic] mutableCopy];
 }
 
 #pragma mark - Asserts
@@ -104,6 +88,52 @@
     XCTAssertTrue([result[@"refresh_token"] length] > 0);
 }
 
+#pragma mark - API fetch
+
+- (void)loadTestConfiguration:(ADTestConfigurationRequest *)request
+{
+    __block ADTestConfiguration *testConfig = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
+
+    [self.accountsProvider configurationWithRequest:request
+                                  completionHandler:^(ADTestConfiguration *configuration) {
+
+                                      testConfig = configuration;
+                                      [expectation fulfill];
+                                  }];
+
+    [self waitForExpectationsWithTimeout:60 handler:nil];
+
+    if (!testConfig || ![testConfig.accounts count])
+    {
+        XCTAssertTrue(NO);
+    }
+
+    [self loadPasswordForAccount:testConfig.accounts[0]];
+
+    self.testConfiguration = testConfig;
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 1);
+    self.primaryAccount = self.testConfiguration.accounts[0];
+}
+
+- (void)loadPasswordForAccount:(ADTestAccount *)account
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
+
+    [self.accountsProvider passwordForAccount:account
+                            completionHandler:^(NSString *password) {
+                                [expectation fulfill];
+                            }];
+
+    [self waitForExpectationsWithTimeout:60 handler:nil];
+
+    if (!account.password)
+    {
+        XCTAssertTrue(NO);
+    }
+}
+
 #pragma mark - Actions
 
 - (void)aadEnterEmail:(NSString *)email
@@ -130,7 +160,7 @@
 
 - (void)aadEnterEmail
 {
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
 }
 
 - (void)closeAuthUI
@@ -189,19 +219,6 @@
 }
 
 #pragma mark - Helpers
-
-- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
-                    additionalParams:(NSDictionary *)additionalParams
-{
-    [config addEntriesFromDictionary:additionalParams];
-    
-    return [config toJsonString];
-}
-
-- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams
-{
-    return [self configParamsJsonString:self.baseConfigParams additionalParams:additionalParams];
-}
 
 - (NSDictionary *)resultDictionary
 {
