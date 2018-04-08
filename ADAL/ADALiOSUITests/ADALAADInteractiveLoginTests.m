@@ -308,6 +308,13 @@
     [self closeResultView];
     
     // User 1, silent login.
+    self.primaryAccount = self.testConfiguration.accounts[0];
+    params[@"user_id"] = self.primaryAccount.account;
+    configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    [self expireAccessToken:configJson];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
     [self acquireTokenSilent:configJson];
     [self assertAccessTokenNotNil];
     [self closeResultView];
