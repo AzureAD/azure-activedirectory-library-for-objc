@@ -31,20 +31,19 @@
 #if __has_include("ADTestAccounts.h")
 #include "ADTestAccounts.h"
 #else
-static NSDictionary* _testAccounts()
-{
-    return nil;
-}
-
-static NSDictionary* _testProfiles()
-{
-    return nil;
-}
-
-static NSString *kPwdAPIUrl = @"not a valid URL";
-static NSString *kPwdAuthCookie = @"not a valid cookie";
 
 static NSString *kAPIPath = @"https://api.com";
+
+static ADTestAccount *defaultAccount()
+{
+    return nil;
+}
+
+static ADTestAccount *defaultLabAccount()
+{
+    return nil;
+}
+
 #endif
 
 @interface ADTestAccountsProvider()
@@ -114,6 +113,7 @@ static NSString *kAPIPath = @"https://api.com";
     if (account.password)
     {
         completionHandler(account.password);
+        return;
     }
 
     NSURL *url = [NSURL URLWithString:account.keyvaultName];
@@ -141,6 +141,16 @@ static NSString *kAPIPath = @"https://api.com";
         }
 
     }];
+}
+
+- (ADTestAccount *)defaultAccount
+{
+    return defaultAccount();
+}
+
+- (ADTestAccount *)defaultLabAccount
+{
+    return defaultLabAccount();
 }
 
 @end

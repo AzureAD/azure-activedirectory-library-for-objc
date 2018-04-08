@@ -170,7 +170,10 @@
 
         _clientId = responseDict[@"AppID"];
         _redirectUri = [self redirectURIFromArray:responseDict[@"RedirectURI"]];
+
+        // TODO: why are there multiple resources?
         _resource = responseDict[@"Resource_ids"][0];
+
         // TODO: fix this hack on server side
         _authority = [responseDict[@"Authority"][0] stringByAppendingString:@"common"];
 
@@ -230,6 +233,13 @@
     NSMutableDictionary *configParams = [[self configParameters] mutableCopy];
     [configParams addEntriesFromDictionary:additionalParams];
     return configParams;
+}
+
+- (void)addAdditionalAccount:(ADTestAccount *)additionalAccount
+{
+    NSMutableArray *accounts = [self.accounts mutableCopy];
+    [accounts addObject:additionalAccount];
+    self.accounts = accounts;
 }
 
 @end

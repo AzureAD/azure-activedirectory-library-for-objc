@@ -178,6 +178,7 @@
     [self.testApp.buttons[@"Invalidate Refresh Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 
@@ -186,6 +187,7 @@
     [self.testApp.buttons[@"Expire Access Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 
@@ -203,6 +205,7 @@
     [self.testApp.buttons[@"Acquire Token Silent"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 

@@ -164,51 +164,66 @@
     [self assertAuthUIAppear];
 }
 
-/*
 // #296277: FoCI: Acquire a token using an FRT
 - (void)testAADLogin_withPromptAlways_noLoginHint_acquireTokenUsingFRT
 {
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    // TODO: add foci support to the lab API
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
+                             @"validate_authority" : @YES,
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterEmail];
     [self aadEnterPassword];
     
     [self assertAccessTokenNotNil];
-    
     [self closeResultView];
-    
-    // Acquire token again.
-    [self acquireToken:jsonString];
-    
-    [self assertAuthUIAppear];
-    [self closeAuthUI];
-    [self closeResultView];
-    
-    jsonString = [self configParamsJsonString:[self fociConfig] additionalParams:params];
-    
-    [self acquireTokenSilent:jsonString];
-    
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
+               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
+               };
+
+    NSString *configJson2 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+
+    [self acquireTokenSilent:configJson2];
     [self assertAccessTokenNotNil];
-}*/
+}
 
 // #296755: FoCI : MRRT Fallback when FRT Fails
-
-/*
 - (void)testAADLogin_withPromptAlways_noLoginHint_MRRTFallbackWhenFRTFails
 {
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    // TODO: add foci support to the lab API
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
+                             @"validate_authority" : @YES,
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
-    NSString *jsonString = [self configParamsJsonString:[self fociConfig] additionalParams:params];
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -221,8 +236,8 @@
     NSDictionary *keyParams = @{
                                 @"user_id" : self.primaryAccount.account,
                                 @"client_id" : @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                                @"authority" : @"https://login.windows.net/common",
-                                @"resource" : @"https://graph.windows.net"
+                                @"authority" : self.testConfiguration.authority,
+                                @"resource" : self.testConfiguration.resource
                                 };
     
     [self expireAccessToken:[keyParams toJsonString]];
@@ -232,18 +247,18 @@
     keyParams = @{
                   @"user_id" : self.primaryAccount.account,
                   @"client_id" : @"foci-1",
-                  @"authority" : @"https://login.windows.net/common"
+                  @"authority" : self.testConfiguration.authority
                   };
     
     [self invalidateRefreshToken:[keyParams toJsonString]];
     [self assertRefreshTokenInvalidated];
     [self closeResultView];
     
-    [self acquireTokenSilent:jsonString];
+    [self acquireTokenSilent:configJson];
     
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
-}*/
+}
 
 // #296753: Login Multiple Accounts
 - (void)testAADLogin_withPromptAlways_LoginHint_loginMultipleAccounts
@@ -255,8 +270,11 @@
     configurationRequest.appVersion = ADAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
+    // TODO: remove this, once API is fixed to return multiple accounts
+    [self.testConfiguration addAdditionalAccount:self.accountsProvider.defaultLabAccount];
+
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
-    
+
     // User 1.
     NSMutableDictionary *params = [@{
                              @"prompt_behavior" : @"always",
@@ -299,59 +317,73 @@
     [self assertAccessTokenNotNil];
 }
 
-/*
 // #296758: Different ADUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
-    NSArray *accounts = [self.accountsProvider testAccountsOfType:ADTestAccountTypeAAD];
-    XCTAssertTrue(accounts.count > 1);
-    self.accountInfo = [accounts firstObject];
-    ADTestAccount *accountInfo2 = accounts[1];
-    
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    configurationRequest.needsMultipleUsers = YES;
+    [self loadTestConfiguration:configurationRequest];
+
+    // TODO: remove this, once API is fixed to return multiple users
+    [self.testConfiguration addAdditionalAccount:self.accountsProvider.defaultAccount];
+
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
+
+    ADTestAccount *firstAccount = self.testConfiguration.accounts[0];
+    ADTestAccount *secondaryAccount = self.testConfiguration.accounts[1];
+
     // Optional Displayable, User 1.
-    NSDictionary *params = @{
+    NSMutableDictionary *params = [@{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : secondaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
-                             };
-    [self.baseConfigParams addEntriesFromDictionary:params];
-    
-    [self acquireToken:[self.baseConfigParams toJsonString]];
-    
+                             } mutableCopy];
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+
+    [self acquireToken:configJson];
+
+    // Change account to nr 2
     [self signInWithAnotherAccount];
-    
-    // User 2.
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", accountInfo2.account]];
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", accountInfo2.password]];
-    
+
+    // Enter username and pwd for user 2
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", firstAccount.account]];
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", firstAccount.password]];
+
+    // Should succeed
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
     
     [self closeResultView];
-    
+
     // Required Displayable, User 1.
-    self.baseConfigParams[@"user_identifier_type"] = @"required_displayable";
+    params[@"user_identifier_type"] = @"required_displayable";
 
-    [self acquireToken:[self.baseConfigParams toJsonString]];
+    NSString *configJson2 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
 
+    [self acquireToken:configJson2];
+
+    // Change account
     [self signInWithAnotherAccount];
     
-    // User 2.
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", accountInfo2.account]];
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", accountInfo2.password]];
-    
+    // Enter username and pwd for user 2
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", firstAccount.account]];
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", firstAccount.password]];
+
+    // Should fail
     [self assertError:@"AD_ERROR_SERVER_WRONG_USER"];
     [self closeResultView];
     
-    // Sign in with User 1.
-    
-    [self acquireToken:[self.baseConfigParams toJsonString]];
-    
-    [self signInWithAnotherAccount];
-    
-    // User 2.
-    [self aadEnterEmail];
+    // RequiredDisplayableId and not changing the user
+
+    params[@"user_identifier"] = firstAccount.account;
+    NSString *configJson3 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+
+    [self acquireToken:configJson3];
     [self aadEnterPassword];
     
     [self assertAccessTokenNotNil];
@@ -361,21 +393,24 @@
 // 296732: Company Portal Install Prompt
 - (void)test_companyPortalInstallPrompt
 {
-    self.baseConfigParams = [[self.accountsProvider testProfileOfType:ADTestProfileTypeBasicMDM] mutableCopy];
-    NSArray *accounts = [self.accountsProvider testAccountsOfType:ADTestAccountTypeAADMDM];
-    XCTAssertTrue(accounts.count > 0);
-    self.accountInfo = [accounts firstObject];
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    configurationRequest.accountFeatures = @[ADTestAccountFeatureMDMEnabled];
+    configurationRequest.additionalQueryParameters = @{@"AppID": @"4b0db8c2-9f26-4417-8bde-3f0e3656f8e0"};
+    [self loadTestConfiguration:configurationRequest];
     
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
-    
+    [self acquireToken:configJson];
     [self aadEnterPassword];
     
     XCUIElement *enrollButton = self.testApp.buttons[@"Enroll now"];
@@ -390,7 +425,7 @@
     [self waitForElement:getTheAppButton];
     
     [self.testApp activate];
-}*/
+}
 
 #pragma mark - Private
 

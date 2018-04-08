@@ -127,6 +127,12 @@
 - (BOOL)deserialize:(nullable NSData*)data
               error:(ADAuthenticationError **)error
 {
+    if (!data)
+    {
+        [self.macTokenCache clear];
+        return YES;
+    }
+
     NSError *cacheError = nil;
     
     BOOL result = [self.macTokenCache deserialize:data error:&cacheError];

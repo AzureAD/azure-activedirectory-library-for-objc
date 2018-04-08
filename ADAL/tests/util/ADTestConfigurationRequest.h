@@ -76,6 +76,7 @@ extern AppVersion ADAppVersionV2;
 @property (nonatomic) NSArray<ADTestAccountFeature> *accountFeatures;
 @property (nonatomic) BOOL needsMultipleUsers;
 @property (nonatomic) AppVersion appVersion;
+@property (nonatomic) NSDictionary *additionalQueryParameters;
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;
 

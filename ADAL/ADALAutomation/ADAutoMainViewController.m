@@ -32,6 +32,8 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADAutoWebViewController.h"
+#import "MSIDAadAuthorityCache.h"
+#import "ADHelpers.h"
 
 @interface ADAutoMainViewController ()
 
@@ -302,8 +304,10 @@
         }
         
         ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+
+        NSString *authority = [[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL URLWithString:parameters[@"authority"]] context:nil] absoluteString];
         
-        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority
                                                         resource:parameters[@"resource"]
                                                         clientId:parameters[@"client_id"]
                                                            error:nil];
@@ -352,7 +356,10 @@
         }
         
         ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
-        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+
+        NSString *authority = [[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL URLWithString:parameters[@"authority"]] context:nil] absoluteString];
+
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority
                                                         resource:parameters[@"resource"]
                                                         clientId:parameters[@"client_id"]
                                                            error:nil];

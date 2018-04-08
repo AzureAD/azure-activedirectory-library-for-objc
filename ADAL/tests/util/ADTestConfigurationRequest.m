@@ -189,6 +189,11 @@ AppVersion ADAppVersionV2 = @"V2";
 
     [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"AppVersion" value:self.appVersion]];
 
+    for (NSString *queryKey in [self.additionalQueryParameters allKeys])
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:queryKey value:self.additionalQueryParameters[queryKey]]];
+    }
+
     components.queryItems = queryItems;
     NSURL *resultURL = [components URL];
     return resultURL;

@@ -33,4 +33,7 @@
 - (void)passwordForAccount:(ADTestAccount *)account
          completionHandler:(void (^)(NSString *password))completionHandler;
 
+- (ADTestAccount *)defaultAccount;
+- (ADTestAccount *)defaultLabAccount;
+
 @end
