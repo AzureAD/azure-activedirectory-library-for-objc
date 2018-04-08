@@ -1951,7 +1951,7 @@
 				B258488D20747B01007FAD22 /* KeyVaultTestApp.app */,
 				B258488F20747B01007FAD22 /* KeyVaultClient.framework */,
 				B258489120747B01007FAD22 /* KeyVault.framework */,
-				B258489320747B01007FAD22 /* KeyVaultMac.framework */,
+				B258489320747B01007FAD22 /* KeyVault.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1963,7 +1963,7 @@
 				B25848AC20756685007FAD22 /* KeyVaultTestApp.app */,
 				B25848AE20756685007FAD22 /* KeyVaultClient.framework */,
 				B25848B020756685007FAD22 /* KeyVault.framework */,
-				B25848B220756685007FAD22 /* KeyVaultMac.framework */,
+				B25848B220756685007FAD22 /* KeyVault.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2682,10 +2682,10 @@
 			remoteRef = B258489020747B01007FAD22 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		B258489320747B01007FAD22 /* KeyVaultMac.framework */ = {
+		B258489320747B01007FAD22 /* KeyVault.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = KeyVaultMac.framework;
+			path = KeyVault.framework;
 			remoteRef = B258489220747B01007FAD22 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -2717,10 +2717,10 @@
 			remoteRef = B25848AF20756685007FAD22 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		B25848B220756685007FAD22 /* KeyVaultMac.framework */ = {
+		B25848B220756685007FAD22 /* KeyVault.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = KeyVaultMac.framework;
+			path = KeyVault.framework;
 			remoteRef = B25848B120756685007FAD22 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -3537,6 +3537,7 @@
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Debug;
 		};
@@ -3544,6 +3545,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Release;
 		};
@@ -3611,6 +3613,7 @@
 			baseConfigurationReference = D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Debug;
 		};
@@ -3618,6 +3621,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Release;
 		};
