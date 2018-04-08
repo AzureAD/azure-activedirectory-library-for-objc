@@ -37,10 +37,10 @@
 #import "MSIDSharedTokenCache.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAccount.h"
-#import "MSIDAADV1TokenResponse.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
 #import "ADResponseCacheHandler.h"
+#import "MSIDAADV1Oauth2Strategy.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -161,9 +161,11 @@
          }
          
          NSError *msidError = nil;
-         MSIDTokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response
-                                                                                      refreshToken:cacheItem
-                                                                                             error:&msidError];
+         MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+         MSIDTokenResponse *tokenResponse = [strategy tokenResponseFromJSON:response
+                                                               refreshToken:cacheItem
+                                                                    context:nil
+                                                                      error:&msidError];
          
          if (msidError)
          {
