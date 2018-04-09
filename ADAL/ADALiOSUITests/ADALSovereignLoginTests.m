@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
+#import "NSDictionary+ADALiOSUITests.h"
 
 @interface ADALSovereignLoginTests : ADALBaseUITest
 
@@ -36,23 +37,28 @@
 
     [self clearCache];
     [self clearCookies];
+
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderBlackForest;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
 
-/*
 // #290995 iteration 13
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_withLoginHint_ADALWebView
 {
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
     [self waitForElement:emailTextField];
@@ -64,7 +70,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     [self assertAuthUIAppear];
 }
 
@@ -75,9 +81,9 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self blackforestComEnterEmail];
     [self blackforestComEnterPassword];
@@ -86,10 +92,10 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     [self assertAuthUIAppear];
 }
-*/
+
 #pragma mark - Private
 
 - (void)blackforestComEnterEmail

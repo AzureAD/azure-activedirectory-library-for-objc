@@ -2581,7 +2581,7 @@
 					};
 					D64C1F471DB9B05900850036 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = 4XAC8VP2M2;
+						DevelopmentTeam = UBF8T346G9;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Keychain = {
@@ -3490,6 +3490,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -3498,6 +3499,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
@@ -3644,6 +3646,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				SWIFT_VERSION = 4.0;
 			};
@@ -3653,6 +3657,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				SWIFT_VERSION = 4.0;
 			};

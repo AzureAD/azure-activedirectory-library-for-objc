@@ -44,6 +44,16 @@ static ADTestAccount *defaultLabAccount()
     return nil;
 }
 
+static ADTestAccount *defaultShibAccount()
+{
+    return nil;
+}
+
+static ADTestAccount *defaultPingAccount()
+{
+    return nil;
+}
+
 #endif
 
 @interface ADTestAccountsProvider()
@@ -151,6 +161,16 @@ static ADTestAccount *defaultLabAccount()
 - (ADTestAccount *)defaultLabAccount
 {
     return defaultLabAccount();
+}
+
+- (ADTestAccount *)defaultShibAccount
+{
+    return defaultShibAccount();
+}
+
+- (ADTestAccount *)defaultPingAccount
+{
+    return defaultPingAccount();
 }
 
 @end

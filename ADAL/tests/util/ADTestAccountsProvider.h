@@ -35,5 +35,7 @@
 
 - (ADTestAccount *)defaultAccount;
 - (ADTestAccount *)defaultLabAccount;
+- (ADTestAccount *)defaultShibAccount;
+- (ADTestAccount *)defaultPingAccount;
 
 @end

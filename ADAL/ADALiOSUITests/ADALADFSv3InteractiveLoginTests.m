@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
+#import "NSDictionary+ADALiOSUITests.h"
 
 @interface ADALADFSv3InteractiveLoginTests : ADALBaseUITest
 
@@ -36,21 +37,29 @@
     
     [self clearCache];
     [self clearCookies];
+
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderAdfsv3;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
 
-/*
 // #290995 iteration 11
 - (void)testInteractiveADFSv3Login_withPromptAlways_noLoginHint_ADALWebView
 {
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
+                             @"validate_authority" : @YES,
+                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once non CA accounts are available
+                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive", // TODO: remove me once non CA accounts are available,
+                             @"resource": @"01cb2876-7ebd-4aa4-9cc9-d28bd4d359a9" // TODO: remove me once non CA accounts are available,
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterEmail];
     [self enterADFSv3Password];
@@ -59,7 +68,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     [self assertAuthUIAppear];
 }
 
@@ -70,11 +79,14 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once non CA accounts are available
+                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive", // TODO: remove me once non CA accounts are available,
+                             @"resource": @"01cb2876-7ebd-4aa4-9cc9-d28bd4d359a9" // TODO: remove me once non CA accounts are available
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self enterADFSv3Password];
     
@@ -82,9 +94,9 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     [self assertAuthUIAppear];
-}*/
+}
 
 #pragma mark - Private
 

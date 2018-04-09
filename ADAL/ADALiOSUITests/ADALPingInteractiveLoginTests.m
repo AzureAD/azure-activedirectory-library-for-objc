@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
+#import "NSDictionary+ADALiOSUITests.h"
 
 @interface ADALPingInteractiveLoginTests : ADALBaseUITest
 
@@ -36,21 +37,33 @@
     
     [self clearCache];
     [self clearCookies];
+
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    //TODO: uncomment me once Ping accounts are available
+    //configurationRequest.accountProvider = ADTestAccountProviderPing;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
 
-/*
 // #290995 iteration 9
 - (void)testInteractivePingLogin_withPromptAlways_noLoginHint_ADALWebView
 {
+    // TODO: remove me once Ping accounts are available in lab
+    self.primaryAccount = self.accountsProvider.defaultPingAccount;
+    [self loadPasswordForAccount:self.primaryAccount];
+
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
+                             @"validate_authority" : @YES,
+                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once Ping accounts are available
+                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive" // TODO: remove me once Ping accounts are available
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self aadEnterEmail];
     
@@ -61,22 +74,28 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     [self assertAuthUIAppear];
 }
 
 // #290995 iteration 10
 - (void)testInteractivePingLogin_withPromptAlways_withLoginHint_ADALWebView
 {
+    // TODO: remove me once Ping accounts are available in lab
+    self.primaryAccount = self.accountsProvider.defaultPingAccount;
+    [self loadPasswordForAccount:self.primaryAccount];
+
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
-                             @"user_identifier_type" : @"optional_displayable"
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once Ping accounts are available
+                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive" // TODO: remove me once Ping accounts are available
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     [self pingEnterUsername];
     [self pingEnterPassword];
@@ -85,11 +104,11 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:configJson];
     
     // Wait for result, no user action required.
     [self assertAccessTokenNotNil];
-}*/
+}
 
 #pragma mark - Private
 

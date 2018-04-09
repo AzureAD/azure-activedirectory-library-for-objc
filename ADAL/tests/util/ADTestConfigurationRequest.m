@@ -34,7 +34,7 @@ ADTestAccountProvider ADTestAccountProviderAdfsv3 = @"ADFSv3";
 /*! A WW account federated using ADFSv4 (these accounts can also be used for on-prem tests) */
 ADTestAccountProvider ADTestAccountProviderAdfsv4 = @"ADFSv4";
 /*! A WW account federated using Shibboleth */
-ADTestAccountProvider ADTestAccountProviderShibboleth = @"Shibboleth";
+ADTestAccountProvider ADTestAccountProviderShibboleth = @"Shib";
 /*! A WW account federated using Ping */
 ADTestAccountProvider ADTestAccountProviderPing = @"Ping";
 
@@ -166,8 +166,8 @@ AppVersion ADAppVersionV2 = @"V2";
     }
     else
     {
+        // TODO: uncomment me, when server adds accounts without CA
         //[queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mdmca" value:@"False"]];
-        // TODO: uncomment me, when server adds accounts
         //[queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mamca" value:@"False"]];
     }
 
