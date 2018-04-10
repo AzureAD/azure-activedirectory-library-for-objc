@@ -35,7 +35,8 @@
 
 - (ADTestAccount *)defaultAccount;
 - (ADTestAccount *)defaultLabAccount;
-- (ADTestAccount *)defaultShibAccount;
-- (ADTestAccount *)defaultPingAccount;
+- (ADTestAccount *)defaultNTLMAccount;
+- (ADTestAccount *)defaultSovereignAccount;
+- (ADTestConfiguration *)defaultNTLMConfiguration;
 
 @end

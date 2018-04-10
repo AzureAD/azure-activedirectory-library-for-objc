@@ -166,9 +166,8 @@ AppVersion ADAppVersionV2 = @"V2";
     }
     else
     {
-        // TODO: uncomment me, when server adds accounts without CA
-        //[queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mdmca" value:@"False"]];
-        //[queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mamca" value:@"False"]];
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mdmca" value:@"False"]];
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"mamca" value:@"False"]];
     }
 
     [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"usertype" value:self.userTypeValue]];

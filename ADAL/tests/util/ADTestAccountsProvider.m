@@ -44,12 +44,17 @@ static ADTestAccount *defaultLabAccount()
     return nil;
 }
 
-static ADTestAccount *defaultShibAccount()
+static ADTestAccount *defaultNTLMAccount()
 {
     return nil;
 }
 
-static ADTestAccount *defaultPingAccount()
+static ADTestConfiguration *defaultNTLMConfiguration()
+{
+    return nil;
+}
+
+static ADTestAccount *defaultSovereignAccount()
 {
     return nil;
 }
@@ -163,14 +168,19 @@ static ADTestAccount *defaultPingAccount()
     return defaultLabAccount();
 }
 
-- (ADTestAccount *)defaultShibAccount
+- (ADTestAccount *)defaultNTLMAccount
 {
-    return defaultShibAccount();
+    return defaultNTLMAccount();
 }
 
-- (ADTestAccount *)defaultPingAccount
+- (ADTestAccount *)defaultSovereignAccount
 {
-    return defaultPingAccount();
+    return defaultSovereignAccount();
+}
+
+- (ADTestConfiguration *)defaultNTLMConfiguration
+{
+    return defaultNTLMConfiguration();
 }
 
 @end

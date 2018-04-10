@@ -72,10 +72,37 @@
 
     if (self)
     {
-        _username = response[@"upn"];
+        NSString *homeUPN = response[@"homeUPN"];
+
+        if (homeUPN && [homeUPN isKindOfClass:[NSString class]])
+        {
+            _username = homeUPN;
+        }
+        else
+        {
+            _username = response[@"upn"];
+        }
+
         _keyvaultName = response[@"credentialVaultKeyName"];
         _labName = [_keyvaultName lastPathComponent];
+
         _account = _username;
+
+        NSString *federationProvider = response[@"federationProvider"];
+
+        // TODO: server should return a username instead
+        if (federationProvider && ([federationProvider isEqualToString:@"Shibboleth"] || [federationProvider containsString:@"PingFederate"]))
+        {
+            NSRange range = [_username rangeOfString:@"@"];
+
+            if (range.location != NSNotFound)
+            {
+                _username = [_username substringToIndex:range.location];
+            }
+        }
+
+        _homeTenantId = response[@"hometenantId"];
+        _targetTenantId = response[@"tenantId"];
     }
 
     return self;
@@ -232,6 +259,13 @@
 {
     NSMutableDictionary *configParams = [[self configParameters] mutableCopy];
     [configParams addEntriesFromDictionary:additionalParams];
+    return configParams;
+}
+
+- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
+                                               account:(ADTestAccount *)account
+{
+    NSMutableDictionary *configParams = [[self configParametersWithAdditionalParams:additionalParams] mutableCopy];
     return configParams;
 }
 

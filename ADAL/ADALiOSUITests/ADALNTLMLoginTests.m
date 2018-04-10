@@ -25,94 +25,54 @@
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
 
-@interface ADALShibInteractiveLoginTests : ADALBaseUITest
+@interface ADALNTLMLoginTests : ADALBaseUITest
 
 @end
 
-@implementation ADALShibInteractiveLoginTests
+@implementation ADALNTLMLoginTests
 
 - (void)setUp
 {
     [super setUp];
-    
+
     [self clearCache];
     [self clearCookies];
-
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderShibboleth;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
-    [self loadTestConfiguration:configurationRequest];
 }
 
-#pragma mark - Tests
-
-// #290995 iteration 5
-- (void)testInteractiveShibLogin_withPromptAlways_noLoginHint_ADALWebView
+- (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
+    self.testConfiguration = self.accountsProvider.defaultNTLMConfiguration;
+    self.primaryAccount = self.accountsProvider.defaultNTLMAccount;
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    
-    [self acquireToken:configJson];
-    
-    [self aadEnterEmail];
-    
-    [self shibEnterUsername];
-    [self shibEnterPassword];
-    
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-    
-    // Acquire token again.
-    [self acquireToken:configJson];
-    [self assertAuthUIAppear];
-}
-
-// #290995 iteration 6
-- (void)testInteractiveShibLogin_withPromptAlways_withLoginHint_ADALWebView
-{
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"validate_authority" : @NO
                              };
-
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    
     [self acquireToken:configJson];
+
     
-    [self shibEnterUsername];
-    [self shibEnterPassword];
-    
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-    
-    // Acquire token again.
-    [self acquireToken:configJson];
-    [self assertAuthUIAppear];
+
+    // TODO: enter credentials
 }
 
-#pragma mark - Private
-
-- (void)shibEnterUsername
+- (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
 {
-    XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
-    [self waitForElement:usernameTextField];
-    [usernameTextField pressForDuration:0.5f];
-    [usernameTextField typeText:self.primaryAccount.username];
-}
+    self.testConfiguration = self.accountsProvider.defaultNTLMConfiguration;
+    self.primaryAccount = self.accountsProvider.defaultNTLMAccount;
 
-- (void)shibEnterPassword
-{
-    XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
-    [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"validate_authority" : @NO
+                             };
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    [self acquireToken:configJson];
 }
 
 @end

@@ -405,6 +405,7 @@
     configurationRequest.testApplication = ADTestApplicationCloud;
     configurationRequest.appVersion = ADAppVersionV1;
     configurationRequest.accountFeatures = @[ADTestAccountFeatureMDMEnabled];
+    // TODO: remove me once lab is fixed
     configurationRequest.additionalQueryParameters = @{@"AppID": @"4b0db8c2-9f26-4417-8bde-3f0e3656f8e0"};
     [self loadTestConfiguration:configurationRequest];
     
@@ -432,6 +433,40 @@
     [self waitForElement:getTheAppButton];
     
     [self.testApp activate];
+}
+
+- (void)testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes
+{
+    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    configurationRequest.accountProvider = ADTestAccountProviderWW;
+    configurationRequest.testApplication = ADTestApplicationCloud;
+    configurationRequest.appVersion = ADAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES
+                             };
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+
+    [self acquireToken:configJson];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Wait for 5 min"];
+    [expectation performSelector:@selector(fulfill) withObject:nil afterDelay:300];
+    [self waitForExpectationsWithTimeout:310 handler:nil];
+
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+
+    [self closeResultView];
+
+    // Acquire token again.
+    [self acquireToken:configJson];
+
+    [self assertAuthUIAppear];
 }
 
 #pragma mark - Private

@@ -52,10 +52,7 @@
 {
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once non CA accounts are available
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive", // TODO: remove me once non CA accounts are available,
-                             @"resource": @"01cb2876-7ebd-4aa4-9cc9-d28bd4d359a9" // TODO: remove me once non CA accounts are available,
+                             @"validate_authority" : @YES
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
@@ -79,10 +76,7 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once non CA accounts are available
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive", // TODO: remove me once non CA accounts are available,
-                             @"resource": @"01cb2876-7ebd-4aa4-9cc9-d28bd4d359a9" // TODO: remove me once non CA accounts are available
+                             @"user_identifier_type" : @"optional_displayable"
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     

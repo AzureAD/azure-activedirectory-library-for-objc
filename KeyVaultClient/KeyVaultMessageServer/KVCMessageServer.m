@@ -87,7 +87,7 @@ static void KVCServerHandleConnect(CFSocketRef s, CFSocketCallBackType type, CFD
     struct sockaddr_in sin;
     
     struct hostent *host = gethostbyname("localhost");
-    unsigned int port = 59126;
+    unsigned int port = 59127;
     
     memset(&sin, 0, sizeof(sin));
     sin.sin_len = sizeof(sin);

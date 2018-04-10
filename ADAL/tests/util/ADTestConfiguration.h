@@ -30,6 +30,8 @@
 @property (nonatomic) NSString *password;
 @property (nonatomic) NSString *keyvaultName;
 @property (nonatomic) NSString *labName;
+@property (nonatomic) NSString *homeTenantId;
+@property (nonatomic) NSString *targetTenantId;
 
 - (instancetype)initWithJSONResponse:(NSDictionary *)response;
 - (NSString *)passwordFromData:(NSData *)responseData;
@@ -47,6 +49,9 @@
 - (instancetype)initWithJSONResponseData:(NSData *)response;
 - (NSDictionary *)configParameters;
 - (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams;
+- (NSDictionary *)configParametersWithAdditionalParams:(NSDictionary *)additionalParams
+                                               account:(ADTestAccount *)account;
+
 - (void)addAdditionalAccount:(ADTestAccount *)additionalAccount;
 
 @end

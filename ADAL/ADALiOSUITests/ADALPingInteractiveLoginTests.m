@@ -39,8 +39,7 @@
     [self clearCookies];
 
     ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    //TODO: uncomment me once Ping accounts are available
-    //configurationRequest.accountProvider = ADTestAccountProviderPing;
+    configurationRequest.accountProvider = ADTestAccountProviderPing;
     configurationRequest.testApplication = ADTestApplicationCloud;
     configurationRequest.appVersion = ADAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -51,15 +50,9 @@
 // #290995 iteration 9
 - (void)testInteractivePingLogin_withPromptAlways_noLoginHint_ADALWebView
 {
-    // TODO: remove me once Ping accounts are available in lab
-    self.primaryAccount = self.accountsProvider.defaultPingAccount;
-    [self loadPasswordForAccount:self.primaryAccount];
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once Ping accounts are available
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive" // TODO: remove me once Ping accounts are available
+                             @"validate_authority" : @YES
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
@@ -81,17 +74,11 @@
 // #290995 iteration 10
 - (void)testInteractivePingLogin_withPromptAlways_withLoginHint_ADALWebView
 {
-    // TODO: remove me once Ping accounts are available in lab
-    self.primaryAccount = self.accountsProvider.defaultPingAccount;
-    [self loadPasswordForAccount:self.primaryAccount];
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707", // TODO: remove me once Ping accounts are available
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive" // TODO: remove me once Ping accounts are available
+                             @"user_identifier_type" : @"optional_displayable"
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
