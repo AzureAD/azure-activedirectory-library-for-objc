@@ -335,7 +335,7 @@
     [self loadTestConfiguration:configurationRequest];
 
     // TODO: remove this, once API is fixed to return multiple users
-    [self.testConfiguration addAdditionalAccount:self.accountsProvider.defaultAccount];
+    //[self.testConfiguration addAdditionalAccount:self.accountsProvider.defaultAccount];
 
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
 
