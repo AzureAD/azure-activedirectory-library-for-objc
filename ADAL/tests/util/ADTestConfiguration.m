@@ -244,7 +244,7 @@
         }
     }
 
-    return nil;
+    return redirectUris[0];
 }
 
 - (NSDictionary *)configParameters
