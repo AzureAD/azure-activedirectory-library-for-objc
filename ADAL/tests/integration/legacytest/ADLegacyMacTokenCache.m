@@ -158,7 +158,7 @@
     {
         return [NSKeyedUnarchiver unarchiveObjectWithData:data];
     }
-    @catch (id expection)
+    @catch (id exception)
     {
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT

@@ -428,7 +428,7 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testFailsWithNilUserIdAndMultipleCachedUsers
 {
-    [ADTelemetry sharedInstance].piiEnabled = YES;
+    [ADTelemetry sharedInstance].piiEnabled = NO;
 
     // prepare and register telemetry dispatcher
     ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
@@ -484,7 +484,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
-    XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue([NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
