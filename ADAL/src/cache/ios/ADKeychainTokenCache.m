@@ -189,7 +189,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 
 - (void)testRemoveAll:(ADAuthenticationError **)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
     
     NSError *cacheError = nil;
     

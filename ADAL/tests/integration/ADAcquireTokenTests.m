@@ -762,7 +762,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
     XCTAssertTrue(![NSString msidIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"3"]);
+    XCTAssertEqualObjects([firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"], @"5");
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertNil([firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);

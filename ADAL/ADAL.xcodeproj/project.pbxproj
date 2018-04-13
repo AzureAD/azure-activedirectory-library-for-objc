@@ -264,7 +264,6 @@
 		B24D25E92059F67D00025B8B /* ADResponseCacheHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B24D25E72059F67D00025B8B /* ADResponseCacheHandler.h */; };
 		B24D25EA2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */; };
 		B24D25EB2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */; };
-		B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */; };
 		B24D25F9205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25F8205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m */; };
 		B24D25FA205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25F8205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m */; };
 		B267CA1B1EE0E9FF00C0B5A8 /* ADNegotiateHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */; };
@@ -2884,7 +2883,6 @@
 				236BF3FF205B38EB006E3897 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				D67D3D3C1F38502900660F32 /* ADTestCase.m in Sources */,
 				B24D25F9205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */,
-				B20DC60F1F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
 				D62256521F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				B2822A2F2055D67200390B6E /* ADLegacyMacTokenCache.m in Sources */,
 				04930F7D1FEC8C0F00FC4DCD /* MSIDAadAuthorityCache+TestUtil.m in Sources */,
@@ -3314,6 +3312,7 @@
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Debug;
 		};
@@ -3321,6 +3320,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Release;
 		};
@@ -3388,6 +3388,7 @@
 			baseConfigurationReference = D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Debug;
 		};
@@ -3395,6 +3396,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Release;
 		};
