@@ -193,13 +193,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //remove item1.
     //Since item1 does not contain refresh token, it should be deleted from cache.
-    [mStore removeItem:item1 error:&error];
-    XCTAssertNil(error);
+    XCTAssertTrue([mStore removeItem:item1 error:&error]);
+    ADAssertNoError;
     XCTAssertEqual([self count], 1);
     
     //remove item2.
-    [mStore removeItem:item2 error:&error];
-    XCTAssertNil(error);
+    XCTAssertTrue([mStore removeItem:item2 error:&error]);
+    ADAssertNoError;
     XCTAssertEqual([self count], 0);
 }
 
@@ -239,10 +239,10 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil([mStore allItems:&error]);
     XCTAssertNil(error);
     
-    //add three items with the same client ID and one with a different client ID
-    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    //add some items (ATs and RTs) with the same client ID and one with a different client ID
+    ADTokenCacheItem* item1 = [self adCreateATCacheItem:TEST_RESOURCE userId:@"eric@contoso.com"];
     [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
-    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
+    ADTokenCacheItem* item2 = [self adCreateMRRTCacheItem:@"stan@contoso.com"];
     [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
     [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
@@ -328,29 +328,32 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil([mStore allItems:&error]);
     XCTAssertNil(error);
     
-    //add two items with the same client ID and same user ID but differnet resource
+    //add three items (ATs and RTs) with the same client ID and same user ID but differnet resource
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item1 setResource:@"resource 1"];
     [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item2 setResource:@"resource 2"];
     [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
-    //add another two more items
-    ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    ADTokenCacheItem* item3 = [self adCreateATCacheItem:@"resource 3" userId:@"eric@contoso.com"];
     [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
-    ADTokenCacheItem* item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    
+    //add another two more items
+    ADTokenCacheItem* item4 = [self adCreateCacheItem:@"jack@contoso.com"];
     [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertEqual([self count], 4);
+    ADTokenCacheItem* item5 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [mStore addOrUpdateItem:item5 correlationId:nil error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 5);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
     [mStore removeAllForUserId:@"eric@contoso.com" clientId:TEST_CLIENT_ID error:&error];
     XCTAssertNil(error);
     XCTAssertEqual([self count], 2);
 
-    //only item3 and item4 are left in cache 
-    [self verifyCacheContainsItem:item3];
+    //only item4 and item5 are left in cache
     [self verifyCacheContainsItem:item4];
+    [self verifyCacheContainsItem:item5];
 }
 
 - (BOOL)wipeTokenDataExist
