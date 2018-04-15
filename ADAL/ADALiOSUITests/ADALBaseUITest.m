@@ -23,7 +23,8 @@
 
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
-#import "ADTestConfigurationRequest.h"
+#import "MSIDTestConfigurationRequest.h"
+#import "MSIDTestAccountsProvider.h"
 
 @implementation ADALBaseUITest
 
@@ -35,8 +36,9 @@
     
     self.testApp = [XCUIApplication new];
     [self.testApp launch];
-    
-    self.accountsProvider = [ADTestAccountsProvider new];
+
+    NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
+    self.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
 }
 
 #pragma mark - Asserts
@@ -90,14 +92,14 @@
 
 #pragma mark - API fetch
 
-- (void)loadTestConfiguration:(ADTestConfigurationRequest *)request
+- (void)loadTestConfiguration:(MSIDTestConfigurationRequest *)request
 {
-    __block ADTestConfiguration *testConfig = nil;
+    __block MSIDTestConfiguration *testConfig = nil;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
 
     [self.accountsProvider configurationWithRequest:request
-                                  completionHandler:^(ADTestConfiguration *configuration) {
+                                  completionHandler:^(MSIDTestConfiguration *configuration) {
 
                                       testConfig = configuration;
                                       [expectation fulfill];
@@ -117,7 +119,7 @@
     self.primaryAccount = self.testConfiguration.accounts[0];
 }
 
-- (void)loadPasswordForAccount:(ADTestAccount *)account
+- (void)loadPasswordForAccount:(MSIDTestAccount *)account
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
 

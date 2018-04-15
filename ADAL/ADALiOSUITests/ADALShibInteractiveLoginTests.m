@@ -38,10 +38,9 @@
     [self clearCache];
     [self clearCookies];
 
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderShibboleth;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderShibboleth;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 

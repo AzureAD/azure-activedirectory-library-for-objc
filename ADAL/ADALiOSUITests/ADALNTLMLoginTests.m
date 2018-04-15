@@ -39,6 +39,7 @@
     [self clearCookies];
 }
 
+/*
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView
 {
     self.testConfiguration = self.accountsProvider.defaultNTLMConfiguration;
@@ -73,6 +74,6 @@
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     [self acquireToken:configJson];
-}
+}*/
 
 @end

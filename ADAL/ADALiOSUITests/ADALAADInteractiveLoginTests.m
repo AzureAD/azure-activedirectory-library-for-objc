@@ -44,10 +44,9 @@
 // #290995 iteration 1
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -74,10 +73,9 @@
 // #290995 iteration 2
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_ADALWebView
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -103,10 +101,9 @@
 // #290995 iteration 3
 - (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_ADALWebView
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -135,10 +132,9 @@
 // #290995 iteration 4
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_PassedInWebView
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -167,10 +163,9 @@
 // #296277: FoCI: Acquire a token using an FRT
 - (void)testAADLogin_withPromptAlways_noLoginHint_acquireTokenUsingFRT
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     // TODO: add foci support to the lab API
@@ -207,10 +202,9 @@
 // #296755: FoCI : MRRT Fallback when FRT Fails
 - (void)testAADLogin_withPromptAlways_noLoginHint_MRRTFallbackWhenFRTFails
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     // TODO: add foci support to the lab API
@@ -263,11 +257,10 @@
 // #296753: Login Multiple Accounts
 - (void)testAADLogin_withPromptAlways_LoginHint_loginMultipleAccounts
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = ADAppVersionV1;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     // TODO: remove this, once API is fixed to return multiple accounts
@@ -327,10 +320,9 @@
 // #296758: Different ADUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = YES;
     [self loadTestConfiguration:configurationRequest];
 
@@ -339,8 +331,8 @@
 
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
 
-    ADTestAccount *firstAccount = self.testConfiguration.accounts[0];
-    ADTestAccount *secondaryAccount = self.testConfiguration.accounts[1];
+    MSIDTestAccount *firstAccount = self.testConfiguration.accounts[0];
+    MSIDTestAccount *secondaryAccount = self.testConfiguration.accounts[1];
 
     // Optional Displayable, User 1.
     NSMutableDictionary *params = [@{
@@ -400,11 +392,10 @@
 // 296732: Company Portal Install Prompt
 - (void)test_companyPortalInstallPrompt
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
-    configurationRequest.accountFeatures = @[ADTestAccountFeatureMDMEnabled];
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMDMEnabled];
     // TODO: remove me once lab is fixed
     configurationRequest.additionalQueryParameters = @{@"AppID": @"4b0db8c2-9f26-4417-8bde-3f0e3656f8e0"};
     [self loadTestConfiguration:configurationRequest];
@@ -437,10 +428,9 @@
 
 - (void)testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes
 {
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
-    configurationRequest.accountProvider = ADTestAccountProviderWW;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{

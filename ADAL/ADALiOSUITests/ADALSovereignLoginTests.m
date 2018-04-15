@@ -38,16 +38,16 @@
     [self clearCache];
     [self clearCookies];
 
-    ADTestConfigurationRequest *configurationRequest = [ADTestConfigurationRequest new];
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
     //TODO: uncomment once blackforest user is available
-    //configurationRequest.accountProvider = ADTestAccountProviderBlackForest;
-    configurationRequest.testApplication = ADTestApplicationCloud;
-    configurationRequest.appVersion = ADAppVersionV1;
+    //configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
+    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
 
+/*
 // #290995 iteration 13
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_withLoginHint_ADALWebView
 {
@@ -109,7 +109,7 @@
     // Acquire token again.
     [self acquireToken:configJson];
     [self assertAuthUIAppear];
-}
+}*/
 
 #pragma mark - Private
 
