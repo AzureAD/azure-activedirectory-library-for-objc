@@ -39,30 +39,24 @@
     [self clearCookies];
 
     MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
-    //TODO: uncomment once blackforest user is available
-    //configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
+    configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
     configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.needsMultipleUsers = NO;
+    configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
 
-/*
 // #290995 iteration 13
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_withLoginHint_ADALWebView
 {
-    // TODO: uncomment me once blackforest user is available
-    self.primaryAccount = self.accountsProvider.defaultSovereignAccount;
-    [self loadPasswordForAccount:self.primaryAccount];
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
-                             @"extra_qp": @"instance_aware=true",
-                             @"resource" : @"00000002-0000-0000-c000-000000000000", // TODO: remove me once blackforest user is available
-                             @"client_id" : @"f5d01c1c-abe6-4207-ae2d-5bc9af251724" // TODO: remove me once blackforest user is available
+                             @"extra_qp": @"instance_aware=true"
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
@@ -85,16 +79,10 @@
 // #290995 iteration 14
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_noLoginHint_ADALWebView
 {
-    // TODO: uncomment me once blackforest user is available
-    self.primaryAccount = self.accountsProvider.defaultSovereignAccount;
-    [self loadPasswordForAccount:self.primaryAccount];
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"extra_qp": @"instance_aware=true",
-                             @"resource" : @"00000002-0000-0000-c000-000000000000", // TODO: remove me once blackforest user is available
-                             @"client_id" : @"f5d01c1c-abe6-4207-ae2d-5bc9af251724" // TODO: remove me once blackforest user is available
+                             @"extra_qp": @"instance_aware=true"
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
@@ -109,7 +97,7 @@
     // Acquire token again.
     [self acquireToken:configJson];
     [self assertAuthUIAppear];
-}*/
+}
 
 #pragma mark - Private
 
