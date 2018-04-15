@@ -37,43 +37,40 @@
 
     [self clearCache];
     [self clearCookies];
+
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderNTLM;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.needsMultipleUsers = NO;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureNTLM];
+    [self loadTestConfiguration:configurationRequest];
 }
 
-/*
+
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView
 {
-    self.testConfiguration = self.accountsProvider.defaultNTLMConfiguration;
-    self.primaryAccount = self.accountsProvider.defaultNTLMAccount;
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
                              @"validate_authority" : @NO
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     [self acquireToken:configJson];
-
-    
 
     // TODO: enter credentials
 }
 
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
 {
-    self.testConfiguration = self.accountsProvider.defaultNTLMConfiguration;
-    self.primaryAccount = self.accountsProvider.defaultNTLMAccount;
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
                              @"validate_authority" : @NO
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     [self acquireToken:configJson];
-}*/
+
+    // TODO: enter credentials
+}
 
 @end
