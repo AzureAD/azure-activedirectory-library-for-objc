@@ -28,7 +28,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "MSIDSharedTokenCache.h"
 #import "MSIDError.h"
-#import "MSIDAADV1Oauth2Strategy.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 @implementation ADResponseCacheHandler
 
@@ -39,9 +39,9 @@
 {
     NSError *msidError = nil;
 
-    MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
-    BOOL result = [strategy verifyResponse:response
+    BOOL result = [factory verifyResponse:response
                           fromRefreshToken:refreshToken != nil
                                    context:requestParams
                                      error:&msidError];
@@ -67,7 +67,7 @@
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
     }
     
-    result = [cache saveTokensWithStrategy:strategy
+    result = [cache saveTokensWithFactory:factory
                              requestParams:requestParams.msidParameters
                                   response:response
                                    context:requestParams
@@ -78,7 +78,7 @@
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
     }
     
-    MSIDLegacySingleResourceToken *resultToken = [strategy legacyTokenFromResponse:response request:requestParams.msidParameters];
+    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response request:requestParams.msidParameters];
     
     ADTokenCacheItem *adTokenCacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     

@@ -37,7 +37,7 @@
 #import "ADWebAuthRequest.h"
 #import "NSString+ADURLExtensions.h"
 #import "MSIDDeviceId.h"
-#import "MSIDAADV1Oauth2Strategy.h"
+#import "MSIDAADV1Oauth2Factory.h"
 #import "ADAuthenticationErrorConverter.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
@@ -59,10 +59,10 @@
              return;
          }
 
-         MSIDAADV1Oauth2Strategy *strategy = [MSIDAADV1Oauth2Strategy new];
+         MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
          NSError *msidError = nil;
-         MSIDTokenResponse *tokenResponse = [strategy tokenResponseFromJSON:response context:nil error:&msidError];
+         MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:response context:nil error:&msidError];
 
          if (!tokenResponse)
          {

@@ -657,6 +657,34 @@ const int sAsyncContextTimeout = 10;
      }];
 
     [self waitForExpectations:@[expectation] timeout:1];
+
+    // Verify that both the expired AT and the rejected MRRT are removed from the cache
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNil(error);
+
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    XCTAssertEqual(allItems.count, 0);
+
+    expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+
+    // The next acquire token call should fail immediately without hitting network
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         // Request should fail because it's silent and getting a new RT requires showing UI
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.authority);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testSilentExpiredATRefreshMRRTNetwork
@@ -1972,14 +2000,25 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
 
     // the request should be using refresh token from developer
-    [ADTestURLSession addResponse:[self adResponseRefreshToken:@"refresh token from developer"
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
                                                       resource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"]];
-
+                                                newAccessToken:@"access token from server"];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2008,14 +2047,25 @@ const int sAsyncContextTimeout = 10;
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
 
     // the request should be using refresh token from developer
-    [ADTestURLSession addResponse:[self adResponseRefreshToken:@"refresh token from developer"
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
                                                       resource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"]];
-
+                                                newAccessToken:@"access token from server"];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2066,13 +2116,24 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
 
     // Network Response to reject developer's refresh token
-    [ADTestURLSession addResponse:[self adResponseBadRefreshToken:@"refresh token from developer"
+    ADTestURLResponse *response = [self adResponseBadRefreshToken:@"refresh token from developer"
                                                         authority:TEST_AUTHORITY
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
                                                        oauthError:@"invalid_grant"
-                                                    correlationId:TEST_CORRELATION_ID]];
-
+                                                    correlationId:TEST_CORRELATION_ID];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID

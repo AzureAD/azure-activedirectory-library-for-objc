@@ -83,7 +83,7 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
     
     NSError *cacheError = nil;
     
