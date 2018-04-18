@@ -33,4 +33,6 @@
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithDispatcher:(id<ADDispatcher>)dispatcher;
 
+- (void)dispatchEvent:(NSDictionary<NSString*, NSString*> *)event;
+
 @end
