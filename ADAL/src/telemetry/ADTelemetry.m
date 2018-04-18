@@ -80,4 +80,14 @@
     [[MSIDTelemetry sharedInstance] removeAllDispatchers];
 }
 
+- (BOOL)piiEnabled
+{
+    return [[MSIDTelemetry sharedInstance] piiEnabled];
+}
+
+- (void)setPiiEnabled:(BOOL)piiEnabled
+{
+    [[MSIDTelemetry sharedInstance] setPiiEnabled:piiEnabled];
+}
+
 @end

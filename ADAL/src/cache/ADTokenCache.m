@@ -45,6 +45,11 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "ADTokenCache+Internal.h"
 #import "ADMSIDDataSourceWrapper.h"
+#import "ADTokenCacheItem.h"
+#import "ADUserInformation.h"
+#import "MSIDLegacyTokenCacheKey.h"
+#import "ADHelpers.h"
+#import "ADAL_Internal.h"
 
 #include <pthread.h>
 
@@ -160,6 +165,39 @@
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self.msidDataSourceWrapper allItems:error];
+}
+
+- (BOOL)removeAllForClientId:(NSString *)clientId
+                       error:(ADAuthenticationError **)error
+{
+    clientId = [clientId msidTrimmedString];
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:clientId], clientId, NO);
+    
+    return [self.msidDataSourceWrapper removeAllForClientId:clientId error:error];
+}
+
+
+- (BOOL)removeAllForUserId:(NSString *)userId
+                  clientId:(NSString *)clientId
+                     error:(ADAuthenticationError **)error
+{
+    userId = [ADHelpers normalizeUserId:userId];
+    clientId = [clientId msidTrimmedString];
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:userId], userId, NO);
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:clientId], clientId, NO);
+    
+    return [self.msidDataSourceWrapper removeAllForUserId:userId
+                                                 clientId:clientId
+                                                    error:error];
+}
+
+- (BOOL)wipeAllItemsForUserId:(NSString *)userId
+                        error:(ADAuthenticationError **)error
+{
+    userId = [ADHelpers normalizeUserId:userId];
+    RETURN_ON_INVALID_ARGUMENT([NSString msidIsStringNilOrBlank:userId], userId, NO);
+    
+    return [self.msidDataSourceWrapper wipeAllItemsForUserId:userId error:error];
 }
 
 #pragma mark - MSIDMacTokenCacheDelegate

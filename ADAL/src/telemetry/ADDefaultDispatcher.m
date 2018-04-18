@@ -25,6 +25,7 @@
 #import "MSIDTelemetryEventInterface.h"
 #import "ADDefaultDispatcher.h"
 #import "MSIDTelemetryEventInterface.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation ADDefaultDispatcher
 
@@ -62,8 +63,25 @@
     
     if (properties)
     {
-        [_dispatcher dispatchEvent:properties];
+        [self dispatchEvent:properties];
     }
+}
+
+- (void)dispatchEvent:(NSDictionary<NSString*, NSString*> *)event;
+{
+    [_dispatcher dispatchEvent:[self appendPrefixForEvent:event]];
+}
+
+- (NSDictionary *)appendPrefixForEvent:(NSDictionary *)event
+{
+    NSMutableDictionary *eventWithPrefix = [NSMutableDictionary new];
+    
+    for (NSString *propertyName in [event allKeys])
+    {
+        [eventWithPrefix setValue:event[propertyName] forKey:TELEMETRY_KEY(propertyName)];
+    }
+    
+    return eventWithPrefix;
 }
 
 @end

@@ -30,6 +30,8 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheDataSource.h"
 #import "ADMSIDContext.h"
+#import "ADHelpers.h"
+#import "ADUserInformation.h"
 
 @interface ADMSIDDataSourceWrapper()
 
@@ -81,7 +83,7 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey keyForAllItems];
+    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
     
     NSError *cacheError = nil;
     
@@ -215,6 +217,66 @@
     }
     
     return results;
+}
+
+- (BOOL)removeAllForClientId:(NSString *)clientId
+                       error:(ADAuthenticationError **)error
+{
+    MSID_LOG_WARN(nil, @"Removing all items for client");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
+    
+    return [self removeAllForUserIdImpl:nil clientId:clientId error:error];
+}
+
+
+- (BOOL)removeAllForUserId:(NSString *)userId
+                  clientId:(NSString *)clientId
+                     error:(ADAuthenticationError **)error
+{
+    MSID_LOG_WARN(nil, @"Removing all items for user");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
+    
+    return [self removeAllForUserIdImpl:userId clientId:clientId error:error];
+}
+
+- (BOOL)wipeAllItemsForUserId:(NSString *)userId
+                        error:(ADAuthenticationError **)error
+{
+    MSID_LOG_WARN(nil, @"Removing all items for user.");
+    MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
+    
+    BOOL result = [self removeAllForUserIdImpl:userId clientId:nil error:error];
+    
+    if (result)
+    {
+        [self.dataSource saveWipeInfoWithContext:nil error:nil];
+    }
+    
+    return result;
+}
+
+- (BOOL)removeAllForUserIdImpl:(NSString *)userId
+                      clientId:(NSString *)clientId
+                         error:(ADAuthenticationError **)error
+{
+    NSArray *items = [self allItems:nil];
+    
+    if (!items)
+    {
+        return NO;
+    }
+    
+    for (ADTokenCacheItem *item in items)
+    {
+        if ((!userId || [userId isEqualToString:[[item userInformation] userId]])
+            && (!clientId || [clientId isEqualToString:[item clientId]])
+            && ![self removeItem:item error:error])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 - (NSDictionary *)getWipeTokenData

@@ -551,7 +551,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertNil([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID]);
+    XCTAssertNil([dictionary objectForKey:(TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID))]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationNo_shouldHashPiiFields
@@ -588,7 +588,7 @@
     
     NSDictionary *dictionary = [_receivedEvents firstObject];
     XCTAssertNotNil(dictionary);
-    XCTAssertNil([dictionary objectForKey:MSID_TELEMETRY_KEY_USER_ID]);
+    XCTAssertNil([dictionary objectForKey:(TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID))]);
 }
 
 - (void)test_telemetryPiiRules_whenPiiEnabledYesAggregationYes_shouldHashPiiFields
