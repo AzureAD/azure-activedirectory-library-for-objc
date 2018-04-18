@@ -426,7 +426,7 @@
     [self.testApp activate];
 }
 
-- (void)testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes
+- (void)DISABLED_testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes
 {
     MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;

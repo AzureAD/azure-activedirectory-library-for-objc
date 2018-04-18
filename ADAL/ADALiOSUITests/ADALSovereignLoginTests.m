@@ -74,6 +74,14 @@
     // Acquire token again.
     [self acquireToken:configJson];
     [self assertAuthUIAppear];
+
+    // TODO: close UI
+
+    // #296889 - silent lookup
+
+    // TODO: acquire token silently
+
+    // TODO: expire token and refresh
 }
 
 // #290995 iteration 14
