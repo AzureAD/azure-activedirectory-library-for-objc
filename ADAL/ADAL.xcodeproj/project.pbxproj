@@ -73,7 +73,7 @@
 		23B791D12012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */; };
 		23B791D32012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */; };
 		23B791D52012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */; };
-		23B791D72012C442008D4BD2 /* ADALSovereignLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D62012C442008D4BD2 /* ADALSovereignLoginTests.m */; };
+		23B791D72012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D62012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m */; };
 		23CF5E212040ED3500D348AF /* ADTokenCacheItemIntegrationWithMSIDTokensTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CF5E202040ED3500D348AF /* ADTokenCacheItemIntegrationWithMSIDTokensTests.m */; };
 		23CF5E2B2040EFB300D348AF /* ADTokenCacheItem+MSIDTokens.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CF5E292040EE4B00D348AF /* ADTokenCacheItem+MSIDTokens.m */; };
 		23CF5E2C2040EFB400D348AF /* ADTokenCacheItem+MSIDTokens.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CF5E292040EE4B00D348AF /* ADTokenCacheItem+MSIDTokens.m */; };
@@ -810,7 +810,7 @@
 		23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALShibInteractiveLoginTests.m; sourceTree = "<group>"; };
 		23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALPingInteractiveLoginTests.m; sourceTree = "<group>"; };
 		23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALADFSv3InteractiveLoginTests.m; sourceTree = "<group>"; };
-		23B791D62012C442008D4BD2 /* ADALSovereignLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALSovereignLoginTests.m; sourceTree = "<group>"; };
+		23B791D62012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALSovereignBlackForestLoginTests.m; sourceTree = "<group>"; };
 		23CF5E202040ED3500D348AF /* ADTokenCacheItemIntegrationWithMSIDTokensTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemIntegrationWithMSIDTokensTests.m; sourceTree = "<group>"; };
 		23CF5E282040EE4B00D348AF /* ADTokenCacheItem+MSIDTokens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADTokenCacheItem+MSIDTokens.h"; sourceTree = "<group>"; };
 		23CF5E292040EE4B00D348AF /* ADTokenCacheItem+MSIDTokens.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADTokenCacheItem+MSIDTokens.m"; sourceTree = "<group>"; };
@@ -1327,7 +1327,7 @@
 				23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */,
 				23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */,
 				23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */,
-				23B791D62012C442008D4BD2 /* ADALSovereignLoginTests.m */,
+				23B791D62012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m */,
 				B290F40E207C31AC0026F43D /* ADALNTLMLoginTests.m */,
 				23658C81201023F70055CE7D /* Info.plist */,
 				B2D1841A208335300001D445 /* ADALUITests.swift */,
@@ -2875,7 +2875,7 @@
 				23766BB32013D91E00449D47 /* NSDictionary+ADALiOSUITests.m in Sources */,
 				B290F40F207C31AC0026F43D /* ADALNTLMLoginTests.m in Sources */,
 				23B791D32012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m in Sources */,
-				23B791D72012C442008D4BD2 /* ADALSovereignLoginTests.m in Sources */,
+				23B791D72012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m in Sources */,
 				23B791CA2012B54B008D4BD2 /* ADALBaseUITest.m in Sources */,
 				23B791D52012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m in Sources */,
 				23B791D12012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m in Sources */,

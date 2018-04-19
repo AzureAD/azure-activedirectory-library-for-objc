@@ -51,16 +51,22 @@
 // #290995 iteration 13
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_withLoginHint_ADALWebView
 {
+    // Do interactive login
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
-                             @"extra_qp": @"instance_aware=true"
+                             @"extra_qp": @"instance_aware=true",
+                             @"authority" : @"https://login.microsoftonline.com/common"
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
     [self acquireToken:configJson];
+
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
+    [self waitForElement:emailTextField];
+    [self.testApp.buttons[@"Next"] tap];
     
     [self blackforestComEnterPassword];
     
@@ -71,13 +77,45 @@
     [self acquireToken:configJson];
     [self assertAuthUIAppear];
 
-    // TODO: close UI
+    [self closeAuthUI];
+    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+    [self closeResultView];
 
-    // #296889 - silent lookup
+    // First try silent with WW authority
+    NSDictionary *silentParams = @{
+                                @"user_id" : self.primaryAccount.account,
+                                @"client_id" : self.testConfiguration.clientId,
+                                @"resource" : self.testConfiguration.resource,
+                                @"authority" : @"https://login.microsoftonline.com/common"
+                                };
 
-    // TODO: acquire token silently
+    configJson = [[self.testConfiguration configParametersWithAdditionalParams:silentParams] toJsonString];
+    [self acquireTokenSilent:configJson];
 
-    // TODO: expire token and refresh
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self closeResultView];
+
+    // Now try silent with correct authority - #296889
+    silentParams = @{
+                     @"user_id" : self.primaryAccount.account,
+                     @"client_id" : self.testConfiguration.clientId,
+                     @"authority" : @"https://login.microsoftonline.de/common",
+                     @"resource" : self.testConfiguration.resource
+                     };
+
+    configJson = [[self.testConfiguration configParametersWithAdditionalParams:silentParams] toJsonString];
+    [self acquireTokenSilent:configJson];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:configJson];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:configJson];
+    [self assertAccessTokenNotNil];
 }
 
 // #290995 iteration 14
@@ -86,7 +124,8 @@
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"extra_qp": @"instance_aware=true"
+                             @"extra_qp": @"instance_aware=true",
+                             @"authority" : @"https://login.microsoftonline.com/common"
                              };
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     
