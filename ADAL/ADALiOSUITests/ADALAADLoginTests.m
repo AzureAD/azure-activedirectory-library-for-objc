@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALAADInteractiveLoginTests : ADALBaseUITest
 
@@ -42,7 +43,7 @@
 #pragma mark - Tests
 
 // #290995 iteration 1
-- (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView
+- (void)testInteractiveAndSilentAADLogin_withPromptAlways_noLoginHint_ADALWebView
 {
     MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
@@ -54,9 +55,9 @@
                              @"validate_authority" : @YES
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self aadEnterEmail];
     [self aadEnterPassword];
     
@@ -65,9 +66,47 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self assertAuthUIAppear];
+    [self closeAuthUI];
+    [self closeResultView];
+
+    // Now do silent #296725
+    NSDictionary *silentParams = @{
+                     @"user_id" : self.primaryAccount.account,
+                     @"client_id" : self.testConfiguration.clientId,
+                     @"authority" : self.testConfiguration.authority,
+                     @"resource" : self.testConfiguration.resource
+                     };
+
+    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now do silent #296725 without providing user ID
+
+    silentParams = @{
+                     @"client_id" : self.testConfiguration.clientId,
+                     @"authority" : self.testConfiguration.authority,
+                     @"resource" : self.testConfiguration.resource
+                     };
+
+    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled
@@ -82,9 +121,9 @@
                              @"validate_authority" : @YES
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
 
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self aadEnterEmail];
     [self closeAuthUI];
     [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
@@ -104,16 +143,16 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self aadEnterPassword];
     
     [self assertAccessTokenNotNil];
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self assertAuthUIAppear];
 }
@@ -132,9 +171,9 @@
                              @"user_identifier_type" : @"optional_displayable"
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterPassword];
     
@@ -143,7 +182,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     // Wait for result immediately, no user action required.
     [self assertAccessTokenNotNil];
@@ -164,9 +203,9 @@
                              @"user_identifier_type" : @"optional_displayable",
                              @"web_view" : @"passed_in"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterPassword];
     
@@ -175,7 +214,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self assertAuthUIAppear];
 }
@@ -196,9 +235,9 @@
                              @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -213,9 +252,9 @@
                @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
                };
 
-    NSString *configJson2 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
 
-    [self acquireTokenSilent:configJson2];
+    [self acquireTokenSilent:config2];
     [self assertAccessTokenNotNil];
 }
 
@@ -235,9 +274,9 @@
                              @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -254,7 +293,7 @@
                                 @"resource" : self.testConfiguration.resource
                                 };
     
-    [self expireAccessToken:[keyParams toJsonString]];
+    [self expireAccessToken:keyParams];
     [self assertAccessTokenExpired];
     [self closeResultView];
     
@@ -264,11 +303,11 @@
                   @"authority" : self.testConfiguration.authority
                   };
     
-    [self invalidateRefreshToken:[keyParams toJsonString]];
+    [self invalidateRefreshToken:keyParams];
     [self assertRefreshTokenInvalidated];
     [self closeResultView];
     
-    [self acquireTokenSilent:configJson];
+    [self acquireTokenSilent:config];
     
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
@@ -295,9 +334,9 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              } mutableCopy];
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterPassword];
     
@@ -311,8 +350,8 @@
     [self loadPasswordForAccount:self.primaryAccount];
 
     params[@"user_identifier"] = self.primaryAccount.account;
-    NSString *configJson2 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    [self acquireToken:configJson2];
+    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    [self acquireToken:config2];
     
     [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
     
@@ -323,17 +362,17 @@
     // User 1, silent login.
     self.primaryAccount = self.testConfiguration.accounts[0];
     params[@"user_id"] = self.primaryAccount.account;
-    configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    [self expireAccessToken:configJson];
+    config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    [self expireAccessToken:config];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
-    [self acquireTokenSilent:configJson];
+    [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
     
     // User 2, silent login.
-    [self acquireTokenSilent:configJson2];
+    [self acquireTokenSilent:config2];
     [self assertAccessTokenNotNil];
 }
 
@@ -362,9 +401,9 @@
                              @"user_identifier_type" : @"optional_displayable"
                              } mutableCopy];
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
 
-    [self acquireToken:configJson];
+    [self acquireToken:config];
 
     // Change account to nr 2
     [self signInWithAnotherAccount];
@@ -382,9 +421,9 @@
     // Required Displayable, User 1.
     params[@"user_identifier_type"] = @"required_displayable";
 
-    NSString *configJson2 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
 
-    [self acquireToken:configJson2];
+    [self acquireToken:config2];
 
     // Change account
     [self signInWithAnotherAccount];
@@ -400,9 +439,9 @@
     // RequiredDisplayableId and not changing the user
 
     params[@"user_identifier"] = firstAccount.account;
-    NSString *configJson3 = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config3 = [self.testConfiguration configParametersWithAdditionalParams:params];
 
-    [self acquireToken:configJson3];
+    [self acquireToken:config3];
     [self aadEnterPassword];
     
     [self assertAccessTokenNotNil];
@@ -427,9 +466,9 @@
                              @"user_identifier_type" : @"optional_displayable"
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self aadEnterPassword];
     
     XCUIElement *enrollButton = self.testApp.buttons[@"Enroll now"];
@@ -446,6 +485,25 @@
     [self.testApp activate];
 }
 
+- (void)testSilentAADLogin_withNoTokensInCache
+{
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *silentParams = @{
+                                   @"user_id" : self.primaryAccount.account,
+                                   @"client_id" : self.testConfiguration.clientId,
+                                   @"authority" : self.testConfiguration.authority,
+                                   @"resource" : self.testConfiguration.resource
+                                   };
+
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+}
+
 - (void)DISABLED_testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes
 {
     MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
@@ -458,9 +516,9 @@
                              @"validate_authority" : @YES
                              };
 
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
 
-    [self acquireToken:configJson];
+    [self acquireToken:config];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Wait for 5 min"];
     [expectation performSelector:@selector(fulfill) withObject:nil afterDelay:300];
@@ -474,7 +532,7 @@
     [self closeResultView];
 
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
 
     [self assertAuthUIAppear];
 }
@@ -497,7 +555,7 @@
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:password];
 }
 

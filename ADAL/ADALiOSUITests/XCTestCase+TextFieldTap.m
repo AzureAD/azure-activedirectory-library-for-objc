@@ -21,40 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
-#import "MSIDTestAccountsProvider.h"
-#import "XCUIElement+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
-@class MSIDTestConfigurationRequest;
+@implementation XCTestCase (TextFieldTap)
 
-@interface ADALBaseUITest : XCTestCase
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
+{
+    XCUIElement *keyboard = [[[XCUIApplication new] keyboards] element];
 
-@property (nonatomic) XCUIApplication *testApp;
-@property (nonatomic) MSIDTestAccountsProvider *accountsProvider;
-@property (nonatomic) MSIDTestAccount *primaryAccount;
-@property (nonatomic) MSIDTestConfiguration *testConfiguration;
+    while (true)
+    {
+        [element tap];
 
-- (void)assertRefreshTokenInvalidated;
-- (void)assertAccessTokenExpired;
-- (void)assertAuthUIAppear;
-- (void)assertError:(NSString *)error;
-- (void)assertAccessTokenNotNil;
-- (void)assertRefreshTokenNotNil;
+        if (keyboard.exists)
+        {
+            break;
+        }
 
-- (void)closeResultView;
-- (void)invalidateRefreshToken:(NSDictionary *)config;
-- (void)expireAccessToken:(NSDictionary *)config;
-- (void)acquireToken:(NSDictionary *)config;
-- (void)acquireTokenSilent:(NSDictionary *)config;
-- (void)clearCache;
-- (void)clearCookies;
-- (void)aadEnterEmail:(NSString *)email;
-- (void)aadEnterEmail;
-- (void)closeAuthUI;
-
-- (void)waitForElement:(id)object;
-- (NSDictionary *)resultDictionary;
-- (void)loadTestConfiguration:(MSIDTestConfigurationRequest *)request;
-- (void)loadPasswordForAccount:(MSIDTestAccount *)account;
+        sleep(0.2f);
+    }
+    
+}
 
 @end

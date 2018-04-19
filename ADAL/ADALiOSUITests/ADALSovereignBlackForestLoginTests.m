@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALSovereignLoginTests : ADALBaseUITest
 
@@ -60,9 +61,9 @@
                              @"extra_qp": @"instance_aware=true",
                              @"authority" : @"https://login.microsoftonline.com/common"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
 
     XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
     [self waitForElement:emailTextField];
@@ -74,7 +75,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 
     [self closeAuthUI];
@@ -89,8 +90,8 @@
                                 @"authority" : @"https://login.microsoftonline.com/common"
                                 };
 
-    configJson = [[self.testConfiguration configParametersWithAdditionalParams:silentParams] toJsonString];
-    [self acquireTokenSilent:configJson];
+    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    [self acquireTokenSilent:config];
 
     [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
@@ -99,22 +100,22 @@
     silentParams = @{
                      @"user_id" : self.primaryAccount.account,
                      @"client_id" : self.testConfiguration.clientId,
-                     @"authority" : @"https://login.microsoftonline.de/common",
+                     @"authority" : self.testConfiguration.authority,
                      @"resource" : self.testConfiguration.resource
                      };
 
-    configJson = [[self.testConfiguration configParametersWithAdditionalParams:silentParams] toJsonString];
-    [self acquireTokenSilent:configJson];
+    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now expire access token
-    [self expireAccessToken:configJson];
+    [self expireAccessToken:config];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do access token refresh
-    [self acquireTokenSilent:configJson];
+    [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
 }
 
@@ -127,9 +128,9 @@
                              @"extra_qp": @"instance_aware=true",
                              @"authority" : @"https://login.microsoftonline.com/common"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self blackforestComEnterEmail];
     [self blackforestComEnterPassword];
@@ -138,7 +139,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -148,7 +149,7 @@
 {
     XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
     [self waitForElement:emailTextField];
-    [emailTextField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField];
     [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
 }
 
@@ -156,7 +157,7 @@
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 

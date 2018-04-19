@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALPingInteractiveLoginTests : ADALBaseUITest
 
@@ -53,9 +54,9 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterEmail];
     
@@ -66,7 +67,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -79,9 +80,9 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self pingEnterUsername];
     [self pingEnterPassword];
@@ -90,7 +91,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     // Wait for result, no user action required.
     [self assertAccessTokenNotNil];
@@ -102,7 +103,7 @@
 {
     XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
-    [usernameTextField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
     [usernameTextField typeText:self.primaryAccount.username];
 }
 
@@ -110,7 +111,7 @@
 {
     XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 

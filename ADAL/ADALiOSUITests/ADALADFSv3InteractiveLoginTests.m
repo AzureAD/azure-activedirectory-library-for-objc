@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALADFSv3InteractiveLoginTests : ADALBaseUITest
 
@@ -53,9 +54,9 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self aadEnterEmail];
     [self enterADFSv3Password];
@@ -64,7 +65,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -77,9 +78,9 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
     
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     
     [self enterADFSv3Password];
     
@@ -87,7 +88,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -97,7 +98,7 @@
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 

@@ -25,6 +25,8 @@
 #import "NSDictionary+ADALiOSUITests.h"
 #import "MSIDTestConfigurationRequest.h"
 #import "MSIDTestAccountsProvider.h"
+#import "XCTestCase+TextFieldTap.h"
+#import "NSDictionary+ADALiOSUITests.h"
 
 @implementation ADALBaseUITest
 
@@ -146,9 +148,9 @@
     {
         return;
     }
-    
-    [emailTextField pressForDuration:0.5f];
-    
+
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField];
+        
     // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
     // instead of empty string. In order to make it work we check that value of text field is not
     // equal to placeholder.
@@ -175,8 +177,9 @@
     [self.testApp.buttons[@"Done"] tap];
 }
 
-- (void)invalidateRefreshToken:(NSString *)jsonString
+- (void)invalidateRefreshToken:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Invalidate Refresh Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
@@ -184,8 +187,9 @@
     [self.testApp.buttons[@"Go"] tap];
 }
 
-- (void)expireAccessToken:(NSString *)jsonString
+- (void)expireAccessToken:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Expire Access Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
@@ -193,8 +197,9 @@
     [self.testApp.buttons[@"Go"] tap];
 }
 
-- (void)acquireToken:(NSString *)jsonString
+- (void)acquireToken:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Acquire Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
@@ -202,8 +207,9 @@
     [self.testApp.buttons[@"Go"] tap];
 }
 
-- (void)acquireTokenSilent:(NSString *)jsonString
+- (void)acquireTokenSilent:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Acquire Token Silent"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];

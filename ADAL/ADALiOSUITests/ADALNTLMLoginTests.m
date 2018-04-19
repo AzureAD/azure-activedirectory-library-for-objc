@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALNTLMLoginTests : ADALBaseUITest
 
@@ -54,8 +55,8 @@
                              @"user_identifier_type" : @"optional_displayable",
                              @"validate_authority" : @NO
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    [self acquireToken:configJson];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    [self acquireToken:config];
 
     [self ntlmWaitForAlert];
     [self ntlmEnterUsername];
@@ -66,7 +67,7 @@
     [self closeResultView];
 
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
 
     [self assertAuthUIAppear];
 }
@@ -79,8 +80,8 @@
                              @"validate_authority" : @NO,
                              @"web_view" : @"passed_in"
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    [self acquireToken:configJson];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    [self acquireToken:config];
 
     [self ntlmWaitForAlert];
     [self ntlmEnterUsername];
@@ -91,7 +92,7 @@
     [self closeResultView];
 
     // Acquire token again.
-    [self acquireToken:configJson];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -102,8 +103,8 @@
                              @"user_identifier_type" : @"optional_displayable",
                              @"validate_authority" : @NO
                              };
-    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
-    [self acquireToken:configJson];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    [self acquireToken:config];
 
     [self ntlmWaitForAlert];
     [self ntlmCancel];
@@ -121,14 +122,14 @@
 - (void)ntlmEnterUsername
 {
     XCUIElement *usernameField = [self.testApp.textFields firstMatch];
-    [usernameField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:usernameField];
     [usernameField typeText:self.primaryAccount.account];
 }
 
 - (void)ntlmEnterPassword
 {
     XCUIElement *passwordField = [self.testApp.secureTextFields firstMatch];
-    [passwordField pressForDuration:0.5f];
+    [self tapElementAndWaitForKeyboardToAppear:passwordField];
     [passwordField typeText:self.primaryAccount.password];
 }
 
