@@ -31,16 +31,17 @@
 
     while (true)
     {
-        [element tap];
+        [element pressForDuration:0.2f];
 
-        if (keyboard.exists)
+        if (keyboard.exists
+            && keyboard.hittable)
         {
+            sleep(0.2f);
             break;
         }
 
         sleep(0.2f);
     }
-    
 }
 
 @end
