@@ -167,6 +167,19 @@
     [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
 }
 
+- (void)aadEnterPassword
+{
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+}
+
+- (void)aadEnterPassword:(NSString *)password
+{
+    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [passwordTextField typeText:password];
+}
+
 - (void)closeAuthUI
 {
      [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] tap];

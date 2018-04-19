@@ -50,6 +50,8 @@
 - (void)clearCookies;
 - (void)aadEnterEmail:(NSString *)email;
 - (void)aadEnterEmail;
+- (void)aadEnterPassword;
+- (void)aadEnterPassword:(NSString *)password;
 - (void)closeAuthUI;
 
 - (void)waitForElement:(id)object;

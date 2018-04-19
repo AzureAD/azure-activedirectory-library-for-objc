@@ -96,7 +96,6 @@
     [self closeResultView];
 
     // Now do silent #296725 without providing user ID
-
     silentParams = @{
                      @"client_id" : self.testConfiguration.clientId,
                      @"authority" : self.testConfiguration.authority,
@@ -544,19 +543,6 @@
     XCUIElement *signIn = self.testApp.staticTexts[@"Sign in with another account"];
     [self waitForElement:signIn];
     [signIn tap];
-}
-
-- (void)aadEnterPassword
-{
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
-}
-
-- (void)aadEnterPassword:(NSString *)password
-{
-    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
-    [passwordTextField typeText:password];
 }
 
 @end
