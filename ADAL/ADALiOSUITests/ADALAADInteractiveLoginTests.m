@@ -70,6 +70,26 @@
     [self assertAuthUIAppear];
 }
 
+- (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled
+{
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES
+                             };
+
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+
+    [self acquireToken:configJson];
+    [self aadEnterEmail];
+    [self closeAuthUI];
+    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+}
+
 // #290995 iteration 2
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_ADALWebView
 {
@@ -89,7 +109,7 @@
     [self acquireToken:configJson];
     [self aadEnterPassword];
     
-    [self assertAccessTokenNotNil];;
+    [self assertAccessTokenNotNil];
     [self closeResultView];
     
     // Acquire token again.

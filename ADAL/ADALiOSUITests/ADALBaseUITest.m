@@ -72,7 +72,7 @@
     
     XCTAssertNotEqual([result[@"error"] length], 0);
     NSString *errorDescription = result[@"error_description"];
-    XCTAssertTrue([errorDescription containsString:@"error"]);
+    XCTAssertTrue([errorDescription containsString:error]);
 }
 
 - (void)assertAccessTokenNotNil
@@ -237,7 +237,7 @@
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:20.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 @end

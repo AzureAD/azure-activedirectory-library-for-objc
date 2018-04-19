@@ -57,10 +57,45 @@
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     [self acquireToken:configJson];
 
-    // TODO: enter credentials
+    [self ntlmWaitForAlert];
+    [self ntlmEnterUsername];
+    [self ntlmEnterPassword];
+    [self ntlmLogin];
+
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Acquire token again.
+    [self acquireToken:configJson];
+
+    [self assertAuthUIAppear];
 }
 
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
+{
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"validate_authority" : @NO,
+                             @"web_view" : @"passed_in"
+                             };
+    NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
+    [self acquireToken:configJson];
+
+    [self ntlmWaitForAlert];
+    [self ntlmEnterUsername];
+    [self ntlmEnterPassword];
+    [self ntlmLogin];
+
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Acquire token again.
+    [self acquireToken:configJson];
+    [self assertAuthUIAppear];
+}
+
+- (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView_andCancelAuth
 {
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
@@ -70,7 +105,43 @@
     NSString *configJson = [[self.testConfiguration configParametersWithAdditionalParams:params] toJsonString];
     [self acquireToken:configJson];
 
-    // TODO: enter credentials
+    [self ntlmWaitForAlert];
+    [self ntlmCancel];
+    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+}
+
+#pragma mark - Helpers
+
+- (void)ntlmWaitForAlert
+{
+    XCUIElement *ntlmAlert = self.testApp.alerts[@"Enter your credentials"];
+    [self waitForElement:ntlmAlert];
+}
+
+- (void)ntlmEnterUsername
+{
+    XCUIElement *usernameField = [self.testApp.textFields firstMatch];
+    [usernameField pressForDuration:0.5f];
+    [usernameField typeText:self.primaryAccount.account];
+}
+
+- (void)ntlmEnterPassword
+{
+    XCUIElement *passwordField = [self.testApp.secureTextFields firstMatch];
+    [passwordField pressForDuration:0.5f];
+    [passwordField typeText:self.primaryAccount.password];
+}
+
+- (void)ntlmLogin
+{
+    XCUIElement *ntlmAlert = self.testApp.alerts[@"Enter your credentials"];
+    [ntlmAlert.buttons[@"Login"] tap];
+}
+
+- (void)ntlmCancel
+{
+    XCUIElement *ntlmAlert = self.testApp.alerts[@"Enter your credentials"];
+    [ntlmAlert.buttons[@"Cancel"] tap];
 }
 
 @end
