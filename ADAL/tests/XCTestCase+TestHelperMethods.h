@@ -38,6 +38,8 @@
 @class MSIDAccessToken;
 @class MSIDRefreshToken;
 @class MSIDLegacySingleResourceToken;
+@class MSIDRequestParameters;
+@class MSIDAADV2TokenResponse;
 
 @interface XCTestCase (HelperMethods)
 
@@ -160,6 +162,10 @@
 - (MSIDAccessToken *)adCreateAccessToken;
 - (MSIDRefreshToken *)adCreateRefreshToken;
 - (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken;
+
+- (MSIDRequestParameters *)adCreateV2DefaultParams;
+- (MSIDAADV2TokenResponse *)adCreateV2TokenResponse;
+- (NSString *)adCreateV2IdToken;
 
 @end
 
