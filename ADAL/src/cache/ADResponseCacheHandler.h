@@ -22,24 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCacheItem.h"
 
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
-@class MSIDLegacySingleResourceToken;
-@class MSIDLegacyTokenCacheKey;
-@class MSIDTokenCacheItem;
+@class MSIDTokenResponse;
+@class MSIDSharedTokenCache;
+@class ADRequestParameters;
+@class MSIDBaseToken;
+@protocol MSIDRefreshableToken;
 
-@interface ADTokenCacheItem (MSIDTokens)
+@interface ADResponseCacheHandler : NSObject
 
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken;
-
-- (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
-
-- (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
-- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem;
-
-- (MSIDLegacyTokenCacheKey *)tokenCacheKey;
-- (MSIDTokenCacheItem *)tokenCacheItem;
++ (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
+                                   fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+                                              cache:(MSIDSharedTokenCache *)cache
+                                             params:(ADRequestParameters *)requestParams;
 
 @end

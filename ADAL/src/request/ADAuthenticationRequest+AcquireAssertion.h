@@ -24,6 +24,6 @@
 @interface ADAuthenticationRequest (AcquireAssertion)
 
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
-- (void)requestTokenByAssertion:(ADAuthenticationCallback)completionBlock;
+- (void)requestTokenByAssertion:(MSIDTokenResponseCallback)completionBlock;
 
 @end

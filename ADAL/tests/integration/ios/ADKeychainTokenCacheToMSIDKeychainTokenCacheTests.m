@@ -23,8 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import "ADKeychainTokenCache.h"
-#import "ADKeychainTokenCache+Internal.h"
+#import "ADLegacyKeychainTokenCache.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 #import "MSIDKeychainTokenCache.h"
@@ -59,7 +58,7 @@
 
 - (void)test_saveADALTokenInADALKeychain_MSIDKeychainShouldFindMSIDToken
 {
-    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
+    ADLegacyKeychainTokenCache *adKeychainTokenCache = [ADLegacyKeychainTokenCache new];
     NSDate *date = [NSDate new];
     NSDictionary *additionalServerInfo = @{@"key1": @"value1"};
     NSData *sessionKey = [@"test" dataUsingEncoding:NSUTF8StringEncoding];
@@ -119,7 +118,7 @@
     XCTAssertTrue(result);
     
     ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:TEST_RESOURCE clientId:TEST_CLIENT_ID error:nil];
-    ADKeychainTokenCache *adKeychainTokenCache = [ADKeychainTokenCache new];
+    ADLegacyKeychainTokenCache *adKeychainTokenCache = [ADLegacyKeychainTokenCache new];
     ADTokenCacheItem *item = [adKeychainTokenCache getItemWithKey:key userId:TEST_USER_ID correlationId:nil error:&error];
     
     XCTAssertNil(error);

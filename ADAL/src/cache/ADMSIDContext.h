@@ -22,24 +22,19 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCacheItem.h"
+#import "MSIDRequestContext.h"
 
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
-@class MSIDLegacySingleResourceToken;
-@class MSIDLegacyTokenCacheKey;
-@class MSIDTokenCacheItem;
+/* !
+ This is a wrapper class for MSIDRequestContext for cases, when only correlationId is provided
+ (some legacy token cache calls)
+ */
 
-@interface ADTokenCacheItem (MSIDTokens)
+@interface ADMSIDContext : NSObject <MSIDRequestContext>
 
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken;
+@property (nonatomic, readonly) NSUUID *correlationId;
+@property (nonatomic, readonly) NSString *logComponent;
+@property (nonatomic, readonly) NSString *telemetryRequestId;
 
-- (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
-
-- (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
-- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem;
-
-- (MSIDLegacyTokenCacheKey *)tokenCacheKey;
-- (MSIDTokenCacheItem *)tokenCacheItem;
+- (instancetype)initWithCorrelationId:(NSUUID *)correlationId;
 
 @end

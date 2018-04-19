@@ -23,7 +23,8 @@
 
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
-#import "ADTokenCacheAccessor.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAccount.h"
 
 @implementation ADRequestParameters
 
@@ -32,7 +33,6 @@
 @synthesize clientId = _clientId;
 @synthesize redirectUri = _redirectUri;
 @synthesize identifier = _identifier;
-@synthesize tokenCache = _tokenCache;
 @synthesize extendedLifetime = _extendedLifetime;
 @synthesize correlationId = _correlationId;
 @synthesize telemetryRequestId = _telemetryRequestId;
@@ -42,13 +42,11 @@
                clientId:(NSString *)clientId
             redirectUri:(NSString *)redirectUri
              identifier:(ADUserIdentifier *)identifier
-             tokenCache:(ADTokenCacheAccessor *)tokenCache
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
      telemetryRequestId:(NSString *)telemetryRequestId
            logComponent:(NSString *)logComponent
 {
-    (void)tokenCache;
     if (!(self = [super init]))
     {
         return nil;
@@ -59,7 +57,6 @@
     [self setClientId:clientId];
     [self setRedirectUri:redirectUri];
     [self setIdentifier:identifier];
-    [self setTokenCache:tokenCache];
     [self setExtendedLifetime:extendedLifetime];
     [self setCorrelationId:correlationId];
     [self setTelemetryRequestId:telemetryRequestId];
@@ -77,13 +74,11 @@
     parameters->_clientId = [_clientId copyWithZone:zone];
     parameters->_redirectUri = [_redirectUri copyWithZone:zone];
     parameters->_identifier = [_identifier copyWithZone:zone];
-    
-    // "copy" doesn't make much sense on the token cache object, as it's just a proxy around a data source
-    parameters->_tokenCache = _tokenCache;
     parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
+    parameters->_account = [_account copyWithZone:zone];
     
     return parameters;
 }
@@ -101,6 +96,25 @@
 - (void)setRedirectUri:(NSString *)redirectUri
 {
     _redirectUri = [redirectUri msidTrimmedString];
+}
+
+- (void)setIdentifier:(ADUserIdentifier *)identifier
+{
+    _identifier = identifier;
+    
+    self.account = [[MSIDAccount alloc] initWithLegacyUserId:self.identifier.userId
+                                                uniqueUserId:nil];
+}
+
+- (MSIDRequestParameters *)msidParameters
+{
+    NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
+    MSIDRequestParameters *requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                                    redirectUri:self.redirectUri
+                                                                                       clientId:self.clientId
+                                                                                         target:self.resource];
+    
+    return requestParameters;
 }
 
 @end

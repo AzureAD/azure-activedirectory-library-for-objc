@@ -21,25 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADTokenCacheItem.h"
+#import "MSIDBrokerResponse+ADAL.h"
 
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
-@class MSIDLegacySingleResourceToken;
-@class MSIDLegacyTokenCacheKey;
-@class MSIDTokenCacheItem;
+@implementation MSIDBrokerResponse (ADAL)
 
-@interface ADTokenCacheItem (MSIDTokens)
-
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken;
-
-- (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
-
-- (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
-- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem;
-
-- (MSIDLegacyTokenCacheKey *)tokenCacheKey;
-- (MSIDTokenCacheItem *)tokenCacheItem;
+- (BOOL)isAccessTokenInvalid
+{
+    // A bug in previous versions of broker would override the provided authority in some cases with
+    // common. If the intended tenant was something other then common then the access token may
+    // be bad, so clear it out. We will force a token refresh later.
+    NSArray *pathComponents = [[NSURL URLWithString:self.authority] pathComponents];
+    NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
+    BOOL fValidTenant = self.validAuthority != nil || [tenant isEqualToString:@"common"];
+    BOOL replay = [NSString msidIsStringNilOrBlank:self.clientInfo];
+    
+    return !fValidTenant || replay;
+}
 
 @end

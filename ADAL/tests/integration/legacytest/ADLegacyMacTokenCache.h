@@ -21,25 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 #import <Foundation/Foundation.h>
-#import "ADTokenCacheItem.h"
+#import "ADTokenCache.h"
 
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
-@class MSIDLegacySingleResourceToken;
-@class MSIDLegacyTokenCacheKey;
-@class MSIDTokenCacheItem;
+#define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
-@interface ADTokenCacheItem (MSIDTokens)
+@class ADAuthenticationError;
+@class ADTokenCacheItem;
 
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken;
+@interface ADLegacyMacTokenCache : ADTokenCache <ADTokenCacheDataSource>
+{
+    NSMutableDictionary* _cache;
+}
 
-- (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
+/*! Returns the default cache object using the ADTokenCacheDelegate set in
+    ADAuthenticationSettings */
++ (nonnull ADLegacyMacTokenCache *)defaultCache;
 
-- (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
-- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem;
+- (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
 
-- (MSIDLegacyTokenCacheKey *)tokenCacheKey;
-- (MSIDTokenCacheItem *)tokenCacheItem;
+- (nullable NSData *)serialize;
+- (BOOL)deserialize:(nullable NSData*)data
+              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+- (BOOL)validateCache:(nullable NSDictionary *)dict
+                error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
+
+- (nullable id<ADTokenCacheDelegate>)delegate;
 
 @end
