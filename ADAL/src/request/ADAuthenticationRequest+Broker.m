@@ -43,6 +43,7 @@
 #import "ADResponseCacheHandler.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 
 #if TARGET_OS_IPHONE
@@ -269,11 +270,13 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource];
         
         MSIDSharedTokenCache *cache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:primaryAccessor otherCacheAccessors:@[defaultAccessor]];
-        
-        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
-                                         saveRefreshTokenOnly:brokerResponse.isAccessTokenInvalid
-                                                      context:nil
-                                                        error:&msidError];
+
+        MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+        BOOL saveResult = [cache saveTokensWithFactory:factory
+                                         brokerResponse:brokerResponse
+                                   saveRefreshTokenOnly:brokerResponse.isAccessTokenInvalid
+                                                context:nil
+                                                  error:&msidError];
         
         if (!saveResult)
         {

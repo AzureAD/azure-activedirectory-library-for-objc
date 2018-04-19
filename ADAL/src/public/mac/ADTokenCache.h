@@ -59,4 +59,20 @@
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
+/* Removes all token cache items for a specific client and all users
+ */
+- (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
+                       error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+/* Removes all token cache items for a specific user and a specific clientId
+ */
+- (BOOL)removeAllForUserId:(NSString * __nonnull)userId
+                  clientId:(NSString * __nonnull)clientId
+                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+/* Removes all token cache items for a specific user and all clients
+ */
+- (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId
+                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
 @end

@@ -37,10 +37,10 @@
 #import "MSIDSharedTokenCache.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAccount.h"
-#import "MSIDAADV1TokenResponse.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
 #import "ADResponseCacheHandler.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -161,9 +161,11 @@
          }
          
          NSError *msidError = nil;
-         MSIDTokenResponse *tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:response
-                                                                                      refreshToken:cacheItem
-                                                                                             error:&msidError];
+         MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+         MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:response
+                                                              refreshToken:cacheItem
+                                                                   context:nil
+                                                                     error:&msidError];
          
          if (msidError)
          {
@@ -351,10 +353,10 @@
         {
             NSError *msidError = nil;
             
-            BOOL result = [self.tokenCache removeTokenForAccount:_requestParams.account
-                                                           token:item
-                                                         context:_requestParams
-                                                           error:&msidError];
+            BOOL result = [self.tokenCache removeToken:item
+                                            forAccount:_requestParams.account
+                                               context:_requestParams
+                                                 error:&msidError];
             
             if (!result)
             {

@@ -63,7 +63,7 @@ static NSDictionary *s_eventPropertiesDictionary;
         [self addPropertiesToDictionary:aggregatedEvent event:event];
     }
     
-    [_dispatcher dispatchEvent:aggregatedEvent];
+    [self dispatchEvent:aggregatedEvent];
 }
 
 - (void)receive:(NSString *)requestId
@@ -100,7 +100,7 @@ static NSDictionary *s_eventPropertiesDictionary;
     {
         ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
         
-        NSString* propertyKey = TELEMETRY_KEY(propertyName);
+        NSString* propertyKey = propertyName;
         
         if (collectionBehavior == CollectAndUpdate)
         {
