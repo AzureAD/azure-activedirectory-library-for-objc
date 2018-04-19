@@ -69,7 +69,7 @@
 		23B791A420119041008D4BD2 /* ADAutoRequestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23B791A320119041008D4BD2 /* ADAutoRequestViewController.xib */; };
 		23B791CA2012B54B008D4BD2 /* ADALBaseUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */; };
 		23B791CD2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */; };
-		23B791CF2012B7A9008D4BD2 /* ADALAADInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CE2012B7A9008D4BD2 /* ADALAADInteractiveLoginTests.m */; };
+		23B791CF2012B7A9008D4BD2 /* ADALAADLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */; };
 		23B791D12012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */; };
 		23B791D32012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */; };
 		23B791D52012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */; };
@@ -806,7 +806,7 @@
 		23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALBaseUITest.m; sourceTree = "<group>"; };
 		23B791CB2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+ADALiOSUITests.h"; sourceTree = "<group>"; };
 		23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+ADALiOSUITests.m"; sourceTree = "<group>"; };
-		23B791CE2012B7A9008D4BD2 /* ADALAADInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALAADInteractiveLoginTests.m; sourceTree = "<group>"; };
+		23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALAADLoginTests.m; sourceTree = "<group>"; };
 		23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALShibInteractiveLoginTests.m; sourceTree = "<group>"; };
 		23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALPingInteractiveLoginTests.m; sourceTree = "<group>"; };
 		23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALADFSv3InteractiveLoginTests.m; sourceTree = "<group>"; };
@@ -1323,7 +1323,7 @@
 				23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */,
 				23766BB12013D91E00449D47 /* NSDictionary+ADALiOSUITests.h */,
 				23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */,
-				23B791CE2012B7A9008D4BD2 /* ADALAADInteractiveLoginTests.m */,
+				23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */,
 				23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */,
 				23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */,
 				23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */,
@@ -2871,7 +2871,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23B791CF2012B7A9008D4BD2 /* ADALAADInteractiveLoginTests.m in Sources */,
+				23B791CF2012B7A9008D4BD2 /* ADALAADLoginTests.m in Sources */,
 				23766BB32013D91E00449D47 /* NSDictionary+ADALiOSUITests.m in Sources */,
 				B290F40F207C31AC0026F43D /* ADALNTLMLoginTests.m in Sources */,
 				23B791D32012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m in Sources */,
