@@ -38,8 +38,10 @@
 #import "ADAuthorityValidation.h"
 #import "MSIDSharedTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 #import "ADAuthenticationContext+TestUtil.h"
-
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDAADV2Oauth2Factory.h"
 #import "ADTokenCacheKey.h"
 
 #if TARGET_OS_IPHONE
@@ -70,6 +72,7 @@ const int sAsyncContextTimeout = 10;
 @interface ADAcquireTokenTests : ADTestCase
 
 @property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDSharedTokenCache *msalTokenCache;
 @property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
 
 @end
@@ -89,7 +92,10 @@ const int sAsyncContextTimeout = 10;
     
     MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
     
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    
+    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:@[defaultTokenCacheAccessor]];
+    self.msalTokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:defaultTokenCacheAccessor otherCacheAccessors:@[legacyTokenCacheAccessor]];
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
@@ -2155,5 +2161,52 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheItem *rtInCache = [self.cacheDataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
     XCTAssertNotNil(rtInCache);
 }
+
+#if TARGET_OS_IPHONE
+- (void)testAcquireToken_whenMrrtInCacheWrittenByMSAL_shouldBeAbleToFindAndUseIt
+{
+    // Write refresh token into keychain by using v2 token response
+    ADAuthenticationError *error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    BOOL result = [_msalTokenCache saveTokensWithFactory:factory
+                                           requestParams:[self adCreateV2DefaultParams]
+                                                response:[self adCreateV2TokenResponse]
+                                                 context:nil
+                                                   error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    ADTestURLResponse *mrrtResponse =
+    [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                       authority:TEST_AUTHORITY
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:@"new family refresh token"
+                  newAccessToken:@"new access token"
+                additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
+    [ADTestURLSession addResponse:mrrtResponse];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
+         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+#endif
 
 @end

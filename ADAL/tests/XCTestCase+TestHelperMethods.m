@@ -43,6 +43,8 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAADV2TokenResponse.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -616,6 +618,39 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return legacySingleResourceToken;
 }
 
+- (MSIDRequestParameters *)adCreateV2DefaultParams
+{
+    return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:TEST_AUTHORITY]
+                                                redirectUri:TEST_REDIRECT_URL_STRING
+                                                   clientId:TEST_CLIENT_ID
+                                                     target:@"https://graph.microsoft.com/mail.read"];
+}
+
+- (MSIDAADV2TokenResponse *)adCreateV2TokenResponse
+{
+    NSDictionary *jsonDictionary = @{@"access_token" : TEST_ACCESS_TOKEN,
+                                     @"refresh_token" : TEST_REFRESH_TOKEN,
+                                     @"id_token" : [self adCreateV2IdToken],
+                                     @"token_type": @"Bearer",
+                                     @"expires_in": @"3600",
+                                     @"client_info": [self base64UrlFromJson:@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"}],
+                                     @"scope": @"https://graph.microsoft.com/mail.read"
+                                     };
+    
+    return [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonDictionary error:nil];
+}
+
+- (NSString *)adCreateV2IdToken
+{
+    NSString *idTokenp1 = [self base64UrlFromJson:@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"}];
+    NSString *idTokenp2 = [self base64UrlFromJson:@{ @"iss" : @"issuer",
+                                                     @"name" : @"Eric",
+                                                     @"preferred_username" : TEST_USER_ID,
+                                                     @"tid" : @"1234-5678-90abcdefg",
+                                                     @"oid" : @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97"}];
+    return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+}
+
 #pragma mark - Private
 
 - (void)fillBaseToken:(MSIDBaseToken *)baseToken
@@ -638,6 +673,12 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
     [accessToken setValue:rawIdToken forKey:@"idToken"];
     [accessToken setValue:TEST_RESOURCE forKey:@"target"];
+}
+
+- (NSString *)base64UrlFromJson:(NSDictionary *)json
+{
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
+    return [NSString msidBase64UrlEncodeData:jsonData];
 }
 
 @end
