@@ -21,25 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADTokenCacheItem.h"
+#import <ADAL/ADAL.h>
 
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
-@class MSIDLegacySingleResourceToken;
-@class MSIDLegacyTokenCacheKey;
-@class MSIDTokenCacheItem;
+@interface ADAuthenticationContext (TestUtil)
 
-@interface ADTokenCacheItem (MSIDTokens)
-
-- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken;
-
-- (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
-
-- (instancetype)initWithLegacySingleResourceToken:(MSIDLegacySingleResourceToken *)legacySingleResourceToken;
-- (instancetype)initWithMSIDTokenCacheItem:(MSIDTokenCacheItem *)cacheItem;
-
-- (MSIDLegacyTokenCacheKey *)tokenCacheKey;
-- (MSIDTokenCacheItem *)tokenCacheItem;
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
 
 @end

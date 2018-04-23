@@ -72,7 +72,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     ADAuthenticationError* error = nil;
     NSArray* all = [mStore allItems:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertNotNil(all);
 
     return all.count;
@@ -168,26 +168,26 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item1 setRefreshToken:nil];
     [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 1);
     
     //getItemWithKey should be able to retrieve item1 from cache
     ADTokenCacheKey* key1 = [item1 extractKey:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId correlationId:nil error:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqualObjects(item1, retrievedItem1);
     
     
     //add item2 with refresh token
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
     [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 2);
     
     //getItemWithKey should be able to retrieve item2 from cache
     ADTokenCacheKey* key2 = [item2 extractKey:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     ADTokenCacheItem* retrievedItem2 = [mStore getItemWithKey:key2 userId:item2.userInformation.userId correlationId:nil error:&error];
     XCTAssertEqualObjects(item2, retrievedItem2);
     
@@ -203,13 +203,41 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 0);
 }
 
-- (void)testRemoveAllForClientId
+- (void)testRemoveAllForClientId_whenClientIdNil_shouldReturnNo
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError *error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    XCTAssertNil(error);
+    
+    //add three items with the same client ID and one with a different client ID
+    ADTokenCacheItem *item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
+    ADTokenCacheItem *item2 = [self adCreateCacheItem:@"stan@contoso.com"];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
+    ADTokenCacheItem *item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
+    ADTokenCacheItem *item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [item4 setClientId:@"a different client id"];
+    [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([self count], 4);
+    
+    //remove all items with nil client ID
+    NSString *clientId = nil;
+    XCTAssertFalse([mStore removeAllForClientId:clientId error:&error]);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+    XCTAssertEqual([self count], 4);
+}
+
+- (void)testRemoveAllForClientId_whenClientIdNotNil_shouldRemoveTokens
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADAuthenticationError* error;
     XCTAssertNotNil([mStore allItems:&error]);
-    ADAssertNoError;
+    XCTAssertNil(error);
     
     //add some items (ATs and RTs) with the same client ID and one with a different client ID
     ADTokenCacheItem* item1 = [self adCreateATCacheItem:TEST_RESOURCE userId:@"eric@contoso.com"];
@@ -221,24 +249,84 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheItem* item4 = [self adCreateCacheItem:@"rose@contoso.com"];
     [item4 setClientId:@"a different client id"];
     [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 4);
     
     //remove all items with client ID as TEST_CLIENT_ID
     [mStore removeAllForClientId:TEST_CLIENT_ID error:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 1);
     //only item4 is left in cache
     [self verifyCacheContainsItem:item4];
 }
 
-- (void)testRemoveAllForUserIdAndClientId
+- (void)testRemoveAllForUserIdAndClientId_whenUserIdNil_shouldReturnNo
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError *error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    XCTAssertNil(error);
+    
+    //add two items with the same client ID and same user ID but differnet resource
+    ADTokenCacheItem *item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item1 setResource:@"resource 1"];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
+    ADTokenCacheItem *item2 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item2 setResource:@"resource 2"];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
+    //add another two more items
+    ADTokenCacheItem *item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
+    ADTokenCacheItem *item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([self count], 4);
+    
+    //remove items with nil user ID
+    NSString *userId = nil;
+    XCTAssertFalse([mStore removeAllForUserId:userId clientId:TEST_CLIENT_ID error:&error]);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+    XCTAssertEqual([self count], 4);
+}
+
+- (void)testRemoveAllForUserIdAndClientId_whenClientIdNil_shouldReturnNo
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError *error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    XCTAssertNil(error);
+    
+    //add two items with the same client ID and same user ID but differnet resource
+    ADTokenCacheItem *item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item1 setResource:@"resource 1"];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
+    ADTokenCacheItem *item2 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item2 setResource:@"resource 2"];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
+    //add another two more items
+    ADTokenCacheItem *item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
+    ADTokenCacheItem *item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([self count], 4);
+    
+    //remove items with nil client ID
+    NSString *clientId = nil;
+    XCTAssertFalse([mStore removeAllForUserId:@"eric@contoso.com" clientId:clientId error:&error]);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+    XCTAssertEqual([self count], 4);
+}
+
+- (void)testRemoveAllForUserIdAndClientId_whenBothUserIdClientIdNotNil_shouldRemoveTokens
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADAuthenticationError* error;
     XCTAssertNotNil([mStore allItems:&error]);
-    ADAssertNoError;
+    XCTAssertNil(error);
     
     //add three items (ATs and RTs) with the same client ID and same user ID but differnet resource
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
@@ -260,7 +348,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
     [mStore removeAllForUserId:@"eric@contoso.com" clientId:TEST_CLIENT_ID error:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 2);
 
     //only item4 and item5 are left in cache
@@ -290,13 +378,46 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     return NO;
 }
 
-- (void)testWipeAllItemsForUserId_shouldDeleteAllItems
+- (void)testWipeAllItemsForUserId_whenUserIdNil_shouldReturnNo
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError *error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    XCTAssertNil(error);
+    
+    //add two items with the same user ID but differnet client ID
+    ADTokenCacheItem *item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item1 setClientId:@"client 1"];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
+    ADTokenCacheItem *item2 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item2 setClientId:@"client 2"];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
+    //add another two more items with different user ID but with same client ID as above
+    ADTokenCacheItem *item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [item3 setClientId:@"client 1"];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
+    ADTokenCacheItem *item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [item4 setClientId:@"client 2"];
+    [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual([self count], 4);
+    
+    //remove items with nil user ID
+    NSString *userId = nil;
+    XCTAssertFalse([mStore wipeAllItemsForUserId:userId error:&error]);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+    XCTAssertEqual([self count], 4);
+}
+
+- (void)testWipeAllItemsForUserId_whenUserIdNotNil_shouldDeleteAllItems
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADAuthenticationError* error;
     XCTAssertNotNil([mStore allItems:&error]);
-    ADAssertNoError;
+    XCTAssertNil(error);
     
     XCTAssertFalse([self wipeTokenDataExist]);
     
@@ -315,13 +436,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [item4 setClientId:@"client 2"];
     [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
 
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 4);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
     XCTAssertTrue([mStore wipeAllItemsForUserId:@"eric@contoso.com" error:&error]);
     
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertEqual([self count], 2);
 
     //check logWipeToken
@@ -337,7 +458,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAuthenticationError* error;
     
     NSArray* all = [mStore allItems:&error];
-    ADAssertNoError;
+    XCTAssertNil(error);
     XCTAssertNotNil(all);
     
     ADTokenCacheItem* read = nil;
@@ -363,7 +484,15 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     // Grab the default keychain query dict to make sure that we're
     // adding the garbage data in just the right place that we might
     // trip up the keychain code.
-    NSDictionary* defaultQuery = [cache defaultKeychainQuery];
+    
+    NSDictionary *defaultQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
+                                   (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
+                                   (id)kSecAttrAccessGroup: cache.sharedGroup
+                                   };
+    
+    // Depending on the environment we may or may not have keychain access groups. Which environments
+    // have keychain access group support also varies over time. They should always work on device,
+    // in Simulator they work when running within an app bundle but not in unit tests, as of Xcode 7.3
     NSMutableDictionary* addQuery = [NSMutableDictionary dictionaryWithDictionary:defaultQuery];
     
     void* bytes = malloc(1024);
@@ -402,13 +531,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                          [@"https://login.microsoftonline.com/common" msidBase64UrlEncode],
                          [@"<resource>" msidBase64UrlEncode],
                          // The underlying keychain code lowercases the client ID before saving it out to keychain
-                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed18f" msidBase64UrlEncode]];
+                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed180" msidBase64UrlEncode]];
     
     NSDictionary* query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
                              (id)kSecAttrAccount : [@"myfakeuser@contoso.com" msidBase64UrlEncode],
                              (id)kSecAttrService : service,
                              (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
-                             (id)kSecValueData : itemData,
+                             (id)kSecValueData : itemData
                              };
     
     OSStatus status = SecItemAdd((CFDictionaryRef)query, NULL);
@@ -420,7 +549,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:@"https://login.microsoftonline.com/common"
                                                     resource:@"<resource>"
                             // Client ID is upper cased here to make sure it does the proper case conversion
-                                                    clientId:@"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F"
+                                                    clientId:@"27AD83C9-FC05-4A6C-AF01-36EDA42ED180"
                                                        error:&error];
     XCTAssertNotNil(key);
     

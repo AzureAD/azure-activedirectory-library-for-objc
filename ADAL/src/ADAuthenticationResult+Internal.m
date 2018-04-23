@@ -27,6 +27,12 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "ADAuthenticationErrorConverter.h"
+#import "MSIDBrokerResponse.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "ADTokenCacheItem+MSIDTokens.h"
+#import "MSIDBrokerResponse+ADAL.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -103,6 +109,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                                      correlationId:correlationId];
     
     return result;
+}
+
++ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
+{
+    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
+    return [self resultFromError:adError];
+}
+
++ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
+                                  correlationId:(NSUUID *)correlationId
+{
+    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
+    return [self resultFromError:adError correlationId:correlationId];
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
@@ -197,37 +216,50 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
 }
 
-+ (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
++ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDBrokerResponse *)response
 {
     if (!response)
     {
         return [self resultForNoBrokerResponse];
     }
     
-    if ([response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
+    if (response.errorDescription)
     {
-        return [self resultForBrokerErrorResponse:response];
+        return [self resultForBrokerErrorResponse:response.formDictionary];
     }
     
-    NSUUID* correlationId =  nil;
-    NSString* correlationIdStr = [response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID *correlationId =  nil;
+    NSString *correlationIdStr = response.correlationId;
+    
     if (correlationIdStr)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];
     }
-
-    ADTokenCacheItem* item = [ADTokenCacheItem new];
-    [item setAccessTokenType:@"Bearer"];
-    BOOL isMRRT = [item fillItemWithResponse:response];
     
-    // A bug in previous versions of broker would override the provided authority in some cases with
-    // common. If the intended tenant was something other then common then the access token may
-    // be bad, so clear it out. We will force a token refresh later.
-    NSArray *pathComponents = [[NSURL URLWithString:item.authority] pathComponents];
-    NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
-    BOOL fValidTenant = response[@"vt"] != nil || [tenant isEqualToString:@"common"];
-    BOOL replay = [NSString msidIsStringNilOrBlank:item.userInformation.homeUserId];
-    if (!fValidTenant || replay)
+    NSError *msidError = nil;
+
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    
+    BOOL processResult = [factory verifyResponse:response.tokenResponse
+                                fromRefreshToken:NO
+                                         context:nil
+                                           error:&msidError];
+    
+    if (!processResult)
+    {
+        return [ADAuthenticationResult resultFromMSIDError:msidError];
+    }
+    
+    BOOL isMRRT = response.tokenResponse.isMultiResource;
+    
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority] redirectUri:nil clientId:response.clientId target:response.resource];
+    
+    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response.tokenResponse
+                                                                          request:parameters];
+    
+    ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
+    
+    if (response.isAccessTokenInvalid)
     {
         item.accessToken = nil;
     }

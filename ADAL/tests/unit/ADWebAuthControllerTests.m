@@ -29,6 +29,8 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTokenCache+Internal.h"
 #import "ADWebAuthController+Internal.h"
+#import "ADAuthenticationContext+TestUtil.h"
+#import "MSIDSharedTokenCache.h"
 
 @interface ADWebAuthControllerTests : ADTestCase
 
@@ -56,8 +58,7 @@
                                                  error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    [context setTokenCacheStore:tokenCache];
+    context.tokenCache = [MSIDSharedTokenCache new];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     return context;
@@ -134,3 +135,4 @@
 }
 
 @end
+

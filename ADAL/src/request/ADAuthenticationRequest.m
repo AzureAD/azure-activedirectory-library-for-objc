@@ -43,6 +43,12 @@
 static ADAuthenticationRequest* s_modalRequest = nil;
 static dispatch_semaphore_t s_interactionLock = nil;
 
+@interface ADAuthenticationRequest()
+
+@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+
+@end
+
 @implementation ADAuthenticationRequest
 
 @synthesize logComponent = _logComponent;
@@ -62,43 +68,23 @@ static dispatch_semaphore_t s_interactionLock = nil;
     s_interactionLock = dispatch_semaphore_create(1);
 }
 
-+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
-{
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:NO error:nil];
-    
-    return [self requestWithContext:context];
-}
-
-+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context
-{
-    ADAuthenticationRequest* request = [[ADAuthenticationRequest alloc] init];
-    if (!request)
-    {
-        return nil;
-    }
-    
-    request->_context = context;
-    ADRequestParameters *params = [ADRequestParameters new];
-    params.authority = context.authority;
-    params.tokenCache = context.tokenCacheStore;
-    request->_requestParams = params;
-    
-    return request;
-}
-
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
+                                    tokenCache:(MSIDSharedTokenCache *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL([requestParams clientId]);
     
-    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context requestParams:requestParams];
+    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context
+                                                                          requestParams:requestParams
+                                                                             tokenCache:tokenCache];
     return request;
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
         requestParams:(ADRequestParameters*)requestParams
+           tokenCache:(MSIDSharedTokenCache *)tokenCache
 {
     RETURN_IF_NIL(context);
     RETURN_IF_NIL([requestParams clientId]);
@@ -108,6 +94,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     
     _context = context;
     _requestParams = requestParams;
+    _tokenCache = tokenCache;
     
     _promptBehavior = AD_PROMPT_AUTO;
     
@@ -206,6 +193,8 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         _cloudAuthority = _context.authority;
     }
+    
+    _requestParams.cloudAuthority = _cloudAuthority;
 }
 
 #if AD_BROKER
