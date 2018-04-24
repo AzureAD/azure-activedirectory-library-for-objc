@@ -84,7 +84,7 @@
 
     // First try silent with WW authority
     NSDictionary *silentParams = @{
-                                @"user_id" : self.primaryAccount.account,
+                                @"user_identifier" : self.primaryAccount.account,
                                 @"client_id" : self.testConfiguration.clientId,
                                 @"resource" : self.testConfiguration.resource,
                                 @"authority" : @"https://login.microsoftonline.com/common"
@@ -98,7 +98,7 @@
 
     // Now try silent with correct authority - #296889
     silentParams = @{
-                     @"user_id" : self.primaryAccount.account,
+                     @"user_identifier" : self.primaryAccount.account,
                      @"client_id" : self.testConfiguration.clientId,
                      @"authority" : self.testConfiguration.authority,
                      @"resource" : self.testConfiguration.resource

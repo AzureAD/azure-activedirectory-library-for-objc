@@ -46,6 +46,7 @@
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
 @property (retain, nonatomic) NSString* scope;
+@property (retain, nonatomic, readonly) NSString* openidScope;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
 @property BOOL extendedLifetime;
 @property (retain, nonatomic) NSUUID* correlationId;

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+ // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -27,6 +27,7 @@
 #import "MSIDTestAccountsProvider.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "MSIDAADV1IdTokenWrapper.h"
 
 @implementation ADALBaseUITest
 
@@ -83,6 +84,17 @@
     
     XCTAssertTrue([result[@"access_token"] length] > 0);
     XCTAssertEqual([result[@"error"] length], 0);
+}
+
+- (NSDictionary *)resultIDTokenClaims
+{
+    NSDictionary *result = [self resultDictionary];
+
+    NSString *idToken = result[@"id_token"];
+    XCTAssertTrue([idToken length] > 0);
+
+    MSIDAADV1IdTokenWrapper *idTokenWrapper = [[MSIDAADV1IdTokenWrapper alloc] initWithRawIdToken:idToken];
+    return [idTokenWrapper jsonDictionary];
 }
 
 - (void)assertRefreshTokenNotNil

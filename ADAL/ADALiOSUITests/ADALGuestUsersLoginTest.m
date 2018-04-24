@@ -58,16 +58,18 @@
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
 
     // Now do silent #296725
     NSDictionary *silentParams = @{
-                                   @"user_id" : self.primaryAccount.account
+                                   @"user_identifier" : self.primaryAccount.account
                                    };
 
     config = [self.testConfiguration configParametersWithAdditionalParams:silentParams account:self.primaryAccount];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
 
     // Now expire access token
@@ -78,6 +80,7 @@
     // Now do access token refresh
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
 
     // Now do silent #296725 without providing user ID
@@ -86,6 +89,7 @@
     config = [self.testConfiguration configParametersWithAdditionalParams:silentParams account:self.primaryAccount];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
 }
 
@@ -96,7 +100,9 @@
     NSDictionary *homeParams = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"authority": @"https://login.microsoftonline.com/common"
+                             @"authority": @"https://login.microsoftonline.com/common",
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
     homeParams = [self.testConfiguration configParametersWithAdditionalParams:homeParams account:self.primaryAccount];
@@ -106,12 +112,17 @@
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
+
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.homeTenantId);
+
     [self closeResultView];
 
     // Sign in into guest tenant
     NSDictionary *guestParams = @{
-                             @"prompt_behavior" : @"auto", // Since ADAL doesn't have cross tenant support, it's expected to prompt
-                             @"validate_authority" : @YES
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
     guestParams = [self.testConfiguration configParametersWithAdditionalParams:guestParams account:self.primaryAccount];
@@ -120,25 +131,83 @@
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
+
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
+
     [self closeResultView];
 
     // Do silent for home tenant
-    NSDictionary *silentHomeParams = @{@"user_id": self.primaryAccount.account,
-                                       @"authority": @"https://login.microsoftonline.com/common"
+    NSDictionary *silentHomeParams = @{@"user_identifier": self.primaryAccount.account,
+                                       @"authority": @"https://login.microsoftonline.com/common",
+                                       @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
+                                       @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                                        };
     silentHomeParams = [self.testConfiguration configParametersWithAdditionalParams:silentHomeParams account:self.primaryAccount];
     [self expireAccessToken:silentHomeParams];
     [self assertAccessTokenExpired];
     [self closeResultView];
     [self acquireTokenSilent:silentHomeParams];
+    [self assertAccessTokenNotNil];
+
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.homeTenantId);
+
+    [self closeResultView];
 
     // Do silent for guest tenant
-    NSDictionary *silentGuestParams = @{@"user_id": self.primaryAccount.account};
+    NSDictionary *silentGuestParams = @{@"user_identifier": self.primaryAccount.account,
+                                        @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
+                                        @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                                        };
     silentGuestParams = [self.testConfiguration configParametersWithAdditionalParams:silentGuestParams account:self.primaryAccount];
     [self expireAccessToken:silentGuestParams];
     [self assertAccessTokenExpired];
     [self closeResultView];
     [self acquireTokenSilent:silentGuestParams];
+    [self assertAccessTokenNotNil];
+
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
+}
+
+- (void)testInteractiveAndSilentAADLogin_withPromptAuto_noLoginHint_ADALWebView_andGuestUserInHomeAndGuestTenant
+{
+    // Sign in home tenant
+    NSDictionary *homeParams = @{
+                                 @"prompt_behavior" : @"always",
+                                 @"validate_authority" : @YES,
+                                 @"authority": @"https://login.microsoftonline.com/common",
+                                 @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
+                                 @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                                 };
+
+    homeParams = [self.testConfiguration configParametersWithAdditionalParams:homeParams account:self.primaryAccount];
+
+    [self acquireToken:homeParams];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.homeTenantId);
+
+    [self closeResultView];
+    [self clearCookies];
+
+    // Sign in into guest tenant
+    NSDictionary *guestParams = @{
+                                  @"user_identifier": self.primaryAccount.account,
+                                  @"prompt_behavior" : @"auto",
+                                  @"validate_authority" : @YES,
+                                  @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
+                                  @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                                  };
+
+    guestParams = [self.testConfiguration configParametersWithAdditionalParams:guestParams account:self.primaryAccount];
+    [self acquireToken:guestParams];
+    [self assertAccessTokenNotNil];
+
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
+
+    [self closeResultView];
 }
 
 @end

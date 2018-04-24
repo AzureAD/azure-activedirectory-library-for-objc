@@ -34,6 +34,8 @@
 #import "ADAutoWebViewController.h"
 #import "MSIDAadAuthorityCache.h"
 #import "ADHelpers.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDTokenCacheKey.h"
 
 @interface ADAutoMainViewController ()
 
@@ -171,6 +173,7 @@
                            promptBehavior:promptBehavior
                            userIdentifier:userIdentifier
                      extraQueryParameters:parameters[@"extra_qp"]
+                                   claims:parameters[@"claims"]
                           completionBlock:^(ADAuthenticationResult *result)
          {
              [weakSelf.webViewController dismissViewControllerAnimated:NO completion:nil];
@@ -260,14 +263,10 @@
 {
     (void)sender;
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
-    NSArray* allItems = [cache allItems:nil];
+    NSUInteger allItemsCount = [[[ADKeychainTokenCache new] allItems:nil] count];
+    [[MSIDKeychainTokenCache new] removeItemsWithKey:[MSIDTokenCacheKey queryForAllItems] context:nil error:nil];
     
-    for (id object in allItems) {
-        [cache removeItem:object error:nil];
-    }
-    
-    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItems.count]
+    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItemsCount]
                        logs:_resultLogs];
 }
 
@@ -313,7 +312,7 @@
                                                            error:nil];
         
         NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
-                                                             userId:parameters[@"user_id"]
+                                                             userId:parameters[@"user_identifier"]
                                                       correlationId:nil
                                                               error:nil];
         
@@ -365,7 +364,7 @@
                                                            error:nil];
         
         NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
-                                                             userId:parameters[@"user_id"]
+                                                             userId:parameters[@"user_identifier"]
                                                       correlationId:nil
                                                               error:nil];
         

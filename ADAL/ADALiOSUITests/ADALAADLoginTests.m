@@ -74,7 +74,7 @@
 
     // Now do silent #296725
     NSDictionary *silentParams = @{
-                     @"user_id" : self.primaryAccount.account,
+                     @"user_identifier" : self.primaryAccount.account,
                      @"client_id" : self.testConfiguration.clientId,
                      @"authority" : self.testConfiguration.authority,
                      @"resource" : self.testConfiguration.resource
@@ -286,7 +286,7 @@
     [self closeResultView];
     
     NSDictionary *keyParams = @{
-                                @"user_id" : self.primaryAccount.account,
+                                @"user_identifier" : self.primaryAccount.account,
                                 @"client_id" : @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
                                 @"authority" : self.testConfiguration.authority,
                                 @"resource" : self.testConfiguration.resource
@@ -297,7 +297,7 @@
     [self closeResultView];
     
     keyParams = @{
-                  @"user_id" : self.primaryAccount.account,
+                  @"user_identifier" : self.primaryAccount.account,
                   @"client_id" : @"foci-1",
                   @"authority" : self.testConfiguration.authority
                   };
@@ -360,7 +360,7 @@
     
     // User 1, silent login.
     self.primaryAccount = self.testConfiguration.accounts[0];
-    params[@"user_id"] = self.primaryAccount.account;
+    params[@"user_identifier"] = self.primaryAccount.account;
     config = [self.testConfiguration configParametersWithAdditionalParams:params];
     [self expireAccessToken:config];
     [self assertAccessTokenExpired];
@@ -492,7 +492,7 @@
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *silentParams = @{
-                                   @"user_id" : self.primaryAccount.account,
+                                   @"user_identifier" : self.primaryAccount.account,
                                    @"client_id" : self.testConfiguration.clientId,
                                    @"authority" : self.testConfiguration.authority,
                                    @"resource" : self.testConfiguration.resource
@@ -501,6 +501,57 @@
     NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
     [self acquireTokenSilent:config];
     [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+}
+
+- (void)testSilentAADLogin_withNoUserProvided_multipleUsersInCache
+{
+    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.needsMultipleUsers = YES;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
+
+    // User 1.
+    NSMutableDictionary *params = [@{
+                                     @"prompt_behavior" : @"always",
+                                     @"validate_authority" : @YES,
+                                     @"user_identifier" : self.primaryAccount.account,
+                                     @"user_identifier_type" : @"optional_displayable"
+                                     } mutableCopy];
+    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+
+    [self acquireToken:config];
+
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+
+    [self closeResultView];
+
+    // User 2.
+    self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
+
+    params[@"user_identifier"] = self.primaryAccount.account;
+    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    [self acquireToken:config2];
+
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    // User 1, silent login.
+    self.primaryAccount = self.testConfiguration.accounts[0];
+    params[@"user_identifier"] = nil;
+    config = [self.testConfiguration configParametersWithAdditionalParams:params];
+
+    [self acquireTokenSilent:config];
+    [self assertError:@"AD_ERROR_CACHE_MULTIPLE_USERS"];
 }
 
 - (void)DISABLED_testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes

@@ -39,6 +39,7 @@
 - (void)assertAuthUIAppear;
 - (void)assertError:(NSString *)error;
 - (void)assertAccessTokenNotNil;
+- (NSDictionary *)resultIDTokenClaims;
 - (void)assertRefreshTokenNotNil;
 
 - (void)closeResultView;

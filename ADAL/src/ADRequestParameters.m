@@ -117,4 +117,20 @@
     return requestParameters;
 }
 
+- (NSString *)openidScope
+{
+    if (!self.scope)
+    {
+        return @"openid";
+    }
+
+    NSArray *scopes = [self.scope componentsSeparatedByString:@" "];
+    if (![scopes containsObject:@"openid"])
+    {
+        return [NSString stringWithFormat:@"openid %@", self.scope];
+    }
+
+    return @"openid";
+}
+
 @end

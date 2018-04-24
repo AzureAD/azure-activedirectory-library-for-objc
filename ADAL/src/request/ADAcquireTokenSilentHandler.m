@@ -137,11 +137,8 @@
     {
         [request_data setObject:[_requestParams resource] forKey:MSID_OAUTH2_RESOURCE];
     }
-    
-    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
-    {
-        request_data[MSID_OAUTH2_SCOPE] = _requestParams.scope;
-    }
+
+    request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScope;
     
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]

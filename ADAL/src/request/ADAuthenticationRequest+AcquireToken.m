@@ -378,19 +378,7 @@
              BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
              if (result.status == AD_SUCCEEDED && replay)
              {
-                 if (_requestParams.scope == nil)
-                 {
-                    [self setScope:@"openid"];
-                 }
-                 else
-                 {
-                     NSArray *scopes = [_requestParams.scope componentsSeparatedByString:@" "];
-                     if (![scopes containsObject:@"openid"])
-                     {
-                         [self setScope:[NSString stringWithFormat:@"openid %@", _requestParams.scope]];
-                     }
-                 }
-                 
+                 [self setScope:_requestParams.openidScope];
                  [self getAccessToken:completionBlock];
                  return;
              }
