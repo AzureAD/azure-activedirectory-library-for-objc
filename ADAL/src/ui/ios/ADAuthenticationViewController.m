@@ -26,12 +26,17 @@
 #import "ADLogger.h"
 #import "ADALFrameworkUtils.h"
 #import "UIApplication+ADExtensions.h"
+#import <UIKit/UIKit.h>
+#import "ADAppExtensionUtil.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
 
 @interface ADAuthenticationViewController ( ) <UIWebViewDelegate>
 {
     UIActivityIndicatorView* _activityIndicator;
+    UIBackgroundTaskIdentifier _bgTask;
+    id _bgObserver;
+    id _foregroundObserver;
 }
 
 @end
@@ -53,12 +58,12 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
         _webView.delegate = self;
         return YES;
     }
-    
+
     if (!_parentController)
     {
         _parentController = [UIApplication adCurrentViewController];
     }
-    
+
     if (!_parentController)
     {
         // Must have a parent view controller to start the authentication view
@@ -67,14 +72,14 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
                                                protocolCode:nil
                                                errorDetails:AD_FAILED_NO_CONTROLLER
                                               correlationId:nil];
-        
+
         if (error)
         {
             *error = adError;
         }
         return NO;
     }
-    
+
     UIView* rootView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
@@ -83,26 +88,34 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     [webView setDelegate:self];
     [rootView addSubview:webView];
     _webView = webView;
-    
+
     _activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [_activityIndicator setColor:[UIColor blackColor]];
     [_activityIndicator setCenter:rootView.center];
     [rootView addSubview:_activityIndicator];
-    
+
     self.view = rootView;
-    
+
     UIBarButtonItem* cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self
                                                                                   action:@selector(onCancel:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-    
+
+    /* Start background transition tracking,
+     so we can start a background task, when app transitions to background */
+    if (![ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        [self startTrackingBackroundAppTransition];
+    }
+
     return YES;
 }
 
-/*! set webview's delegate to nil when the view controller 
-    is deallocated, or it might crash ADAL. */
+/*! set webview's delegate to nil when the view controller
+ is deallocated, or it might crash ADAL. */
 -(void)dealloc
 {
+    [self cleanupBackgroundTask];
     [_webView setDelegate:nil];
     _webView = nil;
 }
@@ -112,7 +125,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     if ( (NSUInteger)[[[UIDevice currentDevice] systemVersion] doubleValue] < 7)
     {
         [self.navigationController.navigationBar setTintColor:[UIColor darkGrayColor]];
@@ -122,7 +135,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)viewDidUnload
 {
     DebugLog();
-    
+
     [super viewDidUnload];
 }
 
@@ -148,6 +161,8 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)stop:(void (^)(void))completion
 {
+    [self cleanupBackgroundTask];
+
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
     if (_parentController)
@@ -158,7 +173,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     {
         completion();
     }
-    
+
     _parentController = nil;
     _delegate = nil;
 }
@@ -166,9 +181,9 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)startRequest:(NSURLRequest *)request
 {
     [self loadRequest:request];
-	
-	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
-	
+
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
+
     if (_fullScreen)
     {
         [navController setModalPresentationStyle:UIModalPresentationFullScreen];
@@ -177,7 +192,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     {
         [navController setModalPresentationStyle:UIModalPresentationFormSheet];
     }
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [_parentController presentViewController:navController animated:YES completion:nil];
     });
@@ -200,7 +215,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 {
     (void)webView;
     (void)navigationType;
-    
+
     // Forward to the UIWebView controller
     return [_delegate webAuthShouldStartLoadRequest:request];
 }
@@ -225,6 +240,110 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 {
     (void)webView;
     [_delegate webAuthDidFailWithError:error];
+}
+
+#pragma mark - Background task
+
+- (void)startTrackingBackroundAppTransition
+{
+    if (_bgObserver)
+    {
+        return;
+    }
+
+    _bgObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification
+                                                                    object:nil
+                                                                     queue:nil
+                                                                usingBlock:^(__unused NSNotification *notification)
+                   {
+                       AD_LOG_VERBOSE(nil, @"Application will resign active");
+                       [self startTrackingForegroundAppTransition];
+                       [self startBackgroundTask];
+                   }];
+}
+
+- (void)stopTrackingBackgroundAppTransition
+{
+    if (_bgObserver)
+    {
+        AD_LOG_VERBOSE(nil, @"Stop background application tracking");
+        [[NSNotificationCenter defaultCenter] removeObserver:_bgObserver];
+        _bgObserver = nil;
+    }
+}
+
+- (void)startTrackingForegroundAppTransition
+{
+    if (_foregroundObserver)
+    {
+        return;
+    }
+
+    _foregroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                                            object:nil
+                                                                             queue:nil
+                                                                        usingBlock:^(__unused NSNotification * _Nonnull note) {
+
+                                                                            AD_LOG_VERBOSE(nil, @"Application did become active");
+                                                                            [self stopBackgroundTask];
+                                                                            [self stopTrackingForegroundAppTransition];
+                                                                        }];
+}
+
+- (void)stopTrackingForegroundAppTransition
+{
+    if (_foregroundObserver)
+    {
+        AD_LOG_VERBOSE(nil, @"Stop foreground application tracking");
+
+        [[NSNotificationCenter defaultCenter] removeObserver:_foregroundObserver];
+        _foregroundObserver = nil;
+    }
+}
+
+/*
+ Background task execution:
+ https://forums.developer.apple.com/message/253232#253232
+ */
+
+- (void)startBackgroundTask
+{
+    if (_bgTask != UIBackgroundTaskInvalid)
+    {
+        // Background task already started
+        return;
+    }
+
+    AD_LOG_INFO(nil, @"Start background app task");
+
+    _bgTask = [[ADAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
+                                                                expirationHandler:^{
+                                                                    AD_LOG_INFO(nil, @"Background task expired");
+                                                                    [self stopBackgroundTask];
+                                                                    [self stopTrackingForegroundAppTransition];
+                                                                }];
+}
+
+- (void)stopBackgroundTask
+{
+    if (_bgTask == UIBackgroundTaskInvalid)
+    {
+        // Background task already ended or not started
+        return;
+    }
+
+    AD_LOG_INFO(nil, @"Stop background task");
+    [[ADAppExtensionUtil sharedApplication] endBackgroundTask:_bgTask];
+    _bgTask = UIBackgroundTaskInvalid;
+}
+
+- (void)cleanupBackgroundTask
+{
+    [self stopTrackingBackgroundAppTransition];
+
+    // If authentication is stopped while app is in background
+    [self stopTrackingForegroundAppTransition];
+    [self stopBackgroundTask];
 }
 
 @end
