@@ -1,0 +1,8 @@
+//
+//  adal__integrationtest__mac.xcconfig
+//
+
+#include "adal__test__common__mac.xcconfig"
+#include "adal__integrationtest.xcconfig"
+
+INFOPLIST_FILE = tests/integration/mac/ADAL_Mac_ITs-Info.plist

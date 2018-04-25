@@ -26,6 +26,6 @@
 
 @interface NSUUID (ADExtensions)
 
-- (NSString*)adTrimmedString;
+- (NSString*)msidTrimmedString;
 
 @end

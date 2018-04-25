@@ -23,7 +23,6 @@
 
 #import "ADWorkPlaceJoinUtil.h"
 #import "ADKeychainUtil.h"
-#import "ADLogger+Internal.h"
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADRegistrationInformation.h"
 
@@ -42,7 +41,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
 
 @implementation ADWorkPlaceJoinUtil
 
-+ (ADRegistrationInformation *)getRegistrationInformation:(id<ADRequestContext>)context
++ (ADRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                                     error:(ADAuthenticationError * __autoreleasing *)error
 {
     ADRegistrationInformation *info = nil;
@@ -59,7 +58,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         *error = nil;
     }
     
-    AD_LOG_VERBOSE(context.correlationId, @"Attempting to get WPJ registration information");
+    MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information");
     
     [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer context:context error:&adError];
     if (adError)
@@ -68,7 +67,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR(context.correlationId, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)adError.code);
+        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)adError.code);
         goto _error;
     }
     
@@ -83,7 +82,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
     // Get the private key
-    AD_LOG_VERBOSE(context.correlationId, @"Retrieving WPJ private key reference.");
+    MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
     
     privateKey = [self copyPrivateKeyRefForIdentifier:kADALPrivateKeyIdentifier context:context error:&adError];
     if (adError)
@@ -92,7 +91,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = adError;
         }
-        AD_LOG_ERROR(context.correlationId, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)adError.code);
+        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)adError.code);
         goto _error;
     }
     
@@ -139,7 +138,7 @@ _error:
 + (void)copyCertificate:(SecCertificateRef __nullable * __nonnull)certificate
                identity:(SecIdentityRef __nullable * __nonnull)identity
                  issuer:(NSString * __nullable * __nonnull)issuer
-                context:(id<ADRequestContext>)context
+                context:(id<MSIDRequestContext>)context
                 error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     OSStatus status = noErr;
@@ -164,7 +163,7 @@ _error:
             *error = adError;
         }
         
-        AD_LOG_ERROR(context.correlationId, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)adError.code);
+        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)adError.code);
         goto _error;
     }
     
@@ -220,7 +219,7 @@ _error:
 }
 
 
-+ (SecCertificateRef)copyWPJCertificateRef:(id<ADRequestContext>)context
++ (SecCertificateRef)copyWPJCertificateRef:(id<MSIDRequestContext>)context
                                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     OSStatus status= noErr;
@@ -253,7 +252,7 @@ _error:
 }
 
 + (SecKeyRef)copyPrivateKeyRefForIdentifier:(NSString *)identifier
-                                    context:(id<ADRequestContext>)context
+                                    context:(id<MSIDRequestContext>)context
                                       error:(ADAuthenticationError* __nullable __autoreleasing * __nullable)error
 {
     OSStatus status= noErr;

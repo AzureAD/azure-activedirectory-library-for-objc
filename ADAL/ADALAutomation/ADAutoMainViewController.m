@@ -31,13 +31,13 @@
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
-
+#import "ADAutoWebViewController.h"
 
 @interface ADAutoMainViewController ()
-{
-    NSMutableString *_resultLogs;
-    
-}
+
+@property (nonatomic) ADAutoWebViewController *webViewController;
+@property (nonatomic) ADAutoRequestViewController *requestViewController;
+@property (nonatomic) NSMutableString *resultLogs;
 
 @end
 
@@ -46,35 +46,21 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
 
     [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
     {
-        if (_resultLogs)
+        if (self.resultLogs)
         {
-            [_resultLogs appendString:message];
+            [self.resultLogs appendString:message];
         }
     }];
     
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
 }
 
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     (void)sender;
-    
-    if ([segue.identifier isEqualToString:@"showRequest"])
-    {
-        ADAutoRequestViewController *requestVC = segue.destinationViewController;
-        requestVC.completionBlock = sender[@"completionBlock"];
-    }
-    
     
     if ([segue.identifier isEqualToString:@"showResult"])
     {
@@ -89,15 +75,18 @@
 {
     (void)sender;
     
-    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
         _resultLogs = [NSMutableString new];
         
         if(parameters[@"error"])
         {
-            [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]
-                                   logs:_resultLogs];
+            
+            [weakSelf dismissViewControllerAnimated:NO completion:^{
+                [weakSelf displayResultJson:parameters[@"error"]
+                                   logs:weakSelf.resultLogs];
             }];
             return;
         }
@@ -112,6 +101,16 @@
         [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                          validateAuthority:validateAuthority
                                                      error:nil];
+        
+        NSString *webViewType = parameters[@"web_view"];
+        if (webViewType && [webViewType isEqualToString:@"passed_in"])
+        {
+            weakSelf.webViewController = [ADAutoWebViewController new];
+            __unused id view = weakSelf.webViewController.view; // Load view.
+            [context setWebView:weakSelf.webViewController.webView];
+            
+            [weakSelf.requestViewController presentViewController:weakSelf.webViewController animated:NO completion:nil];
+        }
         
         if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
         {
@@ -156,6 +155,11 @@
                     userIdentifier = [ADUserIdentifier identifierWithId:userId
                                                          typeFromString:@"OptionalDisplayableId"];
                 }
+                else if ([[userIdType lowercaseString] isEqualToString:@"required_displayable"])
+                {
+                    userIdentifier = [ADUserIdentifier identifierWithId:userId
+                                                         typeFromString:@"RequiredDisplayableId"];
+                }
             }
         }
         
@@ -167,30 +171,33 @@
                      extraQueryParameters:parameters[@"extra_qp"]
                           completionBlock:^(ADAuthenticationResult *result)
          {
-             [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayAuthenticationResult:result
-                                              logs:_resultLogs];
+             [weakSelf.webViewController dismissViewControllerAnimated:NO completion:nil];
+             weakSelf.webViewController = nil;
+             [weakSelf dismissViewControllerAnimated:NO completion:^{
+                 [weakSelf displayAuthenticationResult:result
+                                              logs:weakSelf.resultLogs];
              }];
          }];
     };
 
-    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
-
 
 - (IBAction)acquireTokenSilent:(id)sender
 {
     (void)sender;
     
-    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
         _resultLogs = [NSMutableString new];
         
         if(parameters[@"error"])
         {
-            [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]
-                                   logs:_resultLogs];
+            [weakSelf dismissViewControllerAnimated:NO completion:^{
+                [weakSelf displayResultJson:parameters[@"error"]
+                                   logs:weakSelf.resultLogs];
             }];
             return;
         }
@@ -216,13 +223,14 @@
                                          userId:parameters[@"user_identifier"]
                                 completionBlock:^(ADAuthenticationResult *result)
          {
-             [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayAuthenticationResult:result
-                                              logs:_resultLogs];
+             [weakSelf dismissViewControllerAnimated:NO completion:^{
+                 [weakSelf displayAuthenticationResult:result
+                                              logs:weakSelf.resultLogs];
              }];
          }];
     };
-    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
+    
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
 
 - (IBAction)readCache:(id)sender
@@ -261,19 +269,35 @@
                        logs:_resultLogs];
 }
 
+- (IBAction)clearCookies:(id)sender
+{
+    NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    int count = 0;
+    for (NSHTTPCookie *cookie in cookieStore.cookies)
+    {
+        [cookieStore deleteCookie:cookie];
+        count++;
+    }
+    
+    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)count]
+                       logs:_resultLogs];
+}
+
 - (IBAction)invalidateRefreshToken:(id)sender
 {
     (void)sender;
     
-    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
         _resultLogs = [NSMutableString new];
         
         if(parameters[@"error"])
         {
-            [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]
-                                   logs:_resultLogs];
+            [weakSelf dismissViewControllerAnimated:NO completion:^{
+                [weakSelf displayResultJson:parameters[@"error"]
+                                   logs:weakSelf.resultLogs];
             }];
         }
         
@@ -300,26 +324,29 @@
             }
         }
         
-        [self dismissViewControllerAnimated:NO completion:^{
-            [self displayResultJson:[NSString stringWithFormat:@"{\"invalidated_refresh_token_count\":\"%d\"}", refreshTokenCount]
-                               logs:_resultLogs];
+        [weakSelf dismissViewControllerAnimated:NO completion:^{
+            [weakSelf displayResultJson:[NSString stringWithFormat:@"{\"invalidated_refresh_token_count\":\"%d\"}", refreshTokenCount]
+                               logs:weakSelf.resultLogs];
         }];
     };
-    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
+    
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
 
 - (IBAction)expireAccessToken:(id)sender
 {
     (void)sender;
     
-    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> *parameters)
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> *parameters)
     {
-        _resultLogs = [NSMutableString new];
+        weakSelf.resultLogs = [NSMutableString new];
         if(parameters[@"error"])
         {
-            [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]
-                                   logs:_resultLogs];
+            [weakSelf dismissViewControllerAnimated:NO completion:^{
+                [weakSelf displayResultJson:parameters[@"error"]
+                                   logs:weakSelf.resultLogs];
             }];
             return;
         }
@@ -346,12 +373,13 @@
             }
         }
         
-        [self dismissViewControllerAnimated:NO completion:^{
-            [self displayResultJson:[NSString stringWithFormat:@"{\"expired_access_token_count\":\"%d\"}", accessTokenCount]
-                               logs:_resultLogs];
+        [weakSelf dismissViewControllerAnimated:NO completion:^{
+            [weakSelf displayResultJson:[NSString stringWithFormat:@"{\"expired_access_token_count\":\"%d\"}", accessTokenCount]
+                               logs:weakSelf.resultLogs];
         }];
     };
-    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
+    
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
 
 - (void)displayAuthenticationResult:(ADAuthenticationResult *)result logs:(NSString *)resultLogs

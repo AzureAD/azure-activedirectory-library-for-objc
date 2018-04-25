@@ -33,11 +33,15 @@
 @class ADUserInformation;
 @class ADTokenCacheKey;
 @class ADTestURLResponse;
+@class MSIDTokenCacheItem;
+@class MSIDClientInfo;
+@class MSIDAccessToken;
+@class MSIDRefreshToken;
+@class MSIDLegacySingleResourceToken;
+@class MSIDRequestParameters;
+@class MSIDAADV2TokenResponse;
 
 @interface XCTestCase (HelperMethods)
-
-+ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
-                                      tenantId:(NSString *)tid;
 
 - (void)adAssertStringEquals:(NSString *)actual
             stringExpression:(NSString *)expression
@@ -135,7 +139,6 @@
 - (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
                                    userId:(NSString *)userId;
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
@@ -146,7 +149,23 @@
 - (ADTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object
-- (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeUserId:(NSString *)homeUserId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeUserId:(NSString *)homeUserId;
+
+- (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
+- (MSIDTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
+- (MSIDTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
+
+- (MSIDClientInfo *)adCreateClientInfo;
+
+- (MSIDAccessToken *)adCreateAccessToken;
+- (MSIDRefreshToken *)adCreateRefreshToken;
+- (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken;
+
+- (MSIDRequestParameters *)adCreateV2DefaultParams;
+- (MSIDAADV2TokenResponse *)adCreateV2TokenResponse;
+- (NSString *)adCreateV2IdToken;
 
 @end
 
