@@ -1,6 +1,6 @@
 Version 2.6.3 (04.24.2018)
 -------------
-* Workaround iOS 11.3 issue, when backgrounding application during the interactive authentication
+* Fixed iOS 11.3 issue, when backgrounding application during the interactive authentication fails the login flow (#1196)
 
 Version 2.6.2 (03.27.2018)
 -------------
