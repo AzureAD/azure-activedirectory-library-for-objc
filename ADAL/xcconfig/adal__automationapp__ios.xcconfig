@@ -1,0 +1,16 @@
+//
+//  adal__ios__testhostapp.xcconfig
+//
+
+#include "adal__common__ios.xcconfig"
+
+//	Because the auto app uses the same internals as the library itself, it needs the library
+//	precompiled header and user search paths
+#include "adal__lib__common.xcconfig"
+
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.automationapp
+PRODUCT_NAME = ADALAutomation
+INFOPLIST_FILE = ADALAutomation/Info.plist
+GCC_OPTIMIZATION_LEVEL = 0;

@@ -22,22 +22,10 @@
 // THE SOFTWARE.
 
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
-#import "ADTelemetryEventInterface.h"
+#import "MSIDTelemetry.h"
+#import "MSIDTelemetry+Internal.h"
 #import "ADDefaultDispatcher.h"
 #import "ADAggregatedDispatcher.h"
-#import "ADTelemetryEventStrings.h"
-#import "ADTelemetryPiiRules.h"
-
-static NSString* const s_delimiter = @"|";
-
-@interface ADTelemetry()
-{
-    NSMutableArray<ADDefaultDispatcher *> *_dispatchers;
-    NSMutableDictionary* _eventTracking;
-}
-
-@end
 
 @implementation ADTelemetry
 
@@ -48,15 +36,9 @@ static NSString* const s_delimiter = @"|";
     return nil;
 }
 
--(id) initInternal
+-(id)initInternal
 {
-    self = [super init];
-    if (self)
-    {
-        _eventTracking = [NSMutableDictionary new];
-        _dispatchers = [NSMutableArray new];
-    }
-    return self;
+    return [super init];
 }
 
 + (ADTelemetry*)sharedInstance
@@ -74,143 +56,38 @@ static NSString* const s_delimiter = @"|";
 - (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired
 {
-    @synchronized(self)
+    ADDefaultDispatcher *telemetryDispatcher = nil;
+    
+    if (aggregationRequired)
     {
-        if (aggregationRequired)
-        {
-            [_dispatchers addObject:[[ADAggregatedDispatcher alloc] initWithDispatcher:dispatcher]];
-        }
-        else
-        {
-            [_dispatchers addObject:[[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher]];
-        }
+        telemetryDispatcher = [[ADAggregatedDispatcher alloc] initWithDispatcher:dispatcher];
     }
+    else
+    {
+        telemetryDispatcher = [[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher];
+    }
+    
+    [[MSIDTelemetry sharedInstance] addDispatcher:telemetryDispatcher];
 }
 
 - (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher
 {
-    @synchronized(self)
-    {
-        for(ADDefaultDispatcher *adDispatcher in _dispatchers)
-        {
-            if ([adDispatcher containsDispatcher:dispatcher])
-            {
-                [_dispatchers removeObject:adDispatcher];
-            }
-        }
-    }
+    [[MSIDTelemetry sharedInstance] findAndRemoveDispatcher:dispatcher];
 }
 
 - (void)removeAllDispatchers
 {
-    @synchronized(self)
-    {
-        [_dispatchers removeAllObjects];
-    }
+    [[MSIDTelemetry sharedInstance] removeAllDispatchers];
 }
 
-@end
-
-@implementation ADTelemetry (Internal)
-
-- (NSString*)registerNewRequest
+- (BOOL)piiEnabled
 {
-    return [[NSUUID UUID] UUIDString];
+    return [[MSIDTelemetry sharedInstance] piiEnabled];
 }
 
-- (void)startEvent:(NSString*)requestId
-         eventName:(NSString*)eventName
+- (void)setPiiEnabled:(BOOL)piiEnabled
 {
-    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName])
-    {
-        return;
-    }
-    
-    NSDate* currentTime = [NSDate date];
-    @synchronized(self)
-    {
-        [_eventTracking setObject:currentTime
-                           forKey: [self getEventTrackingKey:requestId eventName:eventName]];
-    }
-}
-
-- (void)stopEvent:(NSString*)requestId
-            event:(id<ADTelemetryEventInterface>)event
-{
-    NSDate* stopTime = [NSDate date];
-    NSString* eventName = [self getPropertyFromEvent:event propertyName:AD_TELEMETRY_KEY_EVENT_NAME];
-    
-    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
-    {
-        return;
-    }
-    
-    NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
-    
-    NSDate* startTime = nil;
-    
-    @synchronized(self)
-    {
-        startTime = [_eventTracking objectForKey:key];
-        if (!startTime)
-        {
-            return;
-        }
-    }
-    
-    [event setStartTime:startTime];
-    [event setStopTime:stopTime];
-    [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
-    
-    @synchronized(self)
-    {
-        [_eventTracking removeObjectForKey:key];
-        
-        [self dispatchEventNow:requestId event:event];
-    }
-}
-
-- (void)dispatchEventNow:(NSString*)requestId
-                   event:(id<ADTelemetryEventInterface>)event
-{
-    @synchronized(self)
-    {
-        for (ADDefaultDispatcher *dispatcher in _dispatchers)
-        {
-            for (NSString *propertyName in [event.propertyMap allKeys]) {
-                BOOL isPii = [ADTelemetryPiiRules isPii:propertyName];
-                if (isPii && !self.piiEnabled) {
-                    [event deleteProperty:propertyName];
-                }
-            }
-            
-            [dispatcher receive:requestId event:event];
-        }
-    }
-}
-
-- (NSString*)getEventTrackingKey:(NSString*)requestId
-                       eventName:(NSString*)eventName
-{
-    return [NSString stringWithFormat:@"%@%@%@", requestId, s_delimiter, eventName];
-}
-
-- (NSString*)getPropertyFromEvent:(id<ADTelemetryEventInterface>)event
-                     propertyName:(NSString*)propertyName
-{
-    NSDictionary* properties = [event getProperties];
-    return [properties objectForKey:propertyName];
-}
-
-- (void)flush:(NSString*)requestId
-{
-    @synchronized(self)
-    {
-        for (ADDefaultDispatcher *dispatcher in _dispatchers)
-        {
-            [dispatcher flush:requestId];
-        }
-    }
+    [[MSIDTelemetry sharedInstance] setPiiEnabled:piiEnabled];
 }
 
 @end

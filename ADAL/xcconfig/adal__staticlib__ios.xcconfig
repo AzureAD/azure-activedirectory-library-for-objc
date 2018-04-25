@@ -1,0 +1,9 @@
+//
+//  adal__ios__staticlib.xcconfig
+//
+
+#include "adal__common__ios.xcconfig"
+#include "adal__lib__common.xcconfig"
+
+PUBLIC_HEADERS_FOLDER_PATH = src/public
+DSTROOT = /usr/local/lib

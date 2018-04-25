@@ -1,0 +1,8 @@
+//
+//  adal__common__ios.xcconfig
+//
+
+#include "adal__common.xcconfig"
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__common__ios.xcconfig"
+
+

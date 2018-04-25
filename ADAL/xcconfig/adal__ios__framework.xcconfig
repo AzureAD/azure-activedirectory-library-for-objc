@@ -1,8 +1,0 @@
-//
-//  adal__ios__framework.xcconfig
-//
-
-#include "adal__ios__common.xcconfig"
-
-MODULEMAP_FILE = resources/ios/Framework/adal.modulemap
-PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL

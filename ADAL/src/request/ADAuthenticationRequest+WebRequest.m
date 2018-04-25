@@ -24,7 +24,6 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADWebRequest.h"
 #import "ADWorkPlaceJoinConstants.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADClientMetrics.h"
 #import "ADWebResponse.h"
 #import "ADPkeyAuthHelper.h"
@@ -32,22 +31,22 @@
 #import "ADWebAuthController.h"
 #import "ADWebAuthController+Internal.h"
 #import "ADHelpers.h"
-#import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
 #import "NSString+ADURLExtensions.h"
-
-#import <libkern/OSAtomic.h>
+#import "MSIDDeviceId.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "ADAuthenticationErrorConverter.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
 
 - (void)executeRequest:(NSDictionary *)request_data
-            completion:(ADAuthenticationCallback)completionBlock
+            completion:(MSIDTokenResponseCallback)completionBlock
 {
-    NSString *authority = [NSString adIsStringNilOrBlank:_cloudAuthority] ? _context.authority : _cloudAuthority;
-    NSString* urlString = [authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    NSString *authority = [NSString msidIsStringNilOrBlank:_cloudAuthority] ? _context.authority : _cloudAuthority;
+    NSString* urlString = [authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
@@ -55,20 +54,25 @@
      {
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error]);
+             completionBlock(nil, error);
              [req invalidate];
              return;
          }
-         
-         //Prefill the known elements in the item. These can be overridden by the response:
-         ADTokenCacheItem* item = [ADTokenCacheItem new];
-         item.resource = [_requestParams resource];
-         item.clientId = [_requestParams clientId];
-         item.authority = authority;
-         ADAuthenticationResult* result = [item processTokenResponse:response
-                                                         fromRefresh:NO
-                                                requestCorrelationId:[_requestParams correlationId]];
-         completionBlock(result);
+
+         MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+
+         NSError *msidError = nil;
+         MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:response context:nil error:&msidError];
+
+         if (!tokenResponse)
+         {
+             ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+             completionBlock(nil, adError);
+         }
+         else
+         {
+             completionBlock(tokenResponse, nil);
+         }
          
          [req invalidate];
      }];
@@ -77,21 +81,21 @@
 // Ensures that the state comes back in the response:
 - (BOOL)verifyStateFromDictionary: (NSDictionary*) dictionary
 {
-    NSDictionary *state = [NSDictionary adURLFormDecode:[[dictionary objectForKey:OAUTH2_STATE] adBase64UrlDecode]];
+    NSDictionary *state = [NSDictionary msidURLFormDecode:[[dictionary objectForKey:MSID_OAUTH2_STATE] msidBase64UrlDecode]];
     if (state.count != 0)
     {
         NSString *authorizationServer = [state objectForKey:@"a"];
         NSString *resource            = [state objectForKey:@"r"];
         
-        if (![NSString adIsStringNilOrBlank:authorizationServer] && ![NSString adIsStringNilOrBlank:resource])
+        if (![NSString msidIsStringNilOrBlank:authorizationServer] && ![NSString msidIsStringNilOrBlank:resource])
         {
-            AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"The authorization server returned the following state: %@", state);
+            MSID_LOG_VERBOSE_PII(_requestParams, @"The authorization server returned the following state: %@", state);
             return YES;
         }
     }
     
-    AD_LOG_WARN(_requestParams.correlationId, @"Missing or invalid state returned");
-    AD_LOG_WARN_PII(_requestParams.correlationId, @"Missing or invalid state returned state: %@", state);
+    MSID_LOG_WARN(_requestParams, @"Missing or invalid state returned");
+    MSID_LOG_WARN_PII(_requestParams, @"Missing or invalid state returned state: %@", state);
     return NO;
 }
 
@@ -99,7 +103,7 @@
 - (NSString *)encodeProtocolState
 {
     return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _requestParams.scope, @"s", nil]
-             adURLFormEncode] adBase64UrlEncode];
+             msidURLFormEncode] msidBase64UrlEncode];
 }
 
 //Generates the query string, encoding the state:
@@ -109,18 +113,18 @@
     NSString* queryParams = nil;
     // Start the web navigation process for the Implicit grant profile.
     NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                 [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
-                                 OAUTH2_RESPONSE_TYPE, requestType,
-                                 OAUTH2_CLIENT_ID, [[_requestParams clientId] adUrlFormEncode],
-                                 OAUTH2_RESOURCE, [[_requestParams resource] adUrlFormEncode],
-                                 OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] adUrlFormEncode],
-                                 OAUTH2_STATE, state];
+                                 [_context.authority stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX],
+                                 MSID_OAUTH2_RESPONSE_TYPE, requestType,
+                                 MSID_OAUTH2_CLIENT_ID, [[_requestParams clientId] msidUrlFormEncode],
+                                 MSID_OAUTH2_RESOURCE, [[_requestParams resource] msidUrlFormEncode],
+                                 MSID_OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] msidUrlFormEncode],
+                                 MSID_OAUTH2_STATE, state];
     
-    [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
+    [startUrl appendFormat:@"&%@", [[MSIDDeviceId deviceId] msidURLFormEncode]];
     
-    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
+    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
     {
-        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId adUrlFormEncode]];
+        [startUrl appendFormat:@"&%@=%@", MSID_OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId msidUrlFormEncode]];
     }
     NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
     if (promptParam)
@@ -131,9 +135,9 @@
     
     [startUrl appendString:@"&haschrome=1"]; //to hide back button in UI
     
-    if (![NSString adIsStringNilOrBlank:_queryParams])
+    if (![NSString msidIsStringNilOrBlank:_queryParams])
     {//Append the additional query parameters if specified:
-        queryParams = _queryParams.adTrimmedString;
+        queryParams = _queryParams.msidTrimmedString;
         
         //Add the '&' for the additional params if not there already:
         if ([queryParams hasPrefix:@"&"])
@@ -146,9 +150,9 @@
         }
     }
     
-    if (![NSString adIsStringNilOrBlank:_claims])
+    if (![NSString msidIsStringNilOrBlank:_claims])
     {
-        NSString *claimsParam = _claims.adTrimmedString;
+        NSString *claimsParam = _claims.msidTrimmedString;
         [startUrl appendFormat:@"&claims=%@", claimsParam];
     }
     
@@ -176,10 +180,10 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE(_requestParams.correlationId, @"Requesting authorization code");
-    AD_LOG_VERBOSE_PII(_requestParams.correlationId, @"Requesting authorization code for resource: %@", _requestParams.resource);
+    MSID_LOG_VERBOSE(_requestParams, @"Requesting authorization code");
+    MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
     
-    NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
+    NSString* startUrl = [self generateQueryStringForRequestType:MSID_OAUTH2_CODE];
     
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
@@ -195,17 +199,17 @@
                  NSString* host = [end host];
                  if ([host isEqualToString:@"microsoft.aad.brokerplugin"] || [host isEqualToString:@"code"])
                  {
-                     NSDictionary* queryParams = [end adQueryParameters];
-                     code = [queryParams objectForKey:OAUTH2_CODE];
+                     NSDictionary* queryParams = [end msidQueryParameters];
+                     code = [queryParams objectForKey:MSID_OAUTH2_CODE];
                      [self setCloudInstanceHostname:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_HOST_NAME]];
                  }
                  else
                  {
                      NSMutableDictionary *userInfoDictionary = [NSMutableDictionary dictionary];
-                     NSDictionary *queryParameters = [NSDictionary adURLFormDecode:[end query]];
+                     NSDictionary *queryParameters = [NSDictionary msidURLFormDecode:[end query]];
                      NSString *userName = [queryParameters valueForKey:AUTH_USERNAME_KEY];
                      
-                     if (![NSString adIsStringNilOrBlank:userName])
+                     if (![NSString msidIsStringNilOrBlank:userName])
                      {
                          [userInfoDictionary setObject:userName forKey:AUTH_USERNAME_KEY];
                      }
@@ -222,10 +226,10 @@
              else
              {
                  //Try both the URL and the fragment parameters:
-                 NSDictionary *parameters = [end adFragmentParameters];
+                 NSDictionary *parameters = [end msidFragmentParameters];
                  if ( parameters.count == 0 )
                  {
-                     parameters = [end adQueryParameters];
+                     parameters = [end msidQueryParameters];
                  }
                  
                  //OAuth2 error may be passed by the server:
@@ -234,8 +238,8 @@
                  {
                      //Note that we do not enforce the state, just log it:
                      [self verifyStateFromDictionary:parameters];
-                     code = [parameters objectForKey:OAUTH2_CODE];
-                     if ([NSString adIsStringNilOrBlank:code])
+                     code = [parameters objectForKey:MSID_OAUTH2_CODE];
+                     if ([NSString msidIsStringNilOrBlank:code])
                      {
                          error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORIZATION_CODE
                                                                         protocolCode:nil
@@ -243,7 +247,7 @@
                                                                        correlationId:[_requestParams correlationId]];
                      }
                      
-                     [self setCloudInstanceHostname:[parameters objectForKey:AUTH_CLOUD_INSTANCE_HOST_NAME]];
+                     [self setCloudInstanceHostname:[parameters objectForKey:ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME]];
                      
                  }
              }
@@ -263,24 +267,24 @@
     {
         NSMutableDictionary* requestData = nil;
         requestData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                       [_requestParams clientId], OAUTH2_CLIENT_ID,
-                       [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
-                       [_requestParams resource], OAUTH2_RESOURCE,
-                       OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
+                       [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
+                       [_requestParams redirectUri], MSID_OAUTH2_REDIRECT_URI,
+                       [_requestParams resource], MSID_OAUTH2_RESOURCE,
+                       MSID_OAUTH2_CODE, MSID_OAUTH2_RESPONSE_TYPE,
                        @"1", @"nux",
                        @"none", @"prompt", nil];
         
-        if (![NSString adIsStringNilOrBlank:_requestParams.scope])
+        if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
         {
-            [requestData setObject:_requestParams.scope forKey:OAUTH2_SCOPE];
+            [requestData setObject:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
         }
         
-        if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
+        if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
         {
-            [requestData setObject:_requestParams.identifier.userId forKey:OAUTH2_LOGIN_HINT];
+            [requestData setObject:_requestParams.identifier.userId forKey:MSID_OAUTH2_LOGIN_HINT];
         }
         
-        NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
+        NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX]];
         ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL
                                                               context:_requestParams];
         [req setIsGetRequest:YES];

@@ -29,15 +29,7 @@
 
 @interface ADTokenCacheItem ()
 
-@property (readwrite) NSMutableDictionary * additionalClient;
 @property (readonly) NSDictionary * additionalServer;
-
-/*!
- This indicates whether the request was executed on a ring serving SPE traffic. 
- An empty string indicates this occurred on an outer ring, 
- and the string "I" indicated the request occurred on the inner ring.
- */
-@property (readonly) NSString *speInfo;
 
 @end
 
@@ -48,6 +40,13 @@
 @end
 
 @interface ADTokenCacheItem (Internal)
+
+/*!
+ This indicates whether the request was executed on a ring serving SPE traffic.
+ An empty string indicates this occurred on an outer ring,
+ and the string "I" indicated the request occurred on the inner ring.
+ */
+@property (readonly) NSString *speInfo;
 
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId;
@@ -69,7 +68,7 @@
 - (BOOL)fillItemWithResponse:(NSDictionary*)response;
 
 - (void)logMessage:(NSString *)message
-             level:(ADAL_LOG_LEVEL)level
+             level:(MSIDLogLevel)level
      correlationId:(NSUUID*)correlationId;
 
 /*! Return YES only if the item contains an access token and ext_expires_in in additionalServer has not expired. */

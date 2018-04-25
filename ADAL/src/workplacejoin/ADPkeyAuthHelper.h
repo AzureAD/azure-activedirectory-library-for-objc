@@ -34,7 +34,7 @@ typedef enum
 
 + (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
                                  challengeData:(nullable NSDictionary*)challengeData
-                                       context:(nullable id<ADRequestContext>)context
+                                       context:(nullable id<MSIDRequestContext>)context
                                          error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 + (nonnull NSString*)computeThumbprint:(nonnull NSData*)data

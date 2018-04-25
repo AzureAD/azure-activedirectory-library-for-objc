@@ -22,11 +22,12 @@
 // THE SOFTWARE.
 
 #import "ADTokenCacheDataSource.h"
-#import "ADRequestContext.h"
+#import "MSIDRequestContext.h"
 
-@class ADTokenCacheAccessor;
+@class MSIDRequestParameters;
+@class MSIDAccount;
 
-@interface ADRequestParameters : NSObject <ADRequestContext>
+@interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
     NSString *_authority;
     NSString *_resource;
@@ -34,31 +35,33 @@
     NSString *_redirectUri;
     NSString *_scope;
     ADUserIdentifier *_identifier;
-    ADTokenCacheAccessor *_tokenCache;
     BOOL _extendedLifetime;
     NSUUID *_correlationId;
     NSString *_telemetryRequestId;
 }
 
 @property (retain, nonatomic) NSString* authority;
+@property (retain, nonatomic) NSString* cloudAuthority;
 @property (retain, nonatomic) NSString* resource;
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
 @property (retain, nonatomic) NSString* scope;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
-@property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
 @property BOOL extendedLifetime;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
+@property (retain, nonatomic) NSString* logComponent;
+@property (retain, nonatomic) MSIDAccount *account;
+@property (retain, nonatomic, readonly) MSIDRequestParameters *msidParameters;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
                clientId:(NSString *)clientId
             redirectUri:(NSString *)redirectUri
              identifier:(ADUserIdentifier *)identifier
-             tokenCache:(ADTokenCacheAccessor *)tokenCache
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
-     telemetryRequestId:(NSString *)telemetryRequestId;
+     telemetryRequestId:(NSString *)telemetryRequestId
+           logComponent:(NSString *)logComponent;
 
 @end

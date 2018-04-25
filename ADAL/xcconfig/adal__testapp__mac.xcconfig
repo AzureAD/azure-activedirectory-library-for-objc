@@ -1,0 +1,9 @@
+//
+//  adal__testapp__mac.xcconfig
+//
+
+#include "adal__common__mac.xcconfig"
+#include "adal__testapp.xcconfig"
+
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+INFOPLIST_FILE = tests/app/resources/mac/Info.plist

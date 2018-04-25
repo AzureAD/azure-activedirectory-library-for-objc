@@ -25,12 +25,11 @@
 #import "ADWebAuthResponse.h"
 #import "ADWebResponse.h"
 #import "ADWebAuthRequest.h"
-#import "ADOauth2Constants.h"
 #import "ADWorkplaceJoinConstants.h"
 #import "ADPKeyAuthHelper.h"
 #import "ADClientMetrics.h"
-#import "NSString+ADTelemetryExtensions.h"
-#import "ADTelemetryEventStrings.h"
+#import "NSString+MSIDTelemetryExtensions.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @implementation ADWebAuthResponse
 
@@ -206,10 +205,10 @@
 {
     NSDictionary* headers = webResponse.headers;
     //In most cases the correlation id is returned as a separate header
-    NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-    if (![NSString adIsStringNilOrBlank:responseCorrelationId])
+    NSString* responseCorrelationId = [headers objectForKey:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+    if (![NSString msidIsStringNilOrBlank:responseCorrelationId])
     {
-        [_responseDictionary setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
+        [_responseDictionary setObject:responseCorrelationId forKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
     }
 }
 
@@ -242,7 +241,7 @@
     {
         NSString *wwwAuthValue = [webResponse.headers valueForKey:kADALWwwAuthenticateHeader];
         
-        if (![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
+        if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
         {
             [self handlePKeyAuthChallenge:wwwAuthValue
                                completion:completionBlock];
@@ -270,8 +269,8 @@
     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
     NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
     
-    AD_LOG_WARN(_request.correlationId, @"HTTP Error %ld", (long)webResponse.statusCode);
-    AD_LOG_WARN_PII(_request.correlationId, @"%@", errorData);
+    MSID_LOG_WARN(_request, @"HTTP Error %ld", (long)webResponse.statusCode);
+    MSID_LOG_WARN_PII(_request, @"%@", errorData);
     
     ADAuthenticationError* adError = [ADAuthenticationError errorFromHTTPErrorCode:webResponse.statusCode
                                                                               body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
@@ -308,13 +307,13 @@
     
     NSString *clientTelemetry = [webResponse headers][ADAL_CLIENT_TELEMETRY];
     
-    if (![NSString adIsStringNilOrBlank:clientTelemetry])
+    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
-        NSString *speInfo = [clientTelemetry parsedClientTelemetry][AD_TELEMETRY_KEY_SPE_INFO];
+        NSString *speInfo = [clientTelemetry parsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
         
-        if (![NSString adIsStringNilOrBlank:speInfo])
+        if (![NSString msidIsStringNilOrBlank:speInfo])
         {
-            [_responseDictionary setObject:speInfo forKey:AD_TELEMETRY_KEY_SPE_INFO];
+            [_responseDictionary setObject:speInfo forKey:MSID_TELEMETRY_KEY_SPE_INFO];
         }
     }
     
@@ -332,8 +331,8 @@
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR(_request.correlationId, @"Unparseable wwwAuthHeader received");
-        AD_LOG_ERROR_PII(_request.correlationId, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
+        MSID_LOG_ERROR(_request, @"Unparseable wwwAuthHeader received");
+        MSID_LOG_ERROR_PII(_request, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
     }
     
     ADAuthenticationError* adError = nil;
@@ -381,7 +380,7 @@
     
     if (body.length == 0)
     {
-        AD_LOG_ERROR(_request.correlationId, @"Empty body received, expected JSON response. Error code: %ld", (long)jsonError.code);
+        MSID_LOG_ERROR(_request, @"Empty body received, expected JSON response. Error code: %ld", (long)jsonError.code);
     }
     else
     {
@@ -394,8 +393,8 @@
             bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[body length]];
         }
         
-        AD_LOG_ERROR(_request.correlationId, @"JSON deserialization error:");
-        AD_LOG_ERROR_PII(_request.correlationId, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
+        MSID_LOG_ERROR(_request, @"JSON deserialization error:");
+        MSID_LOG_ERROR_PII(_request, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];
@@ -414,8 +413,8 @@
         [_responseDictionary setObject:url forKey:@"url"];
     }
     
-    AD_LOG_WARN(_request.correlationId, @"System error while making request");
-    AD_LOG_WARN_PII(_request.correlationId, @"System error while making request %@", error.description);
+    MSID_LOG_WARN(_request, @"System error while making request");
+    MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
 
     // System error
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error

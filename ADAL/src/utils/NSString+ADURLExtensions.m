@@ -27,7 +27,7 @@
 
 - (NSString *)adAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName
 {
-    if ([NSString adIsStringNilOrBlank:cloudInstanceHostName])
+    if ([NSString msidIsStringNilOrBlank:cloudInstanceHostName])
     {
         return self;
     }
@@ -35,7 +35,7 @@
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self];
     
     // Invalid URL
-    if ([NSString adIsStringNilOrBlank:urlComponents.host])
+    if ([NSString msidIsStringNilOrBlank:urlComponents.host])
     {
         return self;
     }
