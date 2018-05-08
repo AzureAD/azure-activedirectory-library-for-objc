@@ -40,7 +40,9 @@ class ViewController: UIViewController {
 
     func updateStatusField(_ text: String)
     {
-        statusTextField?.text = text;
+        DispatchQueue.main.async {
+                self.statusTextField?.text = text;
+        }
     }
     
     @IBAction func acquireToken(_ sender:UIButton) {
@@ -75,11 +77,7 @@ class ViewController: UIViewController {
             }
             
             let status = String(format: "Access token: %@\nexpiration:%@", result!.accessToken, expiresOnString)
-            
-            DispatchQueue.main.async
-            {
-                self.updateStatusField(status)
-            }
+            self.updateStatusField(status)
         }
     }
 
