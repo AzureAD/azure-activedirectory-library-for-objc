@@ -75,7 +75,11 @@ class ViewController: UIViewController {
             }
             
             let status = String(format: "Access token: %@\nexpiration:%@", result!.accessToken, expiresOnString)
-            self.updateStatusField(status)
+            
+            DispatchQueue.main.async
+            {
+                self.updateStatusField(status)
+            }
         }
     }
 
