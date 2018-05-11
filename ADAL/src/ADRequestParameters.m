@@ -23,7 +23,7 @@
 
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDAccount.h"
 
 @implementation ADRequestParameters
@@ -106,15 +106,15 @@
                                                 uniqueUserId:nil];
 }
 
-- (MSIDRequestParameters *)msidParameters
+- (MSIDConfiguration *)msidParameters
 {
     NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
-    MSIDRequestParameters *requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
-                                                                                    redirectUri:self.redirectUri
-                                                                                       clientId:self.clientId
-                                                                                         target:self.resource];
+    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                 redirectUri:self.redirectUri
+                                                                    clientId:self.clientId
+                                                                      target:self.resource];
     
-    return requestParameters;
+    return config;
 }
 
 @end

@@ -68,17 +68,17 @@
     }
     
     result = [cache saveTokensWithFactory:factory
-                             requestParams:requestParams.msidParameters
-                                  response:response
-                                   context:requestParams
-                                     error:&msidError];
+                            configuration:requestParams.msidConfig
+                                 response:response
+                                  context:requestParams
+                                    error:&msidError];
     
     if (!result)
     {
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
     }
     
-    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response request:requestParams.msidParameters];
+    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:requestParams.msidConfig];
     
     ADTokenCacheItem *adTokenCacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     
