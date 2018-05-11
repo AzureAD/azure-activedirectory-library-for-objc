@@ -24,7 +24,7 @@
 #import "ADTokenCacheDataSource.h"
 #import "MSIDRequestContext.h"
 
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDAccount;
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
@@ -52,7 +52,7 @@
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
 @property (retain, nonatomic) MSIDAccount *account;
-@property (retain, nonatomic, readonly) MSIDRequestParameters *msidParameters;
+@property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource

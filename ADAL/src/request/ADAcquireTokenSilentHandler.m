@@ -283,7 +283,7 @@
     NSError *msidError = nil;
     
     MSIDLegacySingleResourceToken *item = [self.tokenCache getLegacyTokenForAccount:_requestParams.account
-                                                                      requestParams:_requestParams.msidParameters
+                                                                      configuration:_requestParams.msidConfig
                                                                             context:_requestParams
                                                                               error:&msidError];
     
@@ -298,7 +298,7 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        item = [self.tokenCache getLegacyTokenWithRequestParams:_requestParams.msidParameters
+        item = [self.tokenCache getLegacyTokenWithConfiguration:_requestParams.msidConfig
                                                         context:_requestParams
                                                           error:&msidError];
         
@@ -399,7 +399,7 @@
     {
         NSError *msidError = nil;
         MSIDRefreshToken *refreshToken = [self.tokenCache getRTForAccount:_requestParams.account
-                                                            requestParams:_requestParams.msidParameters
+                                                            configuration:_requestParams.msidConfig
                                                                   context:_requestParams
                                                                     error:&msidError];
         
@@ -461,7 +461,7 @@
     NSError *msidError = nil;
     
     MSIDRefreshToken *refreshToken = [self.tokenCache getFRTforAccount:_requestParams.account
-                                                         requestParams:_requestParams.msidParameters
+                                                         configuration:_requestParams.msidConfig
                                                               familyId:familyId
                                                                context:_requestParams
                                                                  error:&msidError];
