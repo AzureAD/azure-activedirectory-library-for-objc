@@ -320,6 +320,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
                                     accessToken:(NSString *)newAccessToken
+                                     newIDToken:(NSString *)newIDToken
 {
     return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                               authority:TEST_AUTHORITY
@@ -327,7 +328,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                clientId:TEST_CLIENT_ID
                           correlationId:TEST_CORRELATION_ID
                         newRefreshToken:newRefreshToken
-                         newAccessToken:newAccessToken];
+                         newAccessToken:newAccessToken
+                             newIDToken:newIDToken];
 }
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -337,6 +339,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
 {
     return [self adResponseRefreshToken:oldRefreshToken
                               authority:authority
@@ -346,6 +349,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
+                             newIDToken:newIDToken
                        additionalFields:nil];
 }
 
@@ -356,6 +360,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
 {
     return [self adResponseRefreshToken:oldRefreshToken
@@ -366,6 +371,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
+                             newIDToken:newIDToken
                        additionalFields:additionalFields];
 }
 
@@ -377,6 +383,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
 {
     return [self adResponseRefreshToken:oldRefreshToken
@@ -387,6 +394,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
+                             newIDToken:newIDToken
                        additionalFields:additionalFields
                         responseHeaders:nil];
 }
@@ -399,12 +407,14 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders
 {
     NSDictionary* jsonBody = @{ MSID_OAUTH2_REFRESH_TOKEN : newRefreshToken,
                                 MSID_OAUTH2_ACCESS_TOKEN : newAccessToken,
-                                MSID_OAUTH2_RESOURCE : resource };
+                                MSID_OAUTH2_ID_TOKEN: newIDToken,
+                                MSID_OAUTH2_RESOURCE : resource};
     
     if (additionalFields)
     {
@@ -466,7 +476,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                            MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
                                            MSID_OAUTH2_RESOURCE : resource,
                                            MSID_OAUTH2_CLIENT_INFO: @"1",
-                                           MSID_OAUTH2_CLIENT_ID : clientId }
+                                           MSID_OAUTH2_CLIENT_ID : clientId,
+                                           MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE
+                                           }
                       responseURLString:@"https://contoso.com"
                            responseCode:responseCode
                        httpHeaderFields:responseHeaders ? responseHeaders : @{}
@@ -502,6 +514,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                            @"id_token" : [self adCreateUserInformation:TEST_USER_ID].rawIdToken }];
     
     return response;
+}
+
+- (NSString *)adDefaultIDToken
+{
+    return [MSIDTestIdTokenUtil idTokenWithName:@"Test name" upn:TEST_USER_ID tenantId:@"contoso.com" additionalClaims:nil];
 }
 
 - (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem
@@ -654,11 +671,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     [baseToken setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
     [baseToken setValue:TEST_CLIENT_ID forKey:@"clientId"];
-    [baseToken setValue:@"unique User Id" forKey:@"uniqueUserId"];
+    [baseToken setValue:@"unique User Id" forKey:@"homeAccountId"];
     MSIDClientInfo *clientInfo = [self adCreateClientInfo];
     [baseToken setValue:clientInfo forKey:@"clientInfo"];
     [baseToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
-    [baseToken setValue:@"Eric Cartman" forKey:@"username"];
 }
 
 - (void)fillAccessToken:(MSIDLegacyAccessToken *)accessToken

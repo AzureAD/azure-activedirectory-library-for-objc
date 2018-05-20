@@ -78,9 +78,7 @@
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
-
-    // TODO: fix this!
-    //parameters->_account = [_account copyWithZone:zone];
+    parameters->_account = [_account copyWithZone:zone];
     
     return parameters;
 }
@@ -100,6 +98,22 @@
     _redirectUri = [redirectUri msidTrimmedString];
 }
 
+- (NSString *)openidScope
+{
+    if (!self.scope)
+    {
+        return @"openid";
+    }
+
+    NSArray *scopes = [self.scope componentsSeparatedByString:@" "];
+    if (![scopes containsObject:@"openid"])
+    {
+        return [NSString stringWithFormat:@"openid %@", self.scope];
+    }
+
+    return @"openid";
+}
+
 - (void)setIdentifier:(ADUserIdentifier *)identifier
 {
     _identifier = identifier;
@@ -108,7 +122,7 @@
                                                             homeAccountId:nil];
 }
 
-- (MSIDConfiguration *)msidParameters
+- (MSIDConfiguration *)msidConfig
 {
     NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority

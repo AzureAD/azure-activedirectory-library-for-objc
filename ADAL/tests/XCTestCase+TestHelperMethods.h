@@ -59,7 +59,8 @@
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
-                                    accessToken:(NSString *)newAccessToken;
+                                    accessToken:(NSString *)newAccessToken
+                                     newIDToken:(NSString *)newIDToken;
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
@@ -67,7 +68,8 @@
                                      clientId:(NSString *)clientId
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
-                               newAccessToken:(NSString *)newAccessToken;
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken;
 
 /*! Used for constructing a refresh token response with additional information in the JSON body */
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -77,6 +79,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields;
 
 
@@ -88,6 +91,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields;
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -98,6 +102,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders;
 
@@ -125,6 +130,8 @@
 - (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId;
+
+- (NSString *)adDefaultIDToken;
 
 /*! Used for constructing a response with a specific HTTP code and HTTP headers 
     to a default refresh token request */

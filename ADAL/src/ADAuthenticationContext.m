@@ -135,7 +135,8 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
     self.sharedGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
 #else
-    tokenCache = [self createMacCache:[MSIDMacTokenCache defaultCache]];
+    self.legacyMacCache = [ADTokenCache defaultCache];
+    tokenCache = [self createMacCache:self.legacyMacCache.macTokenCache];
 #endif
     
     return [self initWithAuthority:authority

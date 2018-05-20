@@ -278,6 +278,7 @@
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:updatedRT
                   newAccessToken:updatedAT
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
     [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:authority],
                                      tokenResponse]];
@@ -373,14 +374,16 @@
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId1
                                                      newRefreshToken:@"new-rt-1"
-                                                      newAccessToken:@"new-at-1"];
+                                                      newAccessToken:@"new-at-1"
+                                                          newIDToken:[self adDefaultIDToken]];
     ADTestURLResponse *tokenResponse2 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                            authority:authority
                                                             resource:resource2
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId2
                                                      newRefreshToken:@"new-rt-2"
-                                                      newAccessToken:@"new-at-2"];
+                                                      newAccessToken:@"new-at-2"
+                                                          newIDToken:[self adDefaultIDToken]];
     [ADTestURLSession addResponse:validationResponse];
     [ADTestURLSession addResponse:tokenResponse1];
     [ADTestURLSession addResponse:tokenResponse2];
@@ -464,7 +467,8 @@
                                                            clientId:TEST_CLIENT_ID
                                                       correlationId:TEST_CORRELATION_ID
                                                     newRefreshToken:@"new-rt-1"
-                                                     newAccessToken:@"new-at-1"];
+                                                     newAccessToken:@"new-at-1"
+                                                         newIDToken:[self adDefaultIDToken]];
 
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
@@ -511,7 +515,8 @@
                                                            clientId:TEST_CLIENT_ID
                                                       correlationId:TEST_CORRELATION_ID
                                                     newRefreshToken:@"new-rt-1"
-                                                     newAccessToken:@"new-at-1"];
+                                                     newAccessToken:@"new-at-1"
+                                                         newIDToken:[self adDefaultIDToken]];
 
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
@@ -629,6 +634,7 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:updatedRT
                   newAccessToken:updatedAT
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
@@ -684,6 +690,7 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:updatedRT
                   newAccessToken:updatedAT
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];

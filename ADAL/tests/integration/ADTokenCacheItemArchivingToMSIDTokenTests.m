@@ -79,7 +79,7 @@
     XCTAssertNil(tokenCacheItem.cachedAt);
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
-    XCTAssertEqualObjects(tokenCacheItem.homeAccountId, TEST_USER_ID);
+    XCTAssertEqualObjects(tokenCacheItem.homeAccountId, @"0dxnalli12ivgl_dg3ddmk3zp6aqhnjgogyim5awpsc");
     XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
 }
@@ -116,7 +116,7 @@
     XCTAssertNil(tokenCacheItem.cachedAt);
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
-    XCTAssertEqualObjects(tokenCacheItem.homeAccountId, TEST_USER_ID);
+    XCTAssertEqualObjects(tokenCacheItem.homeAccountId, @"0dxnalli12ivgl_dg3ddmk3zp6aqhnjgogyim5awpsc");
     XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
 }
@@ -153,7 +153,7 @@
     XCTAssertNil(tokenCacheItem.cachedAt);
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
-    XCTAssertEqualObjects(tokenCacheItem.homeAccountId, TEST_USER_ID);
+    XCTAssertEqualObjects(tokenCacheItem.homeAccountId, @"0dxnalli12ivgl_dg3ddmk3zp6aqhnjgogyim5awpsc");
     XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
 }

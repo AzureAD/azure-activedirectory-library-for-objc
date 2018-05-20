@@ -706,7 +706,7 @@ const int sAsyncContextTimeout = 10;
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
 
-    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
+    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]]];
 
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -774,7 +774,7 @@ const int sAsyncContextTimeout = 10;
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
 
-    ADTestURLResponse *response = [self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"];
+    ADTestURLResponse *response = [self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]];
     // We're using a hardcoded JSON string in the test because we want to test a specific string to see how it is decoded
     // and make sure it gets handled properly
     NSString *responseJson = @"{\"refresh_token\":\"new refresh token\",\"access_token\":\"new access token\",\"resource\":\"" TEST_RESOURCE "\",\"expires_in\":3600,\"ext_expires_in\":360000}" ;
@@ -1005,6 +1005,7 @@ const int sAsyncContextTimeout = 10;
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:TEST_REFRESH_TOKEN
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:additional];
 
     [ADTestURLSession addResponse:response];
@@ -1054,6 +1055,7 @@ const int sAsyncContextTimeout = 10;
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:TEST_REFRESH_TOKEN
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
 
     [ADTestURLSession addResponse:response];
@@ -1114,6 +1116,7 @@ const int sAsyncContextTimeout = 10;
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"new family refresh token"
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}
                                                responseHeaders:@{@"x-ms-clitelem" : @"1,0,0,2550.0643,I"}];
 
@@ -1168,6 +1171,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:TEST_ACCESS_TOKEN
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
 
     [ADTestURLSession addResponses:@[badMRRT, frtResponse]];
@@ -1248,6 +1252,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
 
     [ADTestURLSession addResponses:@[badFRTResponse, mrrtResponse]];
@@ -1318,6 +1323,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     [ADTestURLSession addResponse:mrrtResponse];
 
@@ -1409,6 +1415,7 @@ const int sAsyncContextTimeout = 10;
                                                     correlationId:TEST_CORRELATION_ID
                                                   newRefreshToken:@"refresh token"
                                                    newAccessToken:@"access token"
+                                                    newIDToken:[self adDefaultIDToken]
                                                  additionalFields:@{ @"ext_expires_in" : @"3600"}]];
 
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -1511,6 +1518,7 @@ const int sAsyncContextTimeout = 10;
                                                     correlationId:TEST_CORRELATION_ID
                                                   newRefreshToken:@"refresh token"
                                                    newAccessToken:@"access token"
+                                                    newIDToken:[self adDefaultIDToken]
                                                  additionalFields:@{ @"ext_expires_in" : @"0"}]];
 
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -2009,7 +2017,8 @@ const int sAsyncContextTimeout = 10;
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"];
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
     
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
@@ -2056,7 +2065,8 @@ const int sAsyncContextTimeout = 10;
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"];
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
     
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
@@ -2185,6 +2195,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     [ADTestURLSession addResponse:mrrtResponse];
 

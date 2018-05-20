@@ -51,6 +51,7 @@
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
+@property (retain, nonatomic, readonly) NSString* openidScope;
 @property (retain, nonatomic) MSIDAccountIdentifier *account;
 @property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 

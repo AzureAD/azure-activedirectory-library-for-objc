@@ -98,6 +98,7 @@
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"new family refresh token"
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}
                                                responseHeaders:@{@"x-ms-clitelem" : @"1,0,0,2550.0643,I"}];
     
