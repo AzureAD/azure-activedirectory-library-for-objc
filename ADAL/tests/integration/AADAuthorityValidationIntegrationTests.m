@@ -38,19 +38,18 @@
 #import "ADUserIdentifier.h"
 #import "ADWebAuthDelegate.h"
 #import "ADWebFingerRequest.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "ADAuthenticationContext+TestUtil.h"
-#import "MSIDSharedTokenCache.h"
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
 @interface AADAuthorityValidationTests : ADTestCase
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 @property (nonatomic) ADTokenCache *adTokenCache;
 
 @end
@@ -62,10 +61,7 @@
     [super setUp];
     
     self.adTokenCache = [ADTokenCache new];
-    
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil];
 }
 
 - (void)tearDown
@@ -149,7 +145,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]].validated);
+    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary].validated);
 }
 
 //Ensures that an invalid authority is not approved
@@ -178,7 +174,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -209,7 +205,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -247,7 +243,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -310,7 +306,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -352,7 +348,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
     // Failing to connect should not create a validation record
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNil(record);
 }
 

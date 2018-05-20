@@ -33,12 +33,12 @@
 @class ADUserInformation;
 @class ADTokenCacheKey;
 @class ADTestURLResponse;
-@class MSIDTokenCacheItem;
+@class MSIDLegacyTokenCacheItem;
 @class MSIDClientInfo;
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
+@class MSIDLegacyAccessToken;
+@class MSIDLegacyRefreshToken;
 @class MSIDLegacySingleResourceToken;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDAADV2TokenResponse;
 
 @interface XCTestCase (HelperMethods)
@@ -153,17 +153,17 @@
 - (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeUserId:(NSString *)homeUserId;
 - (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeUserId:(NSString *)homeUserId;
 
-- (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
-- (MSIDTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
-- (MSIDTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
 
 - (MSIDClientInfo *)adCreateClientInfo;
 
-- (MSIDAccessToken *)adCreateAccessToken;
-- (MSIDRefreshToken *)adCreateRefreshToken;
+- (MSIDLegacyAccessToken *)adCreateAccessToken;
+- (MSIDLegacyRefreshToken *)adCreateRefreshToken;
 - (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken;
 
-- (MSIDRequestParameters *)adCreateV2DefaultParams;
+- (MSIDConfiguration *)adCreateV2DefaultConfiguration;
 - (MSIDAADV2TokenResponse *)adCreateV2TokenResponse;
 - (NSString *)adCreateV2IdToken;
 

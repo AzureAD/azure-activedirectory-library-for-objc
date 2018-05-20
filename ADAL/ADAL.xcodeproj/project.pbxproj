@@ -280,6 +280,9 @@
 		B299FF1C1F22BE77004A2CB9 /* NSString+ADURLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B299FF181F22BE32004A2CB9 /* NSString+ADURLExtensions.h */; };
 		B299FF1E1F22C338004A2CB9 /* ADURLExtensionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */; };
 		B299FF1F1F22C565004A2CB9 /* ADURLExtensionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */; };
+		B29A36CE20B1333200427B63 /* ADBrokerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771DFF1F749CE100D0DCDC /* ADBrokerIntegrationTests.m */; };
+		B29A36CF20B1333200427B63 /* ADBrokerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771DFF1F749CE100D0DCDC /* ADBrokerIntegrationTests.m */; };
+		B29A36D020B211E800427B63 /* ADRefreshResponseBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */; };
 		B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		B2AF9AB02022A751009602CF /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF9AAC2022A70A009602CF /* ADLoggerTests.m */; };
@@ -518,6 +521,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
+		};
+		B29A36C920B1332E00427B63 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B27551C8208179EE00AA7A38;
+			remoteInfo = "IdentityAutomation iOS";
+		};
+		B29A36CB20B1332E00427B63 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B27551D520817A1E00AA7A38;
+			remoteInfo = "IdentityAutomation Mac";
 		};
 		D61000E91D3984C20087AB81 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1861,6 +1878,8 @@
 				D626FFCC1FBD1B1300EE4487 /* IdentityCoreTests.xctest */,
 				D626FFCE1FBD1B1300EE4487 /* IdentityCoreTests.xctest */,
 				23F32F211FFD793100B2905E /* MSIDTestsHostApp.app */,
+				B29A36CA20B1332E00427B63 /* libIdentityAutomation iOS.a */,
+				B29A36CC20B1332E00427B63 /* libIdentityAutomation Mac.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2511,6 +2530,20 @@
 			remoteRef = 23F32F201FFD793100B2905E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		B29A36CA20B1332E00427B63 /* libIdentityAutomation iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libIdentityAutomation iOS.a";
+			remoteRef = B29A36C920B1332E00427B63 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B29A36CC20B1332E00427B63 /* libIdentityAutomation Mac.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = "libIdentityAutomation Mac.dylib";
+			remoteRef = B29A36CB20B1332E00427B63 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		D62600001FBD253E00EE4487 /* libIdentityTest.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -2723,6 +2756,7 @@
 			files = (
 				236BF3E52059C1D1006E3897 /* ADAuthenticationContext+TestUtil.m in Sources */,
 				23F4935120603ABF00BDD7D5 /* ADLegacyMacTokenCache.m in Sources */,
+				B29A36D020B211E800427B63 /* ADRefreshResponseBuilder.m in Sources */,
 				230E16DB1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m in Sources */,
 				230E16E41FB17A7400ADC904 /* ADTelemetryAPIEventTests.m in Sources */,
 				B20DC5F31F0D998A00957806 /* ADAuthenticationParametersTests.m in Sources */,
@@ -2731,6 +2765,7 @@
 				23F4935020603AAD00BDD7D5 /* ADLegacyKeychainTokenCache.m in Sources */,
 				603841A01DF9248F00D30F3D /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC5FF1F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */,
+				B29A36CE20B1333200427B63 /* ADBrokerIntegrationTests.m in Sources */,
 				B299FF1E1F22C338004A2CB9 /* ADURLExtensionsTest.m in Sources */,
 				04930F7C1FEC8C0E00FC4DCD /* MSIDAadAuthorityCache+TestUtil.m in Sources */,
 				B20DC5F11F0D998A00957806 /* ADAuthenticationErrorTests.m in Sources */,
@@ -2886,6 +2921,7 @@
 			files = (
 				236BF3FF205B38EB006E3897 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				D67D3D3C1F38502900660F32 /* ADTestCase.m in Sources */,
+				B29A36CF20B1333200427B63 /* ADBrokerIntegrationTests.m in Sources */,
 				B24D25F9205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */,
 				D62256521F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
 				B2822A2F2055D67200390B6E /* ADLegacyMacTokenCache.m in Sources */,

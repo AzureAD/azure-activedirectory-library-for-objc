@@ -24,12 +24,12 @@
 #import <Foundation/Foundation.h>
 
 @protocol MSIDTokenCacheDataSource;
-@protocol MSIDTokenItemSerializer;
+@protocol MSIDCredentialItemSerializer;
 @protocol ADTokenCacheDataSource;
 
 @interface ADMSIDDataSourceWrapper : NSObject <ADTokenCacheDataSource>
 
 - (instancetype)initWithMSIDDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                            serializer:(id<MSIDTokenItemSerializer>)serializer;
+                            serializer:(id<MSIDCredentialItemSerializer>)serializer;
 
 @end

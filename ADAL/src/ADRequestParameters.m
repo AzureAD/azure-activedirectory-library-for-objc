@@ -24,7 +24,7 @@
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
 #import "MSIDConfiguration.h"
-#import "MSIDAccount.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation ADRequestParameters
 
@@ -78,7 +78,9 @@
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
-    parameters->_account = [_account copyWithZone:zone];
+
+    // TODO: fix this!
+    //parameters->_account = [_account copyWithZone:zone];
     
     return parameters;
 }
@@ -102,8 +104,8 @@
 {
     _identifier = identifier;
     
-    self.account = [[MSIDAccount alloc] initWithLegacyUserId:self.identifier.userId
-                                                uniqueUserId:nil];
+    self.account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:self.identifier.userId
+                                                            homeAccountId:nil];
 }
 
 - (MSIDConfiguration *)msidParameters

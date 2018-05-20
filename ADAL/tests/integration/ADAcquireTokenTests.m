@@ -36,7 +36,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTestAuthenticationViewController.h"
 #import "ADAuthorityValidation.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "ADAuthenticationContext+TestUtil.h"
@@ -71,8 +71,8 @@ const int sAsyncContextTimeout = 10;
 
 @interface ADAcquireTokenTests : ADTestCase
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
-@property (nonatomic) MSIDSharedTokenCache *msalTokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *msalTokenCache;
 @property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
 
 @end
@@ -89,20 +89,17 @@ const int sAsyncContextTimeout = 10;
     [MSIDKeychainTokenCache reset];
     
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
+
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
     
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor]];
     
-    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:@[defaultTokenCacheAccessor]];
-    self.msalTokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:defaultTokenCacheAccessor otherCacheAccessors:@[legacyTokenCacheAccessor]];
+    self.tokenCache = legacyTokenCacheAccessor;
+    self.msalTokenCache = defaultTokenCacheAccessor;
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil];
 #endif
 }
 
@@ -2171,8 +2168,9 @@ const int sAsyncContextTimeout = 10;
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
 
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+
     BOOL result = [_msalTokenCache saveTokensWithFactory:factory
-                                           requestParams:[self adCreateV2DefaultParams]
+                                           configuration:[self adCreateV2DefaultConfiguration]
                                                 response:[self adCreateV2TokenResponse]
                                                  context:nil
                                                    error:&error];

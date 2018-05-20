@@ -37,13 +37,13 @@
 #import "ADUserInformation.h"
 #import "ADUserInformation+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDTokenCacheItem.h"
-#import "MSIDAccessToken.h"
+#import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacySingleResourceToken.h"
-#import "MSIDRefreshToken.h"
+#import "MSIDLegacyRefreshToken.h"
 #import "MSIDTestCacheIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDConfiguration.h"
 #import "MSIDAADV2TokenResponse.h"
 
 @implementation XCTestCase (TestHelperMethods)
@@ -504,9 +504,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return response;
 }
 
-- (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem
+- (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem
 {
-    MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [MSIDLegacyTokenCacheItem new];
     tokenCacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     tokenCacheItem.refreshToken = nil;
     tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
@@ -520,15 +520,14 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
     tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
-    tokenCacheItem.tokenType = MSIDTokenTypeAccessToken;
-    tokenCacheItem.username = nil;
-    
+    tokenCacheItem.credentialType = MSIDAccessTokenType;
+
     return tokenCacheItem;
 }
 
-- (MSIDTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem
+- (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem
 {
-    MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [MSIDLegacyTokenCacheItem new];
     
     tokenCacheItem.accessToken = nil;
     tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
@@ -543,15 +542,14 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.target = nil;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
     tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
-    tokenCacheItem.tokenType = MSIDTokenTypeRefreshToken;
-    tokenCacheItem.username = nil;
-    
+    tokenCacheItem.credentialType = MSIDRefreshTokenType;
+
     return tokenCacheItem;
 }
 
-- (MSIDTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem
+- (MSIDLegacyTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem
 {
-    MSIDTokenCacheItem *tokenCacheItem = [MSIDTokenCacheItem new];
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [MSIDLegacyTokenCacheItem new];
     
     tokenCacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
     tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
@@ -566,9 +564,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
     tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
-    tokenCacheItem.tokenType = MSIDTokenTypeLegacySingleResourceToken;
-    tokenCacheItem.username = nil;
-    
+    tokenCacheItem.credentialType = MSIDLegacySingleResourceTokenType;
+
     return tokenCacheItem;
 }
 
@@ -583,18 +580,18 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return clientInfo;
 }
 
-- (MSIDAccessToken *)adCreateAccessToken
+- (MSIDLegacyAccessToken *)adCreateAccessToken
 {
-    MSIDAccessToken *accessToken = [MSIDAccessToken new];
+    MSIDLegacyAccessToken *accessToken = [MSIDLegacyAccessToken new];
     [self fillBaseToken:accessToken];
     [self fillAccessToken:accessToken];
     
     return accessToken;
 }
 
-- (MSIDRefreshToken *)adCreateRefreshToken
+- (MSIDLegacyRefreshToken *)adCreateRefreshToken
 {
-    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    MSIDLegacyRefreshToken *refreshToken = [MSIDLegacyRefreshToken new];
     [self fillBaseToken:refreshToken];
     
     [refreshToken setValue:@"refresh token" forKey:@"refreshToken"];
@@ -618,12 +615,12 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return legacySingleResourceToken;
 }
 
-- (MSIDRequestParameters *)adCreateV2DefaultParams
+- (MSIDConfiguration *)adCreateV2DefaultConfiguration
 {
-    return [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:TEST_AUTHORITY]
-                                                redirectUri:TEST_REDIRECT_URL_STRING
-                                                   clientId:TEST_CLIENT_ID
-                                                     target:@"https://graph.microsoft.com/mail.read"];
+    return [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:TEST_AUTHORITY]
+                                            redirectUri:TEST_REDIRECT_URL_STRING
+                                               clientId:TEST_CLIENT_ID
+                                                 target:@"https://graph.microsoft.com/mail.read"];
 }
 
 - (MSIDAADV2TokenResponse *)adCreateV2TokenResponse
@@ -664,7 +661,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [baseToken setValue:@"Eric Cartman" forKey:@"username"];
 }
 
-- (void)fillAccessToken:(MSIDAccessToken *)accessToken
+- (void)fillAccessToken:(MSIDLegacyAccessToken *)accessToken
 {
     [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
     [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1100000000] forKey:@"cachedAt"];

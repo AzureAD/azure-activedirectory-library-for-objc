@@ -25,7 +25,7 @@
 #import "MSIDRequestContext.h"
 
 @class MSIDConfiguration;
-@class MSIDAccount;
+@class MSIDAccountIdentifier;
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
@@ -51,7 +51,7 @@
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
-@property (retain, nonatomic) MSIDAccount *account;
+@property (retain, nonatomic) MSIDAccountIdentifier *account;
 @property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 
 - (id)initWithAuthority:(NSString *)authority

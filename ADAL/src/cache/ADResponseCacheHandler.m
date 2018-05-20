@@ -26,15 +26,16 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDError.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDTokenResponse.h"
 
 @implementation ADResponseCacheHandler
 
 + (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                                              cache:(MSIDSharedTokenCache *)cache
+                                              cache:(MSIDLegacyTokenCacheAccessor *)cache
                                              params:(ADRequestParameters *)requestParams
 {
     NSError *msidError = nil;
@@ -51,11 +52,10 @@
         if (response.oauthErrorCode == MSIDErrorInvalidGrant && refreshToken)
         {
             NSError *removeError = nil;
-            
-            BOOL result = [cache removeRTForAccount:requestParams.account
-                                              token:refreshToken
-                                            context:requestParams
-                                              error:&removeError];
+
+            BOOL result = [cache validateAndRemoveRefreshToken:refreshToken
+                                                       context:requestParams
+                                                         error:&removeError];
             
             if (!result)
             {
