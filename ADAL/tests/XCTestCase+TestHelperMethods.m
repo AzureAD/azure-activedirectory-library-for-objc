@@ -292,7 +292,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                            MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
                                            MSID_OAUTH2_RESOURCE : resource,
                                            MSID_OAUTH2_CLIENT_INFO: @"1",
-                                           MSID_OAUTH2_CLIENT_ID : clientId }
+                                           MSID_OAUTH2_CLIENT_ID : clientId,
+                                           MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE
+                                           }
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}

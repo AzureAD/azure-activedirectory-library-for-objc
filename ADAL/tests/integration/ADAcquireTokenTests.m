@@ -43,6 +43,7 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "ADTokenCacheKey.h"
+#import "MSIDBaseToken.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -777,7 +778,7 @@ const int sAsyncContextTimeout = 10;
     ADTestURLResponse *response = [self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]];
     // We're using a hardcoded JSON string in the test because we want to test a specific string to see how it is decoded
     // and make sure it gets handled properly
-    NSString *responseJson = @"{\"refresh_token\":\"new refresh token\",\"access_token\":\"new access token\",\"resource\":\"" TEST_RESOURCE "\",\"expires_in\":3600,\"ext_expires_in\":360000}" ;
+    NSString *responseJson = [NSString stringWithFormat:@"{\"refresh_token\":\"new refresh token\",\"access_token\":\"new access token\",\"id_token\":\"%@\",\"resource\":\"" TEST_RESOURCE "\",\"expires_in\":3600,\"ext_expires_in\":360000}", [self adDefaultIDToken]];
     [response setResponseData:[responseJson dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES]];
 
     [ADTestURLSession addResponse:response];
@@ -860,6 +861,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: @"openid",
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
     [ADTestURLSession addResponse:response];
 
@@ -954,6 +956,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
 
     //It should hit network twice for trying and retrying the refresh token because it is an server error
@@ -1468,6 +1471,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
 
     // Add the responsce twice because retry will happen
@@ -1567,6 +1571,18 @@ const int sAsyncContextTimeout = 10;
     [cache removeItem:rtItem error:&error];
     XCTAssertNil(error);
 
+    // Clear MSAL cache, otherwise it will get into the way
+    NSArray *allMSALItems = [_msalTokenCache allTokensWithContext:nil error:nil];
+
+    for (MSIDBaseToken *token in allMSALItems)
+    {
+        if (token.credentialType == MSIDRefreshTokenType)
+        {
+            [_msalTokenCache validateAndRemoveRefreshToken:(MSIDRefreshToken *)token context:nil error:nil];
+        }
+    }
+
+    XCTAssertTrue([allMSALItems count] > 0);
     expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
 
     // AT is no longer valid neither in terms of expires_on and ext_expires_on
@@ -1952,6 +1968,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
 
     [ADTestURLSession addResponse:response];
@@ -2202,6 +2219,7 @@ const int sAsyncContextTimeout = 10;
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
                             completionBlock:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result);

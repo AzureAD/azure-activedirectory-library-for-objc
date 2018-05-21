@@ -400,7 +400,8 @@
         NSError *msidError = nil;
 
         MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
-                                                                            familyId:nil configuration:_requestParams.msidConfig
+                                                                            familyId:nil
+                                                                       configuration:_requestParams.msidConfig
                                                                              context:_requestParams
                                                                                error:&msidError];
         
@@ -460,6 +461,12 @@
     _attemptedFRT = YES;
     
     NSError *msidError = nil;
+
+    if (!familyId)
+    {
+        // Use default family ID if no familyID provided to preserve the previous ADAL functionality
+        familyId = @"1";
+    }
 
     MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                         familyId:familyId
