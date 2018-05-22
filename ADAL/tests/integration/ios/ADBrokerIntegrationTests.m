@@ -336,7 +336,7 @@
     params.resource = TEST_RESOURCE;
     params.clientId = TEST_CLIENT_ID;
     params.redirectUri = redirectUri;
-    params.scope = @"aza bzb";
+    params.scopesString = @"aza bzb";
 
     MSIDLegacyTokenCacheAccessor *sharedCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
 
@@ -345,7 +345,7 @@
                                                                     tokenCache:sharedCache
                                                                          error:nil];
     
-    req.requestParams.scope = @"aza bzb";
+    req.requestParams.scopesString = @"aza bzb";
     
     [req acquireToken:@"1234567890"
       completionBlock:^(ADAuthenticationResult *result)

@@ -95,7 +95,7 @@
 - (void)ensureRequest;
 
 // These can only be set before the request gets sent out.
-- (void)setScope:(NSString*)scope;
+- (void)setScopesString:(NSString*)scopesString;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
 - (void)setClaims:(NSString *)claims;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;
