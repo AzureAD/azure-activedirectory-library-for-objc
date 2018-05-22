@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation ADRequestParameters
 
@@ -98,25 +99,25 @@
     _redirectUri = [redirectUri msidTrimmedString];
 }
 
-- (void)setScope:(NSString *)scope
+- (void)setScopesString:(NSString *)scopesString
 {
-    _scope = scope;
+    _scopesString = scopesString;
 }
 
-- (NSString *)openidScope
+- (NSString *)openidScopesString
 {
-    if (!self.scope)
+    if (!self.scopesString)
     {
         return @"openid";
     }
 
-    NSArray *scopes = [self.scope componentsSeparatedByString:@" "];
+    NSOrderedSet<NSString *> *scopes = [self.scopesString scopeSet];
     if (![scopes containsObject:@"openid"])
     {
-        return [NSString stringWithFormat:@"openid %@", self.scope];
+        return [NSString stringWithFormat:@"openid %@", self.scopesString];
     }
 
-    return self.scope;
+    return self.scopesString;
 }
 
 - (void)setIdentifier:(ADUserIdentifier *)identifier

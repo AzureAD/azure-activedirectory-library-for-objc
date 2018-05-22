@@ -114,9 +114,9 @@ static dispatch_semaphore_t s_interactionLock = nil;
     } \
 }
 
-- (void)setScope:(NSString *)scope
+- (void)setScopesString:(NSString *)scopesString
 {
-    _requestParams.scope = scope;
+    _requestParams.scopesString = scopesString;
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams

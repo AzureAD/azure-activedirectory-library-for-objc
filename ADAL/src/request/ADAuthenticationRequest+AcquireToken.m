@@ -378,7 +378,7 @@
              BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
              if (result.status == AD_SUCCEEDED && replay)
              {
-                 [self setScope:_requestParams.openidScope];
+                 [self setScopesString:_requestParams.openidScopesString];
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -506,9 +506,9 @@
                                           MSID_OAUTH2_CLIENT_INFO: @YES
                                           } mutableCopy];
 
-    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
+    if (![NSString msidIsStringNilOrBlank:_requestParams.scopesString])
     {
-        [requestData setValue:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
+        [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
     
     [self executeRequest:requestData
