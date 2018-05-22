@@ -23,7 +23,7 @@
 
 #import "ADMSIDDataSourceWrapper.h"
 #import "MSIDTokenCacheDataSource.h"
-#import "MSIDTokenItemSerializer.h"
+#import "MSIDCredentialItemSerializer.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
@@ -32,11 +32,13 @@
 #import "ADMSIDContext.h"
 #import "ADHelpers.h"
 #import "ADUserInformation.h"
+#import "MSIDLegacyTokenCacheQuery.h"
+#import "MSIDLegacyTokenCacheItem.h"
 
 @interface ADMSIDDataSourceWrapper()
 
 @property (nonatomic) id<MSIDTokenCacheDataSource> dataSource;
-@property (nonatomic) id<MSIDTokenItemSerializer> seriazer;
+@property (nonatomic) id<MSIDCredentialItemSerializer> seriazer;
 
 @end
 
@@ -45,7 +47,7 @@
 #pragma mark - Init
 
 - (instancetype)initWithMSIDDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                            serializer:(id<MSIDTokenItemSerializer>)serializer
+                            serializer:(id<MSIDCredentialItemSerializer>)serializer
 {
     self = [super init];
     
@@ -83,14 +85,14 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    MSIDTokenCacheKey *key = [MSIDTokenCacheKey queryForAllItems];
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     
     NSError *cacheError = nil;
     
-    NSArray<MSIDTokenCacheItem *> *allItems = [self.dataSource tokensWithKey:key
-                                                                  serializer:self.seriazer
-                                                                     context:nil
-                                                                       error:&cacheError];
+    NSArray *allItems = [self.dataSource tokensWithKey:query
+                                            serializer:self.seriazer
+                                               context:nil
+                                                 error:&cacheError];
     
     if (cacheError)
     {
@@ -105,9 +107,9 @@
     
     NSMutableArray<ADTokenCacheItem *> *results = [NSMutableArray array];
     
-    for (MSIDTokenCacheItem *cacheItem in allItems)
+    for (MSIDLegacyTokenCacheItem *cacheItem in allItems)
     {
-        ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithMSIDTokenCacheItem:cacheItem];
+        ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithMSIDLegacyTokenCacheItem:cacheItem];
         
         if (item)
         {
@@ -122,8 +124,8 @@
           correlationId:(NSUUID *)correlationId
                   error:(ADAuthenticationError **)error
 {
-    MSIDTokenCacheKey *key = [item tokenCacheKey];
-    MSIDTokenCacheItem *tokenCacheItem = [item tokenCacheItem];
+    MSIDLegacyTokenCacheKey *key = [item tokenCacheKey];
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [item tokenCacheItem];
     
     NSError *cacheError = nil;
     
@@ -156,19 +158,19 @@
                        correlationId:(NSUUID *)correlationId
                                error:(ADAuthenticationError **)error
 {
-    MSIDLegacyTokenCacheKey *msidKey = [MSIDLegacyTokenCacheKey keyWithAuthority:[NSURL URLWithString:key.authority]
-                                                                        clientId:key.clientId
-                                                                        resource:key.resource
-                                                                    legacyUserId:userId];
+    MSIDLegacyTokenCacheKey *msidKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:key.authority]
+                                                                                 clientId:key.clientId
+                                                                                 resource:key.resource
+                                                                             legacyUserId:userId];
     
     NSError *cacheError = nil;
     
     ADMSIDContext *context = [[ADMSIDContext alloc] initWithCorrelationId:correlationId];
     
-    MSIDTokenCacheItem *cacheItem = [self.dataSource tokenWithKey:msidKey
-                                                       serializer:self.seriazer
-                                                          context:context
-                                                            error:&cacheError];
+    MSIDCredentialCacheItem *cacheItem = [self.dataSource tokenWithKey:msidKey
+                                                            serializer:self.seriazer
+                                                               context:context
+                                                                 error:&cacheError];
     
     if (cacheError)
     {
@@ -176,7 +178,7 @@
         return nil;
     }
     
-    return [[ADTokenCacheItem alloc] initWithMSIDTokenCacheItem:cacheItem];
+    return [[ADTokenCacheItem alloc] initWithMSIDLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)cacheItem];
 }
 
 - (NSArray <ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
@@ -184,16 +186,17 @@
                                     correlationId:(NSUUID * )correlationId
                                             error:(ADAuthenticationError **)error
 {
-    MSIDLegacyTokenCacheKey *msidKey = [MSIDLegacyTokenCacheKey keyWithAuthority:[NSURL URLWithString:key.authority]
-                                                                        clientId:key.clientId
-                                                                        resource:key.resource
-                                                                    legacyUserId:userId];
-    
+    MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
+    query.authority = [NSURL URLWithString:key.authority];
+    query.clientId = key.clientId;
+    query.resource = key.resource;
+    query.legacyUserId = userId;
+
     NSError *cacheError = nil;
     
     ADMSIDContext *context = [[ADMSIDContext alloc] initWithCorrelationId:correlationId];
     
-    NSArray *cacheItems = [self.dataSource tokensWithKey:msidKey
+    NSArray *cacheItems = [self.dataSource tokensWithKey:query
                                               serializer:self.seriazer
                                                  context:context
                                                 error:&cacheError];
@@ -206,9 +209,9 @@
     
     NSMutableArray<ADTokenCacheItem *> *results = [NSMutableArray array];
     
-    for (MSIDTokenCacheItem *cacheItem in cacheItems)
+    for (MSIDLegacyTokenCacheItem *cacheItem in cacheItems)
     {
-        ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithMSIDTokenCacheItem:cacheItem];
+        ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithMSIDLegacyTokenCacheItem:cacheItem];
         
         if (item)
         {

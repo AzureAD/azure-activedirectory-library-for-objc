@@ -151,6 +151,7 @@
                           correlationId:TEST_CORRELATION_ID
                         newRefreshToken:@"new refresh token"
                          newAccessToken:@"new access token"
+                             newIDToken:[self adDefaultIDToken]
                        additionalFields:nil];
 }
 

@@ -23,8 +23,8 @@
 
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDAccount.h"
+#import "MSIDConfiguration.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation ADRequestParameters
 
@@ -98,23 +98,9 @@
     _redirectUri = [redirectUri msidTrimmedString];
 }
 
-- (void)setIdentifier:(ADUserIdentifier *)identifier
+- (void)setScope:(NSString *)scope
 {
-    _identifier = identifier;
-    
-    self.account = [[MSIDAccount alloc] initWithLegacyUserId:self.identifier.userId
-                                                uniqueUserId:nil];
-}
-
-- (MSIDRequestParameters *)msidParameters
-{
-    NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
-    MSIDRequestParameters *requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
-                                                                                    redirectUri:self.redirectUri
-                                                                                       clientId:self.clientId
-                                                                                         target:self.resource];
-    
-    return requestParameters;
+    _scope = scope;
 }
 
 - (NSString *)openidScope
@@ -130,7 +116,26 @@
         return [NSString stringWithFormat:@"openid %@", self.scope];
     }
 
-    return @"openid";
+    return self.scope;
+}
+
+- (void)setIdentifier:(ADUserIdentifier *)identifier
+{
+    _identifier = identifier;
+    
+    self.account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:self.identifier.userId
+                                                            homeAccountId:nil];
+}
+
+- (MSIDConfiguration *)msidConfig
+{
+    NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
+    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                 redirectUri:self.redirectUri
+                                                                    clientId:self.clientId
+                                                                      target:self.resource];
+    
+    return config;
 }
 
 @end

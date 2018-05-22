@@ -35,7 +35,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "ADAuthorityUtils.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
 #import "ADUserInformation.h"
