@@ -27,7 +27,7 @@
 #import "ADRequestParameters.h"
 
 @class ADUserIdentifier;
-@class MSIDSharedTokenCache;
+@class MSIDLegacyTokenCacheAccessor;
 
 #define AD_REQUEST_CHECK_ARGUMENT(_arg) { \
     if (!_arg || ([_arg isKindOfClass:[NSString class]] && [(NSString*)_arg isEqualToString:@""])) { \
@@ -79,7 +79,7 @@
     NSString *_refreshToken;
 }
 
-@property (nonatomic, readonly) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic, readonly) MSIDLegacyTokenCacheAccessor *tokenCache;
 @property (nonatomic) NSString *sharedGroup;
 
 @property (retain) NSString* logComponent;
@@ -87,7 +87,7 @@
 // The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
-                                    tokenCache:(MSIDSharedTokenCache *)tokenCache
+                                    tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the
@@ -95,7 +95,7 @@
 - (void)ensureRequest;
 
 // These can only be set before the request gets sent out.
-- (void)setScope:(NSString*)scope;
+- (void)setScopesString:(NSString*)scopesString;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
 - (void)setClaims:(NSString *)claims;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;

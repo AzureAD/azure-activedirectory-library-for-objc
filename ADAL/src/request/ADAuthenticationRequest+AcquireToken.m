@@ -35,7 +35,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "ADAuthorityUtils.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
 #import "ADUserInformation.h"
@@ -378,19 +378,7 @@
              BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
              if (result.status == AD_SUCCEEDED && replay)
              {
-                 if (_requestParams.scope == nil)
-                 {
-                    [self setScope:@"openid"];
-                 }
-                 else
-                 {
-                     NSArray *scopes = [_requestParams.scope componentsSeparatedByString:@" "];
-                     if (![scopes containsObject:@"openid"])
-                     {
-                         [self setScope:[NSString stringWithFormat:@"openid %@", _requestParams.scope]];
-                     }
-                 }
-                 
+                 [self setScopesString:_requestParams.openidScopesString];
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -518,9 +506,9 @@
                                           MSID_OAUTH2_CLIENT_INFO: @YES
                                           } mutableCopy];
 
-    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
+    if (![NSString msidIsStringNilOrBlank:_requestParams.scopesString])
     {
-        [requestData setValue:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
+        [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
     
     [self executeRequest:requestData

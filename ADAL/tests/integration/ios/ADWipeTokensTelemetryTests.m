@@ -32,7 +32,7 @@
 #import "ADTokenCache.h"
 #import "ADAuthorityValidation.h"
 #import "ADAuthenticationContext+TestUtil.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
 @interface ADWipeTokensTelemetryTests : ADTestCase

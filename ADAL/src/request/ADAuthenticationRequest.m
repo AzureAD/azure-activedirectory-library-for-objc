@@ -45,7 +45,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 @interface ADAuthenticationRequest()
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 
 @end
 
@@ -70,7 +70,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
-                                    tokenCache:(MSIDSharedTokenCache *)tokenCache
+                                    tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
@@ -84,7 +84,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 - (id)initWithContext:(ADAuthenticationContext*)context
         requestParams:(ADRequestParameters*)requestParams
-           tokenCache:(MSIDSharedTokenCache *)tokenCache
+           tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
 {
     RETURN_IF_NIL(context);
     RETURN_IF_NIL([requestParams clientId]);
@@ -114,9 +114,9 @@ static dispatch_semaphore_t s_interactionLock = nil;
     } \
 }
 
-- (void)setScope:(NSString *)scope
+- (void)setScopesString:(NSString *)scopesString
 {
-    _requestParams.scope = scope;
+    _requestParams.scopesString = scopesString;
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams

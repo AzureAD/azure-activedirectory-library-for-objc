@@ -33,12 +33,12 @@
 @class ADUserInformation;
 @class ADTokenCacheKey;
 @class ADTestURLResponse;
-@class MSIDTokenCacheItem;
+@class MSIDLegacyTokenCacheItem;
 @class MSIDClientInfo;
-@class MSIDAccessToken;
-@class MSIDRefreshToken;
+@class MSIDLegacyAccessToken;
+@class MSIDLegacyRefreshToken;
 @class MSIDLegacySingleResourceToken;
-@class MSIDRequestParameters;
+@class MSIDConfiguration;
 @class MSIDAADV2TokenResponse;
 
 @interface XCTestCase (HelperMethods)
@@ -59,7 +59,8 @@
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
-                                    accessToken:(NSString *)newAccessToken;
+                                    accessToken:(NSString *)newAccessToken
+                                     newIDToken:(NSString *)newIDToken;
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
@@ -67,7 +68,8 @@
                                      clientId:(NSString *)clientId
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
-                               newAccessToken:(NSString *)newAccessToken;
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken;
 
 /*! Used for constructing a refresh token response with additional information in the JSON body */
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -77,6 +79,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields;
 
 
@@ -88,6 +91,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields;
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -98,6 +102,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders;
 
@@ -126,6 +131,8 @@
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId;
 
+- (NSString *)adDefaultIDToken;
+
 /*! Used for constructing a response with a specific HTTP code and HTTP headers 
     to a default refresh token request */
 - (ADTestURLResponse *)adDefaultRefreshReponseCode:(NSInteger)responseCode
@@ -153,17 +160,17 @@
 - (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeUserId:(NSString *)homeUserId;
 - (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeUserId:(NSString *)homeUserId;
 
-- (MSIDTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
-- (MSIDTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
-- (MSIDTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
 
 - (MSIDClientInfo *)adCreateClientInfo;
 
-- (MSIDAccessToken *)adCreateAccessToken;
-- (MSIDRefreshToken *)adCreateRefreshToken;
+- (MSIDLegacyAccessToken *)adCreateAccessToken;
+- (MSIDLegacyRefreshToken *)adCreateRefreshToken;
 - (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken;
 
-- (MSIDRequestParameters *)adCreateV2DefaultParams;
+- (MSIDConfiguration *)adCreateV2DefaultConfiguration;
 - (MSIDAADV2TokenResponse *)adCreateV2TokenResponse;
 - (NSString *)adCreateV2IdToken;
 
