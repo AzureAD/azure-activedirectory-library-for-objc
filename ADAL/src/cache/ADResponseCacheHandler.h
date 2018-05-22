@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDTokenResponse;
-@class MSIDSharedTokenCache;
+@class MSIDLegacyTokenCacheAccessor;
 @class ADRequestParameters;
 @class MSIDBaseToken;
 @protocol MSIDRefreshableToken;
@@ -33,7 +33,7 @@
 
 + (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                                              cache:(MSIDSharedTokenCache *)cache
+                                              cache:(MSIDLegacyTokenCacheAccessor *)cache
                                              params:(ADRequestParameters *)requestParams;
 
 @end
