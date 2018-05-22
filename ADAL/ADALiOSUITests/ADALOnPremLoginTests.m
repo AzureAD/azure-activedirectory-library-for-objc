@@ -32,7 +32,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv3
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
@@ -44,7 +44,7 @@
                              @"user_identifier": self.primaryAccount.account
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
     [self enterADFSPassword];
@@ -56,7 +56,7 @@
                                    @"user_identifier" : self.primaryAccount.account
                                    };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -64,7 +64,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv2
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv2;
@@ -77,7 +77,7 @@
                              @"user_identifier": self.primaryAccount.account
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
     [self enterADFSPassword];
@@ -89,7 +89,7 @@
                                    @"user_identifier" : self.primaryAccount.account
                                    };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -97,7 +97,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv4
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
@@ -110,7 +110,7 @@
                              @"user_identifier": self.primaryAccount.account
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
     [self enterADFSPassword];
@@ -122,7 +122,7 @@
                                    @"user_identifier" : self.primaryAccount.account
                                    };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];

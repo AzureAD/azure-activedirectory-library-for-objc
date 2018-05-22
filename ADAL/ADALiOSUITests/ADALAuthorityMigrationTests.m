@@ -35,7 +35,7 @@
     [self clearCache];
     [self clearCookies];
 
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -49,7 +49,7 @@
                              @"authority": @"https://login.windows.net/common"
                              };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:config];
+    config = [self.testConfiguration configWithAdditionalConfiguration:config];
 
     [self acquireToken:config];
     [self aadEnterEmail];
@@ -63,7 +63,7 @@
     config = @{@"authority": @"https://login.microsoftonline.com/common",
                @"prompt": @"auto"};
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:config];
+    config = [self.testConfiguration configWithAdditionalConfiguration:config];
 
     // Acquire token again.
     [self acquireToken:config];
@@ -74,14 +74,14 @@
     config = @{@"authority": @"https://login.windows.net/common",
                @"user_identifier" : self.primaryAccount.account};
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:config];
+    config = [self.testConfiguration configWithAdditionalConfiguration:config];
     [self expireAccessToken:config];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     config = @{@"authority": @"https://login.microsoftonline.com/common",
                @"prompt": @"auto"};
-    config = [self.testConfiguration configParametersWithAdditionalParams:config];
+    config = [self.testConfiguration configWithAdditionalConfiguration:config];
 
     // Now refresh token
     [self acquireTokenSilent:config];
@@ -100,7 +100,7 @@
                              @"authority": @"https://login.microsoftonline.com/common"
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
 
@@ -118,7 +118,7 @@
                @"authority": @"https://login.windows.net/common"
                };
 
-    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireTokenSilent:config2];
     [self assertAccessTokenNotNil];

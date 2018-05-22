@@ -39,7 +39,7 @@
     [self clearCache];
     [self clearCookies];
 
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = NO;
@@ -61,7 +61,7 @@
                              @"extra_qp": @"instance_aware=true",
                              @"authority" : @"https://login.microsoftonline.com/common"
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
 
@@ -90,7 +90,7 @@
                                 @"authority" : @"https://login.microsoftonline.com/common"
                                 };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
 
     [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
@@ -104,7 +104,7 @@
                      @"resource" : self.testConfiguration.resource
                      };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -128,7 +128,7 @@
                              @"extra_qp": @"instance_aware=true",
                              @"authority" : @"https://login.microsoftonline.com/common"
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     

@@ -38,7 +38,7 @@
 
 - (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withCAClaims_ADALWebView
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountMAMCAClaims];
@@ -51,7 +51,7 @@
                              @"user_identifier_type" : @"optional_displayable",
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
     [self aadEnterPassword];
@@ -63,7 +63,7 @@
                @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D",
                };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     // Acquire token again.
     [self acquireToken:config];
@@ -74,7 +74,7 @@
 
 - (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMFAClaims_ADALWebView
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountMFAClaims];
@@ -87,7 +87,7 @@
                              @"user_identifier_type" : @"optional_displayable",
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
     [self aadEnterPassword];
@@ -99,7 +99,7 @@
                @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D",
                };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     // Acquire token again.
     [self acquireToken:config];

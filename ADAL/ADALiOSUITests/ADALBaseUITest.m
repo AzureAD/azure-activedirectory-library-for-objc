@@ -23,11 +23,11 @@
 
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
-#import "MSIDTestConfigurationRequest.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 #import "MSIDTestAccountsProvider.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "NSDictionary+ADALiOSUITests.h"
-#import "MSIDAADV1IdTokenWrapper.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
 @implementation ADALBaseUITest
 
@@ -93,7 +93,7 @@
     NSString *idToken = result[@"id_token"];
     XCTAssertTrue([idToken length] > 0);
 
-    MSIDAADV1IdTokenWrapper *idTokenWrapper = [[MSIDAADV1IdTokenWrapper alloc] initWithRawIdToken:idToken];
+    MSIDAADV1IdTokenClaims *idTokenWrapper = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:idToken];
     return [idTokenWrapper jsonDictionary];
 }
 
@@ -106,14 +106,14 @@
 
 #pragma mark - API fetch
 
-- (void)loadTestConfiguration:(MSIDTestConfigurationRequest *)request
+- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request
 {
-    __block MSIDTestConfiguration *testConfig = nil;
+    __block MSIDTestAutomationConfiguration *testConfig = nil;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
 
     [self.accountsProvider configurationWithRequest:request
-                                  completionHandler:^(MSIDTestConfiguration *configuration) {
+                                  completionHandler:^(MSIDTestAutomationConfiguration *configuration) {
 
                                       testConfig = configuration;
                                       [expectation fulfill];

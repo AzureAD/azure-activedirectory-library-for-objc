@@ -36,7 +36,7 @@
     [self clearCache];
     [self clearCookies];
 
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureGuestUser];
@@ -51,7 +51,7 @@
                              @"validate_authority" : @YES
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params account:self.primaryAccount];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
 
     [self acquireToken:config];
     [self aadEnterEmail];
@@ -66,7 +66,7 @@
                                    @"user_identifier" : self.primaryAccount.account
                                    };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams account:self.primaryAccount];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams account:self.primaryAccount];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -86,7 +86,7 @@
     // Now do silent #296725 without providing user ID
     silentParams = @{};
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams account:self.primaryAccount];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams account:self.primaryAccount];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -105,7 +105,7 @@
                              @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
-    homeParams = [self.testConfiguration configParametersWithAdditionalParams:homeParams account:self.primaryAccount];
+    homeParams = [self.testConfiguration configWithAdditionalConfiguration:homeParams account:self.primaryAccount];
 
     [self acquireToken:homeParams];
     [self aadEnterEmail];
@@ -125,7 +125,7 @@
                              @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
-    guestParams = [self.testConfiguration configParametersWithAdditionalParams:guestParams account:self.primaryAccount];
+    guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
     [self acquireToken:guestParams];
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -142,7 +142,7 @@
                                        @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
                                        @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                                        };
-    silentHomeParams = [self.testConfiguration configParametersWithAdditionalParams:silentHomeParams account:self.primaryAccount];
+    silentHomeParams = [self.testConfiguration configWithAdditionalConfiguration:silentHomeParams account:self.primaryAccount];
     [self expireAccessToken:silentHomeParams];
     [self assertAccessTokenExpired];
     [self closeResultView];
@@ -158,7 +158,7 @@
                                         @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
                                         @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                                         };
-    silentGuestParams = [self.testConfiguration configParametersWithAdditionalParams:silentGuestParams account:self.primaryAccount];
+    silentGuestParams = [self.testConfiguration configWithAdditionalConfiguration:silentGuestParams account:self.primaryAccount];
     [self expireAccessToken:silentGuestParams];
     [self assertAccessTokenExpired];
     [self closeResultView];
@@ -179,7 +179,7 @@
                                  @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                                  };
 
-    homeParams = [self.testConfiguration configParametersWithAdditionalParams:homeParams account:self.primaryAccount];
+    homeParams = [self.testConfiguration configWithAdditionalConfiguration:homeParams account:self.primaryAccount];
 
     [self acquireToken:homeParams];
     [self aadEnterEmail];
@@ -201,7 +201,7 @@
                                   @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                                   };
 
-    guestParams = [self.testConfiguration configParametersWithAdditionalParams:guestParams account:self.primaryAccount];
+    guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
     [self acquireToken:guestParams];
     [self assertAccessTokenNotNil];
 

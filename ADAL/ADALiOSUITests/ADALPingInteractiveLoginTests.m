@@ -39,7 +39,7 @@
     [self clearCache];
     [self clearCookies];
 
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderPing;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -54,7 +54,7 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     
@@ -80,7 +80,7 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     

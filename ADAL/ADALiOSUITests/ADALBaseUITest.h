@@ -24,15 +24,15 @@
 #import <XCTest/XCTest.h>
 #import "MSIDTestAccountsProvider.h"
 #import "XCUIElement+ADALiOSUITests.h"
-
-@class MSIDTestConfigurationRequest;
+#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 
 @interface ADALBaseUITest : XCTestCase
 
 @property (nonatomic) XCUIApplication *testApp;
 @property (nonatomic) MSIDTestAccountsProvider *accountsProvider;
 @property (nonatomic) MSIDTestAccount *primaryAccount;
-@property (nonatomic) MSIDTestConfiguration *testConfiguration;
+@property (nonatomic) MSIDTestAutomationConfiguration *testConfiguration;
 
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
@@ -57,7 +57,7 @@
 
 - (void)waitForElement:(id)object;
 - (NSDictionary *)resultDictionary;
-- (void)loadTestConfiguration:(MSIDTestConfigurationRequest *)request;
+- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request;
 - (void)loadPasswordForAccount:(MSIDTestAccount *)account;
 
 @end

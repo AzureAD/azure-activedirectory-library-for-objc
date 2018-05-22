@@ -39,7 +39,7 @@
     [self clearCache];
     [self clearCookies];
 
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderNTLM;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = NO;
@@ -55,7 +55,7 @@
                              @"user_identifier_type" : @"optional_displayable",
                              @"validate_authority" : @NO
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
     [self ntlmWaitForAlert];
@@ -80,7 +80,7 @@
                              @"validate_authority" : @NO,
                              @"web_view" : @"passed_in"
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
     [self ntlmWaitForAlert];
@@ -103,7 +103,7 @@
                              @"user_identifier_type" : @"optional_displayable",
                              @"validate_authority" : @NO
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
     [self ntlmWaitForAlert];

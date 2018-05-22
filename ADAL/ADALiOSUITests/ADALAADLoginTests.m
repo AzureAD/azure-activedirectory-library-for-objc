@@ -45,7 +45,7 @@
 // #290995 iteration 1
 - (void)testInteractiveAndSilentAADLogin_withPromptAlways_noLoginHint_ADALWebView
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -55,7 +55,7 @@
                              @"validate_authority" : @YES
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     [self aadEnterEmail];
@@ -80,7 +80,7 @@
                      @"resource" : self.testConfiguration.resource
                      };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -102,7 +102,7 @@
                      @"resource" : self.testConfiguration.resource
                      };
 
-    config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -110,7 +110,7 @@
 
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -120,7 +120,7 @@
                              @"validate_authority" : @YES
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
     [self aadEnterEmail];
@@ -131,7 +131,7 @@
 // #290995 iteration 2
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_ADALWebView
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -142,7 +142,7 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     [self aadEnterPassword];
@@ -159,7 +159,7 @@
 // #290995 iteration 3
 - (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_ADALWebView
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -170,7 +170,7 @@
                              @"user_identifier_type" : @"optional_displayable"
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     
@@ -190,7 +190,7 @@
 // #290995 iteration 4
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_PassedInWebView
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -202,7 +202,7 @@
                              @"user_identifier_type" : @"optional_displayable",
                              @"web_view" : @"passed_in"
                              };
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     
@@ -221,7 +221,7 @@
 // #296277: FoCI: Acquire a token using an FRT
 - (void)testAADLogin_withPromptAlways_noLoginHint_acquireTokenUsingFRT
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -234,7 +234,7 @@
                              @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     
@@ -251,7 +251,7 @@
                @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
                };
 
-    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireTokenSilent:config2];
     [self assertAccessTokenNotNil];
@@ -260,7 +260,7 @@
 // #296755: FoCI : MRRT Fallback when FRT Fails
 - (void)testAADLogin_withPromptAlways_noLoginHint_MRRTFallbackWhenFRTFails
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -273,7 +273,7 @@
                              @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     
@@ -315,7 +315,7 @@
 // #296753: Login Multiple Accounts
 - (void)testAADLogin_withPromptAlways_LoginHint_loginMultipleAccounts
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
     configurationRequest.appVersion = MSIDAppVersionV1;
@@ -333,7 +333,7 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              } mutableCopy];
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     
@@ -349,7 +349,7 @@
     [self loadPasswordForAccount:self.primaryAccount];
 
     params[@"user_identifier"] = self.primaryAccount.account;
-    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config2];
     
     [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
@@ -361,7 +361,7 @@
     // User 1, silent login.
     self.primaryAccount = self.testConfiguration.accounts[0];
     params[@"user_identifier"] = self.primaryAccount.account;
-    config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self expireAccessToken:config];
     [self assertAccessTokenExpired];
     [self closeResultView];
@@ -378,7 +378,7 @@
 // #296758: Different ADUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = YES;
@@ -400,7 +400,7 @@
                              @"user_identifier_type" : @"optional_displayable"
                              } mutableCopy];
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
 
@@ -420,7 +420,7 @@
     // Required Displayable, User 1.
     params[@"user_identifier_type"] = @"required_displayable";
 
-    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config2];
 
@@ -438,7 +438,7 @@
     // RequiredDisplayableId and not changing the user
 
     params[@"user_identifier"] = firstAccount.account;
-    NSDictionary *config3 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config3 = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config3];
     [self aadEnterPassword];
@@ -450,7 +450,7 @@
 // 296732: Company Portal Install Prompt
 - (void)test_companyPortalInstallPrompt
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMDMEnabled];
@@ -465,7 +465,7 @@
                              @"user_identifier_type" : @"optional_displayable"
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
     [self aadEnterPassword];
@@ -486,7 +486,7 @@
 
 - (void)testSilentAADLogin_withNoTokensInCache
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -498,14 +498,14 @@
                                    @"resource" : self.testConfiguration.resource
                                    };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:silentParams];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
 }
 
 - (void)testSilentAADLogin_withNoUserProvided_multipleUsersInCache
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
     configurationRequest.appVersion = MSIDAppVersionV1;
@@ -520,7 +520,7 @@
                                      @"user_identifier" : self.primaryAccount.account,
                                      @"user_identifier_type" : @"optional_displayable"
                                      } mutableCopy];
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
 
@@ -536,7 +536,7 @@
     [self loadPasswordForAccount:self.primaryAccount];
 
     params[@"user_identifier"] = self.primaryAccount.account;
-    NSDictionary *config2 = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config2];
 
     [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
@@ -548,7 +548,7 @@
     // User 1, silent login.
     self.primaryAccount = self.testConfiguration.accounts[0];
     params[@"user_identifier"] = nil;
-    config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireTokenSilent:config];
     [self assertError:@"AD_ERROR_CACHE_MULTIPLE_USERS"];
@@ -556,7 +556,7 @@
 
 - (void)DISABLED_testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes
 {
-    MSIDTestConfigurationRequest *configurationRequest = [MSIDTestConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
@@ -566,7 +566,7 @@
                              @"validate_authority" : @YES
                              };
 
-    NSDictionary *config = [self.testConfiguration configParametersWithAdditionalParams:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
 
