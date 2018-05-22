@@ -265,7 +265,7 @@
     
     NSUInteger allItemsCount = [[[ADKeychainTokenCache new] allItems:nil] count];
     [[MSIDKeychainTokenCache new] clearWithContext:nil error:nil];
-    
+
     [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItemsCount]
                        logs:_resultLogs];
 }
