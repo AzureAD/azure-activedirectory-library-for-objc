@@ -59,7 +59,7 @@
 - (void)setUp
 {
     [super setUp];
-    
+
     self.adTokenCache = [ADTokenCache new];
     self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil];
 }
@@ -405,7 +405,6 @@
         
         [context setCorrelationId:correlationId1];
 
-
         [context acquireTokenSilentWithResource:resource1
                                        clientId:TEST_CLIENT_ID
                                     redirectUri:TEST_REDIRECT_URL
@@ -429,6 +428,7 @@
     __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire thread 2"];
     dispatch_async(concurrentQueue, ^{
         ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+        context.tokenCache = self.tokenCache;
         ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
         mrrt.authority = authority;
         [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
@@ -561,6 +561,7 @@
     [ADTestURLSession addResponses:@[validationResponse, authCodeResponse]];
 
     ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    context.tokenCache = self.tokenCache;
     XCTAssertNotNil(context);
     [context setCorrelationId:TEST_CORRELATION_ID];
 

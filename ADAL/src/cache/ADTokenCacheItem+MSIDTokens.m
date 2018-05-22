@@ -30,6 +30,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "MSIDLegacyTokenCacheItem.h"
+#import "NSURL+MSIDExtensions.h"
 
 @interface ADTokenCacheItem()
 
@@ -153,12 +154,15 @@
     cacheItem.oauthTokenType = self.accessTokenType;
     cacheItem.accessToken = self.accessToken;
     cacheItem.refreshToken = self.refreshToken;
+    cacheItem.secret = self.accessToken ? self.accessToken : self.refreshToken;
     cacheItem.idToken = self.userInformation.rawIdToken;
     cacheItem.target = self.resource;
     cacheItem.expiresOn = self.expiresOn;
     cacheItem.cachedAt = nil;
     cacheItem.familyId = self.familyId;
     cacheItem.authority = [NSURL URLWithString:self.authority];
+    cacheItem.environment = cacheItem.authority.msidHostWithPortIfNecessary;
+    cacheItem.realm = cacheItem.authority.msidTenant;
     cacheItem.homeAccountId = self.userInformation.homeUserId;
     cacheItem.credentialType = [MSIDCredentialTypeHelpers credentialTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
     cacheItem.additionalInfo = self.additionalServer;

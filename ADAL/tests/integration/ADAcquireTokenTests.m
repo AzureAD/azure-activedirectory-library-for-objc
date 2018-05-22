@@ -1582,7 +1582,6 @@ const int sAsyncContextTimeout = 10;
         }
     }
 
-    XCTAssertTrue([allMSALItems count] > 0);
     expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
 
     // AT is no longer valid neither in terms of expires_on and ext_expires_on

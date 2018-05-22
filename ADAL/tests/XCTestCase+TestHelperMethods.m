@@ -520,7 +520,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (NSString *)adDefaultIDToken
 {
-    return [MSIDTestIdTokenUtil idTokenWithName:@"Test name" upn:TEST_USER_ID tenantId:@"contoso.com" additionalClaims:nil];
+    return [MSIDTestIdTokenUtil idTokenWithName:@"Test name" upn:TEST_USER_ID tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048" additionalClaims:nil];
 }
 
 - (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem

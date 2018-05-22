@@ -379,7 +379,6 @@
              if (result.status == AD_SUCCEEDED && replay)
              {
                  [self setScope:_requestParams.openidScope];
-                 
                  [self getAccessToken:completionBlock];
                  return;
              }

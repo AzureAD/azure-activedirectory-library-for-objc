@@ -98,6 +98,11 @@
     _redirectUri = [redirectUri msidTrimmedString];
 }
 
+- (void)setScope:(NSString *)scope
+{
+    _scope = scope;
+}
+
 - (NSString *)openidScope
 {
     if (!self.scope)
@@ -111,7 +116,7 @@
         return [NSString stringWithFormat:@"openid %@", self.scope];
     }
 
-    return @"openid";
+    return self.scope;
 }
 
 - (void)setIdentifier:(ADUserIdentifier *)identifier
