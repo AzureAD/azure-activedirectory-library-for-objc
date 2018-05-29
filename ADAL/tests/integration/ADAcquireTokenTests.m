@@ -2316,4 +2316,135 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(rtInCache);
 }
 
+- (void)testSilentForceRefresh_whenValidATAndMRRTInCache_shouldSkipCurrentATAndGetNewAT
+{
+    ADAuthenticationError *error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add a valid access token to the cache
+    ADTokenCacheItem *item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                               forceRefresh:YES
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    NSArray *allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 2);
+    
+    ADTokenCacheItem *mrrtItem = nil;
+    ADTokenCacheItem *atItem = nil;
+    
+    // Pull the MRRT and AT items out of the cache
+    for (ADTokenCacheItem  *item in allItems)
+    {
+        if (item.refreshToken)
+        {
+            mrrtItem = item;
+        }
+        else if (item.accessToken)
+        {
+            atItem = item;
+        }
+    }
+    
+    XCTAssertNotNil(mrrtItem);
+    XCTAssertNotNil(atItem);
+    
+    XCTAssertNil(atItem.refreshToken);
+    XCTAssertNil(mrrtItem.accessToken);
+    
+    // Make sure the tokens got updated
+    XCTAssertEqualObjects(atItem.accessToken, @"new access token");
+    XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
+}
+
+- (void)testSilentForceRefresh_whenValidATInCacheButNoMRRT_shouldReturnInteractionRequiredError
+{
+    ADAuthenticationError *error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add a valid access token to the cache
+    ADTokenCacheItem *item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                               forceRefresh:YES
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testSilentForceRefresh_whenValidATAndSingleResourceRTInCache_shouldSkipCurrentATAndGetNewAT
+{
+    ADAuthenticationError *error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add a valid access token and single resource RT to the cache
+    ADTokenCacheItem *item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                               forceRefresh:YES
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new refresh token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
 @end
