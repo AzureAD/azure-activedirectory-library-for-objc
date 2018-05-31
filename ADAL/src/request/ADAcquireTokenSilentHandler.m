@@ -36,6 +36,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADEnrollmentGateway.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -124,6 +125,15 @@
     if (![NSString adIsStringNilOrBlank:_requestParams.scope])
     {
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
+    }
+    
+    if (_requestParams.identifier && ![NSString adIsStringNilOrBlank:_requestParams.identifier.userId])
+    {
+        NSString* enrollId = [ADEnrollmentGateway enrollmentIdForUserId:_requestParams.identifier.userId];
+        if (enrollId)
+        {
+            [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+        }
     }
     
     ADWebAuthRequest* webReq =

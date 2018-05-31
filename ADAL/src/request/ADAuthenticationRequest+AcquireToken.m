@@ -37,6 +37,7 @@
 #import "ADBrokerHelper.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthorityUtils.h"
+#import "ADEnrollmentGateway.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -513,6 +514,15 @@
     if (![NSString adIsStringNilOrBlank:_requestParams.scope])
     {
         [request_data setValue:_requestParams.scope forKey:OAUTH2_SCOPE];
+    }
+    
+    if (_requestParams.identifier && ![NSString adIsStringNilOrBlank:_requestParams.identifier.userId])
+    {
+        NSString* enrollId = [ADEnrollmentGateway enrollmentIdForUserId:_requestParams.identifier.userId];
+        if (enrollId)
+        {
+            [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+        }
     }
     
     [self executeRequest:request_data
