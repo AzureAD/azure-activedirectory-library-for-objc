@@ -190,12 +190,13 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    
-    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
+
+    // If broker sent a response along with error, it may contain Intune MAM resource token, decrypt response and check
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION] && ![queryParamsMap valueForKey:BROKER_RESPONSE_KEY])
     {
         return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
-    
+
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
     // accidentally going to the wrong app
     NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
@@ -256,6 +257,23 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]];
+    }
+    else if (AD_FAILED == result.status && keychainGroup && result.tokenCacheItem)
+    {
+        if ([result.error.protocolCode isEqualToString:@"unauthorized_client"])
+        {
+            ADAuthenticationResult* mamTokenResult = [ADAuthenticationResult resultFromTokenCacheItem:result.tokenCacheItem
+                                                                            multiResourceRefreshToken:result.multiResourceRefreshToken
+                                                                                        correlationId:nil];
+
+            ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
+                                                                                 authority:result.tokenCacheItem.authority];
+
+            [cache updateCacheToResult:mamTokenResult cacheItem:nil refreshToken:nil context:nil];
+
+            // remove mam token from Authentication result
+            result = [ADAuthenticationResult resultFromError:result.error correlationId:result.correlationId];
+        }
     }
     
     return result;

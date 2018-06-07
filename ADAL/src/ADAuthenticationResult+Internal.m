@@ -73,6 +73,24 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return self;
 }
 
+- (id)initWithError:(ADAuthenticationError *)error
+             status:(ADAuthenticationResultStatus)status
+               item: (ADTokenCacheItem*) item
+multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
+      correlationId: (NSUUID*) correlationId
+{
+    THROW_ON_NIL_ARGUMENT(error);
+
+    self = [self initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
+    if (self)
+    {
+        _status = status;
+        _error = error;
+        _correlationId = correlationId;
+    }
+    return self;
+}
+
 + (ADAuthenticationResult*)resultFromTokenCacheItem:(ADTokenCacheItem *)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID *)correlationId
@@ -103,6 +121,20 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                                             status:AD_FAILED
                                                                      correlationId:correlationId];
     
+    return result;
+}
+
++(ADAuthenticationResult*) resultFromError:(ADAuthenticationError *)error
+                        withTokenCacheItem:(ADTokenCacheItem *)item
+                 multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
+                             correlationId:(NSUUID *)correlationId
+{
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:error
+                                                                            status:AD_FAILED
+                                                                              item:item
+                                                         multiResourceRefreshToken:multiResourceRefreshToken
+                                                                     correlationId:correlationId];
+
     return result;
 }
 
@@ -168,6 +200,16 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         errorCode = [strErrorCode integerValue];
     }
+
+    ADTokenCacheItem* item = nil;
+    BOOL mrrt = NO;
+    if (errorCode == AD_ERROR_TOKENBROKER_PROTECTION_REQUIRED)
+    {
+        // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
+        item = [ADTokenCacheItem new];
+        [item setAccessTokenType:@"Bearer"];
+        mrrt = [item fillItemWithResponse:response];
+    }
     
     NSString* protocolCode = [response valueForKey:@"protocol_code"];
     if (!protocolCode)
@@ -194,8 +236,24 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                           errorDetails:errorDetails
                                          correlationId:correlationId];
     }
-    
-    return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+
+    // For certain errors, the Broker will send back a token as well as an error.
+    // Attach the token to the result if we created one.
+    ADAuthenticationResult* result;
+    if (item)
+    {
+        result = [ADAuthenticationResult resultFromError:error
+                                      withTokenCacheItem:item
+                               multiResourceRefreshToken:mrrt
+                                           correlationId:correlationId];
+    }
+    else
+    {
+        result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+    }
+
+
+    return result;
 }
 
 + (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response

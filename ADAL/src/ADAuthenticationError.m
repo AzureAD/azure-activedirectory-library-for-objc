@@ -333,6 +333,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_PROTECTION_REQUIRED);
             default:
                 return [NSString stringWithFormat:@"%ld", (long)code];
     }
