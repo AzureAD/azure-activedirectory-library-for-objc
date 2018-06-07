@@ -203,7 +203,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
     ADTokenCacheItem* item = nil;
     BOOL mrrt = NO;
-    if (errorCode == AD_ERROR_TOKENBROKER_PROTECTION_REQUIRED)
+    if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
         item = [ADTokenCacheItem new];

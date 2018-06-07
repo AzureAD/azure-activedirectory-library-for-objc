@@ -93,6 +93,9 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     
     /*! Invalid data was returned from the server, see -errorDetails for more information. */
     AD_ERROR_SERVER_INVALID_RESPONSE = 212,
+
+    /*! Intune App Prtoection is required by the service */
+    AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED = 213,
     
     
     //
@@ -180,8 +183,6 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     /*! We can't call out to tokenbroker in an extension */
     AD_ERROR_TOKENBROKER_NOT_SUPPORTED_IN_EXTENSION = 511,
 
-    /*! Intune App Prtoection is required by the service */
-    AD_ERROR_TOKENBROKER_PROTECTION_REQUIRED = 512,
     
 };
 
