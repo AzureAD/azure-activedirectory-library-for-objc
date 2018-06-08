@@ -137,6 +137,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -227,6 +229,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -332,6 +336,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
