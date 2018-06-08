@@ -57,6 +57,9 @@ static NSString* ADIntuneResourceJSON = nil;
 {
     NSString* enrollIdJSON = [ADEnrollmentGateway allEnrollmentIds];
 
+    if (!enrollIdJSON)
+        return nil;
+
     NSError* error = nil;
     id enrollIds = [NSJSONSerialization JSONObjectWithData:[enrollIdJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
