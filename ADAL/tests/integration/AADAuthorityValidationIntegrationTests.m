@@ -373,7 +373,7 @@
                                                             resource:resource1
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId1
-                                                     newRefreshToken:@"new-rt-1"
+                                                     newRefreshToken:TEST_REFRESH_TOKEN
                                                       newAccessToken:@"new-at-1"
                                                           newIDToken:[self adDefaultIDToken]];
     ADTestURLResponse *tokenResponse2 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
@@ -381,7 +381,7 @@
                                                             resource:resource2
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId2
-                                                     newRefreshToken:@"new-rt-2"
+                                                     newRefreshToken:TEST_REFRESH_TOKEN
                                                       newAccessToken:@"new-at-2"
                                                           newIDToken:[self adDefaultIDToken]];
     [ADTestURLSession addResponse:validationResponse];
