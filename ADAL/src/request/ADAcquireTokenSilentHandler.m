@@ -42,10 +42,12 @@
 #import "ADResponseCacheHandler.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAccountIdentifier.h"
+#import "ADAuthenticationSettings.h"
 
 @interface ADAcquireTokenSilentHandler()
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDAADV1Oauth2Factory *factory;
 
 @end
 
@@ -61,6 +63,7 @@
     
     handler->_requestParams = requestParams;
     handler.tokenCache = tokenCache;
+    handler.factory = [MSIDAADV1Oauth2Factory new];
     
     return handler;
 }
@@ -159,11 +162,10 @@
          }
          
          NSError *msidError = nil;
-         MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-         MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:response
-                                                              refreshToken:cacheItem
-                                                                   context:nil
-                                                                     error:&msidError];
+         MSIDTokenResponse *tokenResponse = [self.factory tokenResponseFromJSON:response
+                                                                   refreshToken:cacheItem
+                                                                        context:nil
+                                                                          error:&msidError];
          
          if (msidError)
          {
@@ -281,6 +283,7 @@
     NSError *msidError = nil;
 
     MSIDLegacySingleResourceToken *item = [self.tokenCache getSingleResourceTokenForAccount:_requestParams.account
+                                                                                    factory:self.factory
                                                                               configuration:_requestParams.msidConfig
                                                                                     context:_requestParams
                                                                                       error:&msidError];
@@ -299,6 +302,7 @@
         MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
+                                                         factory:self.factory
                                                    configuration:_requestParams.msidConfig
                                                          context:_requestParams
                                                            error:&msidError];
@@ -319,7 +323,7 @@
     }
 
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && !item.isExpired)
+    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer])
     {
         [[MSIDLogger sharedLogger] logToken:item.accessToken
                                   tokenType:@"AT"
@@ -401,6 +405,7 @@
 
         MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                             familyId:nil
+                                                                             factory:self.factory
                                                                        configuration:_requestParams.msidConfig
                                                                              context:_requestParams
                                                                                error:&msidError];
@@ -470,6 +475,7 @@
 
     MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                         familyId:familyId
+                                                                         factory:self.factory
                                                                    configuration:_requestParams.msidConfig
                                                                          context:_requestParams
                                                                            error:&msidError];

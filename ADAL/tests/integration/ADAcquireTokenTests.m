@@ -44,6 +44,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "ADTokenCacheKey.h"
 #import "MSIDBaseToken.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -371,7 +372,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [self.cacheDataSource allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 2);
+    XCTAssertEqual(allItems.count, 3);
     
     ADTokenCacheItem* mrrtItem = nil;
     ADTokenCacheItem* atItem = nil;
@@ -730,7 +731,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [self.cacheDataSource allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 2);
+    XCTAssertEqual(allItems.count, 3);
 
     ADTokenCacheItem* mrrtItem = nil;
     ADTokenCacheItem* atItem = nil;
@@ -804,7 +805,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [self.cacheDataSource allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 2);
+    XCTAssertEqual(allItems.count, 3);
 
     ADTokenCacheItem* mrrtItem = nil;
     ADTokenCacheItem* atItem = nil;
@@ -1571,6 +1572,11 @@ const int sAsyncContextTimeout = 10;
     [cache removeItem:rtItem error:&error];
     XCTAssertNil(error);
 
+    // Also remove common entry
+    rtItem.authority = @"https://login.windows.net/common";
+    [cache removeItem:rtItem error:&error];
+    XCTAssertNil(error);
+
     // Clear MSAL cache, otherwise it will get into the way
     NSArray *allMSALItems = [_msalTokenCache allTokensWithContext:nil error:nil];
 
@@ -1578,7 +1584,7 @@ const int sAsyncContextTimeout = 10;
     {
         if (token.credentialType == MSIDRefreshTokenType)
         {
-            [_msalTokenCache validateAndRemoveRefreshToken:(MSIDRefreshToken *)token context:nil error:nil];
+            [_msalTokenCache validateAndRemoveRefreshToken:(MSIDRefreshToken *)token factory:[MSIDAADV1Oauth2Factory new] context:nil error:nil];
         }
     }
 
