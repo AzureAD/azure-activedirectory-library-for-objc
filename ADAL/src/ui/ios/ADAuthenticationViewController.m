@@ -51,6 +51,13 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error
 {
+    /* Start background transition tracking,
+     so we can start a background task, when app transitions to background */
+    if (![ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        [self startTrackingBackroundAppTransition];
+    }
+
     // If we already have a webview then we assume it's already being displayed and just need to
     // hijack the delegate on the webview.
     if (_webView)
@@ -100,13 +107,6 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
                                                                                   target:self
                                                                                   action:@selector(onCancel:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-
-    /* Start background transition tracking,
-     so we can start a background task, when app transitions to background */
-    if (![ADAppExtensionUtil isExecutingInAppExtension])
-    {
-        [self startTrackingBackroundAppTransition];
-    }
 
     return YES;
 }

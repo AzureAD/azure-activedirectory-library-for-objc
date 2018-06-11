@@ -43,6 +43,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "ADAuthenticationContext+TestUtil.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
@@ -61,7 +62,7 @@
     [super setUp];
 
     self.adTokenCache = [ADTokenCache new];
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 }
 
 - (void)tearDown
@@ -373,7 +374,7 @@
                                                             resource:resource1
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId1
-                                                     newRefreshToken:@"new-rt-1"
+                                                     newRefreshToken:TEST_REFRESH_TOKEN
                                                       newAccessToken:@"new-at-1"
                                                           newIDToken:[self adDefaultIDToken]];
     ADTestURLResponse *tokenResponse2 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
@@ -381,7 +382,7 @@
                                                             resource:resource2
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId2
-                                                     newRefreshToken:@"new-rt-2"
+                                                     newRefreshToken:TEST_REFRESH_TOKEN
                                                       newAccessToken:@"new-at-2"
                                                           newIDToken:[self adDefaultIDToken]];
     [ADTestURLSession addResponse:validationResponse];

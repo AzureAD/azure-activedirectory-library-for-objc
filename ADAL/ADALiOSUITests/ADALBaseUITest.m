@@ -93,7 +93,7 @@
     NSString *idToken = result[@"id_token"];
     XCTAssertTrue([idToken length] > 0);
 
-    MSIDAADV1IdTokenClaims *idTokenWrapper = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:idToken];
+    MSIDAADV1IdTokenClaims *idTokenWrapper = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:idToken error:nil];
     return [idTokenWrapper jsonDictionary];
 }
 
