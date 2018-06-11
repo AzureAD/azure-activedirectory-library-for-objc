@@ -252,10 +252,10 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     BOOL isMRRT = response.tokenResponse.isMultiResource;
     
-    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:[NSURL URLWithString:response.authority] redirectUri:nil clientId:response.clientId target:response.resource];
+    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority] redirectUri:nil clientId:response.clientId target:response.resource];
     
     MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response.tokenResponse
-                                                                          request:parameters];
+                                                                    configuration:config];
     
     ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     
