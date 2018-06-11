@@ -43,6 +43,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "ADAuthenticationContext+TestUtil.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
@@ -61,7 +62,7 @@
     [super setUp];
 
     self.adTokenCache = [ADTokenCache new];
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 }
 
 - (void)tearDown

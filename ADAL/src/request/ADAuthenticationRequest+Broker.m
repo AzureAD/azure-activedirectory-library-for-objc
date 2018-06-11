@@ -266,15 +266,14 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     if (AD_SUCCEEDED == result.status && keychainGroup)
     {
         MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
-        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
-        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
-        MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+        MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
+        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
-        BOOL saveResult = [cache saveTokensWithFactory:factory
-                                        brokerResponse:brokerResponse
-                                      saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
-                                               context:nil
-                                                 error:&msidError];
+        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                             saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
+                                                      context:nil
+                                                        error:&msidError];
         
         if (!saveResult)
         {

@@ -283,7 +283,6 @@
     NSError *msidError = nil;
 
     MSIDLegacySingleResourceToken *item = [self.tokenCache getSingleResourceTokenForAccount:_requestParams.account
-                                                                                    factory:self.factory
                                                                               configuration:_requestParams.msidConfig
                                                                                     context:_requestParams
                                                                                       error:&msidError];
@@ -302,7 +301,6 @@
         MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
-                                                         factory:self.factory
                                                    configuration:_requestParams.msidConfig
                                                          context:_requestParams
                                                            error:&msidError];
@@ -405,7 +403,6 @@
 
         MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                             familyId:nil
-                                                                             factory:self.factory
                                                                        configuration:_requestParams.msidConfig
                                                                              context:_requestParams
                                                                                error:&msidError];
@@ -475,7 +472,6 @@
 
     MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                         familyId:familyId
-                                                                         factory:self.factory
                                                                    configuration:_requestParams.msidConfig
                                                                          context:_requestParams
                                                                            error:&msidError];
