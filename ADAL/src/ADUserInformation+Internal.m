@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "ADUserInformation+Internal.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDIdTokenClaims.h"
 
 #define RETURN_ID_TOKEN_ERROR \
 { \
@@ -76,111 +78,23 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
     
     _rawIdToken = idToken;
     _homeUserId = homeUserId;
-    
-    NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
-    if (parts.count < 1)
-    {
-        RETURN_ID_TOKEN_ERROR;
-    }
-    
-    NSMutableDictionary* allClaims = [NSMutableDictionary new];
-    NSString* type = nil;
-    for (NSString* part in parts)
-    {
-        NSString* decoded = [part msidBase64UrlDecode];
-        if (![NSString msidIsStringNilOrBlank:decoded])
-        {
-            NSError* jsonError  = nil;
-            id jsonObject = [NSJSONSerialization JSONObjectWithData:[decoded dataUsingEncoding:NSUTF8StringEncoding]
-                                                            options:0
-                                                              error:&jsonError];
-            if (jsonError)
-            {
-                
-                
-                ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
-                                                                            errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]
-                                                                           correlationId:nil];
-                if (error)
-                {
-                    *error = adError;
-                }
-                return nil;
-            }
-            
-            if (![jsonObject isKindOfClass:[NSDictionary class]])
-            {
-                RETURN_ID_TOKEN_ERROR;
-            }
-            
-            NSDictionary* contents = (NSDictionary*)jsonObject;
-            if (!type)
-            {
-                type = [contents objectForKey:ID_TOKEN_TYPE];
-                if (type)
-                {
-                    //Type argument is passed, check if it is the expected one
-                    if (![ID_TOKEN_JWT_TYPE isEqualToString:type])
-                    {
-                        //Log it, but still try to use it as if it was a JWT token
-                        MSID_LOG_WARN(nil, @"Incompatible id_token type - %@", type);
-                    }
-                }
-            }
 
-            [allClaims addEntriesFromDictionary:contents];
+    MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_rawIdToken];
+
+    if (!idTokenClaims)
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_SERVER_INVALID_ID_TOKEN userInfo:nil];
         }
+
+        return nil;
     }
-    if (!type)
-    {
-        MSID_LOG_WARN(nil, @"The id_token type is missing. Assuming JWT type.");
-    }
-    
-    _allClaims = allClaims;
-    
-    //Now attempt to extract an unique user id:
-    if (![NSString msidIsStringNilOrBlank:self.upn])
-    {
-        _userId = self.upn;
-        _userIdDisplayable = YES;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.eMail])
-    {
-        _userId = self.eMail;
-        _userIdDisplayable = YES;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.subject])
-    {
-        _userId = self.subject;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.userObjectId])
-    {
-        _userId = self.userObjectId;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.uniqueName])
-    {
-        _userId = self.uniqueName;
-        _userIdDisplayable = YES;//This is what the server provided
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.guestId])
-    {
-        _userId = self.guestId;
-    }
-    else
-    {
-        RETURN_ID_TOKEN_ERROR;
-    }
-    _userId = [self.class normalizeUserId:_userId];
-    
-    if (![NSString msidIsStringNilOrBlank:self.userObjectId])
-    {
-        _uniqueId = self.userObjectId;
-    }
-    else if (![NSString msidIsStringNilOrBlank:self.subject])
-    {
-        _uniqueId = self.subject;
-    }
-    _uniqueId = [self.class normalizeUserId:_uniqueId];
+
+    _userId = idTokenClaims.userId;
+    _userIdDisplayable = idTokenClaims.userIdDisplayable;
+    _uniqueId = idTokenClaims.uniqueId;
+    _allClaims = [idTokenClaims jsonDictionary];
     
     return self;
 }
