@@ -79,13 +79,18 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
     _rawIdToken = idToken;
     _homeUserId = homeUserId;
 
-    MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_rawIdToken];
+    NSError *idTokenError = nil;
+    MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_rawIdToken error:&idTokenError];
 
     if (!idTokenClaims)
     {
-        if (error)
+        if (idTokenError && error)
         {
-            *error = [ADAuthenticationError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_SERVER_INVALID_ID_TOKEN userInfo:nil];
+            *error = [ADAuthenticationError errorFromNSError:idTokenError errorDetails:@"The id_token contents cannot be parsed" correlationId:nil];
+        }
+        else if (error)
+        {
+            *error = [ADUserInformation invalidIdTokenError];
         }
 
         return nil;
@@ -95,6 +100,18 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
     _userIdDisplayable = idTokenClaims.userIdDisplayable;
     _uniqueId = idTokenClaims.uniqueId;
     _allClaims = [idTokenClaims jsonDictionary];
+
+    if (!_userId)
+    {
+        MSID_LOG_WARN(nil, @"No user ID found in the id_token");
+
+        if (error)
+        {
+            *error = [ADUserInformation invalidIdTokenError];
+        }
+
+        return nil;
+    }
     
     return self;
 }
