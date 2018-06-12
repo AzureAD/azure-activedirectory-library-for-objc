@@ -148,6 +148,10 @@
 //Creates a sample user information object
 - (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
 
+//Mocks ADEnrollmentGateway
+- (void) mockADEnrollmentGateway;
+- (void) revertADEnrollmentGatewayMock;
+
 @end
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values
