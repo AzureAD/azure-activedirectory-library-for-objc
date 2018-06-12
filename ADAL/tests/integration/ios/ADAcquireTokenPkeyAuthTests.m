@@ -88,7 +88,7 @@
     NSArray* allItems = [ADLegacyKeychainTokenCache.defaultKeychainCache allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 3);
+    XCTAssertEqual(allItems.count, 2);
     
     ADTokenCacheItem* mrrtItem = nil;
     ADTokenCacheItem* atItem = nil;
