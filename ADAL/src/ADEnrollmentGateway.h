@@ -29,6 +29,7 @@
 + (NSString *)allEnrollmentIds;
 
 + (NSString *)intuneMamResource:(NSString *)authority;
++ (NSString *)allIntuneMAMResources;
 
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;

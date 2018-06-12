@@ -51,6 +51,7 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 IMP originalAllEnrollmentIds;
+IMP originalMAMResource;
 
 /* See header for details. */
 - (void)adValidateForInvalidArgument:(NSString *)argument
@@ -509,7 +510,7 @@ IMP originalAllEnrollmentIds;
 - (void) mockADEnrollmentGateway
 {
 
-    NSString* testJSON = [NSString stringWithFormat:
+    NSString* testEnrollmentIDJSON = [NSString stringWithFormat:
                      @"{\"enrollment_ids\": [\n"
                      "{\n"
                      "\"tid\" : \"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\n"
@@ -528,6 +529,13 @@ IMP originalAllEnrollmentIds;
                      "]\n"
                      "}"];
 
+    NSString* testIntuneResourceJSON = [NSString stringWithFormat:
+                                        @"{"
+                                            "\"login.microsoftonline.com\":\"microsoft.com/intune\",\n"
+                                            "\"login.microsoftonline.de\":\"microsoft.com/intune-de\""
+                                        "}"];
+
+
     // mock out enrollment data
 
     Class ADEnrollmentGatewayClass = [ADEnrollmentGateway class];
@@ -535,15 +543,33 @@ IMP originalAllEnrollmentIds;
     Method allEnrollmentIDsMethod = class_getClassMethod(ADEnrollmentGatewayClass, allEnrollmentIDsSelector);
     originalAllEnrollmentIds = method_getImplementation(allEnrollmentIDsMethod);
 
-    method_setImplementation(allEnrollmentIDsMethod, imp_implementationWithBlock(^NSString*(){return testJSON;}));
+    method_setImplementation(allEnrollmentIDsMethod, imp_implementationWithBlock(^NSString*(){return testEnrollmentIDJSON;}));
+
+    // mock out intune resources
+
+    SEL allIntuneResourcesSelector = @selector(allIntuneMAMResources);
+    Method allIntuneResourcesMethod = class_getClassMethod(ADEnrollmentGatewayClass, allIntuneResourcesSelector);
+    originalMAMResource = method_getImplementation(allIntuneResourcesMethod);
+
+    method_setImplementation(allIntuneResourcesMethod, imp_implementationWithBlock(^NSString*(){return testIntuneResourceJSON;}));
+
+
 }
 
 - (void) revertADEnrollmentGatewayMock
 {
     Class ADEnrollmentGatewayClass = [ADEnrollmentGateway class];
+
+    //revert enrollment method
     SEL allEnrollmentIDsSelector = @selector(allEnrollmentIds);
     Method allEnrollmentIDsMethod = class_getClassMethod(ADEnrollmentGatewayClass, allEnrollmentIDsSelector);
 
     method_setImplementation(allEnrollmentIDsMethod, originalAllEnrollmentIds);
+
+    //revert resource method
+    SEL allIntuneResourcesSelector = @selector(allIntuneMAMResources);
+    Method allIntuneResourcesMethod = class_getClassMethod(ADEnrollmentGatewayClass, allIntuneResourcesSelector);
+
+    method_setImplementation(allIntuneResourcesMethod, originalMAMResource);
 }
 @end

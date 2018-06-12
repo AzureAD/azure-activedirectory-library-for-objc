@@ -88,6 +88,14 @@ static NSString* ADIntuneResourceJSON = nil;
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
 }
 
++ (NSString *)allIntuneMAMResources
+{
+    if (ADIntuneResourceJSON)
+        return ADIntuneResourceJSON;
+
+    return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
+}
+
 + (NSString *)enrollmentIdForUserId:(NSString *)userId;
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
@@ -124,18 +132,10 @@ static NSString* ADIntuneResourceJSON = nil;
 
 + (NSString *)intuneMamResource:(NSString *)authority
 {
-    NSString* resourceJSON;
+    NSString* resourceJSON = [ADEnrollmentGateway allIntuneMAMResources];
 
-    if (ADIntuneResourceJSON)
-    {
-        resourceJSON = ADIntuneResourceJSON;
-    }
-    else
-    {
-        resourceJSON = [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
-        if (!resourceJSON)
-            return nil;
-    }
+    if (!resourceJSON)
+        return nil;
 
     NSError* error = nil;
     id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
