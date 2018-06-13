@@ -72,6 +72,11 @@
     XCTAssert([@"64d0557f-dave-4193-b630-8491ffd3b180" isEqualToString: [ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"1e4dd613-dave-4527-b50a-97aca38b57ba"]]);
 }
 
+- (void) testIntuneResourceForAuthority
+{
+    XCTAssert([@"https://www.microsoft.com/intune" isEqualToString: [ADEnrollmentGateway intuneMamResource:@"https://login.microsoftonline.com"]]);
+}
+
 
 
 @end

@@ -531,8 +531,8 @@ IMP originalMAMResource;
 
     NSString* testIntuneResourceJSON = [NSString stringWithFormat:
                                         @"{"
-                                            "\"login.microsoftonline.com\":\"microsoft.com/intune\",\n"
-                                            "\"login.microsoftonline.de\":\"microsoft.com/intune-de\""
+                                            "\"login.microsoftonline.com\":\"https://www.microsoft.com/intune\",\n"
+                                            "\"login.microsoftonline.de\":\"https://www.microsoft.com/intune-de\""
                                         "}"];
 
 
