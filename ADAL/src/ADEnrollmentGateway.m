@@ -146,6 +146,15 @@ static NSString* ADIntuneResourceJSON = nil;
     return resources[[ADEnrollmentGateway normalizeAuthority:authority]];
 }
 
++ (NSString *)intuneMAMResourceJSON:(NSString *)authority
+{
+    NSString* mamResource = [ADEnrollmentGateway intuneMamResource:authority];
+    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}",[ADEnrollmentGateway normalizeAuthority:authority],mamResource] : nil ;
+
+    return mamResource;
+}
+
+
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
 {

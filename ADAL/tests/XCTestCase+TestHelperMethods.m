@@ -510,7 +510,7 @@ IMP originalMAMResource;
 - (void) mockADEnrollmentGateway
 {
 
-    NSString* testEnrollmentIDJSON = [NSString stringWithFormat:
+    NSString* testEnrollmentIDJSON = IntuneTestJSON/* [NSString stringWithFormat:
                      @"{\"enrollment_ids\": [\n"
                      "{\n"
                      "\"tid\" : \"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\n"
@@ -527,12 +527,13 @@ IMP originalMAMResource;
                      "\"enrollment_id\" : \"64d0557f-dave-4193-b630-8491ffd3b180\"\n"
                      "},\n"
                      "]\n"
-                     "}"];
+                     "}"];*/
 
     NSString* testIntuneResourceJSON = [NSString stringWithFormat:
                                         @"{"
                                             "\"login.microsoftonline.com\":\"https://www.microsoft.com/intune\",\n"
-                                            "\"login.microsoftonline.de\":\"https://www.microsoft.com/intune-de\""
+                                            "\"login.microsoftonline.de\":\"https://www.microsoft.com/intune-de\",\n"
+                                            "\"login.windows.net\":\"https://www.microsoft.com/windowsIntune\"\n"
                                         "}"];
 
 
