@@ -300,8 +300,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSString* adalVersion = [ADLogger getAdalVersion];
     AUTH_ERROR_RETURN_IF_NIL(adalVersion, AD_ERROR_UNEXPECTED, @"Unable to retrieve ADAL version.", _requestParams.correlationId);
     NSString* enrollmentIds = [ADEnrollmentGateway allEnrollmentIds];
-    NSString* mamResource = [ADEnrollmentGateway intuneMamResource:_requestParams.authority];
-    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}",_requestParams.authority,mamResource] : @"" ;
+    NSString* mamResource = [ADEnrollmentGateway intuneMAMResourceJSON:_requestParams.authority];
+    mamResource = mamResource ? mamResource : @"" ;
     
     NSDictionary* queryDictionary =
     @{
