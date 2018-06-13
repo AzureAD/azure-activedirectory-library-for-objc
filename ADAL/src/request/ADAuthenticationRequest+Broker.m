@@ -260,7 +260,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     }
     else if (AD_FAILED == result.status && keychainGroup && result.tokenCacheItem)
     {
-        if ([result.error.protocolCode isEqualToString:@"unauthorized_client"])
+        if (result.error.code == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
         {
             ADAuthenticationResult* mamTokenResult = [ADAuthenticationResult resultFromTokenCacheItem:result.tokenCacheItem
                                                                             multiResourceRefreshToken:result.multiResourceRefreshToken
