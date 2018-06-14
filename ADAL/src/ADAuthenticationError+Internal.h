@@ -118,6 +118,12 @@
                                        code:(NSInteger)code
                               correlationId:(NSUUID *)correlationId;
 
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code
+                              correlationId:(NSUUID *)correlationId
+                                   suberror:(NSString*) suberror;
+
 /*
     Returns string representation of ADErrorCode or error code number as string, if mapping for that error is missing
  */

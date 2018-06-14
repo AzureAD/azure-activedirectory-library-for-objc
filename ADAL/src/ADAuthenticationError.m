@@ -283,6 +283,20 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code
+                              correlationId:(NSUUID *)correlationId
+                                   suberror:(NSString *)suberror
+{
+    return [self errorWithDomainInternal:ADOAuthServerErrorDomain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:description
+                           correlationId:correlationId
+                                userInfo:@{@"suberror":suberror}];
+}
+
 - (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain
 {
