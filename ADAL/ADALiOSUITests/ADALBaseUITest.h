@@ -22,42 +22,42 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "ADTestAccountsProvider.h"
+#import "MSIDTestAccountsProvider.h"
 #import "XCUIElement+ADALiOSUITests.h"
+#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 
 @interface ADALBaseUITest : XCTestCase
 
 @property (nonatomic) XCUIApplication *testApp;
-@property (nonatomic) ADTestAccountsProvider *accountsProvider;
-@property (nonatomic) ADTestAccount *accountInfo;
-@property (nonatomic) NSMutableDictionary *baseConfigParams;
-
-- (NSMutableDictionary *)fociConfig;
-- (NSMutableDictionary *)basicConfig;
-- (NSMutableDictionary *)sovereignConfig;
+@property (nonatomic) MSIDTestAccountsProvider *accountsProvider;
+@property (nonatomic) MSIDTestAccount *primaryAccount;
+@property (nonatomic) MSIDTestAutomationConfiguration *testConfiguration;
 
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
 - (void)assertAuthUIAppear;
 - (void)assertError:(NSString *)error;
 - (void)assertAccessTokenNotNil;
+- (NSDictionary *)resultIDTokenClaims;
 - (void)assertRefreshTokenNotNil;
 
 - (void)closeResultView;
-- (void)invalidateRefreshToken:(NSString *)jsonString;
-- (void)expireAccessToken:(NSString *)jsonString;
-- (void)acquireToken:(NSString *)jsonString;
-- (void)acquireTokenSilent:(NSString *)jsonString;
+- (void)invalidateRefreshToken:(NSDictionary *)config;
+- (void)expireAccessToken:(NSDictionary *)config;
+- (void)acquireToken:(NSDictionary *)config;
+- (void)acquireTokenSilent:(NSDictionary *)config;
 - (void)clearCache;
 - (void)clearCookies;
 - (void)aadEnterEmail:(NSString *)email;
 - (void)aadEnterEmail;
+- (void)aadEnterPassword;
+- (void)aadEnterPassword:(NSString *)password;
 - (void)closeAuthUI;
 
 - (void)waitForElement:(id)object;
-- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
-                    additionalParams:(NSDictionary *)additionalParams;
-- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams;
 - (NSDictionary *)resultDictionary;
+- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request;
+- (void)loadPasswordForAccount:(MSIDTestAccount *)account;
 
 @end

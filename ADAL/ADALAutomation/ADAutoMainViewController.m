@@ -32,6 +32,10 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADAutoWebViewController.h"
+#import "MSIDAadAuthorityCache.h"
+#import "ADHelpers.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDLegacyTokenCacheKey.h"
 
 @interface ADAutoMainViewController ()
 
@@ -169,6 +173,7 @@
                            promptBehavior:promptBehavior
                            userIdentifier:userIdentifier
                      extraQueryParameters:parameters[@"extra_qp"]
+                                   claims:parameters[@"claims"]
                           completionBlock:^(ADAuthenticationResult *result)
          {
              [weakSelf.webViewController dismissViewControllerAnimated:NO completion:nil];
@@ -258,14 +263,10 @@
 {
     (void)sender;
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
-    NSArray* allItems = [cache allItems:nil];
-    
-    for (id object in allItems) {
-        [cache removeItem:object error:nil];
-    }
-    
-    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItems.count]
+    NSUInteger allItemsCount = [[[ADKeychainTokenCache new] allItems:nil] count];
+    [[MSIDKeychainTokenCache new] clearWithContext:nil error:nil];
+
+    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItemsCount]
                        logs:_resultLogs];
 }
 
@@ -302,14 +303,16 @@
         }
         
         ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+
+        NSString *authority = [[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL URLWithString:parameters[@"authority"]] context:nil] absoluteString];
         
-        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority
                                                         resource:parameters[@"resource"]
                                                         clientId:parameters[@"client_id"]
                                                            error:nil];
         
         NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
-                                                             userId:parameters[@"user_id"]
+                                                             userId:parameters[@"user_identifier"]
                                                       correlationId:nil
                                                               error:nil];
         
@@ -352,13 +355,16 @@
         }
         
         ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
-        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+
+        NSString *authority = [[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL URLWithString:parameters[@"authority"]] context:nil] absoluteString];
+
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority
                                                         resource:parameters[@"resource"]
                                                         clientId:parameters[@"client_id"]
                                                            error:nil];
         
         NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
-                                                             userId:parameters[@"user_id"]
+                                                             userId:parameters[@"user_identifier"]
                                                       correlationId:nil
                                                               error:nil];
         

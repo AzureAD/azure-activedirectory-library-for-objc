@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+ // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -23,6 +23,11 @@
 
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
+#import "MSIDTestAccountsProvider.h"
+#import "XCTestCase+TextFieldTap.h"
+#import "NSDictionary+ADALiOSUITests.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
 @implementation ADALBaseUITest
 
@@ -34,25 +39,9 @@
     
     self.testApp = [XCUIApplication new];
     [self.testApp launch];
-    
-    self.accountsProvider = [ADTestAccountsProvider new];
-}
 
-#pragma mark - Profiles
-
-- (NSMutableDictionary *)fociConfig
-{
-    return [[self.accountsProvider testProfileOfType:ADTestProfileTypeFoci] mutableCopy];
-}
-
-- (NSMutableDictionary *)sovereignConfig
-{
-    return [[self.accountsProvider testProfileOfType:ADTestProfileTypeSovereign] mutableCopy];
-}
-
-- (NSMutableDictionary *)basicConfig
-{
-    return [[self.accountsProvider testProfileOfType:ADTestProfileTypeBasic] mutableCopy];
+    NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
+    self.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
 }
 
 #pragma mark - Asserts
@@ -86,7 +75,7 @@
     
     XCTAssertNotEqual([result[@"error"] length], 0);
     NSString *errorDescription = result[@"error_description"];
-    XCTAssertTrue([errorDescription containsString:@"error"]);
+    XCTAssertTrue([errorDescription containsString:error]);
 }
 
 - (void)assertAccessTokenNotNil
@@ -97,6 +86,17 @@
     XCTAssertEqual([result[@"error"] length], 0);
 }
 
+- (NSDictionary *)resultIDTokenClaims
+{
+    NSDictionary *result = [self resultDictionary];
+
+    NSString *idToken = result[@"id_token"];
+    XCTAssertTrue([idToken length] > 0);
+
+    MSIDAADV1IdTokenClaims *idTokenWrapper = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:idToken error:nil];
+    return [idTokenWrapper jsonDictionary];
+}
+
 - (void)assertRefreshTokenNotNil
 {
     NSDictionary *result = [self resultDictionary];
@@ -104,19 +104,65 @@
     XCTAssertTrue([result[@"refresh_token"] length] > 0);
 }
 
+#pragma mark - API fetch
+
+- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request
+{
+    __block MSIDTestAutomationConfiguration *testConfig = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
+
+    [self.accountsProvider configurationWithRequest:request
+                                  completionHandler:^(MSIDTestAutomationConfiguration *configuration) {
+
+                                      testConfig = configuration;
+                                      [expectation fulfill];
+                                  }];
+
+    [self waitForExpectationsWithTimeout:60 handler:nil];
+
+    if (!testConfig || ![testConfig.accounts count])
+    {
+        XCTAssertTrue(NO);
+    }
+
+    [self loadPasswordForAccount:testConfig.accounts[0]];
+
+    self.testConfiguration = testConfig;
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 1);
+    self.primaryAccount = self.testConfiguration.accounts[0];
+}
+
+- (void)loadPasswordForAccount:(MSIDTestAccount *)account
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
+
+    [self.accountsProvider passwordForAccount:account
+                            completionHandler:^(NSString *password) {
+                                [expectation fulfill];
+                            }];
+
+    [self waitForExpectationsWithTimeout:60 handler:nil];
+
+    if (!account.password)
+    {
+        XCTAssertTrue(NO);
+    }
+}
+
 #pragma mark - Actions
 
 - (void)aadEnterEmail:(NSString *)email
 {
-    XCUIElement *emailTextField = self.testApp.textFields[@"Email or phone"];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
     [self waitForElement:emailTextField];
     if ([email isEqualToString:emailTextField.value])
     {
         return;
     }
-    
-    [emailTextField pressForDuration:0.5f];
-    
+
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField];
+        
     // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
     // instead of empty string. In order to make it work we check that value of text field is not
     // equal to placeholder.
@@ -130,7 +176,20 @@
 
 - (void)aadEnterEmail
 {
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.accountInfo.account]];
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
+}
+
+- (void)aadEnterPassword
+{
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+}
+
+- (void)aadEnterPassword:(NSString *)password
+{
+    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [passwordTextField typeText:password];
 }
 
 - (void)closeAuthUI
@@ -143,35 +202,43 @@
     [self.testApp.buttons[@"Done"] tap];
 }
 
-- (void)invalidateRefreshToken:(NSString *)jsonString
+- (void)invalidateRefreshToken:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Invalidate Refresh Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 
-- (void)expireAccessToken:(NSString *)jsonString
+- (void)expireAccessToken:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Expire Access Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 
-- (void)acquireToken:(NSString *)jsonString
+- (void)acquireToken:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Acquire Token"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 
-- (void)acquireTokenSilent:(NSString *)jsonString
+- (void)acquireTokenSilent:(NSDictionary *)config
 {
+    NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[@"Acquire Token Silent"] tap];
     [self.testApp.textViews[@"requestInfo"] tap];
     [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
     [self.testApp.buttons[@"Go"] tap];
 }
 
@@ -189,19 +256,6 @@
 
 #pragma mark - Helpers
 
-- (NSString *)configParamsJsonString:(NSMutableDictionary *)config
-                    additionalParams:(NSDictionary *)additionalParams
-{
-    [config addEntriesFromDictionary:additionalParams];
-    
-    return [config toJsonString];
-}
-
-- (NSString *)configParamsJsonString:(NSDictionary *)additionalParams
-{
-    return [self configParamsJsonString:self.baseConfigParams additionalParams:additionalParams];
-}
-
 - (NSDictionary *)resultDictionary
 {
     XCUIElement *resultTextView = self.testApp.textViews[@"resultInfo"];
@@ -214,7 +268,7 @@
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:20.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 @end

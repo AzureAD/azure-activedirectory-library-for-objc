@@ -21,39 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "XCTestCase+TextFieldTap.h"
 
-typedef NS_ENUM(NSInteger, ADTestAccountType)
+@implementation XCTestCase (TextFieldTap)
+
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
 {
-    ADTestAccountTypeAAD,
-    ADTestAccountTypeAADMDM,
-    ADTestAccountTypePing,
-    ADTestAccountTypeADFSv3,
-    ADTestAccountTypeBlackforest,
-    ADTestAccountTypeShib
-};
+    XCUIElement *keyboard = [[[XCUIApplication new] keyboards] element];
 
-typedef NS_ENUM(NSInteger, ADTestProfileType)
-{
-    ADTestProfileTypeBasic,
-    ADTestProfileTypeBasicMDM,
-    ADTestProfileTypeFoci,
-    ADTestProfileTypeSovereign,
-};
+    while (true)
+    {
+        [element pressForDuration:0.2f];
 
-@interface ADTestAccount : NSObject
+        if (keyboard.exists
+            && keyboard.hittable)
+        {
+            sleep(0.2f);
+            break;
+        }
 
-@property (nonatomic) NSString *account;
-@property (nonatomic) NSString *username;
-@property (nonatomic) NSString *password;
-
-@end
-
-@interface ADTestAccountsProvider : NSObject
-
-- (ADTestAccount *)testAccountOfType:(ADTestAccountType)type;
-- (NSArray <ADTestAccount *> *)testAccountsOfType:(ADTestAccountType)type;
-
-- (NSDictionary *)testProfileOfType:(ADTestProfileType)type;
+        sleep(0.2f);
+    }
+}
 
 @end
