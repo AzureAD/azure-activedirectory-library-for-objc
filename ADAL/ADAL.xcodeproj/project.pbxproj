@@ -2465,7 +2465,7 @@
 					};
 					D64C1F471DB9B05900850036 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = 4XAC8VP2M2;
+						DevelopmentTeam = UBF8T346G9;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Keychain = {
@@ -3309,6 +3309,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 			};
 			name = Debug;
 		};
@@ -3316,6 +3317,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 			};
 			name = Release;
 		};
@@ -3461,6 +3463,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 			};
 			name = Debug;
 		};
@@ -3468,6 +3472,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB61FC370C000CD70C5 /* adal__automationapp__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 			};
 			name = Release;
 		};
@@ -3492,6 +3498,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
@@ -3500,6 +3507,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 			};
 			name = Release;
 		};

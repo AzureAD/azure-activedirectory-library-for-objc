@@ -34,6 +34,7 @@
 #import "ADTokenCacheKey.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -75,11 +76,11 @@
     [MSIDKeychainTokenCache reset];
     
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
 

@@ -44,6 +44,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "ADTokenCacheKey.h"
 #import "MSIDBaseToken.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -91,16 +92,16 @@ const int sAsyncContextTimeout = 10;
     
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
-    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
     
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor]];
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor] factory:[MSIDAADV1Oauth2Factory new]];
     
     self.tokenCache = legacyTokenCacheAccessor;
     self.msalTokenCache = defaultTokenCacheAccessor;
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
 
@@ -1571,6 +1572,11 @@ const int sAsyncContextTimeout = 10;
     [cache removeItem:rtItem error:&error];
     XCTAssertNil(error);
 
+    // Also remove common entry
+    rtItem.authority = @"https://login.windows.net/common";
+    [cache removeItem:rtItem error:&error];
+    XCTAssertNil(error);
+
     // Clear MSAL cache, otherwise it will get into the way
     NSArray *allMSALItems = [_msalTokenCache allTokensWithContext:nil error:nil];
 
@@ -2193,13 +2199,10 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
 
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-
-    BOOL result = [_msalTokenCache saveTokensWithFactory:factory
-                                           configuration:[self adCreateV2DefaultConfiguration]
-                                                response:[self adCreateV2TokenResponse]
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
+                                                      response:[self adCreateV2TokenResponse]
+                                                       context:nil
+                                                         error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
 

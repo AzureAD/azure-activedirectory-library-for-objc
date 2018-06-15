@@ -67,11 +67,10 @@
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
     }
     
-    result = [cache saveTokensWithFactory:factory
-                            configuration:requestParams.msidConfig
-                                 response:response
-                                  context:requestParams
-                                    error:&msidError];
+    result = [cache saveTokensWithConfiguration:requestParams.msidConfig
+                                       response:response
+                                        context:requestParams
+                                          error:&msidError];
     
     if (!result)
     {
