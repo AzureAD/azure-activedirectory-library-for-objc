@@ -181,11 +181,17 @@ static NSString* ADIntuneResourceJSON = nil;
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
 {
+    if (!resources)
+        ADIntuneResourceJSON = nil;
+
     ADIntuneResourceJSON = [resources copy];
 }
 
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds
 {
+    if (!enrollmentIds)
+        ADIntuneEnrollmentIdJSON = nil;
+
     ADIntuneEnrollmentIdJSON = [enrollmentIds copy];
 }
 #endif
