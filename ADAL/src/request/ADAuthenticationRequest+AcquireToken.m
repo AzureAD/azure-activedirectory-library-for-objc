@@ -515,16 +515,13 @@
     {
         [request_data setValue:_requestParams.scope forKey:OAUTH2_SCOPE];
     }
-    
-    if (_requestParams.identifier && ![NSString adIsStringNilOrBlank:_requestParams.identifier.userId])
-    {
-        NSString* enrollId = [ADEnrollmentGateway enrollmentIdForUserId:_requestParams.identifier.userId];
-        if (enrollId)
-        {
-            [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
-        }
-    }
-    
+
+    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForTokenUserID:nil
+                                                           requestUserID:_requestParams.identifier ? _requestParams.identifier.userId : nil];
+
+    if (enrollId)
+        [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+
     [self executeRequest:request_data
               completion:completionBlock];
 }

@@ -127,15 +127,13 @@
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
     }
     
-    if (_requestParams.identifier && ![NSString adIsStringNilOrBlank:_requestParams.identifier.userId])
-    {
-        NSString* enrollId = [ADEnrollmentGateway enrollmentIdForUserId:_requestParams.identifier.userId];
-        if (enrollId)
-        {
-            [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
-        }
-    }
-    
+
+    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForTokenUserID:(cacheItem ? (cacheItem.userInformation ? cacheItem.userInformation.userId : nil) : nil)
+                                                           requestUserID:_requestParams.identifier ? _requestParams.identifier.userId : nil];
+
+    if (enrollId)
+        [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];

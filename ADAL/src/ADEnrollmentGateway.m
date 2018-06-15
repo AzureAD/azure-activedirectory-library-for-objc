@@ -117,6 +117,29 @@ static NSString* ADIntuneResourceJSON = nil;
     }];
 }
 
++ (NSString *)enrollmentIdIfAvailable
+{
+    // this will just return the first enrollment ID
+    return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * __unused dic) {
+        return true;
+    }];
+}
+
++ (NSString*)enrollmentIDForTokenUserID:(NSString*) tokenUserID requestUserID:(NSString*) requestUserID
+{
+    NSString* enrollmentID;
+    enrollmentID = tokenUserID ? [ADEnrollmentGateway enrollmentIdForUserId:tokenUserID] : nil;
+    if (enrollmentID)
+        return enrollmentID;
+
+    enrollmentID = requestUserID ? [ADEnrollmentGateway enrollmentIdForUserId:requestUserID] : nil;
+    if (enrollmentID)
+        return enrollmentID;
+
+    enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable];
+    return enrollmentID;
+}
+
 + (NSString *) normalizeAuthority:(NSString *)authority
 {
     NSURL* authorityURL = [NSURL URLWithString:authority];
