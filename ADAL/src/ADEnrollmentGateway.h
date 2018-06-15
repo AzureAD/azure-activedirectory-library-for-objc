@@ -32,7 +32,7 @@
 + (NSString *)enrollmentIdIfAvailable;
 // Tries to find an enrollmentID for a userID from a previous token first, then checks the userID passed
 // in from the request, then returns any enrollmentID available
-+ (NSString*)enrollmentIDForTokenUserID:(NSString*) tokenUserID requestUserID:(NSString*) requestUserID
++ (NSString*)enrollmentIDForTokenUserID:(NSString*) tokenUserID requestUserID:(NSString*) requestUserID;
 
 + (NSString *)intuneMamResource:(NSString *)authority;
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority;
