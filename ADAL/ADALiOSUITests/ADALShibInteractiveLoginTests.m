@@ -23,6 +23,8 @@
 
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
+#import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALShibInteractiveLoginTests : ADALBaseUITest
 
@@ -34,11 +36,13 @@
 {
     [super setUp];
     
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypeShib];
-    self.baseConfigParams = [self basicConfig];
-    
     [self clearCache];
     [self clearCookies];
+
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderShibboleth;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
@@ -50,9 +54,10 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     
     [self aadEnterEmail];
     
@@ -63,7 +68,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -73,12 +78,13 @@
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     
     [self shibEnterUsername];
     [self shibEnterPassword];
@@ -87,7 +93,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -97,16 +103,16 @@
 {
     XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
-    [usernameTextField pressForDuration:0.5f];
-    [usernameTextField typeText:self.accountInfo.username];
+    [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
+    [usernameTextField typeText:self.primaryAccount.username];
 }
 
 - (void)shibEnterPassword
 {
     XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

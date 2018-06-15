@@ -141,7 +141,7 @@
     {
         [request_data setObject:[_requestParams resource] forKey:MSID_OAUTH2_RESOURCE];
     }
-    
+
     request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
     
     ADWebAuthRequest* webReq =

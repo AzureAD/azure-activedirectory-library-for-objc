@@ -12,4 +12,4 @@ INFOPLIST_FILE = ADALiOSUITests/Info.plist
 TEST_TARGET_NAME = ADALAutomation;
 GCC_OPTIMIZATION_LEVEL = 0;
 CLANG_ENABLE_MODULES = YES;
-USER_HEADER_SEARCH_PATHS = "$(HOME)/aadoverrides/**";
+USER_HEADER_SEARCH_PATHS = $(inherited) $(HOME)/aadoverrides/** $IDCORE_PATH/tests/automation/** $IDCORE_PATH/src/**;

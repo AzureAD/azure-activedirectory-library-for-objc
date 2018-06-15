@@ -21,85 +21,91 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
-#import "NSDictionary+ADALiOSUITests.h"
-#import "XCTestCase+TextFieldTap.h"
 
-@interface ADALADFSv3InteractiveLoginTests : ADALBaseUITest
+@interface ADALClaimsChallengeTests : ADALBaseUITest
 
 @end
 
-@implementation ADALADFSv3InteractiveLoginTests
+@implementation ADALClaimsChallengeTests
 
 - (void)setUp
 {
     [super setUp];
-    
     [self clearCache];
     [self clearCookies];
+}
 
+- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withCAClaims_ADALWebView
+{
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountMAMCAClaims];
     [self loadTestConfiguration:configurationRequest];
-}
 
-#pragma mark - Tests
-
-// #290995 iteration 11
-- (void)testInteractiveADFSv3Login_withPromptAlways_noLoginHint_ADALWebView
-{
+    // TODO: ask lab to add claims challenge
     NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    
-    [self acquireToken:config];
-    
-    [self aadEnterEmail];
-    [self enterADFSv3Password];
-    
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-    
-    // Acquire token again.
-    [self acquireToken:config];
-    [self assertAuthUIAppear];
-}
-
-// #290995 iteration 12
-- (void)testInteractiveADFSv3Login_withPromptAlways_withLoginHint_ADALWebView
-{
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
+                             @"user_identifier_type" : @"optional_displayable",
                              };
+
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    
     [self acquireToken:config];
-    
-    [self enterADFSv3Password];
-    
+
+    [self aadEnterPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
-    
+
+    params = @{
+               @"user_identifier" : self.primaryAccount.account,
+               @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D",
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
     // Acquire token again.
     [self acquireToken:config];
-    [self assertAuthUIAppear];
+
+    XCUIElement *getAppButton = self.testApp.buttons[@"Enroll now"];
+    [self waitForElement:getAppButton];
 }
 
-#pragma mark - Private
-
-- (void)enterADFSv3Password
+- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMFAClaims_ADALWebView
 {
-    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountMFAClaims];
+    [self loadTestConfiguration:configurationRequest];
+
+    // TODO: ask lab to add claims challenge
+    NSDictionary *params = @{
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    params = @{
+               @"user_identifier" : self.primaryAccount.account,
+               @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D",
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    // Acquire token again.
+    [self acquireToken:config];
+
+    XCUIElement *approveLabel = self.testApp.staticTexts[@"Approve sign in request"];
+    [self waitForElement:approveLabel];
 }
 
 @end

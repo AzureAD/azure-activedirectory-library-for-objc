@@ -23,6 +23,8 @@
 
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
+#import "NSDictionary+ADALiOSUITests.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALPingInteractiveLoginTests : ADALBaseUITest
 
@@ -34,11 +36,13 @@
 {
     [super setUp];
     
-    self.accountInfo = [self.accountsProvider testAccountOfType:ADTestAccountTypePing];
-    self.baseConfigParams = [self basicConfig];
-    
     [self clearCache];
     [self clearCookies];
+
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderPing;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 }
 
 #pragma mark - Tests
@@ -50,9 +54,9 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     
     [self aadEnterEmail];
     
@@ -63,7 +67,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     [self assertAuthUIAppear];
 }
 
@@ -73,12 +77,12 @@
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier" : self.accountInfo.account,
+                             @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable"
                              };
-    NSString *jsonString = [self configParamsJsonString:params];
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     
     [self pingEnterUsername];
     [self pingEnterPassword];
@@ -87,7 +91,7 @@
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:jsonString];
+    [self acquireToken:config];
     
     // Wait for result, no user action required.
     [self assertAccessTokenNotNil];
@@ -99,16 +103,16 @@
 {
     XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
-    [usernameTextField pressForDuration:0.5f];
-    [usernameTextField typeText:self.accountInfo.username];
+    [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
+    [usernameTextField typeText:self.primaryAccount.username];
 }
 
 - (void)pingEnterPassword
 {
     XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
-    [passwordTextField pressForDuration:0.5f];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.accountInfo.password]];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end
