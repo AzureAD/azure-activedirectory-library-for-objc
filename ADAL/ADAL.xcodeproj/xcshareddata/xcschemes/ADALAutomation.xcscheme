@@ -38,6 +38,16 @@
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B2A409D220D36524004AA9B7"
+               BuildableName = "ADALiOSMultiAppTests.xctest"
+               BlueprintName = "ADALiOSMultiAppTests"
+               ReferencedContainer = "container:ADAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

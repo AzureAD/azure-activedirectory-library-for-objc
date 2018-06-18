@@ -254,6 +254,16 @@
     [self.testApp.buttons[@"Done"] tap];
 }
 
+- (void)openURL:(NSDictionary *)config
+{
+    NSString *jsonString = [config toJsonString];
+    [self.testApp.buttons[@"openUrlInSafari"] tap];
+    [self.testApp.textViews[@"requestInfo"] tap];
+    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
+    [self.testApp.buttons[@"Go"] tap];
+}
+
 #pragma mark - Helpers
 
 - (NSDictionary *)resultDictionary
@@ -269,6 +279,51 @@
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
     [self waitForExpectationsWithTimeout:60.0f handler:nil];
+}
+
+- (void)installAppWithId:(NSString *)appId
+{
+    XCTAssertNotNil(appId);
+
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:appId];
+    XCTAssertNotNil(appConfiguration);
+
+    NSString *appInstallUrl = appConfiguration[@"install_url"];
+
+    NSDictionary *dictionary = @{@"safari_url": appInstallUrl};
+    [self openURL:dictionary];
+
+    XCUIApplication *safariApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
+
+    XCTAssertTrue([safariApp waitForState:XCUIApplicationStateRunningForeground timeout:30]);
+    [safariApp tap];
+    __auto_type installButton = safariApp.links[@"Install"];
+    [self waitForElement:installButton];
+
+    [installButton tap];
+
+    sleep(1);
+
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    [springBoardApp.alerts.buttons[@"Install"] tap];
+
+    [springBoardApp activate];
+    BOOL result = [springBoardApp waitForState:XCUIApplicationStateRunningForeground timeout:30];
+    XCTAssertTrue(result);
+
+    sleep(3);
+
+    NSString *appName = appConfiguration[@"app_name"];
+
+    __auto_type appIcon = springBoardApp.icons[appName];
+    [appIcon tap];
+
+    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
+
+    XCUIApplication *installedApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    // Give app enough time to install
+    result = [installedApp waitForState:XCUIApplicationStateRunningForeground timeout:60];
+    XCTAssertTrue(result);
 }
 
 @end

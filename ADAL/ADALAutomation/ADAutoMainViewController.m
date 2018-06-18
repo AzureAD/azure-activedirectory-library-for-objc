@@ -336,6 +336,24 @@
     [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
 
+- (IBAction)openURLInSafari:(id)sender
+{
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    {
+        [weakSelf dismissViewControllerAnimated:NO completion:^{
+            [weakSelf displayResultJson:@"{\"success\":\"1\"}"
+                                   logs:@""];
+
+            NSString *url = parameters[@"safari_url"];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+        }];
+    };
+
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
+}
+
 - (IBAction)expireAccessToken:(id)sender
 {
     (void)sender;
