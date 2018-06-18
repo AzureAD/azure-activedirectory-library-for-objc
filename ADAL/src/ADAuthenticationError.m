@@ -312,6 +312,20 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:userInfo];
 }
 
++ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
+                                                            correlationID:(NSUUID *) correlationId
+                                                                    token:(ADTokenCacheItem*) token
+{
+    NSMutableDictionary* userInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:1];
+    [userInfo setObject:token forKey:@"mamToken"];
+    return [self errorWithDomainInternal:error.domain
+                                    code:error.code
+                       protocolErrorCode:error.protocolCode
+                            errorDetails:error.errorDetails
+                           correlationId:correlationId
+                                userInfo:userInfo];
+}
+
 - (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain
 {
