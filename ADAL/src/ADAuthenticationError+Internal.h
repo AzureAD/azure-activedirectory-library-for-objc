@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationError.h"
+#import "ADTokenCacheItem.h"
 
 #define AUTH_ERROR(_CODE, _DETAILS, _CORRELATION) \
     ADAuthenticationError* adError = \
