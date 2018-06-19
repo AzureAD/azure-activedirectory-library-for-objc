@@ -23,7 +23,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="LUW-fs-x0X">
-                                <rect key="frame" x="16" y="20" width="343" height="310"/>
+                                <rect key="frame" x="16" y="20" width="343" height="350"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zaw-w8-NKZ">
                                         <rect key="frame" x="0.0" y="0.0" width="343" height="30"/>
@@ -111,6 +111,17 @@
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="openURLInSafari:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2sB-0P-4CC"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wso-ye-DPg">
+                                        <rect key="frame" x="0.0" y="320" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="invalidateToken"/>
+                                        <state key="normal" title="Clear keychain"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="openUrlInSafari"/>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="clearKeychain:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mJm-ZK-iL4"/>
                                         </connections>
                                     </button>
                                 </subviews>

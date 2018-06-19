@@ -279,6 +279,7 @@
 		B2948CB720D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB620D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m */; };
 		B2948CB920D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */; };
 		B2948CBB20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */; };
+		B2948CCF20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */; };
 		B299FF1A1F22BE32004A2CB9 /* NSString+ADURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */; };
 		B299FF1B1F22BE74004A2CB9 /* NSString+ADURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */; };
 		B299FF1C1F22BE77004A2CB9 /* NSString+ADURLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B299FF181F22BE32004A2CB9 /* NSString+ADURLExtensions.h */; };
@@ -1036,6 +1037,7 @@
 		B2948CB620D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSADALCoexistenceCacheTests.m; sourceTree = "<group>"; };
 		B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSOlderADALCoexistenceCacheTests.m; sourceTree = "<group>"; };
 		B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSADALDotNetCoexistenceCacheTests.m; sourceTree = "<group>"; };
+		B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSNoBrokerTests.m; sourceTree = "<group>"; };
 		B299FF181F22BE32004A2CB9 /* NSString+ADURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ADURLExtensions.h"; sourceTree = "<group>"; };
 		B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ADURLExtensions.m"; sourceTree = "<group>"; };
 		B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLExtensionsTest.m; sourceTree = "<group>"; };
@@ -2016,6 +2018,7 @@
 				B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */,
 				B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */,
 				B2A409E620D3689F004AA9B7 /* ADALiOSBrokerInvocationTests.m */,
+				B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */,
 				B2A409D720D36524004AA9B7 /* Info.plist */,
 			);
 			path = ADALiOSMultiAppTests;
@@ -3248,6 +3251,7 @@
 				B2948CB920D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m in Sources */,
 				B2A409E720D3689F004AA9B7 /* ADALiOSBrokerInvocationTests.m in Sources */,
 				B2A409E420D3665D004AA9B7 /* ADALBaseUITest.m in Sources */,
+				B2948CCF20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m in Sources */,
 				B2A409E520D3665F004AA9B7 /* XCUIElement+ADALiOSUITests.m in Sources */,
 				B2948CB720D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m in Sources */,
 				B2A409D620D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m in Sources */,

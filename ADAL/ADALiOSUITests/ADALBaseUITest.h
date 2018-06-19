@@ -55,6 +55,7 @@
 - (void)aadEnterPassword:(NSString *)password;
 - (void)closeAuthUI;
 - (void)installAppWithId:(NSString *)appId;
+- (void)removeAppWithId:(NSString *)appId;
 - (void)openURL:(NSDictionary *)config;
 
 - (void)waitForElement:(id)object;

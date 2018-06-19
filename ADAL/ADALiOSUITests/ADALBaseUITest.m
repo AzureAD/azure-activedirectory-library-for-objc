@@ -326,4 +326,37 @@
     XCTAssertTrue(result);
 }
 
+- (void)removeAppWithId:(NSString *)appId
+{
+    XCTAssertNotNil(appId);
+
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:appId];
+    XCTAssertNotNil(appConfiguration);
+
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    [springBoardApp activate];
+    BOOL result = [springBoardApp waitForState:XCUIApplicationStateRunningForeground timeout:30];
+    XCTAssertTrue(result);
+
+    NSString *appName = appConfiguration[@"app_name"];
+
+    __auto_type appIcon = springBoardApp.icons[appName];
+
+    if (appIcon.exists)
+    {
+        [appIcon pressForDuration:1.0f];
+        [appIcon.buttons[@"DeleteButton"] tap];
+
+        __auto_type deleteButton = springBoardApp.alerts.buttons[@"Delete"];
+        [self waitForElement:deleteButton];
+        [deleteButton tap];
+
+        NSPredicate *appDeletedPredicate = [NSPredicate predicateWithFormat:@"exists == 0"];
+        [self expectationForPredicate:appDeletedPredicate evaluatedWithObject:appIcon handler:nil];
+        [self waitForExpectationsWithTimeout:30 handler:nil];
+
+        [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+    }
+}
+
 @end
