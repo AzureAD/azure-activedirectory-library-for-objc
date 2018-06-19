@@ -83,8 +83,11 @@ static NSString* s_intuneResourceJSON = nil;
 
 + (NSString *)allEnrollmentIds
 {
-    if (s_intuneEnrollmentIdJSON)
-        return s_intuneEnrollmentIdJSON;
+    @synchronized (self)
+    {
+        if (s_intuneEnrollmentIdJSON)
+            return s_intuneEnrollmentIdJSON;
+    }
 
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
 }
@@ -125,13 +128,17 @@ static NSString* s_intuneResourceJSON = nil;
 
 + (NSString *)intuneMamResource:(NSString *)authority
 {
-    NSString* resourceJSON;
+    NSString* resourceJSON = nil;
 
-    if (s_intuneResourceJSON)
+    @synchronized(self)
     {
-        resourceJSON = s_intuneResourceJSON;
+        if (s_intuneResourceJSON)
+        {
+            resourceJSON = s_intuneResourceJSON;
+        }
     }
-    else
+
+    if (!resourceJSON)
     {
         resourceJSON = [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
         if (!resourceJSON)
@@ -150,12 +157,18 @@ static NSString* s_intuneResourceJSON = nil;
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
 {
-    ADIntuneResourceJSON = [resources copy];
+    @synchronized (self)
+    {
+        s_intuneResourceJSON = [resources copy];
+    }
 }
 
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds
 {
-    ADIntuneEnrollmentIdJSON = [enrollmentIds copy];
+    @synchronized (self)
+    {
+        s_intuneEnrollmentIdJSON = [enrollmentIds copy];
+    }
 }
 #endif
 
