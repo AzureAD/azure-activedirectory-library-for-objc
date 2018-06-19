@@ -35,11 +35,11 @@
 
 NSString* const enrollmentIdArray = @"enrollment_ids";
 
-NSString* const tid = @"tid";
-NSString* const oid = @"oid";
-NSString* const unique_account_id = @"unique_account_id";
-NSString* const user_id = @"user_id";
-NSString* const enrollment_id = @"enrollment_id";
+NSString* const TID = @"tid";
+NSString* const OID = @"oid";
+NSString* const UNIQUE_ACCOUNT_ID = @"unique_account_id";
+NSString* const USER_ID = @"user_id";
+NSString* const ENROLLMENT_ID = @"enrollment_id";
 
 static NSString* s_intuneEnrollmentIdJSON = nil;
 static NSString* s_intuneResourceJSON = nil;
@@ -75,7 +75,7 @@ static NSString* s_intuneResourceJSON = nil;
     for (NSDictionary* enrollIdDic in enrollIds)
     {
         if (idBlock(enrollIdDic))
-            return [enrollIdDic objectForKey:enrollment_id];
+            return [enrollIdDic objectForKey:ENROLLMENT_ID];
     }
 
     return nil;
@@ -92,21 +92,21 @@ static NSString* s_intuneResourceJSON = nil;
 + (NSString *)enrollmentIdForUserId:(NSString *)userId;
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
-        return [[dic objectForKey:user_id] isEqualToString:userId];
+        return [[dic objectForKey:USER_ID] isEqualToString:userId];
     }];
 }
 
 + (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
-        return [[dic objectForKey:oid] isEqualToString:userObjectId] && [[dic objectForKey:tid] isEqualToString:tenantId];
+        return [[dic objectForKey:OID] isEqualToString:userObjectId] && [[dic objectForKey:TID] isEqualToString:tenantId];
     }];
 }
 
 + (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
-        return [[dic objectForKey:unique_account_id] isEqualToString:uniqueAccountId];
+        return [[dic objectForKey:UNIQUE_ACCOUNT_ID] isEqualToString:uniqueAccountId];
     }];
 }
 
