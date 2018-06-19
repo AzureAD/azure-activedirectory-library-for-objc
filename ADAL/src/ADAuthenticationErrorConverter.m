@@ -63,6 +63,7 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerOauth): @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorInvalidRequest): @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorInvalidClient): @(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorInvalidScope): @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorInvalidGrant): @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
                                    @(MSIDErrorInvalidParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
                                    @(MSIDErrorDeveloperAuthorityValidation):@(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
