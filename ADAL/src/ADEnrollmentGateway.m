@@ -24,9 +24,15 @@
 #import "ADEnrollmentGateway.h"
 
 // Keys for Intune Enrollment ID
-NSString* const ADIntuneAppProtectionEnrollmentID = @"intune_app_protection_enrollment_id_V";
-NSString* const ADIntuneAppProtectionEnrollmentIDVersion = @"1";
-#define AD_INTUNE_ENROLLMENT_ID_KEY [ADIntuneAppProtectionEnrollmentID stringByAppendingString:ADIntuneAppProtectionEnrollmentIDVersion]
+#define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
+#define AD_INTUNE_ENROLLMENT_ID_VERSION @"1"
+#define AD_INTUNE_ENROLLMENT_ID_KEY (AD_INTUNE_ENROLLMENT_ID AD_INTUNE_ENROLLMENT_ID_VERSION)
+
+// Keys for Intune Resource
+#define AD_INTUNE_RESOURCE_ID @"intune_mam_resource_V"
+#define AD_INTUNE_RESOURCE_ID_VERSION @"1"
+#define AD_INTUNE_RESOURCE_ID_KEY (AD_INTUNE_RESOURCE_ID AD_INTUNE_RESOURCE_ID_VERSION)
+
 NSString* const enrollmentIdArray = @"enrollment_ids";
 
 NSString* const tid = @"tid";
@@ -35,10 +41,7 @@ NSString* const unique_account_id = @"unique_account_id";
 NSString* const user_id = @"user_id";
 NSString* const enrollment_id = @"enrollment_id";
 
-// Keys for Intune Resource
-NSString* const ADIntuneAppProtectionResourceID = @"intune_mam_resource_V";
-NSString* const ADIntuneAppProtectionResourceIDVersion = @"1";
-#define AD_INTUNE_RESOURCE_ID_KEY [ADIntuneAppProtectionEnrollmentID stringByAppendingString:ADIntuneAppProtectionEnrollmentIDVersion]
+
 
 static NSString* ADIntuneEnrollmentIdJSON = nil;
 static NSString* ADIntuneResourceJSON = nil;
