@@ -64,12 +64,12 @@ static NSString* s_intuneResourceJSON = nil;
     NSError* error = nil;
     id enrollIds = [NSJSONSerialization JSONObjectWithData:[enrollIdJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
-    if (error)
+    if (error || !enrollIds ||![enrollIds isKindOfClass:[NSDictionary class]])
         return nil;
 
     enrollIds = enrollIds[enrollmentIdArray];
 
-    if (!enrollIds)
+    if (!enrollIds || ![enrollIds isKindOfClass:[NSArray class]])
         return nil;
 
     for (NSDictionary* enrollIdDic in enrollIds)
@@ -148,7 +148,7 @@ static NSString* s_intuneResourceJSON = nil;
     NSError* error = nil;
     id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
-    if (error)
+    if (error  || !resources || ![resources isKindOfClass:[NSDictionary class]])
         return nil;
 
     return resources[[ADEnrollmentGateway normalizeAuthority:authority]];
