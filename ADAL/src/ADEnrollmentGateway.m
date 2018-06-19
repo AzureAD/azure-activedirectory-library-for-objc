@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADEnrollmentGateway.h"
+#import "NSURL+ADExtensions.h"
 
 // Keys for Intune Enrollment ID
 #define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
@@ -48,7 +49,6 @@ static NSString* s_intuneResourceJSON = nil;
 @interface ADEnrollmentGateway()
 
 + (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock;
-+ (NSString *) normalizeAuthority:(NSString *)authority;
 
 @end
 
@@ -113,19 +113,6 @@ static NSString* s_intuneResourceJSON = nil;
     }];
 }
 
-+ (NSString *) normalizeAuthority:(NSString *)authority
-{
-    NSURL* authorityURL = [NSURL URLWithString:authority];
-    NSNumber *port = authorityURL.port;
-
-    // This assumes we're using https, which is mandatory for all AAD communications.
-    if (port == nil || port.intValue == 443)
-    {
-        return authorityURL.host.lowercaseString;
-    }
-    return [NSString stringWithFormat:@"%@:%d", authorityURL.host.lowercaseString, port.intValue];
-}
-
 + (NSString *)intuneMamResource:(NSString *)authority
 {
     NSString* resourceJSON = nil;
@@ -151,7 +138,8 @@ static NSString* s_intuneResourceJSON = nil;
     if (error  || !resources || ![resources isKindOfClass:[NSDictionary class]])
         return nil;
 
-    return resources[[ADEnrollmentGateway normalizeAuthority:authority]];
+    NSString* normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
+    return resources[normalizedAuthority];
 }
 
 #if AD_BROKER
