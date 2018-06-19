@@ -41,10 +41,8 @@ NSString* const unique_account_id = @"unique_account_id";
 NSString* const user_id = @"user_id";
 NSString* const enrollment_id = @"enrollment_id";
 
-
-
-static NSString* ADIntuneEnrollmentIdJSON = nil;
-static NSString* ADIntuneResourceJSON = nil;
+static NSString* s_intuneEnrollmentIdJSON = nil;
+static NSString* s_intuneResourceJSON = nil;
 
 
 @interface ADEnrollmentGateway()
@@ -85,8 +83,8 @@ static NSString* ADIntuneResourceJSON = nil;
 
 + (NSString *)allEnrollmentIds
 {
-    if (ADIntuneEnrollmentIdJSON)
-        return ADIntuneEnrollmentIdJSON;
+    if (s_intuneEnrollmentIdJSON)
+        return s_intuneEnrollmentIdJSON;
 
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
 }
@@ -129,9 +127,9 @@ static NSString* ADIntuneResourceJSON = nil;
 {
     NSString* resourceJSON;
 
-    if (ADIntuneResourceJSON)
+    if (s_intuneResourceJSON)
     {
-        resourceJSON = ADIntuneResourceJSON;
+        resourceJSON = s_intuneResourceJSON;
     }
     else
     {
