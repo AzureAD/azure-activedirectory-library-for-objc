@@ -516,8 +516,7 @@
         [request_data setValue:_requestParams.scope forKey:OAUTH2_SCOPE];
     }
 
-    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForTokenUserID:nil
-                                                           requestUserID:_requestParams.identifier ? _requestParams.identifier.userId : nil];
+    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForHomeUserID:nil userID:(_requestParams.identifier ? _requestParams.identifier.userId : nil)];
 
     if (enrollId)
         [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];

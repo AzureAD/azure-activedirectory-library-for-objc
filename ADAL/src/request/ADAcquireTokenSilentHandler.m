@@ -128,8 +128,7 @@
     }
     
 
-    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForTokenUserID:(cacheItem ? (cacheItem.userInformation ? cacheItem.userInformation.userId : nil) : nil)
-                                                           requestUserID:_requestParams.identifier ? _requestParams.identifier.userId : nil];
+    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForHomeUserID:nil userID:(_requestParams.identifier ? _requestParams.identifier.userId : nil)];
 
     if (enrollId)
         [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
