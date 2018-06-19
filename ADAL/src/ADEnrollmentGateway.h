@@ -28,11 +28,11 @@
 + (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId;
 + (NSString *)allEnrollmentIds;
 
-// Returns the first available enrollmentID if one is available
+/*! Returns the first available enrollmentID if one is available */
 + (NSString *)enrollmentIdIfAvailable;
-// Tries to find an enrollmentID for a userID from a previous token first, then checks the userID passed
-// in from the request, then returns any enrollmentID available
-+ (NSString*)enrollmentIDForTokenUserID:(NSString*) tokenUserID requestUserID:(NSString*) requestUserID;
+/*! Tries to find an enrollmentID for a homeUserID first, then checks userID,
+    then returns any enrollmentID available */
++ (NSString*)enrollmentIDForHomeUserID:(NSString*) homeUserID userID:(NSString*) userID;
 
 + (NSString *)intuneMamResource:(NSString *)authority;
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority;

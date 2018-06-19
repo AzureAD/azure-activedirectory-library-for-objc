@@ -125,14 +125,14 @@ static NSString* ADIntuneResourceJSON = nil;
     }];
 }
 
-+ (NSString*)enrollmentIDForTokenUserID:(NSString*) tokenUserID requestUserID:(NSString*) requestUserID
++ (NSString*)enrollmentIDForHomeUserID:(NSString*) homeUserID userID:(NSString*) userID
 {
     NSString* enrollmentID;
-    enrollmentID = tokenUserID ? [ADEnrollmentGateway enrollmentIdForUserId:tokenUserID] : nil;
+    enrollmentID = homeUserID ? [ADEnrollmentGateway enrollmentIdForUserId:homeUserID] : nil;
     if (enrollmentID)
         return enrollmentID;
 
-    enrollmentID = requestUserID ? [ADEnrollmentGateway enrollmentIdForUserId:requestUserID] : nil;
+    enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID] : nil;
     if (enrollmentID)
         return enrollmentID;
 
