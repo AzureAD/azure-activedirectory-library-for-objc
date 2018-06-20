@@ -184,7 +184,17 @@
     [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
+- (void)aadEnterPasswordInApp:(XCUIApplication *)app
+{
+    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password] testApp:app];
+}
+
 - (void)aadEnterPassword:(NSString *)password
+{
+    [self aadEnterPassword:password testApp:self.testApp];
+}
+
+- (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
@@ -248,6 +258,12 @@
     [self.testApp.buttons[@"Done"] tap];
 }
 
+- (void)clearKeychain
+{
+    [self.testApp.buttons[@"Clear keychain"] tap];
+    [self.testApp.buttons[@"Done"] tap];
+}
+
 - (void)clearCookies
 {
     [self.testApp.buttons[@"Clear Cookies"] tap];
@@ -281,7 +297,7 @@
     [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
-- (void)installAppWithId:(NSString *)appId
+- (void)openAppInstallURLForAppId:(NSString *)appId
 {
     XCTAssertNotNil(appId);
 
@@ -297,9 +313,24 @@
 
     XCTAssertTrue([safariApp waitForState:XCUIApplicationStateRunningForeground timeout:30]);
     [safariApp tap];
+}
+
+- (XCUIApplication *)installAppWithId:(NSString *)appId
+{
+    /* Because for certain tests we want to install app after running some preliminary operations,
+     we split the operation into 2 parts: opening the install URL in Safari and actually installing the app */
+    [self openAppInstallURLForAppId:appId];
+    return [self installAppWithIdWithSafariOpen:appId];
+}
+
+- (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId
+{
+    XCUIApplication *safariApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
+
+    XCTAssertTrue([safariApp waitForState:XCUIApplicationStateRunningForeground timeout:30]);
+    [safariApp tap];
     __auto_type installButton = safariApp.links[@"Install"];
     [self waitForElement:installButton];
-
     [installButton tap];
 
     sleep(1);
@@ -313,6 +344,7 @@
 
     sleep(3);
 
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:appId];
     NSString *appName = appConfiguration[@"app_name"];
 
     __auto_type appIcon = springBoardApp.icons[appName];
@@ -324,6 +356,8 @@
     // Give app enough time to install
     result = [installedApp waitForState:XCUIApplicationStateRunningForeground timeout:60];
     XCTAssertTrue(result);
+
+    return installedApp;
 }
 
 - (void)removeAppWithId:(NSString *)appId

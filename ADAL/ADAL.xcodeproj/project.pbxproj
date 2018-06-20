@@ -280,6 +280,7 @@
 		B2948CB920D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */; };
 		B2948CBB20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */; };
 		B2948CCF20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */; };
+		B2948CD020D88BDA00FDAAEC /* XCTestCase+TextFieldTap.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BA485920884A0C00CE92FC /* XCTestCase+TextFieldTap.m */; };
 		B299FF1A1F22BE32004A2CB9 /* NSString+ADURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */; };
 		B299FF1B1F22BE74004A2CB9 /* NSString+ADURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF191F22BE32004A2CB9 /* NSString+ADURLExtensions.m */; };
 		B299FF1C1F22BE77004A2CB9 /* NSString+ADURLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B299FF181F22BE32004A2CB9 /* NSString+ADURLExtensions.h */; };
@@ -3248,6 +3249,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2948CD020D88BDA00FDAAEC /* XCTestCase+TextFieldTap.m in Sources */,
 				B2948CB920D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m in Sources */,
 				B2A409E720D3689F004AA9B7 /* ADALiOSBrokerInvocationTests.m in Sources */,
 				B2A409E420D3665D004AA9B7 /* ADALBaseUITest.m in Sources */,
@@ -3910,6 +3912,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -3924,6 +3927,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;

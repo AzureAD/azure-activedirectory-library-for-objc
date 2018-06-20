@@ -48,13 +48,18 @@
 - (void)acquireToken:(NSDictionary *)config;
 - (void)acquireTokenSilent:(NSDictionary *)config;
 - (void)clearCache;
+- (void)clearKeychain;
 - (void)clearCookies;
 - (void)aadEnterEmail:(NSString *)email;
 - (void)aadEnterEmail;
 - (void)aadEnterPassword;
 - (void)aadEnterPassword:(NSString *)password;
+- (void)aadEnterPasswordInApp:(XCUIApplication *)app;
+- (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp;
 - (void)closeAuthUI;
-- (void)installAppWithId:(NSString *)appId;
+- (void)openAppInstallURLForAppId:(NSString *)appId;
+- (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId;
+- (XCUIApplication *)installAppWithId:(NSString *)appId;
 - (void)removeAppWithId:(NSString *)appId;
 - (void)openURL:(NSDictionary *)config;
 

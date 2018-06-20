@@ -25,7 +25,7 @@
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>x-msauth-automationapp</string>
+				<string>x-msauth-adaltestapp-210</string>
 			</array>
 		</dict>
 	</array>

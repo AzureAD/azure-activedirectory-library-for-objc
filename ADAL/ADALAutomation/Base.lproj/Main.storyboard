@@ -118,7 +118,7 @@
                                         <accessibility key="accessibilityConfiguration" identifier="invalidateToken"/>
                                         <state key="normal" title="Clear keychain"/>
                                         <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="openUrlInSafari"/>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="clearKeychain"/>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="clearKeychain:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mJm-ZK-iL4"/>
