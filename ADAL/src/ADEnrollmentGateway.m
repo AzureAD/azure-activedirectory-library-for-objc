@@ -70,7 +70,7 @@ static NSString* s_intuneResourceJSON = nil;
     if (internalError || !enrollIds)
     {
         if (internalError)
-            AD_LOG_WARN(nil, @"Could not de-serialize Intune Enrollment ID JSON: <%@>", (*error).description);
+            AD_LOG_WARN(nil, @"Could not de-serialize Intune Enrollment ID JSON: <%@>", internalError.description);
 
         if(error) *error = internalError;
 
@@ -161,7 +161,7 @@ static NSString* s_intuneResourceJSON = nil;
     if (internalError  || !resources)
     {
         if (internalError)
-            AD_LOG_WARN(nil, @"Could not de-serialize Intune Resource JSON: <%@>", (*error).description);
+            AD_LOG_WARN(nil, @"Could not de-serialize Intune Resource JSON: <%@>", internalError.description);
 
         if(error) *error = internalError;
 
