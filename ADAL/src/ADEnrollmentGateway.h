@@ -23,9 +23,9 @@
 
 @interface ADEnrollmentGateway : NSObject
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId;
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId;
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId;
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(NSError**) error;
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(NSError**) error;
++ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(NSError**) error;
 + (NSString *)allEnrollmentIds;
 
 /*! Returns the first available enrollmentID if one is available */
@@ -35,7 +35,7 @@
 + (NSString*)enrollmentIDForHomeUserID:(NSString*) homeUserID userID:(NSString*) userID;
 
 + (NSString *)intuneMamResource:(NSString *)authority;
-+ (NSString *)intuneMAMResourceJSON:(NSString *)authority;
++ (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(NSError**) error;
 + (NSString *)allIntuneMAMResources;
 
 #if AD_BROKER

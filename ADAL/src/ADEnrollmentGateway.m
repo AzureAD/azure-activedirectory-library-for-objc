@@ -22,59 +22,78 @@
 // THE SOFTWARE.
 
 #import "ADEnrollmentGateway.h"
+#import "NSURL+ADExtensions.h"
 
 // Keys for Intune Enrollment ID
-NSString* const ADIntuneAppProtectionEnrollmentID = @"intune_app_protection_enrollment_id_V";
-NSString* const ADIntuneAppProtectionEnrollmentIDVersion = @"1";
-#define AD_INTUNE_ENROLLMENT_ID_KEY [ADIntuneAppProtectionEnrollmentID stringByAppendingString:ADIntuneAppProtectionEnrollmentIDVersion]
-NSString* const enrollmentIdArray = @"enrollment_ids";
-
-NSString* const tid = @"tid";
-NSString* const oid = @"oid";
-NSString* const unique_account_id = @"unique_account_id";
-NSString* const user_id = @"user_id";
-NSString* const enrollment_id = @"enrollment_id";
+#define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
+#define AD_INTUNE_ENROLLMENT_ID_VERSION @"1"
+#define AD_INTUNE_ENROLLMENT_ID_KEY (AD_INTUNE_ENROLLMENT_ID AD_INTUNE_ENROLLMENT_ID_VERSION)
 
 // Keys for Intune Resource
-NSString* const ADIntuneAppProtectionResourceID = @"intune_mam_resource_V";
-NSString* const ADIntuneAppProtectionResourceIDVersion = @"1";
-#define AD_INTUNE_RESOURCE_ID_KEY [ADIntuneAppProtectionEnrollmentID stringByAppendingString:ADIntuneAppProtectionEnrollmentIDVersion]
+#define AD_INTUNE_RESOURCE_ID @"intune_mam_resource_V"
+#define AD_INTUNE_RESOURCE_ID_VERSION @"1"
+#define AD_INTUNE_RESOURCE_ID_KEY (AD_INTUNE_RESOURCE_ID AD_INTUNE_RESOURCE_ID_VERSION)
 
-static NSString* ADIntuneEnrollmentIdJSON = nil;
-static NSString* ADIntuneResourceJSON = nil;
+NSString* const enrollmentIdArray = @"enrollment_ids";
+
+NSString* const TID = @"tid";
+NSString* const OID = @"oid";
+NSString* const UNIQUE_ACCOUNT_ID = @"unique_account_id";
+NSString* const USER_ID = @"user_id";
+NSString* const ENROLLMENT_ID = @"enrollment_id";
+
+static NSString* s_intuneEnrollmentIdJSON = nil;
+static NSString* s_intuneResourceJSON = nil;
 
 
 @interface ADEnrollmentGateway()
 
-+ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock;
-+ (NSString *) normalizeAuthority:(NSString *)authority;
++ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(NSError**) error;
 
 @end
 
 @implementation ADEnrollmentGateway
 
-+ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock
++ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(NSError**) error
 {
     NSString* enrollIdJSON = [ADEnrollmentGateway allEnrollmentIds];
 
     if (!enrollIdJSON)
+    {
+        AD_LOG_VERBOSE(nil, @"No Intune Enrollment ID JSON found.");
         return nil;
+    }
 
-    NSError* error = nil;
-    id enrollIds = [NSJSONSerialization JSONObjectWithData:[enrollIdJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+    NSError* internalError = nil;
+    id enrollIds = [NSJSONSerialization JSONObjectWithData:[enrollIdJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&internalError];
 
-    if (error)
+    if (internalError || !enrollIds)
+    {
+        if (internalError)
+            AD_LOG_WARN(nil, @"Could not de-serialize Intune Enrollment ID JSON: <%@>", (*error).description);
+
+        if(error) *error = internalError;
+
         return nil;
+    }
+    else if (![enrollIds isKindOfClass:[NSDictionary class]])
+    {
+        AD_LOG_WARN(nil, @"Intune Enrollment ID JSON structure is incorrect. (Not a dictionary)");
+        return nil;
+    }
 
     enrollIds = enrollIds[enrollmentIdArray];
 
-    if (!enrollIds)
+    if (!enrollIds || ![enrollIds isKindOfClass:[NSArray class]])
+    {
+        AD_LOG_WARN(nil, @"Intune Enrollment ID JSON structure is incorrect. (Not an array)");
         return nil;
+    }
 
     for (NSDictionary* enrollIdDic in enrollIds)
     {
         if (idBlock(enrollIdDic))
-            return [enrollIdDic objectForKey:enrollment_id];
+            return [enrollIdDic objectForKey:ENROLLMENT_ID];
     }
 
     return nil;
@@ -82,39 +101,48 @@ static NSString* ADIntuneResourceJSON = nil;
 
 + (NSString *)allEnrollmentIds
 {
-    if (ADIntuneEnrollmentIdJSON)
-        return ADIntuneEnrollmentIdJSON;
+    @synchronized (self)
+    {
+        if (s_intuneEnrollmentIdJSON)
+            return s_intuneEnrollmentIdJSON;
+    }
 
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
 }
 
 + (NSString *)allIntuneMAMResources
 {
-    if (ADIntuneResourceJSON)
-        return ADIntuneResourceJSON;
-
+    @synchronized(self)
+    {
+        if (s_intuneResourceJSON)
+            return s_intuneResourceJSON;
+    }
+    
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
 }
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId;
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(NSError**) error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
-        return [[dic objectForKey:user_id] isEqualToString:userId];
-    }];
+        return [[dic objectForKey:USER_ID] isEqualToString:userId];
+    }
+                                                       error:error];
 }
 
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(NSError**) error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
-        return [[dic objectForKey:oid] isEqualToString:userObjectId] && [[dic objectForKey:tid] isEqualToString:tenantId];
-    }];
+        return [[dic objectForKey:OID] isEqualToString:userObjectId] && [[dic objectForKey:TID] isEqualToString:tenantId];
+    }
+                                                       error:error];
 }
 
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId
++ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(NSError**) error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
-        return [[dic objectForKey:unique_account_id] isEqualToString:uniqueAccountId];
-    }];
+        return [[dic objectForKey:UNIQUE_ACCOUNT_ID] isEqualToString:uniqueAccountId];
+    }
+                                                       error:error];
 }
 
 + (NSString *)enrollmentIdIfAvailable
@@ -131,69 +159,69 @@ static NSString* ADIntuneResourceJSON = nil;
     enrollmentID = homeUserID ? [ADEnrollmentGateway enrollmentIdForUserId:homeUserID] : nil;
     if (enrollmentID)
         return enrollmentID;
-
+    
     enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID] : nil;
     if (enrollmentID)
         return enrollmentID;
-
+    
     enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable];
     return enrollmentID;
-}
-
-+ (NSString *) normalizeAuthority:(NSString *)authority
-{
-    NSURL* authorityURL = [NSURL URLWithString:authority];
-    NSNumber *port = authorityURL.port;
-
-    // This assumes we're using https, which is mandatory for all AAD communications.
-    if (port == nil || port.intValue == 443)
-    {
-        return authorityURL.host.lowercaseString;
-    }
-    return [NSString stringWithFormat:@"%@:%d", authorityURL.host.lowercaseString, port.intValue];
-}
-
-+ (NSString *)intuneMamResource:(NSString *)authority
-{
-    NSString* resourceJSON = [ADEnrollmentGateway allIntuneMAMResources];
-
-    if (!resourceJSON)
-        return nil;
-
-    NSError* error = nil;
-    id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
-
-    if (error)
-        return nil;
-
-    return resources[[ADEnrollmentGateway normalizeAuthority:authority]];
 }
 
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority
 {
     NSString* mamResource = [ADEnrollmentGateway intuneMamResource:authority];
     mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}",[ADEnrollmentGateway normalizeAuthority:authority],mamResource] : nil ;
-
+    
     return mamResource;
 }
 
++ (NSString *)intuneMamResource:(NSString *)authority error:(NSError**) error
+{
+    NSString* resourceJSON = [ADEnrollmentGateway allIntuneMAMResources];
 
-#if AD_BROKER
+    if (!resourceJSON)
+    {
+        AD_LOG_VERBOSE(nil, @"No Intune Resource JSON found.");
+        return nil;
+    }
+    
+    NSError* internalError = nil;
+    id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&internalError];
+
+    if (internalError  || !resources)
+    {
+        if (internalError)
+            AD_LOG_WARN(nil, @"Could not de-serialize Intune Resource JSON: <%@>", (*error).description);
+
+        if(error) *error = internalError;
+
+        return nil;
+    }
+    else if (![resources isKindOfClass:[NSDictionary class]])
+    {
+        AD_LOG_WARN(nil, @"Intune Resource JSON structure is incorrect. (Not a dictionary)");
+        return nil;
+    }
+
+    NSString* normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
+    return resources[normalizedAuthority];
+}
+
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
 {
-    if (!resources)
-        ADIntuneResourceJSON = nil;
-
-    ADIntuneResourceJSON = [resources copy];
+    @synchronized (self)
+    {
+        s_intuneResourceJSON = [resources copy];
+    }
 }
 
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds
 {
-    if (!enrollmentIds)
-        ADIntuneEnrollmentIdJSON = nil;
-
-    ADIntuneEnrollmentIdJSON = [enrollmentIds copy];
+    @synchronized (self)
+    {
+        s_intuneEnrollmentIdJSON = [enrollmentIds copy];
+    }
 }
-#endif
 
 @end
