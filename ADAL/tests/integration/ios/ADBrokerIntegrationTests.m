@@ -41,7 +41,14 @@
 #import "ADUserInformation.h"
 #import "ADRefreshResponseBuilder.h"
 #import "ADEnrollmentGateway.h"
+#import "ADEnrollmentGateway+TestUtil.h"
 
+@interface ADEnrollmentGateway ()
+
++ (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
++ (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;
+
+@end
 
 @interface ADBrokerIntegrationTests : ADTestCase
 
@@ -414,12 +421,13 @@
 
 - (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent
 {
-    [self mockADEnrollmentGateway];
+    [ADEnrollmentGateway setIntuneMamResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
 
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    NSString *enrollmentIDs = IntuneTestJSON
+    NSString *enrollmentIDs = [ADEnrollmentGateway getTestEnrollmentIDJSON];
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
@@ -498,7 +506,9 @@
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
 
-    [self revertADEnrollmentGatewayMock];
+    [ADEnrollmentGateway setIntuneMamResourceWithJsonBlob:@""];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
+
 }
 
 @end
