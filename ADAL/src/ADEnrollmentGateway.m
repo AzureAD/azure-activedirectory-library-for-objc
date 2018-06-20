@@ -142,7 +142,6 @@ static NSString* s_intuneResourceJSON = nil;
     return resources[normalizedAuthority];
 }
 
-#if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
 {
     @synchronized (self)
@@ -158,6 +157,5 @@ static NSString* s_intuneResourceJSON = nil;
         s_intuneEnrollmentIdJSON = [enrollmentIds copy];
     }
 }
-#endif
 
 @end
