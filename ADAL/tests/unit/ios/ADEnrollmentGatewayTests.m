@@ -104,13 +104,59 @@
 
 }
 
-- (void) testEnrollmentIDEmptyStringJSON
+- (void) testEnrollmentIDForEmptyStringJSON
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@""]];
 
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+}
+
+- (void) testEnrollmentIDForWrongJSON
+{
+    // random dictionary
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"aKey\":\"aValue\"}"]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+
+    // dictionary with right form but wrong entries
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"enrollment_ids\":[{\"aKey\":\"aValue\"},{\"anotherKey\":\"anotherValue\"}]}"]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+
+    // dictionary of dictionaries
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"enrollment_ids\":{\"enrollment_ids\":{\"enrollment_ids\":\"enrollment_ids\"}}}"]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+
+    // top level is array instead of dictionary
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"unique_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+
+    // enrollmentId missing
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:
+                                                       @"{\"enrollment_ids\": [\n"
+                                                       "{\n"
+                                                       "\"tid\" : \"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\n"
+                                                       "\"oid\" : \"d3444455-mike-4271-b6ea-e499cc0cab46\",\n"
+                                                       "\"unique_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
+                                                       "\"user_id\" : \"mike@contoso.com\",\n"
+                                                       "}}"]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+
 }
 
 
