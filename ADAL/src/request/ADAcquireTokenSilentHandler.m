@@ -130,7 +130,7 @@
 
     NSString* enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil userID:(cacheItem.userInformation.userId ? cacheItem.userInformation.userId : _requestParams.identifier.userId) error:NULL];
 
-    if (enrollId)
+    if (enrollId  && ![ADHelpers isADFSInstance:_requestParams.authority])
         [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
 
     ADWebAuthRequest* webReq =
