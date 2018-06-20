@@ -94,6 +94,25 @@
     XCTAssert([@"64d0557f-dave-4193-b630-8491ffd3b180" isEqualToString: [ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"1e4dd613-dave-4527-b50a-97aca38b57ba"]]);
 }
 
+- (void) testEnrollmentIDforGarbageJSON
+{
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"jlbasdivuhaefv98yqewrgiuyrviuahiuahiuvargiuho"]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+
+}
+
+- (void) testEnrollmentIDEmptyStringJSON
+{
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@""]];
+
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1"]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"]);
+}
+
 
 
 @end
