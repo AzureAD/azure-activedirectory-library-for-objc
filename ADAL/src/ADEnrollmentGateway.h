@@ -26,17 +26,25 @@
 + (NSString *)enrollmentIdForUserId:(NSString *)userId error:(NSError**) error;
 + (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(NSError**) error;
 + (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(NSError**) error;
-+ (NSString *)allEnrollmentIds;
+
+/*! Returns all known Intune MAM Enrollments IDs as JSON*/
++ (NSString *)allEnrollmentIdsJSON;
 
 /*! Returns the first available enrollmentID if one is available */
-+ (NSString *)enrollmentIdIfAvailable;
-/*! Tries to find an enrollmentID for a homeUserID first, then checks userID,
-    then returns any enrollmentID available */
-+ (NSString*)enrollmentIDForHomeUserID:(NSString*) homeUserID userID:(NSString*) userID;
++ (NSString *)enrollmentIdIfAvailable:(NSError**) error;
 
-+ (NSString *)intuneMamResource:(NSString *)authority;
+/*! Tries to find an enrollmentID for a homeUserID/uniqueAccoutnID first, then checks userID,
+    then returns any enrollmentID available */
++ (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(NSError**) error;
+
+/*! Returns the Intune MAM resource for the associated authority*/
++ (NSString *)intuneMamResource:(NSString *)authority error:(NSError**) error;
+
+/*! Returns the Intune MAM resource for the associated authority as a JSON dicitonary with one entry*/
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(NSError**) error;
-+ (NSString *)allIntuneMAMResources;
+
+/*! Returns all known Intune MAM authority:resource pairings as a JSON dictionary*/
++ (NSString *)allIntuneMAMResourcesJSON;
 
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;

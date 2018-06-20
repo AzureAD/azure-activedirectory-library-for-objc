@@ -56,7 +56,7 @@ static NSString* s_intuneResourceJSON = nil;
 
 + (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(NSError**) error
 {
-    NSString* enrollIdJSON = [ADEnrollmentGateway allEnrollmentIds];
+    NSString* enrollIdJSON = [ADEnrollmentGateway allEnrollmentIdsJSON];
 
     if (!enrollIdJSON)
     {
@@ -70,7 +70,7 @@ static NSString* s_intuneResourceJSON = nil;
     if (internalError || !enrollIds)
     {
         if (internalError)
-            AD_LOG_WARN(nil, @"Could not de-serialize Intune Enrollment ID JSON: <%@>", (*error).description);
+            AD_LOG_WARN(nil, @"Could not de-serialize Intune Enrollment ID JSON: <%@>", internalError.description);
 
         if(error) *error = internalError;
 
@@ -99,7 +99,7 @@ static NSString* s_intuneResourceJSON = nil;
     return nil;
 }
 
-+ (NSString *)allEnrollmentIds
++ (NSString *)allEnrollmentIdsJSON
 {
     @synchronized (self)
     {
@@ -110,7 +110,7 @@ static NSString* s_intuneResourceJSON = nil;
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
 }
 
-+ (NSString *)allIntuneMAMResources
++ (NSString *)allIntuneMAMResourcesJSON
 {
     @synchronized(self)
     {
@@ -145,40 +145,42 @@ static NSString* s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdIfAvailable
++ (NSString *)enrollmentIdIfAvailable:(NSError**) error
 {
     // this will just return the first enrollment ID
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * __unused dic) {
         return true;
-    }];
+    }
+                                                       error:error];
 }
 
-+ (NSString*)enrollmentIDForHomeUserID:(NSString*) homeUserID userID:(NSString*) userID
++ (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(NSError**) error
 {
     NSString* enrollmentID;
-    enrollmentID = homeUserID ? [ADEnrollmentGateway enrollmentIdForUserId:homeUserID] : nil;
+    enrollmentID = homeUserID ? [ADEnrollmentGateway enrollmentIdForUniqueAccountId:homeUserID error:error] : nil;
     if (enrollmentID)
         return enrollmentID;
     
-    enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID] : nil;
+    enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID error:error] : nil;
     if (enrollmentID)
         return enrollmentID;
     
-    enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable];
+    enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable:error];
     return enrollmentID;
 }
 
-+ (NSString *)intuneMAMResourceJSON:(NSString *)authority
++ (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(NSError *__autoreleasing *)error
 {
-    NSString* mamResource = [ADEnrollmentGateway intuneMamResource:authority];
-    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}",[ADEnrollmentGateway normalizeAuthority:authority],mamResource] : nil ;
+    NSString* mamResource = [ADEnrollmentGateway intuneMamResource:authority error:error];
+    NSString* normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
+    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}", normalizedAuthority, mamResource] : nil ;
     
     return mamResource;
 }
 
 + (NSString *)intuneMamResource:(NSString *)authority error:(NSError**) error
 {
-    NSString* resourceJSON = [ADEnrollmentGateway allIntuneMAMResources];
+    NSString* resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
     if (!resourceJSON)
     {
@@ -192,7 +194,7 @@ static NSString* s_intuneResourceJSON = nil;
     if (internalError  || !resources)
     {
         if (internalError)
-            AD_LOG_WARN(nil, @"Could not de-serialize Intune Resource JSON: <%@>", (*error).description);
+            AD_LOG_WARN(nil, @"Could not de-serialize Intune Resource JSON: <%@>", internalError.description);
 
         if(error) *error = internalError;
 
