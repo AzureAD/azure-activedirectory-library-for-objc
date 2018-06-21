@@ -62,6 +62,8 @@
 
 + (NSString *)normalizeUserId:(NSString *)userId;
 
+#if TARGET_OS_IPHONE
 + (NSDictionary *) decryptBrokerResponse:(NSDictionary *) response correlationId:(NSUUID *) correlationId error:(ADAuthenticationError * __autoreleasing *)error;
+#endif //TARGET_OS_IPHONE
 
 @end

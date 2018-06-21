@@ -32,9 +32,12 @@
 #import "ADOauth2Constants.h"
 #import "ADAL_Internal.h"
 #import "ADAuthorityUtils.h"
-#import "ADBrokerKeyHelper.h"
 #import "ADPkeyAuthHelper.h"
 #import "NSDictionary+ADExtensions.h"
+
+#if TARGET_OS_IPHONE
+#import "ADBrokerKeyHelper.h"
+#endif //TARGET_OS_IPHONE
 
 @implementation ADHelpers
 
@@ -425,6 +428,7 @@
     return normalized.length ? normalized : nil;
 }
 
+#if TARGET_OS_IPHONE
 + (NSDictionary *) decryptBrokerResponse:(NSDictionary *) response correlationId:(NSUUID *) correlationId error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString* hash = [response valueForKey:BROKER_HASH_KEY];
@@ -471,7 +475,7 @@
     [ADHelpers removeNullStringFrom:decryptedResponse];
 
     return decryptedResponse;
-
 }
+#endif //TARGET_OS_IPHONE
 
 @end
