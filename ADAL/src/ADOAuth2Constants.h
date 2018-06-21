@@ -66,6 +66,8 @@ extern NSString *const BROKER_MESSAGE_VERSION;
 extern NSString *const BROKER_APP_VERSION;
 extern NSString *const BROKER_RESPONSE_KEY;
 extern NSString *const BROKER_HASH_KEY;
+extern NSString *const BROKER_INTUNE_RESPONSE_KEY;
+extern NSString *const BROKER_INTUNE_HASH_KEY;
 
 extern NSString *const ADAL_CLIENT_TELEMETRY;
 

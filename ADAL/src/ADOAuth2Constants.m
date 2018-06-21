@@ -67,6 +67,8 @@ NSString *const BROKER_MESSAGE_VERSION          = @"msg_protocol_ver";
 NSString *const BROKER_APP_VERSION              = @"x-broker-app-ver";
 NSString *const BROKER_RESPONSE_KEY             = @"response";
 NSString *const BROKER_HASH_KEY                 = @"hash";
+NSString *const BROKER_INTUNE_RESPONSE_KEY      = @"intune_mam_token";
+NSString *const BROKER_INTUNE_HASH_KEY          = @"intune_mam_token_hash";
 
 NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";
 
