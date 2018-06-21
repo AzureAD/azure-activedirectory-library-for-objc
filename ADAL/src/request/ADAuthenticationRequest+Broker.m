@@ -191,8 +191,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
-    // If broker sent a response along with error, it may contain Intune MAM resource token, decrypt response and check
-    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION] && ![queryParamsMap valueForKey:BROKER_RESPONSE_KEY])
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
         return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
@@ -257,23 +256,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]];
-    }
-    else if (AD_FAILED == result.status && keychainGroup && result.tokenCacheItem)
-    {
-        if (result.error.code == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
-        {
-            ADAuthenticationResult* mamTokenResult = [ADAuthenticationResult resultFromTokenCacheItem:result.tokenCacheItem
-                                                                            multiResourceRefreshToken:result.multiResourceRefreshToken
-                                                                                        correlationId:nil];
-
-            ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
-                                                                                 authority:result.tokenCacheItem.authority];
-
-            [cache updateCacheToResult:mamTokenResult cacheItem:nil refreshToken:nil context:nil];
-
-            // remove mam token from Authentication result
-            result = [ADAuthenticationResult resultFromError:result.error correlationId:result.correlationId];
-        }
     }
     
     return result;

@@ -28,6 +28,14 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADBrokerKeyHelper.h"
+#import "ADHelpers.h"
+#import "ADPkeyAuthHelper.h"
+#import "ADTokenCacheAccessor.h"
+
+#if TARGET_OS_IPHONE
+#import "ADKeychainTokenCache+Internal.h"
+#endif // TARGET_OS_IPHONE
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -73,24 +81,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return self;
 }
 
-- (id)initWithError:(ADAuthenticationError *)error
-             status:(ADAuthenticationResultStatus)status
-               item: (ADTokenCacheItem*) item
-multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
-      correlationId: (NSUUID*) correlationId
-{
-    THROW_ON_NIL_ARGUMENT(error);
-
-    self = [self initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
-    if (self)
-    {
-        _status = status;
-        _error = error;
-        _correlationId = correlationId;
-    }
-    return self;
-}
-
 + (ADAuthenticationResult*)resultFromTokenCacheItem:(ADTokenCacheItem *)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID *)correlationId
@@ -121,20 +111,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                                             status:AD_FAILED
                                                                      correlationId:correlationId];
     
-    return result;
-}
-
-+(ADAuthenticationResult*) resultFromError:(ADAuthenticationError *)error
-                        withTokenCacheItem:(ADTokenCacheItem *)item
-                 multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
-                             correlationId:(NSUUID *)correlationId
-{
-    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:error
-                                                                            status:AD_FAILED
-                                                                              item:item
-                                                         multiResourceRefreshToken:multiResourceRefreshToken
-                                                                     correlationId:correlationId];
-
     return result;
 }
 
@@ -187,6 +163,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     // Otherwise parse out the error condition
     ADAuthenticationError* error = nil;
+    NSMutableDictionary* userInfo = nil;
     
     NSString* errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
     if (!errorDetails)
@@ -201,14 +178,88 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         errorCode = [strErrorCode integerValue];
     }
 
-    ADTokenCacheItem* item = nil;
-    BOOL mrrt = NO;
     if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
-        item = [ADTokenCacheItem new];
-        [item setAccessTokenType:@"Bearer"];
-        mrrt = [item fillItemWithResponse:response];
+        userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
+        if (response[@"suberror"])
+        {
+            [userInfo setValue:response[@"suberror"] forKey:@"suberror"];
+        }
+
+        if (response[BROKER_APP_VERSION])
+        {
+            [userInfo setValue:response[BROKER_APP_VERSION] forKey:BROKER_APP_VERSION];
+        }
+
+        // decrypt token response here
+        NSString* hash = [response valueForKey:BROKER_INTUNE_HASH_KEY];
+        NSDictionary* intuneToken = nil;
+        if (!hash)
+        {
+            AD_LOG_WARN(correlationId, @"Key hash missing from Intune token.");
+        }
+        else
+        {
+            NSString* encryptedBase64Response = [response valueForKey:BROKER_INTUNE_RESPONSE_KEY];
+            NSString* msgVer = [response valueForKey:BROKER_MESSAGE_VERSION];
+            NSInteger protocolVersion = 1;
+            if (msgVer)
+            {
+                protocolVersion = [msgVer integerValue];
+            }
+            //decrypt response first
+            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
+            ADAuthenticationError* decryptionError = nil;
+            NSData *encryptedResponse = [NSString adBase64UrlDecodeData:encryptedBase64Response ];
+            NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
+                                                            version:protocolVersion
+                                                              error:&decryptionError];
+
+            if (!decrypted)
+            {
+                AD_LOG_WARN(correlationId, @"Failed to decrypt Intune token.");
+            }
+            else
+            {
+                NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
+                //now compute the hash on the unencrypted data
+                NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
+                if(![hash isEqualToString:actualHash])
+                {
+                    AD_LOG_WARN(correlationId, @"Decrypted Intune key does not match hash");
+                }
+
+                // create response from the decrypted payload
+                intuneToken = [NSDictionary adURLFormDecode:decryptedString];
+                [ADHelpers removeNullStringFrom:intuneToken];
+            }
+            ADAuthenticationResult* intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneToken
+                                                                                           fromRefresh:NO
+                                                                                  requestCorrelationId:intuneToken[OAUTH2_CORRELATION_ID_RESPONSE]];
+
+            if (intuneTokenResult)
+            {
+                [userInfo setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
+            }
+
+            NSDictionary* resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+            if (!resumeDictionary)
+            {
+                AD_LOG_WARN(correlationId, @"Failed to cache Intune token, no resume state found in NSUserDefaults");
+            }
+            else
+            {
+                NSString* keychainGroup = resumeDictionary[@"keychain_group"];
+                id<ADTokenCacheDataSource> cache = [ADKeychainTokenCache keychainCacheForGroup:keychainGroup];
+                ADTokenCacheAccessor* cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:cache
+                                                                                             authority:intuneTokenResult.tokenCacheItem.authority];
+
+                [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
+            }
+
+        }
+
     }
     
     NSString* protocolCode = [response valueForKey:@"protocol_code"];
@@ -228,6 +279,15 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         NSDictionary *httpHeaders = [NSDictionary adURLFormDecode:[response valueForKey:@"http_headers"]];
         error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
     }
+    else if(userInfo)
+    {
+        error = [ADAuthenticationError errorWithDomain:errorDomain
+                                                  code:errorCode
+                                     protocolErrorCode:protocolCode
+                                          errorDetails:errorDetails
+                                         correlationId:correlationId
+                                              userInfo:userInfo];
+    }
     else
     {
         error = [ADAuthenticationError errorWithDomain:errorDomain
@@ -237,23 +297,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                          correlationId:correlationId];
     }
 
-    // For certain errors, the Broker will send back a token as well as an error.
-    // Attach the token to the result if we created one.
-    ADAuthenticationResult* result;
-    if (item)
-    {
-        result = [ADAuthenticationResult resultFromError:error
-                                      withTokenCacheItem:item
-                               multiResourceRefreshToken:mrrt
-                                           correlationId:correlationId];
-    }
-    else
-    {
-        result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-    }
-
-
-    return result;
+    return [ADAuthenticationResult resultFromError:error correlationId:correlationId];;
 }
 
 + (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
