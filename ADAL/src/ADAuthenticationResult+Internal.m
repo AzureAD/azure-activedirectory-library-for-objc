@@ -168,6 +168,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         errorDetails = @"Broker did not provide any details";
     }
+
+    if (response[BROKER_APP_VERSION])
+    {
+        [userInfo setValue:response[BROKER_APP_VERSION] forKey:BROKER_APP_VERSION];
+    }
         
     NSString* strErrorCode = [response valueForKey:@"error_code"];
     NSInteger errorCode = AD_ERROR_TOKENBROKER_UNKNOWN;
@@ -175,6 +180,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         errorCode = [strErrorCode integerValue];
     }
+
+    
 
     if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
@@ -185,10 +192,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
             [userInfo setValue:response[@"suberror"] forKey:@"suberror"];
         }
 
-        if (response[BROKER_APP_VERSION])
-        {
-            [userInfo setValue:response[BROKER_APP_VERSION] forKey:BROKER_APP_VERSION];
-        }
         ADAuthenticationError* intuneTokenError = nil;
         if (response[BROKER_INTUNE_HASH_KEY] && response[BROKER_INTUNE_RESPONSE_KEY])
         {
