@@ -34,13 +34,6 @@
 - (void)setUp
 {
     [super setUp];
-
-    _interruptionMonitor = [self addUIInterruptionMonitorWithDescription:@"Notifications permission" handler:^BOOL(XCUIElement *alert) {
-
-        [alert.buttons[@"Allow"] tap];
-        return YES;
-    }];
-
     [self removeAppWithId:@"broker"];
 
     [self.testApp activate];
@@ -49,7 +42,7 @@
 - (void)tearDown
 {
     [super tearDown];
-    [self removeUIInterruptionMonitor:_interruptionMonitor];
+    [self removeAppWithId:@"broker"];
 }
 
 - (void)testFirstTimeAuthenticatorInstallPrompt
@@ -70,7 +63,8 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @YES
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -109,6 +103,64 @@
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
+}
+
+- (void)testBrokerInstallAfterInitialSignin
+{
+    [self clearKeychain];
+
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+
+    XCUIApplication *brokerApp = [self installAppWithId:@"broker"];
+    [self.testApp activate];
+
+    params = @{
+               @"validate_authority" : @YES,
+               @"user_identifier" : self.primaryAccount.account,
+               @"user_identifier_type" : @"optional_displayable",
+               @"use_broker": @YES
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    [self invalidateRefreshToken:config];
+    [self assertRefreshTokenInvalidated];
+    [self closeResultView];
+
+    [self acquireToken:params];
+    XCTAssertTrue([brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f]);
+
+    [self aadEnterPasswordInApp:brokerApp];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
 }
 
 @end

@@ -196,7 +196,7 @@
 
 - (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
 {
-    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
+    XCUIElement *passwordTextField = testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:password];

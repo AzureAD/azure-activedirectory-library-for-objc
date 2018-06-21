@@ -44,4 +44,37 @@ static BOOL brokerAppInstalled = NO;
     }
 }
 
+- (void)testBasicBrokerLogin
+{
+    [self clearKeychain];
+
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
+
+    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
+    [self aadEnterPasswordInApp:brokerApp];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+}
+
 @end
