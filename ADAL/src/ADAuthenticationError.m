@@ -317,7 +317,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                                                     token:(ADTokenCacheItem*) token
 {
     NSMutableDictionary* userInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:1];
-    [userInfo setObject:token forKey:@"mamToken"];
+    [userInfo setObject:token forKey:@"ADMAMToken"];
     return [self errorWithDomainInternal:error.domain
                                     code:error.code
                        protocolErrorCode:error.protocolCode
