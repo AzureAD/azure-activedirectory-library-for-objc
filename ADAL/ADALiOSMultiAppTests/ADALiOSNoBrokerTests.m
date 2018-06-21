@@ -47,12 +47,16 @@
 
 - (void)testFirstTimeAuthenticatorInstallPrompt
 {
+    // Clear keychain to ensure no stale WPJ state is there
     [self clearKeychain];
+    // Pre-open Authenticator app install URL
     [self openAppInstallURLForAppId:@"broker"];
 
+    // Activate test app
     [self.testApp activate];
     [self.testApp.buttons[@"Done"] tap];
 
+    // Load configuration
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
@@ -71,10 +75,12 @@
     [self acquireToken:config];
     [self aadEnterPassword];
 
+    // After user enters credentials, we should see Get the app button
     __auto_type registerButton = self.testApp.buttons[@"Get the app"];
     [self waitForElement:registerButton];
     [registerButton tap];
 
+    // It should redirect to the app store install URL
     XCUIApplication *appStore = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.MobileStore"];
     BOOL result = [appStore waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
@@ -82,6 +88,7 @@
     __auto_type appTitle = appStore.otherElements[@"Microsoft Authenticator "];
     [self waitForElement:appTitle];
 
+    // Install broker app
     XCUIApplication *brokerApp = [self installAppWithIdWithSafariOpen:@"broker"];
 
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
@@ -89,8 +96,18 @@
     [self waitForElement:allowButton];
     [allowButton tap];
 
+    // Enter password in broker
     [self aadEnterPasswordInApp:brokerApp];
 
+    // It should prompt to register
+    __auto_type registerButtonInBroker = brokerApp.buttons[@"Register"];
+    [self waitForElement:registerButtonInBroker];
+    [registerButtonInBroker tap];
+
+    result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
+    // Register and wait for the token to be returned
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
 

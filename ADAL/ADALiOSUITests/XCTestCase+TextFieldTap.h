@@ -26,5 +26,6 @@
 @interface XCTestCase (TextFieldTap)
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element;
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(XCUIApplication *)application;
 
 @end

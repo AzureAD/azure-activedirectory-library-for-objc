@@ -27,7 +27,12 @@
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
 {
-    XCUIElement *keyboard = [[[XCUIApplication new] keyboards] element];
+    [self tapElementAndWaitForKeyboardToAppear:element app:[XCUIApplication new]];
+}
+
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(XCUIApplication *)application
+{
+    XCUIElement *keyboard = [[application keyboards] element];
 
     while (true)
     {

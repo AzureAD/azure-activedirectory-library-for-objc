@@ -198,7 +198,7 @@
 {
     XCUIElement *passwordTextField = testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:testApp];
     [passwordTextField typeText:password];
 }
 
