@@ -110,25 +110,18 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                 [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
 
+        ADErrorCode code = errorCode;
         NSString* suberror = [dictionary objectForKey:@"suberror"];
-        ADAuthenticationError* error;
-        if (![NSString adIsStringNilOrBlank:suberror])
+        if (suberror && [suberror isEqualToString:@"protection_policy_required"])
         {
-            error = [ADAuthenticationError OAuthServerError:serverOAuth2Error
-                                                description:errorDetails
-                                                       code:[suberror isEqualToString:@"protection_policy_required"] ? AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED : errorCode
-                                              correlationId:correlationId
-                                                   suberror:suberror];
-        }
-        else
-        {
-            error = [ADAuthenticationError OAuthServerError:serverOAuth2Error
-                                                description:errorDetails
-                                                       code:errorCode
-                                              correlationId:correlationId];
+            code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
         }
         
-        return error;
+        return [ADAuthenticationError OAuthServerError:serverOAuth2Error
+                                           description:errorDetails
+                                                  code:code
+                                         correlationId:correlationId
+                                              userInfo:@{@"suberror":suberror}];
     }
     
     return nil;
