@@ -286,19 +286,20 @@
 
 - (IBAction)clearKeychain:(id)sender
 {
-    NSDictionary *clearQuery = @{(id)kSecClass : (id)kSecClassGenericPassword};
-    OSStatus status = SecItemDelete((CFDictionaryRef)clearQuery);
+    NSArray *secItemClasses = @[(__bridge id)kSecClassGenericPassword,
+                                (__bridge id)kSecClassInternetPassword,
+                                (__bridge id)kSecClassCertificate,
+                                (__bridge id)kSecClassKey,
+                                (__bridge id)kSecClassIdentity];
 
-    if (status != errSecSuccess && status != errSecItemNotFound)
+    for (NSString *itemClass in secItemClasses)
     {
-        [self displayResultJson:[NSString stringWithFormat:@"{\"failed to clear keychain with error\":\"%d\"}", status]
-                           logs:_resultLogs];
+        NSDictionary *clearQuery = @{(id)kSecClass : (id)itemClass};
+        SecItemDelete((CFDictionaryRef)clearQuery);
     }
-    else
-    {
-        [self displayResultJson:[NSString stringWithFormat:@"{\"cleared keychain with status\":\"%d\"}", status]
-                           logs:_resultLogs];
-    }
+
+    [self displayResultJson:@"{\"cleared keychain with status\":\"1\"}"
+                       logs:_resultLogs];
 }
 
 - (IBAction)invalidateRefreshToken:(id)sender

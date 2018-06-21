@@ -7,6 +7,7 @@
 		<string>$(AppIdentifierPrefix)com.microsoft.adal.automationapp</string>
 		<string>$(AppIdentifierPrefix)com.microsoft.adalcache</string>
 		<string>$(AppIdentifierPrefix)com.microsoft.workplacejoin</string>
+		<string>$(AppIdentifierPrefix)com.microsoft.azureauthenticator</string>
 	</array>
 </dict>
 </plist>
