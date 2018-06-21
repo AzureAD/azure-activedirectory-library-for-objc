@@ -206,7 +206,7 @@
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
 }
 
-- (void)testBroker_whenSimpleAcquireToken_failsWithProtectionRequiredError
+- (void)testBroker_whenFailWithProtectionRequiredError_shouldStoreMamTokenAndReturnError
 {
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
@@ -298,7 +298,7 @@
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
 }
 
-- (void)testBroker_whenSimpleAcquireToken_failsWithProtectionRequiredError_andNoToken
+- (void)testBroker_whenFailWithProtectionRequiredErrorWithoutToken_shouldReturnErrorWithoutToken
 {
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
