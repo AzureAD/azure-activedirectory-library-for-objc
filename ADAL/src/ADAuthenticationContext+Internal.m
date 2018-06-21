@@ -121,7 +121,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                            description:errorDetails
                                                   code:code
                                          correlationId:correlationId
-                                              userInfo:@{@"suberror":suberror}];
+                                              userInfo:suberror ? @{@"suberror":suberror} : nil];
     }
     
     return nil;
