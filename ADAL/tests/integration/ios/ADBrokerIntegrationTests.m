@@ -60,13 +60,26 @@
 + (NSURL *)createV2BrokerResponse:(NSDictionary *)parameters
                       redirectUri:(NSString *)redirectUri
 {
+    NSDictionary* message = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:parameters];
+    
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message adURLFormEncode]]];
+}
+
++ (NSURL *)createV2BrokerErrorResponse:(NSDictionary *)parameters
+                           redirectUri:(NSString *)redirectUri
+{
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [parameters adURLFormEncode]]];
+}
+
++ (NSDictionary *) createV2BrokerResponseDicitonary:(NSDictionary *) parameters
+{
     NSData *payload = [[parameters adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
-    
+
     size_t bufferSize = [payload length] + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
     size_t numBytesEncrypted = 0;
-    
+
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
                                           [brokerKey bytes], kCCKeySizeAES256,
                                           NULL /* initialization vector (optional) */,
@@ -77,7 +90,7 @@
     {
         return nil;
     }
-    
+
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256([payload bytes], (CC_LONG)[payload length], hash);
     NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 3];
@@ -85,15 +98,15 @@
     {
         [fingerprint appendFormat:@"%02x", hash[i]];
     }
-    
+
     NSDictionary *message =
     @{
       @"msg_protocol_ver" : @"2",
       @"response" :  [NSString adBase64UrlEncodeData:[NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted]],
       @"hash" : [fingerprint uppercaseString],
       };
-    
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message adURLFormEncode]]];
+
+    return message;
 }
 
 - (ADAuthenticationContext *)getBrokerTestContext:(NSString *)authority
@@ -225,22 +238,30 @@
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
-        NSDictionary *responseParams =
-        @{
-          @"authority" : authority,
-          @"resource" : TEST_RESOURCE,
-          @"client_id" : TEST_CLIENT_ID,
-          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
-          @"access_token" : @"i-am-a-access-token",
-          @"refresh_token" : @"i-am-a-refresh-token",
-          @"foci" : @"1",
-          @"expires_in" : @"3600",
-          @"error_code" : @"213", // AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED
-          @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
-          @"error" : @"unauthorized_client",
-          };
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        NSMutableDictionary *responseParams =
+        [[NSMutableDictionary alloc] initWithDictionary:@{
+                                                        @"error_code" : @"213", // AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED
+                                                        @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
+                                                        @"error" : @"unauthorized_client",
+                                                        @"suberror" : @"protection_policies_required",
+                                                        }];
+        NSDictionary *intune_token_response = @{
+                                              @"authority" : authority,
+                                              @"resource" : TEST_RESOURCE,
+                                              @"client_id" : TEST_CLIENT_ID,
+                                              @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+                                              @"access_token" : @"i-am-a-access-token",
+                                              @"refresh_token" : @"i-am-a-refresh-token",
+                                              @"foci" : @"1",
+                                              @"expires_in" : @"3600"};
+        NSDictionary* encrypted_token = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:intune_token_response];
+
+        [responseParams setValue:encrypted_token[BROKER_RESPONSE_KEY] forKey:BROKER_INTUNE_RESPONSE_KEY];
+        [responseParams setValue:encrypted_token[BROKER_HASH_KEY] forKey:BROKER_INTUNE_HASH_KEY];
+        [responseParams setValue:encrypted_token[@"msg_protocol_ver"] forKey:@"msg_protocol_ver"];
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri]];
         return YES;
     }];
 
