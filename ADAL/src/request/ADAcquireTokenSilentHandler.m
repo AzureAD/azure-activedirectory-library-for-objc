@@ -127,11 +127,13 @@
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
     }
     
+    if (![ADHelpers isADFSInstance:_requestParams.authority])
+    {
+        NSString* enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil userID:(cacheItem.userInformation.userId ? cacheItem.userInformation.userId : _requestParams.identifier.userId) error:NULL];
 
-    NSString* enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil userID:(cacheItem.userInformation.userId ? cacheItem.userInformation.userId : _requestParams.identifier.userId) error:NULL];
-
-    if (enrollId  && ![ADHelpers isADFSInstance:_requestParams.authority])
-        [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+        if (enrollId)
+            [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+    }
 
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
