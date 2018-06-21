@@ -174,6 +174,21 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
++ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
+                                      code:(NSInteger)code
+                         protocolErrorCode:(NSString *)protocolCode
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId
+                                  userInfo:(NSDictionary *)userInfo
+{
+    return [self errorWithDomainInternal:domain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:errorDetails
+                           correlationId:correlationId
+                                userInfo:userInfo];
+}
+
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString *)protocolCode
                                           errorDetails:(NSString *)errorDetails
@@ -287,26 +302,12 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 description:(NSString *)description
                                        code:(NSInteger)code
                               correlationId:(NSUUID *)correlationId
-                                   suberror:(NSString *)suberror
+                                   userInfo:(NSDictionary *)userInfo
 {
     return [self errorWithDomainInternal:ADOAuthServerErrorDomain
                                     code:code
                        protocolErrorCode:protocolCode
                             errorDetails:description
-                           correlationId:correlationId
-                                userInfo:@{@"suberror":suberror}];
-}
-
-+ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
-                                                            correlationID:(NSUUID *) correlationId
-                                                                    token:(ADTokenCacheItem*) token
-{
-    NSMutableDictionary* userInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:1];
-    [userInfo setObject:token forKey:@"mamToken"];
-    return [self errorWithDomainInternal:error.domain
-                                    code:error.code
-                       protocolErrorCode:error.protocolCode
-                            errorDetails:error.errorDetails
                            correlationId:correlationId
                                 userInfo:userInfo];
 }

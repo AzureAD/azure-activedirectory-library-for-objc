@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationError.h"
-#import "ADTokenCacheItem.h"
 
 #define AUTH_ERROR(_CODE, _DETAILS, _CORRELATION) \
     ADAuthenticationError* adError = \
@@ -75,6 +74,13 @@
                               errorDetails:(NSString *)errorDetails
                              correlationId:(NSUUID *)correlationId;
 
++ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
+                                      code:(NSInteger)code
+                         protocolErrorCode:(NSString *)protocolCode
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId
+                                  userInfo:(NSDictionary *)userInfo;
+
 /*! Genearates an error from the code and details of an authentication error */
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString *)protocolCode
@@ -123,12 +129,7 @@
                                 description:(NSString *)description
                                        code:(NSInteger)code
                               correlationId:(NSUUID *)correlationId
-                                   suberror:(NSString*) suberror;
-
-/*! Adds a alternate token to an existing ADAuthentication error's userInfo dictionary */
-+ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
-                                                            correlationID:(NSUUID *) correlationId
-                                                                    token:(ADTokenCacheItem*) token;
+                                   userInfo:(NSDictionary*)userInfo;
 
 /*
     Returns string representation of ADErrorCode or error code number as string, if mapping for that error is missing
