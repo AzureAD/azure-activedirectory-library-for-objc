@@ -28,9 +28,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 #import "NSDictionary+ADExtensions.h"
-#import "ADBrokerKeyHelper.h"
 #import "ADHelpers.h"
-#import "ADPkeyAuthHelper.h"
 #import "ADTokenCacheAccessor.h"
 
 #if TARGET_OS_IPHONE
@@ -191,52 +189,18 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         {
             [userInfo setValue:response[BROKER_APP_VERSION] forKey:BROKER_APP_VERSION];
         }
-
-        // decrypt token response here
-        NSString* hash = [response valueForKey:BROKER_INTUNE_HASH_KEY];
-        NSDictionary* intuneToken = nil;
-        if (!hash)
+        ADAuthenticationError* intuneTokenError = nil;
+        if (response[BROKER_INTUNE_HASH_KEY] && response[BROKER_INTUNE_RESPONSE_KEY])
         {
-            AD_LOG_WARN(correlationId, @"Key hash missing from Intune token.");
-        }
-        else
-        {
-            NSString* encryptedBase64Response = [response valueForKey:BROKER_INTUNE_RESPONSE_KEY];
-            NSString* msgVer = [response valueForKey:BROKER_MESSAGE_VERSION];
-            NSInteger protocolVersion = 1;
-            if (msgVer)
-            {
-                protocolVersion = [msgVer integerValue];
-            }
-            //decrypt response first
-            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-            ADAuthenticationError* decryptionError = nil;
-            NSData *encryptedResponse = [NSString adBase64UrlDecodeData:encryptedBase64Response ];
-            NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
-                                                            version:protocolVersion
-                                                              error:&decryptionError];
+            NSDictionary* intuneTokenResponse = [ADHelpers decryptBrokerResponse:@{BROKER_RESPONSE_KEY:response[BROKER_INTUNE_RESPONSE_KEY],
+                                                                                   BROKER_HASH_KEY:response[BROKER_INTUNE_HASH_KEY],
+                                                                                   BROKER_MESSAGE_VERSION:response[BROKER_MESSAGE_VERSION] ? response[BROKER_MESSAGE_VERSION] : @1}
+                                                                   correlationId:correlationId
+                                                                           error:&intuneTokenError];
 
-            if (!decrypted)
-            {
-                AD_LOG_WARN(correlationId, @"Failed to decrypt Intune token.");
-            }
-            else
-            {
-                NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
-                //now compute the hash on the unencrypted data
-                NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
-                if(![hash isEqualToString:actualHash])
-                {
-                    AD_LOG_WARN(correlationId, @"Decrypted Intune key does not match hash");
-                }
-
-                // create response from the decrypted payload
-                intuneToken = [NSDictionary adURLFormDecode:decryptedString];
-                [ADHelpers removeNullStringFrom:intuneToken];
-            }
-            ADAuthenticationResult* intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneToken
-                                                                                           fromRefresh:NO
-                                                                                  requestCorrelationId:intuneToken[OAUTH2_CORRELATION_ID_RESPONSE]];
+            ADAuthenticationResult* intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
+                                                                                         fromRefresh:NO
+                                                                                requestCorrelationId:intuneTokenResponse[OAUTH2_CORRELATION_ID_RESPONSE]];
 
             if (intuneTokenResult)
             {
@@ -257,11 +221,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
                 [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
             }
-
         }
 
+        if (intuneTokenError)
+        {
+            [userInfo setValue:intuneTokenError forKey:@"intuneTokenError"];
+        }
     }
-    
+
     NSString* protocolCode = [response valueForKey:@"protocol_code"];
     if (!protocolCode)
     {

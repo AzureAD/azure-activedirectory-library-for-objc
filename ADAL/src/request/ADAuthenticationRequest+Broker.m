@@ -198,49 +198,11 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
     // accidentally going to the wrong app
-    NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
-    if (!hash)
-    {
-        AUTH_ERROR(AD_ERROR_TOKENBROKER_HASH_MISSING, @"Key hash is missing from the broker response", correlationId);
-        return nil;
-    }
-    
-    NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-    NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
-    NSInteger protocolVersion = 1;
-    
-    if (msgVer)
-    {
-        protocolVersion = [msgVer integerValue];
-    }
-    s_brokerProtocolVersion = msgVer;
-    
-    //decrypt response first
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    ADAuthenticationError* decryptionError = nil;
-    NSData *encryptedResponse = [NSString adBase64UrlDecodeData:encryptedBase64Response ];
-    NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
-                                                    version:protocolVersion
-                                                      error:&decryptionError];
-    if (!decrypted)
-    {
-        AUTH_ERROR_UNDERLYING(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt broker message", decryptionError, correlationId)
-        return nil;
-    }
-    
-    
-    NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
-    //now compute the hash on the unencrypted data
-    NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
-    if(![hash isEqualToString:actualHash])
-    {
-        AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);
-        return nil;
-    }
-    
-    // create response from the decrypted payload
-    queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
-    [ADHelpers removeNullStringFrom:queryParamsMap];
+
+    s_brokerProtocolVersion = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
+
+    queryParamsMap = [ADHelpers decryptBrokerResponse:queryParamsMap correlationId:correlationId error:error];
+
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     
     s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];

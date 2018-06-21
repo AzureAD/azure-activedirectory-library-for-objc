@@ -62,4 +62,6 @@
 
 + (NSString *)normalizeUserId:(NSString *)userId;
 
++ (NSDictionary *) decryptBrokerResponse:(NSDictionary *) response correlationId:(NSUUID *) correlationId error:(ADAuthenticationError * __autoreleasing *)error;
+
 @end
