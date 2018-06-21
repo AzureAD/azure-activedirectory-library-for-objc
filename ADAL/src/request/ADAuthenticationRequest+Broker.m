@@ -159,7 +159,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     if (!response)
     {
-        
         return nil;
     }
     
@@ -191,9 +190,48 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
+    NSString* keychainGroup = resumeDictionary[@"keychain_group"];
+
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
-        return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+        // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
+        if (queryParamsMap[BROKER_INTUNE_HASH_KEY] && queryParamsMap[BROKER_INTUNE_RESPONSE_KEY])
+        {
+            ADAuthenticationError* intuneTokenError = nil;
+            NSDictionary* intuneTokenResponse = [ADHelpers decryptBrokerResponse:@{BROKER_RESPONSE_KEY:queryParamsMap[BROKER_INTUNE_RESPONSE_KEY],
+                                                                                   BROKER_HASH_KEY:queryParamsMap[BROKER_INTUNE_HASH_KEY],
+                                                                                   BROKER_MESSAGE_VERSION:queryParamsMap[BROKER_MESSAGE_VERSION] ? queryParamsMap[BROKER_MESSAGE_VERSION] : @1}
+                                                                   correlationId:correlationId
+                                                                           error:&intuneTokenError];
+
+            ADAuthenticationResult* intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
+                                                                                         fromRefresh:NO
+                                                                                requestCorrelationId:intuneTokenResponse[OAUTH2_CORRELATION_ID_RESPONSE]];
+
+            if (!resumeDictionary || !keychainGroup)
+            {
+                AD_LOG_WARN(correlationId, @"Failed to cache Intune token, no resume state found in NSUserDefaults");
+            }
+            else
+            {
+                ADTokenCacheAccessor* cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
+                                                                                             authority:intuneTokenResult.tokenCacheItem.authority];
+
+                [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
+            }
+
+            if (intuneTokenResult)
+            {
+                [userInfo setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
+            }
+            else if(intuneTokenError)
+            {
+                [userInfo setValue:intuneTokenError forKey:@"intuneTokenError"];
+            }
+        }
+
+        return [ADAuthenticationResult resultFromBrokerResponse:userInfo];
     }
 
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
@@ -201,13 +239,19 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     s_brokerProtocolVersion = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
 
-    queryParamsMap = [ADHelpers decryptBrokerResponse:queryParamsMap correlationId:correlationId error:error];
+    ADAuthenticationError* decryptionError = nil;
+    queryParamsMap = [ADHelpers decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
+
+    if(decryptionError && error)
+    {
+        (*error) = decryptionError;
+        return nil;
+    }
 
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     
     s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
     
-    NSString* keychainGroup = resumeDictionary[@"keychain_group"];
     if (AD_SUCCEEDED == result.status && keychainGroup)
     {
         ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]

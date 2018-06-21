@@ -31,9 +31,6 @@
 #import "ADHelpers.h"
 #import "ADTokenCacheAccessor.h"
 
-#if TARGET_OS_IPHONE
-#import "ADKeychainTokenCache+Internal.h"
-#endif // TARGET_OS_IPHONE
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -185,50 +182,21 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
     if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
-        // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
+        // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
         userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
         if (response[@"suberror"])
         {
             [userInfo setValue:response[@"suberror"] forKey:@"suberror"];
         }
 
-        ADAuthenticationError* intuneTokenError = nil;
-        if (response[BROKER_INTUNE_HASH_KEY] && response[BROKER_INTUNE_RESPONSE_KEY])
+        if (response[@"userId"])
         {
-            NSDictionary* intuneTokenResponse = [ADHelpers decryptBrokerResponse:@{BROKER_RESPONSE_KEY:response[BROKER_INTUNE_RESPONSE_KEY],
-                                                                                   BROKER_HASH_KEY:response[BROKER_INTUNE_HASH_KEY],
-                                                                                   BROKER_MESSAGE_VERSION:response[BROKER_MESSAGE_VERSION] ? response[BROKER_MESSAGE_VERSION] : @1}
-                                                                   correlationId:correlationId
-                                                                           error:&intuneTokenError];
-
-            ADAuthenticationResult* intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
-                                                                                         fromRefresh:NO
-                                                                                requestCorrelationId:intuneTokenResponse[OAUTH2_CORRELATION_ID_RESPONSE]];
-
-            if (intuneTokenResult)
-            {
-                [userInfo setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
-            }
-
-            NSDictionary* resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
-            if (!resumeDictionary)
-            {
-                AD_LOG_WARN(correlationId, @"Failed to cache Intune token, no resume state found in NSUserDefaults");
-            }
-            else
-            {
-                NSString* keychainGroup = resumeDictionary[@"keychain_group"];
-                id<ADTokenCacheDataSource> cache = [ADKeychainTokenCache keychainCacheForGroup:keychainGroup];
-                ADTokenCacheAccessor* cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:cache
-                                                                                             authority:intuneTokenResult.tokenCacheItem.authority];
-
-                [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
-            }
+            [userInfo setValue:response[@"userId"] forKey:@"userId"];
         }
 
-        if (intuneTokenError)
+        if (response[@"intuneTokenError"])
         {
-            [userInfo setValue:intuneTokenError forKey:@"intuneTokenError"];
+            [userInfo setValue:response[@"intuneTokenError"] forKey:@"intuneTokenError"];
         }
     }
 
