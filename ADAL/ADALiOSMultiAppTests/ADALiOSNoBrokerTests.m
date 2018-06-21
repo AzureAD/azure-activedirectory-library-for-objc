@@ -57,6 +57,9 @@
     [self clearKeychain];
     [self openAppInstallURLForAppId:@"broker"];
 
+    [self.testApp activate];
+    [self.testApp.buttons[@"Done"] tap];
+
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
@@ -86,6 +89,12 @@
     [self waitForElement:appTitle];
 
     XCUIApplication *brokerApp = [self installAppWithIdWithSafariOpen:@"broker"];
+
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    [self waitForElement:allowButton];
+    [allowButton tap];
+
     [self aadEnterPasswordInApp:brokerApp];
 
     [self assertAccessTokenNotNil];

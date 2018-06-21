@@ -326,6 +326,7 @@
 - (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId
 {
     XCUIApplication *safariApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
+    [safariApp activate];
 
     XCTAssertTrue([safariApp waitForState:XCUIApplicationStateRunningForeground timeout:30]);
     [safariApp tap];
@@ -348,6 +349,7 @@
     NSString *appName = appConfiguration[@"app_name"];
 
     __auto_type appIcon = springBoardApp.icons[appName];
+    [self waitForElement:appIcon];
     [appIcon tap];
 
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];

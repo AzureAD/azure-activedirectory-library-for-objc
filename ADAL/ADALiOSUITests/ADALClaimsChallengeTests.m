@@ -36,15 +36,13 @@
     [self clearCookies];
 }
 
-- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withCAClaims_ADALWebView
+- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMAMCAClaims_ADALWebView
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
-    configurationRequest.accountFeatures = @[MSIDTestAccountMAMCAClaims];
     [self loadTestConfiguration:configurationRequest];
 
-    // TODO: ask lab to add claims challenge
     NSDictionary *params = @{
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
@@ -60,7 +58,7 @@
 
     params = @{
                @"user_identifier" : self.primaryAccount.account,
-               @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D",
+               @"claims": @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D",
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -68,44 +66,8 @@
     // Acquire token again.
     [self acquireToken:config];
 
-    XCUIElement *getAppButton = self.testApp.buttons[@"Enroll now"];
+    XCUIElement *getAppButton = self.testApp.buttons[@"Get the app"];
     [self waitForElement:getAppButton];
-}
-
-- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMFAClaims_ADALWebView
-{
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
-    configurationRequest.accountFeatures = @[MSIDTestAccountMFAClaims];
-    [self loadTestConfiguration:configurationRequest];
-
-    // TODO: ask lab to add claims challenge
-    NSDictionary *params = @{
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    params = @{
-               @"user_identifier" : self.primaryAccount.account,
-               @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D",
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    // Acquire token again.
-    [self acquireToken:config];
-
-    XCUIElement *approveLabel = self.testApp.staticTexts[@"Approve sign in request"];
-    [self waitForElement:approveLabel];
 }
 
 @end
