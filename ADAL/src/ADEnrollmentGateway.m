@@ -23,6 +23,7 @@
 
 #import "ADEnrollmentGateway.h"
 #import "NSURL+ADExtensions.h"
+#import "ADAuthorityValidation.h"
 
 // Keys for Intune Enrollment ID
 #define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
@@ -173,8 +174,17 @@ static NSString* s_intuneResourceJSON = nil;
         return nil;
     }
 
-    NSString* normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
-    return resources[normalizedAuthority];
+    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:authority]];
+
+    for(NSURL* alias in aliases)
+    {
+        NSString* normalizedAuthorityAlias = [alias adHostWithPortIfNecessary];
+
+        if(resources[normalizedAuthorityAlias])
+            return resources[normalizedAuthorityAlias];
+    }
+
+    return nil;
 }
 
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
