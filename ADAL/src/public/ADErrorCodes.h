@@ -42,6 +42,9 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     /*! The passed in authority URL does not pass validation, if you're trying to use ADFS directly you must disable authority validation. */
     /*! An error was raised during the process of validating the authorization authority. */
     AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION = 101,
+
+    /*! The JSON blob did not conform to the exoected data structure */
+    AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED = 102,
     
     
     //
