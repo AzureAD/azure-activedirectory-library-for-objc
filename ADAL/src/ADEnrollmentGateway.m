@@ -36,7 +36,7 @@
 #define AD_INTUNE_RESOURCE_ID_VERSION @"1"
 #define AD_INTUNE_RESOURCE_ID_KEY (AD_INTUNE_RESOURCE_ID AD_INTUNE_RESOURCE_ID_VERSION)
 
-NSString * const enrollmentIdArray = @"enrollment_ids";
+NSString * const ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 
 NSString * const TID = @"tid";
 NSString * const OID = @"oid";
@@ -91,7 +91,7 @@ static NSString *s_intuneResourceJSON = nil;
         return nil;
     }
 
-    enrollIds = enrollIds[enrollmentIdArray];
+    enrollIds = enrollIds[ENROLLMENT_ID_ARRAY];
 
     if (!enrollIds || ![enrollIds isKindOfClass:[NSArray class]])
     {
