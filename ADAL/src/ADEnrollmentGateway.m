@@ -24,6 +24,7 @@
 #import "ADEnrollmentGateway.h"
 #import "NSURL+ADExtensions.h"
 #import "ADAuthorityValidation.h"
+#import "ADAuthenticationError+Internal.h"
 
 // Keys for Intune Enrollment ID
 #define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
@@ -49,13 +50,13 @@ static NSString* s_intuneResourceJSON = nil;
 
 @interface ADEnrollmentGateway()
 
-+ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(NSError**) error;
++ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError*__autoreleasing *) error;
 
 @end
 
 @implementation ADEnrollmentGateway
 
-+ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(NSError**) error
++ (NSString*) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError*__autoreleasing *) error
 {
     NSString* enrollIdJSON = [ADEnrollmentGateway allEnrollmentIdsJSON];
 
@@ -70,16 +71,17 @@ static NSString* s_intuneResourceJSON = nil;
 
     if (internalError || !enrollIds)
     {
-        if (internalError)
-            AD_LOG_WARN(nil, @"Could not de-serialize Intune Enrollment ID JSON: <%@>", internalError.description);
-
-        if(error) *error = internalError;
-
+        if(error) *error = [ADAuthenticationError errorFromNSError:internalError
+                                                      errorDetails:[NSString stringWithFormat:@"Could not de-serialize Intune Enrollment ID JSON: <%@>", internalError.description]
+                                                     correlationId:nil];
         return nil;
     }
     else if (![enrollIds isKindOfClass:[NSDictionary class]])
     {
-        AD_LOG_WARN(nil, @"Intune Enrollment ID JSON structure is incorrect. (Not a dictionary)");
+        if(error) *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED
+                                                                  protocolCode:nil
+                                                                  errorDetails:@"Intune Enrollment ID JSON structure is incorrect. (Not a dictionary)"
+                                                                 correlationId:nil];
         return nil;
     }
 
@@ -87,7 +89,10 @@ static NSString* s_intuneResourceJSON = nil;
 
     if (!enrollIds || ![enrollIds isKindOfClass:[NSArray class]])
     {
-        AD_LOG_WARN(nil, @"Intune Enrollment ID JSON structure is incorrect. (Not an array)");
+        if(error) *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED
+                                                                  protocolCode:nil
+                                                                  errorDetails:@"Intune Enrollment ID JSON structure is incorrect. (Not an array)"
+                                                                 correlationId:nil];
         return nil;
     }
 
@@ -122,7 +127,7 @@ static NSString* s_intuneResourceJSON = nil;
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
 }
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(NSError**) error
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError*__autoreleasing *) error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
         return [[dic objectForKey:USER_ID] isEqualToString:userId];
@@ -130,7 +135,7 @@ static NSString* s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(NSError**) error
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError*__autoreleasing *) error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
         return [[dic objectForKey:OID] isEqualToString:userObjectId] && [[dic objectForKey:TID] isEqualToString:tenantId];
@@ -138,7 +143,7 @@ static NSString* s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(NSError**) error
++ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError*__autoreleasing *) error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * dic) {
         return [[dic objectForKey:UNIQUE_ACCOUNT_ID] isEqualToString:uniqueAccountId];
@@ -146,7 +151,7 @@ static NSString* s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdIfAvailable:(NSError**) error
++ (NSString *)enrollmentIdIfAvailable:(ADAuthenticationError**) error
 {
     // this will just return the first enrollment ID
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * __unused dic) {
@@ -155,7 +160,7 @@ static NSString* s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(NSError**) error
++ (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(ADAuthenticationError*__autoreleasing *) error
 {
     NSString* enrollmentID;
     enrollmentID = homeUserID ? [ADEnrollmentGateway enrollmentIdForUniqueAccountId:homeUserID error:error] : nil;
@@ -170,7 +175,7 @@ static NSString* s_intuneResourceJSON = nil;
     return enrollmentID;
 }
 
-+ (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(NSError *__autoreleasing *)error
++ (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *)error
 {
     NSString* mamResource = [ADEnrollmentGateway intuneMamResource:authority error:error];
     NSString* normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
@@ -179,7 +184,7 @@ static NSString* s_intuneResourceJSON = nil;
     return mamResource;
 }
 
-+ (NSString *)intuneMamResource:(NSString *)authority error:(NSError**) error
++ (NSString *)intuneMamResource:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error
 {
     NSString* resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
@@ -194,16 +199,17 @@ static NSString* s_intuneResourceJSON = nil;
 
     if (internalError  || !resources)
     {
-        if (internalError)
-            AD_LOG_WARN(nil, @"Could not de-serialize Intune Resource JSON: <%@>", internalError.description);
-
-        if(error) *error = internalError;
-
+        if(error) *error = [ADAuthenticationError errorFromNSError:internalError
+                                                      errorDetails:[NSString stringWithFormat:@"Could not de-serialize Intune Resource JSON: <%@>", internalError.description]
+                                                     correlationId:nil];
         return nil;
     }
     else if (![resources isKindOfClass:[NSDictionary class]])
     {
-        AD_LOG_WARN(nil, @"Intune Resource JSON structure is incorrect. (Not a dictionary)");
+        if(error) *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED
+                                                                  protocolCode:nil
+                                                                  errorDetails:@"Intune Resource JSON structure is incorrect. (Not a dictionary)"
+                                                                 correlationId:nil];
         return nil;
     }
 
