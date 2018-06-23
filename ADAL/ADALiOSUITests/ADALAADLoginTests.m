@@ -35,9 +35,6 @@
 - (void)setUp
 {
     [super setUp];
-    
-    [self clearCache];
-    [self clearCookies];
 }
 
 #pragma mark - Tests

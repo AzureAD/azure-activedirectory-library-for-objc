@@ -42,19 +42,19 @@ static BOOL brokerAppInstalled = NO;
         brokerAppInstalled = YES;
         [self installAppWithId:@"broker"];
     }
+
+    [self clearKeychain];
 }
 
 - (void)testBasicBrokerLogin
 {
-    [self clearKeychain];
-
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
+                             @"prompt_behavior" : @"auto",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
@@ -73,8 +73,55 @@ static BOOL brokerAppInstalled = NO;
 
     [self aadEnterPasswordInApp:brokerApp];
 
+    result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
+}
+
+- (void)testAppTerminationDuringBrokeredLogin
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"auto",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
+
+    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
+    // Kill the test app
+    [self.testApp terminate];
+
+    [self aadEnterPasswordInApp:brokerApp];
+
+    result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 @end

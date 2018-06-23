@@ -45,6 +45,7 @@
     [self removeAppWithId:@"broker"];
 }
 
+// #296886
 - (void)testFirstTimeAuthenticatorInstallPrompt
 {
     // Clear keychain to ensure no stale WPJ state is there
@@ -122,6 +123,7 @@
     [self closeResultView];
 }
 
+// #296279
 - (void)testBrokerInstallAfterInitialSignin
 {
     [self clearKeychain];
@@ -132,7 +134,7 @@
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
+                             @"prompt_behavior" : @"auto",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
@@ -145,15 +147,23 @@
 
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
+    [self closeResultView];
 
     XCUIApplication *brokerApp = [self installAppWithId:@"broker"];
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    [self waitForElement:allowButton];
+    [allowButton tap];
+
     [self.testApp activate];
+    [self closeResultView];
 
     params = @{
                @"validate_authority" : @YES,
                @"user_identifier" : self.primaryAccount.account,
                @"user_identifier_type" : @"optional_displayable",
-               @"use_broker": @YES
+               @"use_broker": @YES,
+               @"prompt_behavior" : @"auto"
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -167,14 +177,26 @@
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
-    [self invalidateRefreshToken:config];
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    NSDictionary *keyParams = @{@"user_identifier" : self.primaryAccount.account,
+                                @"client_id" : self.testConfiguration.clientId,
+                                @"authority" : self.testConfiguration.authority};
+
+    [self invalidateRefreshToken:keyParams];
     [self assertRefreshTokenInvalidated];
     [self closeResultView];
 
-    [self acquireToken:params];
-    XCTAssertTrue([brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f]);
+    [self acquireToken:config];
+    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
 
     [self aadEnterPasswordInApp:brokerApp];
+
+    result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
 
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];

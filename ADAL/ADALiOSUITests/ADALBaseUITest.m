@@ -40,6 +40,9 @@
     self.testApp = [XCUIApplication new];
     [self.testApp launch];
 
+    [self clearCache];
+    [self clearCookies];
+
     NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
     self.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
 }

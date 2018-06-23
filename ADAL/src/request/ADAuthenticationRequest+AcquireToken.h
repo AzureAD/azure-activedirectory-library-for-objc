@@ -23,6 +23,8 @@
 
 #import "ADAuthenticationRequest.h"
 
+#define TEST_APP
+
 @interface ADAuthenticationRequest (AcquireToken)
 
 - (void)acquireToken:(NSString *)apiId

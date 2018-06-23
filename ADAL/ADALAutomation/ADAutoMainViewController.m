@@ -116,9 +116,13 @@
             [weakSelf.requestViewController presentViewController:weakSelf.webViewController animated:NO completion:nil];
         }
         
-        if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
+        if (parameters[@"use_broker"])
         {
-            context.credentialsType = AD_CREDENTIALS_EMBEDDED;
+            if ([parameters[@"use_broker"] boolValue])
+            {
+                context.credentialsType = AD_CREDENTIALS_AUTO;
+            }
+            else context.credentialsType = AD_CREDENTIALS_EMBEDDED;
         }
         
         if(parameters[@"correlation_id"])
@@ -212,9 +216,13 @@
                                          validateAuthority:[parameters[@"validate_authority"] boolValue]
                                                      error:nil];
         
-        if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
+        if (parameters[@"use_broker"])
         {
-            context.credentialsType = AD_CREDENTIALS_EMBEDDED;
+            if ([parameters[@"use_broker"] boolValue])
+            {
+                context.credentialsType = AD_CREDENTIALS_AUTO;
+            }
+            else context.credentialsType = AD_CREDENTIALS_EMBEDDED;
         }
         
         if(parameters[@"correlation_id"])
