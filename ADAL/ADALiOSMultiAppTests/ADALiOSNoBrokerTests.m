@@ -190,8 +190,13 @@
     [self closeResultView];
 
     [self acquireToken:config];
-    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:300.0f];
     XCTAssertTrue(result);
+
+    if ([brokerApp.alerts.buttons[@"Ok"] exists])
+    {
+        [brokerApp.alerts.buttons[@"Ok"] tap];
+    }
 
     [self aadEnterPasswordInApp:brokerApp];
 

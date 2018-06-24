@@ -41,12 +41,18 @@ static BOOL brokerAppInstalled = NO;
     {
         brokerAppInstalled = YES;
         [self installAppWithId:@"broker"];
+
+        XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+        __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+        [self waitForElement:allowButton];
+        [allowButton tap];
     }
 
     [self clearKeychain];
+    [self.testApp activate];
 }
 
-- (void)testBasicBrokerLogin
+- (void)testBasicBrokerLoginAndAuthenticatorRemoval
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
