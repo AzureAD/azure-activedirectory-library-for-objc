@@ -458,7 +458,15 @@
     [self waitForElement:settingsMenuItem];
     [settingsMenuItem tap];
 
+    __auto_type deviceRegistrationMenu = brokerApp.tables.staticTexts[@"Device Registration"];
+
+    if (deviceRegistrationMenu.exists)
+    {
+        [deviceRegistrationMenu tap];
+    }
+
     __auto_type emailTextField = brokerApp.tables.textFields[@"Organization email"];
+    [self waitForElement:emailTextField];
     [self tapElementAndWaitForKeyboardToAppear:emailTextField app:brokerApp];
     [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
 
