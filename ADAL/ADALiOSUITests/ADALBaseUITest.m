@@ -47,6 +47,12 @@
     self.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
 }
 
+- (void)tearDown
+{
+    [self.testApp terminate];
+    [super tearDown];
+}
+
 #pragma mark - Asserts
 
 - (void)assertRefreshTokenInvalidated

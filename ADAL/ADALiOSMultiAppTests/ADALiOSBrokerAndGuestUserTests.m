@@ -35,7 +35,6 @@ static BOOL brokerAppInstalled = NO;
 - (void)setUp
 {
     [super setUp];
-    self.continueAfterFailure = YES;
 
     // We only need to install app once for all the tests
     // It would be better to use +(void)setUp here, but XCUIApplication launch doesn't work then, so using this mechanism instead
@@ -162,8 +161,8 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testBrokerLoginWithGuestUsers_whenGuestTenant_andDeviceRegistered
 {
-    XCUIApplication *brokerApp = [self brokerApp];
     [self registerDeviceInAuthenticator];
+    XCUIApplication *brokerApp = [self brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
