@@ -57,6 +57,14 @@ static BOOL brokerAppInstalled = NO;
 - (void)testBrokerLoginWithGuestUsers_whenInGuestTenant_andDeviceRegistered_andLegacyBroker
 {
     [self registerDeviceInAuthenticator];
+    XCUIApplication *brokerApp = [self brokerApp];
+    __auto_type cancelAuthButton = brokerApp.buttons[@"Cancel"];
+    __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists = 0"];
+    [self expectationForPredicate:predicate evaluatedWithObject:cancelAuthButton handler:nil];
+    [self expectationForPredicate:predicate evaluatedWithObject:registerButton handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
+
     [self.testApp activate];
 
     NSDictionary *params = @{

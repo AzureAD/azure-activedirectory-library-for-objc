@@ -460,9 +460,6 @@
     [registerButton tap];
 
     [self aadEnterPasswordInApp:brokerApp];
-
-    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
-    [self waitForElement:unregisterButton];
 }
 
 @end

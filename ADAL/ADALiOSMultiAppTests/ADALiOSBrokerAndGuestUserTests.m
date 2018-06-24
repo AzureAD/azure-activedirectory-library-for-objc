@@ -162,7 +162,10 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testBrokerLoginWithGuestUsers_whenGuestTenant_andDeviceRegistered
 {
+    XCUIApplication *brokerApp = [self brokerApp];
     [self registerDeviceInAuthenticator];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
     [self.testApp activate];
 
     NSDictionary *params = @{
@@ -176,7 +179,6 @@ static BOOL brokerAppInstalled = NO;
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
     [self acquireToken:config];
 
-    [self brokerApp];
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
