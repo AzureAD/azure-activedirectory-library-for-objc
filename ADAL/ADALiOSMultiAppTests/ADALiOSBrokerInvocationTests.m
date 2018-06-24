@@ -207,4 +207,93 @@ static BOOL brokerAppInstalled = NO;
     [self closeResultView];
 }
 
+- (void)testDeviceAuthInInteractiveFlow
+{
+    // Load configuration
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
+    [self loadTestConfiguration:configurationRequest];
+
+    // Register device with this account
+    [self registerDeviceInAuthenticator];
+    XCUIApplication *brokerApp = [self brokerApp];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
+    [self.testApp activate];
+
+    // Acquire token for a resource requiring device authentication
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @NO
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+}
+
+- (void)testDeviceAuthInSilentFlow
+{
+    // Load configuration
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
+    [self loadTestConfiguration:configurationRequest];
+
+    // Register device with that account
+    [self registerDeviceInAuthenticator];
+    XCUIApplication *brokerApp = [self brokerApp];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
+    [self.testApp activate];
+
+    // Acquire token for a resource that doesn't require device authentication
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @NO,
+                             @"resource": @"01cb2876-7ebd-4aa4-9cc9-d28bd4d359a9"
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"user_identifier" : self.primaryAccount.account,
+               @"user_identifier_type" : @"optional_displayable",
+               @"use_broker": @NO
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    // Now do access token refresh with a resouce requiring device auth
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
 @end
