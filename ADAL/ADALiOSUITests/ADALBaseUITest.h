@@ -65,6 +65,7 @@
 - (void)allowNotificationsInSystemAlert;
 - (XCUIApplication *)brokerApp;
 - (void)waitForRedirectToTheTestApp;
+- (void)registerDeviceInAuthenticator;
 
 - (void)waitForElement:(id)object;
 - (NSDictionary *)resultDictionary;

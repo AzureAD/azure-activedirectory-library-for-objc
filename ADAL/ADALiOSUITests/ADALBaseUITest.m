@@ -300,6 +300,8 @@
     [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
+#pragma mark - Multi app
+
 - (void)openAppInstallURLForAppId:(NSString *)appId
 {
     XCTAssertNotNil(appId);
@@ -324,23 +326,6 @@
     __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
     [self waitForElement:allowButton];
     [allowButton tap];
-}
-
-- (XCUIApplication *)brokerApp
-{
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
-    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
-
-    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
-    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
-    XCTAssertTrue(result);
-
-    if ([brokerApp.alerts.buttons[@"Ok"] exists])
-    {
-        [brokerApp.alerts.buttons[@"Ok"] tap];
-    }
-
-    return brokerApp;
 }
 
 - (void)waitForRedirectToTheTestApp
@@ -427,6 +412,57 @@
 
         [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
     }
+}
+
+#pragma mark - Broker
+
+- (XCUIApplication *)brokerApp
+{
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
+
+    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
+    if ([brokerApp.alerts.buttons[@"Ok"] exists])
+    {
+        [brokerApp.alerts.buttons[@"Ok"] tap];
+    }
+
+    return brokerApp;
+}
+
+- (void)registerDeviceInAuthenticator
+{
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
+    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    [brokerApp terminate];
+    [brokerApp activate];
+
+    if ([brokerApp.buttons[@"Skip"] exists])
+    {
+        [brokerApp.buttons[@"Skip"] tap];
+    }
+
+    [brokerApp.navigationBars[@"Accounts"].buttons[@"Menu"] tap];
+
+    __auto_type settingsMenuItem = brokerApp.tables.staticTexts[@"Settings"];
+    [self waitForElement:settingsMenuItem];
+    [settingsMenuItem tap];
+
+    __auto_type emailTextField = brokerApp.tables.textFields[@"Organization email"];
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField app:brokerApp];
+    [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
+
+    __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
+    [registerButton tap];
+
+    [self aadEnterPasswordInApp:brokerApp];
+
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
 }
 
 @end

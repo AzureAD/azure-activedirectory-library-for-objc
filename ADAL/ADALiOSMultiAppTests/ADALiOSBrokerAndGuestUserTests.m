@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADALBaseUITest.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALiOSBrokerAndGuestUserTests : ADALBaseUITest
 
@@ -161,12 +162,7 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testBrokerLoginWithGuestUsers_whenGuestTenant_andDeviceRegistered
 {
-    XCUIApplication *brokerApp = [self brokerApp];
-    [brokerApp terminate];
-    [brokerApp activate];
-
-    // TODO: register device
-
+    [self registerDeviceInAuthenticator];
     [self.testApp activate];
 
     NSDictionary *params = @{
@@ -180,7 +176,7 @@ static BOOL brokerAppInstalled = NO;
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
     [self acquireToken:config];
 
-    [self aadEnterPasswordInApp:brokerApp];
+    [self brokerApp];
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -197,11 +193,6 @@ static BOOL brokerAppInstalled = NO;
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
-}
-
-- (void)testBrokerLoginWithGuestUsers_whenInGuestTenant_andDeviceRegistered_andLegacyBroker
-{
-
 }
 
 @end

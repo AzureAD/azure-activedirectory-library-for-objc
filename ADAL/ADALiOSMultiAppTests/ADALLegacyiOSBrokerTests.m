@@ -54,14 +54,39 @@ static BOOL brokerAppInstalled = NO;
     [self loadTestConfiguration:configurationRequest];
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
+- (void)testBrokerLoginWithGuestUsers_whenInGuestTenant_andDeviceRegistered_andLegacyBroker
+{
+    [self registerDeviceInAuthenticator];
+    [self.testApp activate];
 
-- (void)testExample {
-    // Use recording to get started writing UI tests.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"auto",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
+    [self acquireToken:config];
+
+    [self brokerApp];
+    [self waitForRedirectToTheTestApp];
+    [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
+    [self closeResultView];
 }
 
 @end
