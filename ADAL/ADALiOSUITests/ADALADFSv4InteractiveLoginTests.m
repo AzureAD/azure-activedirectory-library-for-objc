@@ -24,36 +24,53 @@
 #import "ADALBaseUITest.h"
 #import "XCTestCase+TextFieldTap.h"
 
-@interface ADALOnPremLoginTests : ADALBaseUITest
+@interface ADALADFSv4InteractiveLoginTests : ADALBaseUITest
 
 @end
 
-@implementation ADALOnPremLoginTests
+@implementation ADALADFSv4InteractiveLoginTests
 
-- (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv3
+- (void)setUp
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.appVersion = MSIDAppVersionOnPrem;
-    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
-    configurationRequest.accountFeatures = @[];
-    [self loadTestConfiguration:configurationRequest];
+    [super setUp];
 
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+}
+
+#pragma mark - Tests
+
+// #290995 iteration 11
+- (void)testInteractiveADFSv4Login_withPromptAlways_noLoginHint_ADALWebView
+{
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier": self.primaryAccount.account
+                             @"validate_authority" : @YES
                              };
-
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
-    [self enterADFSPassword];
+
+    [self aadEnterEmail];
+    [self enterADFSv4Password];
+
     [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Acquire token again.
+    [self acquireToken:config];
+    [self assertAuthUIAppear];
+    [self closeAuthUI];
     [self closeResultView];
 
     // Now do silent #296725
     NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account
+                                   @"user_identifier" : self.primaryAccount.account,
+                                   @"client_id" : self.testConfiguration.clientId,
+                                   @"authority" : self.testConfiguration.authority,
+                                   @"resource" : self.testConfiguration.resource
                                    };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
@@ -84,64 +101,32 @@
     [self closeResultView];
 }
 
-- (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv4
+// #290995 iteration 12
+- (void)testInteractiveADFSv4Login_withPromptAlways_withLoginHint_ADALWebView
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionOnPrem;
-    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
-    configurationRequest.accountFeatures = @[];
-    [self loadTestConfiguration:configurationRequest];
-
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"user_identifier": self.primaryAccount.account
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable"
                              };
-
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
-    [self enterADFSPassword];
+
+    [self enterADFSv4Password];
+
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
-    // Now do silent #296725
-    NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account
-                                   };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    // Now expire access token
-    [self expireAccessToken:config];
-    [self assertAccessTokenExpired];
-    [self closeResultView];
-
-    // Now do access token refresh
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    // Now do silent #296725 without providing user ID
-    silentParams = @{
-                     @"client_id" : self.testConfiguration.clientId,
-                     @"authority" : self.testConfiguration.authority,
-                     @"resource" : self.testConfiguration.resource
-                     };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
+    // Acquire token again.
+    [self acquireToken:config];
+    [self assertAuthUIAppear];
 }
 
 #pragma mark - Private
 
-- (void)enterADFSPassword
+- (void)enterADFSv4Password
 {
     XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];

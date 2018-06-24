@@ -23,49 +23,45 @@
 
 #import "ADALBaseUITest.h"
 
-@interface ADALClaimsChallengeTests : ADALBaseUITest
+@interface ADALLegacyiOSBrokerTests : ADALBaseUITest
 
 @end
 
-@implementation ADALClaimsChallengeTests
+@implementation ADALLegacyiOSBrokerTests
+
+static BOOL brokerAppInstalled = NO;
 
 - (void)setUp
 {
     [super setUp];
-}
 
-- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMAMCAClaims_ADALWebView
-{
+    // We only need to install app once for all the tests
+    // It would be better to use +(void)setUp here, but XCUIApplication launch doesn't work then, so using this mechanism instead
+    if (!brokerAppInstalled)
+    {
+        brokerAppInstalled = YES;
+        [self removeAppWithId:@"legacy_broker"];
+        [self.testApp activate];
+        [self installAppWithId:@"legacy_broker"];
+        [self allowNotificationsInSystemAlert];
+        [self.testApp activate];
+        [self closeResultView];
+    }
+
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureGuestUser];
     [self loadTestConfiguration:configurationRequest];
+}
 
-    NSDictionary *params = @{
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             };
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [super tearDown];
+}
 
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    params = @{
-               @"user_identifier" : self.primaryAccount.account,
-               @"claims": @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D",
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    // Acquire token again.
-    [self acquireToken:config];
-
-    XCUIElement *getAppButton = self.testApp.buttons[@"Get the app"];
-    [self waitForElement:getAppButton];
+- (void)testExample {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
 @end

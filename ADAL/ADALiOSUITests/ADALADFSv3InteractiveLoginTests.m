@@ -35,9 +35,6 @@
 - (void)setUp
 {
     [super setUp];
-    
-    [self clearCache];
-    [self clearCookies];
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
@@ -67,6 +64,43 @@
     // Acquire token again.
     [self acquireToken:config];
     [self assertAuthUIAppear];
+    [self closeAuthUI];
+    [self closeResultView];
+
+    // Now do silent #296725
+    NSDictionary *silentParams = @{
+                                   @"user_identifier" : self.primaryAccount.account,
+                                   @"client_id" : self.testConfiguration.clientId,
+                                   @"authority" : self.testConfiguration.authority,
+                                   @"resource" : self.testConfiguration.resource
+                                   };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now do silent #296725 without providing user ID
+    silentParams = @{
+                     @"client_id" : self.testConfiguration.clientId,
+                     @"authority" : self.testConfiguration.authority,
+                     @"resource" : self.testConfiguration.resource
+                     };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 // #290995 iteration 12

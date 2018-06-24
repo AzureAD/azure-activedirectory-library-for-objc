@@ -142,6 +142,10 @@
             {
                 promptBehavior = AD_PROMPT_ALWAYS;
             }
+            else if ([[promptValue lowercaseString] isEqualToString:@"force"])
+            {
+                promptBehavior = AD_FORCE_PROMPT;
+            }
         }
         
         NSString *userId = parameters[@"user_identifier"];

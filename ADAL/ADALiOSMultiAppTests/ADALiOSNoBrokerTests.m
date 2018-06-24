@@ -48,8 +48,6 @@
 // #296886
 - (void)testFirstTimeAuthenticatorInstallPrompt
 {
-    // Clear keychain to ensure no stale WPJ state is there
-    [self clearKeychain];
     // Pre-open Authenticator app install URL
     [self openAppInstallURLForAppId:@"broker"];
 
@@ -126,8 +124,6 @@
 // #296279
 - (void)testBrokerInstallAfterInitialSignin
 {
-    [self clearKeychain];
-
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionV1;

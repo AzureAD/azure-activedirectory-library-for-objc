@@ -62,6 +62,9 @@
 - (XCUIApplication *)installAppWithId:(NSString *)appId;
 - (void)removeAppWithId:(NSString *)appId;
 - (void)openURL:(NSDictionary *)config;
+- (void)allowNotificationsInSystemAlert;
+- (XCUIApplication *)brokerApp;
+- (void)waitForRedirectToTheTestApp;
 
 - (void)waitForElement:(id)object;
 - (NSDictionary *)resultDictionary;

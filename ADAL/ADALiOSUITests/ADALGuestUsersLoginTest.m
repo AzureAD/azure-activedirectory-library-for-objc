@@ -33,12 +33,10 @@
 - (void)setUp
 {
     [super setUp];
-    [self clearCache];
-    [self clearCookies];
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
+    //configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureGuestUser];
     [self loadTestConfiguration:configurationRequest];
 }

@@ -40,7 +40,7 @@
     self.testApp = [XCUIApplication new];
     [self.testApp launch];
 
-    [self clearCache];
+    [self clearKeychain];
     [self clearCookies];
 
     NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
@@ -316,6 +316,37 @@
 
     XCTAssertTrue([safariApp waitForState:XCUIApplicationStateRunningForeground timeout:30]);
     [safariApp tap];
+}
+
+- (void)allowNotificationsInSystemAlert
+{
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    [self waitForElement:allowButton];
+    [allowButton tap];
+}
+
+- (XCUIApplication *)brokerApp
+{
+    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
+
+    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
+
+    if ([brokerApp.alerts.buttons[@"Ok"] exists])
+    {
+        [brokerApp.alerts.buttons[@"Ok"] tap];
+    }
+
+    return brokerApp;
+}
+
+- (void)waitForRedirectToTheTestApp
+{
+    BOOL result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    XCTAssertTrue(result);
 }
 
 - (XCUIApplication *)installAppWithId:(NSString *)appId

@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADALBaseUITest.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALiOSBrokerInvocationTests : ADALBaseUITest
 
@@ -40,18 +41,16 @@ static BOOL brokerAppInstalled = NO;
     if (!brokerAppInstalled)
     {
         brokerAppInstalled = YES;
+        [self removeAppWithId:@"broker"];
+        [self.testApp activate];
         [self installAppWithId:@"broker"];
-
-        XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
-        __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
-        [self waitForElement:allowButton];
-        [allowButton tap];
+        [self allowNotificationsInSystemAlert];
+        [self.testApp activate];
+        [self closeResultView];
     }
-
-    [self clearKeychain];
-    [self.testApp activate];
 }
 
+// #test 296735
 - (void)testBasicBrokerLoginAndAuthenticatorRemoval
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
@@ -70,20 +69,103 @@ static BOOL brokerAppInstalled = NO;
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
-    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
-
-    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
-    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
-    XCTAssertTrue(result);
+    XCUIApplication *brokerApp = [self brokerApp];
 
     [self aadEnterPasswordInApp:brokerApp];
-
-    result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
-    XCTAssertTrue(result);
+    [self waitForRedirectToTheTestApp];
 
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    // Now remove authenticator, test #296748
+    [self removeAppWithId:@"broker"];
+    [self.testApp activate];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
+- (void)testBasicBrokerLoginWithBlackforestAccount
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.needsMultipleUsers = NO;
+    configurationRequest.accountFeatures = @[];
+    [self loadTestConfiguration:configurationRequest];
+
+    // Do interactive login
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"extra_qp": @"instance_aware=true",
+                             @"authority" : @"https://login.microsoftonline.com/common",
+                             @"use_broker": @YES
+                             };
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+
+    XCUIApplication *brokerApp = [self brokerApp];
+    [self waitForElement:brokerApp.buttons[@"Next"]];
+    [brokerApp.buttons[@"Next"] tap];
+
+    XCUIElement *passwordTextField = brokerApp.secureTextFields[@"Password"];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:brokerApp];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+
+    [self waitForRedirectToTheTestApp];
+
+    [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([self resultIDTokenClaims][@"iss"], @"https://login.microsoftonline.de/common");
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    // First try silent with WW authority
+    NSDictionary *silentParams = @{
+                                   @"user_identifier" : self.primaryAccount.account,
+                                   @"client_id" : self.testConfiguration.clientId,
+                                   @"resource" : self.testConfiguration.resource,
+                                   @"authority" : @"https://login.microsoftonline.com/common"
+                                   };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
+    [self acquireTokenSilent:config];
+
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self closeResultView];
+
+    // Now try silent with correct authority - #296889
+    silentParams = @{
+                     @"user_identifier" : self.primaryAccount.account,
+                     @"client_id" : self.testConfiguration.clientId,
+                     @"authority" : self.testConfiguration.authority,
+                     @"resource" : self.testConfiguration.resource
+                     };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
 }
 
 - (void)testAppTerminationDuringBrokeredLogin
@@ -104,19 +186,14 @@ static BOOL brokerAppInstalled = NO;
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
 
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
-    NSString *appBundleId = appConfiguration[@"app_bundle_id"];
-
-    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
-    BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
-    XCTAssertTrue(result);
+    XCUIApplication *brokerApp = [self brokerApp];
 
     // Kill the test app
     [self.testApp terminate];
 
     [self aadEnterPasswordInApp:brokerApp];
 
-    result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
+    BOOL result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
 
     // Now expire access token
