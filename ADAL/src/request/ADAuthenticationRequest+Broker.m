@@ -162,15 +162,15 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         return nil;
     }
     
-    NSDictionary* resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
     if (!resumeDictionary)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_NO_RESUME_STATE, @"No resume state found in NSUserDefaults", nil);
         return nil;
     }
     
-    NSUUID* correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
-    NSString* redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
+    NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
     if (!redirectUri)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_BAD_RESUME_STATE, @"Resume state is missing the redirect uri!", correlationId);
@@ -185,27 +185,29 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     }
     
     // NSURLComponents resolves some URLs which can't get resolved by NSURL
-    NSURLComponents* components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
-    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
-    NSString* keychainGroup = resumeDictionary[@"keychain_group"];
+    NSString *keychainGroup = resumeDictionary[@"keychain_group"];
 
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
         if (queryParamsMap[BROKER_INTUNE_HASH_KEY] && queryParamsMap[BROKER_INTUNE_RESPONSE_KEY])
         {
-            ADAuthenticationError* intuneTokenError = nil;
-            NSDictionary* intuneTokenResponse = [ADBrokerKeyHelper decryptBrokerResponse:@{BROKER_RESPONSE_KEY:queryParamsMap[BROKER_INTUNE_RESPONSE_KEY],
-                                                                                   BROKER_HASH_KEY:queryParamsMap[BROKER_INTUNE_HASH_KEY],
-                                                                                   BROKER_MESSAGE_VERSION:queryParamsMap[BROKER_MESSAGE_VERSION] ? queryParamsMap[BROKER_MESSAGE_VERSION] : @1}
+            ADAuthenticationError *intuneTokenError = nil;
+            NSDictionary *responseDictionary = @{BROKER_RESPONSE_KEY:queryParamsMap[BROKER_INTUNE_RESPONSE_KEY],
+                                                 BROKER_HASH_KEY:queryParamsMap[BROKER_INTUNE_HASH_KEY],
+                                                 BROKER_MESSAGE_VERSION:queryParamsMap[BROKER_MESSAGE_VERSION] ? queryParamsMap[BROKER_MESSAGE_VERSION] : @1};
+
+            NSDictionary *intuneTokenResponse = [ADBrokerKeyHelper decryptBrokerResponse:responseDictionary
                                                                    correlationId:correlationId
                                                                            error:&intuneTokenError];
 
-            ADAuthenticationResult* intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
+            ADAuthenticationResult *intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
                                                                                          fromRefresh:NO
                                                                                 requestCorrelationId:intuneTokenResponse[OAUTH2_CORRELATION_ID_RESPONSE]];
 
@@ -215,7 +217,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
             }
             else
             {
-                ADTokenCacheAccessor* cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
+                ADTokenCacheAccessor *cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
                                                                                              authority:intuneTokenResult.tokenCacheItem.authority];
 
                 [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
@@ -239,7 +241,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     s_brokerProtocolVersion = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
 
-    ADAuthenticationError* decryptionError = nil;
+    ADAuthenticationError *decryptionError = nil;
     queryParamsMap = [ADBrokerKeyHelper decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
 
     if(decryptionError && error)
@@ -248,18 +250,18 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         return nil;
     }
 
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     
     s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
     
     if (AD_SUCCEEDED == result.status && keychainGroup)
     {
-        ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
+        ADTokenCacheAccessor *cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
                                                                              authority:result.tokenCacheItem.authority];
         
         [cache updateCacheToResult:result cacheItem:nil refreshToken:nil context:nil];
         
-        NSString* userId = [[[result tokenCacheItem] userInformation] userId];
+        NSString *userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]];
     }
