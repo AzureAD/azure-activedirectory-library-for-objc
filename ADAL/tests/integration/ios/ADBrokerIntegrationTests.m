@@ -145,7 +145,7 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
-          @"enrollment_ids" : @"",
+          @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
           };
         
@@ -237,7 +237,7 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
-          @"enrollment_ids" : @"",
+          @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
           };
         
@@ -344,7 +344,7 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
-          @"enrollment_ids" : @"",
+          @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
           };
         
@@ -449,7 +449,7 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
-          @"enrollment_ids" : enrollmentIDs,
+          @"intune_enrollment_ids" : enrollmentIDs,
           @"intune_mam_resource" : @"{login.windows.net:https://www.microsoft.com/windowsIntune}",
           };
 

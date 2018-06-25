@@ -34,10 +34,6 @@
 @end
 
 @interface ADEnrollmentGatewayTests : ADTestCase
-
-@property NSString* testJSON;
-@property IMP originalAllEnrollmentIds;
-
 @end
 
 @implementation ADEnrollmentGatewayTests
@@ -352,9 +348,43 @@
 
 }
 
-- (void) testIntuneResourceForAuthority
+- (void) testintuneMAMResource_whenResourceExistsForHost_shouldSucceed
 {
-    XCTAssert([@"https://www.microsoft.com/intune" isEqualToString: [ADEnrollmentGateway intuneMAMResource:@"https://login.microsoftonline.com" error:NULL]]);
+    ADAuthenticationError* error = nil;
+    XCTAssert([@"https://www.microsoft.com/intune" isEqualToString: [ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.microsoftonline.com"] error:&error]]);
+    XCTAssertNil(error);
+
+}
+
+- (void) testintuneMAMResource_whenResourceDoesNotForHost_shouldFailWithoutError
+{
+    ADAuthenticationError* error = nil;
+    XCTAssertNil([ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.notMicrosoft.com"] error:&error]);
+    XCTAssertNil(error);
+}
+
+- (void) testintuneMAMResource_whenResourceJSONIsCorrupt_shouldFailWithError
+{
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@"corruptedJSON"];
+    ADAuthenticationError* error = nil;
+    XCTAssertNil([ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.microsoftonline.com"] error:&error]);
+    XCTAssertNotNil(error);
+}
+
+- (void) testintuneMAMResource_whenResourceJSONStructureIsIncorrect_shouldFailWithError
+{
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@"[]"];
+    ADAuthenticationError* error = nil;
+    XCTAssertNil([ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.microsoftonline.com"] error:&error]);
+    XCTAssertNotNil(error);
+}
+
+- (void) testintuneMAMResource_whenResourceJSONIsEmpty_shouldReturnNilWithoutError
+{
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@"{}"];
+    ADAuthenticationError* error = nil;
+    XCTAssertNil([ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.microsoftonline.com"] error:&error]);
+    XCTAssertNil(error);
 }
 
 @end
