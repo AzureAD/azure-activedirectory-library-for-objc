@@ -38,7 +38,6 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "NSDictionary+ADTestUtil.h"
-#import "ADEnrollmentGateway.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -503,5 +502,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     
     return response;
 }
+
 
 @end
