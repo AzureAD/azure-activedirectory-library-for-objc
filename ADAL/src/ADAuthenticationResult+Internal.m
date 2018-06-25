@@ -193,11 +193,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         {
             [userInfo setValue:response[@"userId"] forKey:@"userId"];
         }
-
-        if (response[@"intuneTokenError"])
-        {
-            [userInfo setValue:response[@"intuneTokenError"] forKey:@"intuneTokenError"];
-        }
     }
 
     NSString* protocolCode = [response valueForKey:@"protocol_code"];

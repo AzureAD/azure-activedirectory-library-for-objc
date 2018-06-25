@@ -227,10 +227,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
             {
                 [userInfo setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
             }
-            else if(intuneTokenError)
-            {
-                [userInfo setValue:intuneTokenError forKey:@"intuneTokenError"];
-            }
         }
 
         return [ADAuthenticationResult resultFromBrokerResponse:userInfo];
