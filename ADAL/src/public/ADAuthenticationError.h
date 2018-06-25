@@ -46,6 +46,10 @@ extern NSString* const ADSuberrorKey;
 Contains the broker version for an error returned by the broker
  */
 extern NSString* const ADBrokerVersionKey;
+/*!
+ Contains the UserID for which the error was generated
+ */
+extern NSString* const ADUserIdKey;
 
 @interface ADAuthenticationError : NSError
 {

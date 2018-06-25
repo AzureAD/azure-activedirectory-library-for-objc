@@ -32,8 +32,9 @@ NSString* const ADHTTPErrorCodeDomain = @"ADHTTPErrorCodeDomain";
 NSString* const ADOAuthServerErrorDomain = @"ADOAuthServerErrorDomain";
 
 NSString* const ADHTTPHeadersKey = @"ADHTTPHeadersKey";
-NSString* const ADSuberrorKey = @"suberror";
-NSString* const ADBrokerVersionKey = @"brokerVersion";
+NSString* const ADSuberrorKey = @"ADSuberrorKey";
+NSString* const ADBrokerVersionKey = @"ADBrokerVersionKey";
+NSString* const ADUserIdKey = @"ADUserIdKey";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 

@@ -166,9 +166,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         errorDetails = @"Broker did not provide any details";
     }
 
-    if (response[BROKER_APP_VERSION])
+    if ([response valueForKey:BROKER_APP_VERSION])
     {
-        [userInfo setValue:response[BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
+        [userInfo setValue:[response valueForKey:BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
     }
         
     NSString* strErrorCode = [response valueForKey:@"error_code"];
@@ -184,14 +184,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
         userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
-        if (response[AUTH_SUBERROR])
+        if ([response valueForKey:AUTH_SUBERROR])
         {
-            [userInfo setValue:response[AUTH_SUBERROR] forKey:ADSuberrorKey];
+            [userInfo setValue:[response valueForKey:AUTH_SUBERROR] forKey:ADSuberrorKey];
         }
 
-        if (response[@"userId"])
+        if ([response valueForKey:@"user_id"])
         {
-            [userInfo setValue:response[@"userId"] forKey:@"userId"];
+            [userInfo setValue:[response valueForKey:@"user_id"] forKey:ADUserIdKey];
         }
     }
 
