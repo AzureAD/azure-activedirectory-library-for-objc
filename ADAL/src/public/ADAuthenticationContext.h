@@ -444,8 +444,7 @@ typedef enum
  @param resource The resource whose token is needed.
  @param clientId The client identifier
  @param redirectUri The redirect URI according to OAuth2 protocol
- @param userId The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
- it may not be used if it belongs to different token. This parameter can be nil.
+ @param userId The user to be used to look up the access token and refresh token in cache
  @param forceRefresh The flag to skip existing access token in cache.
  @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
