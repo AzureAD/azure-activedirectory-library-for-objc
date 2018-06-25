@@ -171,17 +171,23 @@ static NSString *s_intuneResourceJSON = nil;
 
 + (NSString *)enrollmentIDForUniqueAccountID:(NSString *) homeUserID userID:(NSString *) userID error:(ADAuthenticationError *__autoreleasing *) error
 {
-    NSString *enrollmentID;
-    enrollmentID = homeUserID ? [ADEnrollmentGateway enrollmentIdForUniqueAccountId:homeUserID error:error] : nil;
-    if (enrollmentID)
+    if (homeUserID)
+    {
+        // If homeAccountID is provided, always require an exact match
+        return [ADEnrollmentGateway enrollmentIdForUniqueAccountId:homeUserID error:error];
+    }
+    else
+    {
+        // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
+        NSString *enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID error:error] : nil;
+        if (enrollmentID)
+        {
+            return enrollmentID;
+        }
+
+        enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable:error];
         return enrollmentID;
-    
-    enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID error:error] : nil;
-    if (enrollmentID)
-        return enrollmentID;
-    
-    enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable:error];
-    return enrollmentID;
+    }
 }
 
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *)error
