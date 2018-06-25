@@ -143,9 +143,11 @@
     }
 
     request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
-    
+
+    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+
     ADWebAuthRequest* webReq =
-    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
+    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     

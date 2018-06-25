@@ -378,7 +378,7 @@
              BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
              if (result.status == AD_SUCCEEDED && replay)
              {
-                 [self setScopesString:_requestParams.openidScopesString];
+                 _requestParams.cloudAuthority = result.authority;
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -398,8 +398,22 @@
     ADAuthenticationCallback originalCompletionBlock = completionBlock;
     completionBlock = ^(ADAuthenticationResult* result)
     {
-        [ADAuthenticationRequest releaseExclusionLock];
-        originalCompletionBlock(result);
+        // If we got back a valid RT but no access token, then replay the RT for a new AT.
+        BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
+        if (result.status == AD_SUCCEEDED && replay)
+        {
+            _requestParams.cloudAuthority = result.authority;
+            [self getAccessToken:^(ADAuthenticationResult *result) {
+                [ADAuthenticationRequest releaseExclusionLock];
+                originalCompletionBlock(result);
+            }];
+            return;
+        }
+        else
+        {
+            [ADAuthenticationRequest releaseExclusionLock];
+            originalCompletionBlock(result);
+        }
     };
 
     __block BOOL silentRequest = _allowSilent;
