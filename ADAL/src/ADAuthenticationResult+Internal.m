@@ -168,7 +168,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
     if (response[BROKER_APP_VERSION])
     {
-        [userInfo setValue:response[BROKER_APP_VERSION] forKey:BROKER_APP_VERSION];
+        [userInfo setValue:response[BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
     }
         
     NSString* strErrorCode = [response valueForKey:@"error_code"];
