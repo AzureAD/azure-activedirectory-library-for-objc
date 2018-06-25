@@ -93,8 +93,8 @@
     
     ADTestURLResponse *response = [self adResponseRefreshToken:@"family refresh token"
                                                      authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
-                                                      clientId:TEST_CLIENT_ID
+                                               requestResource:TEST_RESOURCE
+                                              responseResource:TEST_RESOURCE                                                                          clientId:TEST_CLIENT_ID
                                                 requestHeaders:nil
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"new family refresh token"

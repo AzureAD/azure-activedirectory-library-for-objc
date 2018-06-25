@@ -56,6 +56,7 @@
 // information and updates the cache
 - (void)acquireTokenByRefreshToken:(NSString*)refreshToken
                          cacheItem:(MSIDBaseToken<MSIDRefreshableToken> *)cacheItem
+                  useOpenidConnect:(BOOL)useOpenidConnect
                    completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

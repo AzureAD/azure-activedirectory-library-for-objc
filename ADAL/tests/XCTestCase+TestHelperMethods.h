@@ -71,6 +71,16 @@
                                newAccessToken:(NSString *)newAccessToken
                                    newIDToken:(NSString *)newIDToken;
 
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken;
+
 /*! Used for constructing a refresh token response with additional information in the JSON body */
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
@@ -96,7 +106,8 @@
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
-                                     resource:(NSString *)resource
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
                                      clientId:(NSString *)clientId
                                requestHeaders:(NSDictionary *)requestHeaders
                                 correlationId:(NSUUID *)correlationId
@@ -125,7 +136,8 @@
                                 correlationId:(NSUUID *)correlationId
                                  responseCode:(NSInteger)responseCode
                               responseHeaders:(NSDictionary *)responseHeaders
-                                 responseJson:(NSDictionary *)responseJson;
+                                 responseJson:(NSDictionary *)responseJson
+                             useOpenidConnect:(BOOL)useOpenidConnect;
 
 - (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
                                 authority:(NSString *)authority
