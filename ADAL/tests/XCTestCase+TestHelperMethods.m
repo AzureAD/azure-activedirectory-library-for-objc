@@ -50,9 +50,6 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
-IMP originalAllEnrollmentIds;
-IMP originalMAMResource;
-
 /* See header for details. */
 - (void)adValidateForInvalidArgument:(NSString *)argument
                                error:(ADAuthenticationError *)error
