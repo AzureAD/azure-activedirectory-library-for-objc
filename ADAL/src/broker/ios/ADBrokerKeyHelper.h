@@ -46,7 +46,9 @@
                             size:(size_t)size
                            error:(ADAuthenticationError *__autoreleasing *)error;
 
-+ (NSDictionary *) decryptBrokerResponse:(NSDictionary *) response correlationId:(NSUUID *) correlationId error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSDictionary *) decryptBrokerResponse:(NSDictionary *) response
+                           correlationId:(NSUUID *) correlationId
+                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
 // NOTE: Used for testing purposes only. Does not change keychain entries.
 + (void)setSymmetricKey:(NSString *)base64Key;

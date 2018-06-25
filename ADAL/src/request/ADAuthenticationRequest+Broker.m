@@ -199,7 +199,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         if (queryParamsMap[BROKER_INTUNE_HASH_KEY] && queryParamsMap[BROKER_INTUNE_RESPONSE_KEY])
         {
             ADAuthenticationError* intuneTokenError = nil;
-            NSDictionary* intuneTokenResponse = [ADHelpers decryptBrokerResponse:@{BROKER_RESPONSE_KEY:queryParamsMap[BROKER_INTUNE_RESPONSE_KEY],
+            NSDictionary* intuneTokenResponse = [ADBrokerKeyHelper decryptBrokerResponse:@{BROKER_RESPONSE_KEY:queryParamsMap[BROKER_INTUNE_RESPONSE_KEY],
                                                                                    BROKER_HASH_KEY:queryParamsMap[BROKER_INTUNE_HASH_KEY],
                                                                                    BROKER_MESSAGE_VERSION:queryParamsMap[BROKER_MESSAGE_VERSION] ? queryParamsMap[BROKER_MESSAGE_VERSION] : @1}
                                                                    correlationId:correlationId
@@ -240,7 +240,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     s_brokerProtocolVersion = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
 
     ADAuthenticationError* decryptionError = nil;
-    queryParamsMap = [ADHelpers decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
+    queryParamsMap = [ADBrokerKeyHelper decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
 
     if(decryptionError && error)
     {
