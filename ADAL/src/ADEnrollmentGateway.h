@@ -28,7 +28,7 @@
 + (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError*__autoreleasing *) error;
 + (NSString *)allEnrollmentIds;
 
-+ (NSString *)intuneMamResource:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error;
++ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError*__autoreleasing *) error;
 
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;

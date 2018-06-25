@@ -149,7 +149,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)intuneMamResource:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError *__autoreleasing *) error
 {
     NSString *resourceJSON = nil;
 
@@ -195,14 +195,14 @@ static NSString *s_intuneResourceJSON = nil;
         return nil;
     }
 
-    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:authority]];
+    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:authority];
 
     for(NSURL *alias in aliases)
     {
-        NSString *normalizedAuthorityAlias = [alias adHostWithPortIfNecessary];
+        NSString *host = [alias adHostWithPortIfNecessary];
 
-        if(resources[normalizedAuthorityAlias])
-            return resources[normalizedAuthorityAlias];
+        if(resources[host])
+            return resources[host];
     }
 
     return nil;
