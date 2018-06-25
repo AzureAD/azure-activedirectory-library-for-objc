@@ -42,6 +42,10 @@ extern NSString* const ADHTTPHeadersKey;
 Contains the suberror code returned by the server
  */
 extern NSString* const ADSuberrorKey;
+/*!
+Contains the broker version for an error returned by the broker
+ */
+extern NSString* const ADBrokerVersionKey;
 
 @interface ADAuthenticationError : NSError
 {
