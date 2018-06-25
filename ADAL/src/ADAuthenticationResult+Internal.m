@@ -217,7 +217,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         NSDictionary *httpHeaders = [NSDictionary adURLFormDecode:[response valueForKey:@"http_headers"]];
         error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
     }
-    else if(userInfo)
+    else
     {
         error = [ADAuthenticationError errorWithDomain:errorDomain
                                                   code:errorCode
@@ -225,14 +225,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                           errorDetails:errorDetails
                                          correlationId:correlationId
                                               userInfo:userInfo];
-    }
-    else
-    {
-        error = [ADAuthenticationError errorWithDomain:errorDomain
-                                                  code:errorCode
-                                     protocolErrorCode:protocolCode
-                                          errorDetails:errorDetails
-                                         correlationId:correlationId];
     }
 
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];;
