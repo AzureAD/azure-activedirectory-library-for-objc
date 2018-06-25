@@ -97,6 +97,8 @@ NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 NSString *const AUTH_USERNAME_KEY                = @"username";
 NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
 
+NSString *const AUTH_PROTECTION_POLICY_REQUIRED  = @"protection_policy_required";
+
 //application constants
 NSString* const ADAL_BROKER_SCHEME = @"msauth";
 NSString* const ADAL_BROKER_APP_REDIRECT_URI = @"urn:ietf:wg:oauth:2.0:oob";

@@ -112,7 +112,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
         ADErrorCode code = errorCode;
         NSString* suberror = [dictionary objectForKey:@"suberror"];
-        if (suberror && [suberror isEqualToString:@"protection_policy_required"])
+        if (suberror && [suberror isEqualToString:AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
         }
