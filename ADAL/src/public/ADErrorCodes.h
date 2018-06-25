@@ -94,7 +94,7 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     /*! Invalid data was returned from the server, see -errorDetails for more information. */
     AD_ERROR_SERVER_INVALID_RESPONSE = 212,
 
-    /*! Intune App Prtoection is required by the service */
+    /*! Intune App Protection is required by the service */
     AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED = 213,
     
     
