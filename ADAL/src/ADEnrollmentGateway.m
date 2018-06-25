@@ -83,7 +83,7 @@ static NSString *s_intuneResourceJSON = nil;
     {
         if(error)
         {
-            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                             protocolCode:nil
                                                             errorDetails:@"Intune Enrollment ID JSON structure is incorrect. (Not a dictionary)"
                                                            correlationId:nil];
@@ -97,7 +97,7 @@ static NSString *s_intuneResourceJSON = nil;
     {
         if(error)
         {
-            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                   protocolCode:nil
                                                                   errorDetails:@"Intune Enrollment ID JSON structure is incorrect. (Not an array)"
                                                                  correlationId:nil];
@@ -187,7 +187,7 @@ static NSString *s_intuneResourceJSON = nil;
     {
         if(error)
         {
-            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                   protocolCode:nil
                                                                   errorDetails:@"Intune Resource JSON structure is incorrect. (Not a dictionary)"
                                                                  correlationId:nil];

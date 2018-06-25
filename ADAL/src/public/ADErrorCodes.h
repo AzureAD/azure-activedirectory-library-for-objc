@@ -43,9 +43,6 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     /*! An error was raised during the process of validating the authorization authority. */
     AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION = 101,
 
-    /*! The JSON blob did not conform to the exoected data structure */
-    AD_ERROR_DEVELOPER_JSON_DATA_STRUCTURE_MALFORMED = 102,
-    
     
     //
     // Server Errors
