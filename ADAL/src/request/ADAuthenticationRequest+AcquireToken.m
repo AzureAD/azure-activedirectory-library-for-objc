@@ -521,7 +521,7 @@
         NSString* enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil userID:_requestParams.identifier.userId error:NULL];
         if (enrollId)
         {
-            [request_data setObject:enrollId forKey:@"microsoft_enrollment_id"];
+            [request_data setObject:enrollId forKey:AD_MICROSOFT_ENROLLMENT_ID];
         }
     }
 
