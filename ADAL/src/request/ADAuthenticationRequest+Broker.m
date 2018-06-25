@@ -244,9 +244,12 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     ADAuthenticationError *decryptionError = nil;
     queryParamsMap = [ADBrokerKeyHelper decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
 
-    if(decryptionError && error)
+    if(decryptionError)
     {
-        (*error) = decryptionError;
+        if (error)
+        {
+            (*error) = decryptionError;
+        }
         return nil;
     }
 
