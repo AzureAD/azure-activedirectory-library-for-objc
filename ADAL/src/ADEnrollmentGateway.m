@@ -186,14 +186,14 @@ static NSString *s_intuneResourceJSON = nil;
 
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *)error
 {
-    NSString *mamResource = [ADEnrollmentGateway intuneMamResource:authority error:error];
+    NSString *mamResource = [ADEnrollmentGateway intuneMAMResource:authority error:error];
     NSString *normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
     mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}", normalizedAuthority, mamResource] : nil ;
     
     return mamResource;
 }
 
-+ (NSString *)intuneMamResource:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)intuneMAMResource:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *) error
 {
     NSString *resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
@@ -241,7 +241,7 @@ static NSString *s_intuneResourceJSON = nil;
     return nil;
 }
 
-+ (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources
 {
     @synchronized (self)
     {

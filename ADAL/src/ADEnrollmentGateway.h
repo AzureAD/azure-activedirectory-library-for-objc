@@ -38,7 +38,7 @@
 + (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(ADAuthenticationError*__autoreleasing *) error;
 
 /*! Returns the Intune MAM resource for the associated authority*/
-+ (NSString *)intuneMamResource:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error;
++ (NSString *)intuneMAMResource:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error;
 
 /*! Returns the Intune MAM resource for the associated authority as a JSON dicitonary with one entry*/
 + (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error;
@@ -47,7 +47,7 @@
 + (NSString *)allIntuneMAMResourcesJSON;
 
 #if AD_BROKER
-+ (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
 #endif
 

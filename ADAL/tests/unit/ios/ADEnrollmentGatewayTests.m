@@ -29,7 +29,7 @@
 @interface ADEnrollmentGateway ()
 
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
-+ (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
 
 @end
 
@@ -48,7 +48,7 @@
 
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
 
-    [ADEnrollmentGateway setIntuneMamResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
 }
 
 - (void)tearDown
@@ -354,7 +354,7 @@
 
 - (void) testIntuneResourceForAuthority
 {
-    XCTAssert([@"https://www.microsoft.com/intune" isEqualToString: [ADEnrollmentGateway intuneMamResource:@"https://login.microsoftonline.com" error:NULL]]);
+    XCTAssert([@"https://www.microsoft.com/intune" isEqualToString: [ADEnrollmentGateway intuneMAMResource:@"https://login.microsoftonline.com" error:NULL]]);
 }
 
 @end

@@ -46,7 +46,7 @@
 @interface ADEnrollmentGateway ()
 
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
-+ (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
 
 @end
 
@@ -421,7 +421,7 @@
 
 - (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent
 {
-    [ADEnrollmentGateway setIntuneMamResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
 
     NSString *authority = @"https://login.windows.net/common";
@@ -506,7 +506,7 @@
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
 
-    [ADEnrollmentGateway setIntuneMamResourceWithJsonBlob:@""];
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
 
 }
