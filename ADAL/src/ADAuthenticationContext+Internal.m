@@ -111,7 +111,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                 nil;
 
         ADErrorCode code = errorCode;
-        NSString* suberror = [dictionary objectForKey:@"suberror"];
+        NSString* suberror = [dictionary objectForKey:AUTH_SUBERROR];
         if (suberror && [suberror isEqualToString:AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
@@ -121,7 +121,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                            description:errorDetails
                                                   code:code
                                          correlationId:correlationId
-                                              userInfo:suberror ? @{@"suberror":suberror} : nil];
+                                              userInfo:suberror ? @{ADSuberrorKey:suberror} : nil];
     }
     
     return nil;

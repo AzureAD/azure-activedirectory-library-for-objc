@@ -23,6 +23,7 @@
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationError.h"
+#import "ADOAuth2Constants.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
@@ -31,6 +32,7 @@ NSString* const ADHTTPErrorCodeDomain = @"ADHTTPErrorCodeDomain";
 NSString* const ADOAuthServerErrorDomain = @"ADOAuthServerErrorDomain";
 
 NSString* const ADHTTPHeadersKey = @"ADHTTPHeadersKey";
+NSString* const ADSuberrorKey = @"suberror";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 

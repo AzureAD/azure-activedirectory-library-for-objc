@@ -97,6 +97,7 @@ NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 NSString *const AUTH_USERNAME_KEY                = @"username";
 NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
 
+NSString *const AUTH_SUBERROR                    = @"suberror";
 NSString *const AUTH_PROTECTION_POLICY_REQUIRED  = @"protection_policy_required";
 
 //application constants

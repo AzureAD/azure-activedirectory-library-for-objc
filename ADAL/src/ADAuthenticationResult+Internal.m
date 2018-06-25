@@ -184,9 +184,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
         userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
-        if (response[@"suberror"])
+        if (response[AUTH_SUBERROR])
         {
-            [userInfo setValue:response[@"suberror"] forKey:@"suberror"];
+            [userInfo setValue:response[AUTH_SUBERROR] forKey:ADSuberrorKey];
         }
 
         if (response[@"userId"])

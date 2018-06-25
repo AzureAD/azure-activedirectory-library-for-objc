@@ -38,6 +38,10 @@ extern NSString* const ADOAuthServerErrorDomain;
  Contains all http headers returned from the http error response
  */
 extern NSString* const ADHTTPHeadersKey;
+/*!
+Contains the suberror code returned by the server
+ */
+extern NSString* const ADSuberrorKey;
 
 @interface ADAuthenticationError : NSError
 {
