@@ -36,13 +36,13 @@
 #define AD_INTUNE_RESOURCE_ID_VERSION @"1"
 #define AD_INTUNE_RESOURCE_ID_KEY (AD_INTUNE_RESOURCE_ID AD_INTUNE_RESOURCE_ID_VERSION)
 
-NSString * const ENROLLMENT_ID_ARRAY = @"enrollment_ids";
+NSString *const ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 
-NSString * const TID = @"tid";
-NSString * const OID = @"oid";
-NSString * const UNIQUE_ACCOUNT_ID = @"unique_account_id";
-NSString * const USER_ID = @"user_id";
-NSString * const ENROLLMENT_ID = @"enrollment_id";
+NSString *const TID = @"tid";
+NSString *const OID = @"oid";
+NSString *const UNIQUE_ACCOUNT_ID = @"unique_account_id";
+NSString *const USER_ID = @"user_id";
+NSString *const ENROLLMENT_ID = @"enrollment_id";
 
 static NSString *s_intuneEnrollmentIdJSON = nil;
 static NSString *s_intuneResourceJSON = nil;
