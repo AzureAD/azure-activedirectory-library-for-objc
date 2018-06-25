@@ -436,6 +436,25 @@ typedef enum
                                 userId:(NSString*)userId
                        completionBlock:(ADAuthenticationCallback)completionBlock;
 
+/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+ expiration. If forceRefresh flag is passed in as YES, access token in cache will be skipped.
+ If no suitable access token is found in the cache or forceRefresh flag is YES, but refresh token is available,
+ the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+ If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+ @param resource The resource whose token is needed.
+ @param clientId The client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param userId The user to be used to look up the access token and refresh token in cache
+ @param forceRefresh The flag to skip existing access token in cache.
+ @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
+                          forceRefresh:(BOOL)forceRefresh
+                       completionBlock:(ADAuthenticationCallback)completionBlock;
+
 /*! Follows the OAuth2 protocol (RFC 6749). The function will use the refresh token provided to get access token.
  This method will not show UI for the user to reauthorize resource usage.
  If the call fails, error will be included in the result.
