@@ -190,16 +190,16 @@ static NSString *s_intuneResourceJSON = nil;
     }
 }
 
-+ (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *)error
++ (NSString *)intuneMAMResourceJSON:(NSURL *)authority error:(ADAuthenticationError *__autoreleasing *)error
 {
     NSString *mamResource = [ADEnrollmentGateway intuneMAMResource:authority error:error];
-    NSString *normalizedAuthority = [[NSURL URLWithString:authority] adHostWithPortIfNecessary];
-    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}", normalizedAuthority, mamResource] : nil ;
+    NSString *host = [authority adHostWithPortIfNecessary];
+    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}", host, mamResource] : nil ;
     
     return mamResource;
 }
 
-+ (NSString *)intuneMAMResource:(NSString *)authority error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError *__autoreleasing *) error
 {
     NSString *resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
@@ -234,14 +234,14 @@ static NSString *s_intuneResourceJSON = nil;
         return nil;
     }
 
-    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:authority]];
+    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:authority];
 
     for(NSURL *alias in aliases)
     {
-        NSString *normalizedAuthorityAlias = [alias adHostWithPortIfNecessary];
+        NSString *host = [alias adHostWithPortIfNecessary];
 
-        if(resources[normalizedAuthorityAlias])
-            return resources[normalizedAuthorityAlias];
+        if(resources[host])
+            return resources[host];
     }
 
     return nil;

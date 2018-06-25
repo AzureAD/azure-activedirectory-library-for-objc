@@ -38,10 +38,10 @@
 + (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(ADAuthenticationError*__autoreleasing *) error;
 
 /*! Returns the Intune MAM resource for the associated authority*/
-+ (NSString *)intuneMAMResource:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error;
++ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError*__autoreleasing *) error;
 
 /*! Returns the Intune MAM resource for the associated authority as a JSON dicitonary with one entry*/
-+ (NSString *)intuneMAMResourceJSON:(NSString *)authority error:(ADAuthenticationError*__autoreleasing *) error;
++ (NSString *)intuneMAMResourceJSON:(NSURL *)authority error:(ADAuthenticationError*__autoreleasing *) error;
 
 /*! Returns all known Intune MAM authority:resource pairings as a JSON dictionary*/
 + (NSString *)allIntuneMAMResourcesJSON;
