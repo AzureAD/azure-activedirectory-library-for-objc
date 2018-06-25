@@ -521,6 +521,7 @@
                                                                                tokenCache:self.tokenCache];
     [request acquireTokenByRefreshToken:_refreshToken
                               cacheItem:nil
+                       useOpenidConnect:YES
                         completionBlock:^(ADAuthenticationResult *result)
      {
          completionBlock(result);
