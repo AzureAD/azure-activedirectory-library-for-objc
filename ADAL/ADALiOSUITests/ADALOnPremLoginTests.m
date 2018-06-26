@@ -66,6 +66,16 @@
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
+
+    // Now expire access token again
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh again, verifying that refresh token wasn't deleted as a result of the first operation
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv4

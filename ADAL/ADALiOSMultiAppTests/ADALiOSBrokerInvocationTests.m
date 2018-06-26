@@ -23,6 +23,7 @@
 
 #import "ADALBaseUITest.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "NSURL+MSIDExtensions.h"
 
 @interface ADALiOSBrokerInvocationTests : ADALBaseUITest
 
@@ -116,9 +117,6 @@ static BOOL brokerAppInstalled = NO;
     [self acquireToken:config];
 
     XCUIApplication *brokerApp = [self brokerApp];
-    [self waitForElement:brokerApp.buttons[@"Next"]];
-    [brokerApp.buttons[@"Next"] tap];
-
     XCUIElement *passwordTextField = brokerApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:brokerApp];
@@ -127,7 +125,10 @@ static BOOL brokerAppInstalled = NO;
     [self waitForRedirectToTheTestApp];
 
     [self assertAccessTokenNotNil];
-    XCTAssertEqualObjects([self resultIDTokenClaims][@"iss"], @"https://login.microsoftonline.de/common");
+    NSString *issuer = [self resultIDTokenClaims][@"iss"];
+    XCTAssertNotNil(issuer);
+    NSString *issuerHost = [[NSURL URLWithString:issuer] msidHostWithPortIfNecessary];
+    XCTAssertEqualObjects(issuerHost, @"sts.microsoftonline.de");
     [self assertRefreshTokenNotNil];
     [self closeResultView];
 
@@ -196,6 +197,11 @@ static BOOL brokerAppInstalled = NO;
     BOOL result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
 
+    // Now get access token
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
     // Now expire access token
     [self expireAccessToken:config];
     [self assertAccessTokenExpired];
@@ -212,7 +218,7 @@ static BOOL brokerAppInstalled = NO;
     // Load configuration
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
+    //configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
 
@@ -229,7 +235,8 @@ static BOOL brokerAppInstalled = NO;
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @NO
+                             @"use_broker": @NO,
+                             @"resource": @"00000004-0000-0ff1-ce00-000000000000"
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -246,7 +253,7 @@ static BOOL brokerAppInstalled = NO;
     // Load configuration
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
+    //configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
 
@@ -264,7 +271,7 @@ static BOOL brokerAppInstalled = NO;
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
                              @"use_broker": @NO,
-                             @"resource": @"01cb2876-7ebd-4aa4-9cc9-d28bd4d359a9"
+                             @"resource": @"00000002-0000-0000-c000-000000000000"
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -285,7 +292,8 @@ static BOOL brokerAppInstalled = NO;
                @"validate_authority" : @YES,
                @"user_identifier" : self.primaryAccount.account,
                @"user_identifier_type" : @"optional_displayable",
-               @"use_broker": @NO
+               @"use_broker": @NO,
+               @"resource": @"00000004-0000-0ff1-ce00-000000000000"
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];

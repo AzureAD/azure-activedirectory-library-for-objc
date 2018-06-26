@@ -58,7 +58,6 @@
     // Load configuration
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
 
@@ -67,7 +66,8 @@
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
+                             @"use_broker": @YES,
+                             @"resource": @"00000004-0000-0ff1-ce00-000000000000"
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -109,6 +109,7 @@
     // Register and wait for the token to be returned
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
+    [self closeResultView];
 
     // Now expire access token
     [self expireAccessToken:config];
