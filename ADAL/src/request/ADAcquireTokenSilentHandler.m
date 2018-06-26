@@ -102,6 +102,7 @@
 //information and updates the cache:
 - (void)acquireTokenByRefreshToken:(NSString *)refreshToken
                          cacheItem:(MSIDBaseToken<MSIDRefreshableToken> *)cacheItem
+                  useOpenidConnect:(BOOL)useOpenidConnect
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     [[MSIDLogger sharedLogger] logToken:refreshToken
@@ -111,29 +112,12 @@
                                 context:_requestParams];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
-    
-    /*
-     TODO!
-    if(cacheItem.sessionKey)
-    {
-        NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem];
-        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        _requestParams.redirectUri, @"redirect_uri",
-                        _requestParams.clientId, @"client_id",
-                        @"2.0", @"windows_api_version",
-                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", MSID_OAUTH2_GRANT_TYPE,
-                        jwtToken, @"request",
-                        nil];
-        
-    }
-    else
-    {*/
-        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+
+    request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         MSID_OAUTH2_REFRESH_TOKEN, MSID_OAUTH2_GRANT_TYPE,
                         refreshToken, MSID_OAUTH2_REFRESH_TOKEN,
                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
                         nil];
-    //}
     
     request_data[MSID_OAUTH2_CLIENT_INFO] = @YES;
     
@@ -142,10 +126,19 @@
         [request_data setObject:[_requestParams resource] forKey:MSID_OAUTH2_RESOURCE];
     }
 
-    request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
-    
+    if (useOpenidConnect)
+    {
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
+    }
+    else
+    {
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.scopesString;
+    }
+
+    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+
     ADWebAuthRequest* webReq =
-    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
+    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     
@@ -217,12 +210,14 @@
 
 - (void)acquireTokenWithItem:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                  refreshType:(NSString *)refreshType
+            useOpenidConnect:(BOOL)useOpenidConnect
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
     [[MSIDTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
     [self acquireTokenByRefreshToken:refreshToken.refreshToken
                            cacheItem:refreshToken
+                    useOpenidConnect:useOpenidConnect
                      completionBlock:^(ADAuthenticationResult *result)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
@@ -381,6 +376,7 @@
     
     [self acquireTokenWithItem:item
                    refreshType:nil
+              useOpenidConnect:item.idToken != nil
                completionBlock:completionBlock
                       fallback:^(ADAuthenticationResult* result)
      {
@@ -434,6 +430,7 @@
     // Otherwise try the MRRT
     [self acquireTokenWithItem:_mrrtItem
                    refreshType:@"Multi Resource"
+              useOpenidConnect:YES
                completionBlock:completionBlock
                       fallback:^(ADAuthenticationResult* result)
      {
@@ -499,6 +496,7 @@
     
     [self acquireTokenWithItem:refreshToken
                    refreshType:@"Family"
+              useOpenidConnect:YES
                completionBlock:completionBlock
                       fallback:^(ADAuthenticationResult *result)
      {
