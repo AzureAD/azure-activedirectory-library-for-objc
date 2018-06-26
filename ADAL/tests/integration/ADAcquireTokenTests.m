@@ -431,6 +431,62 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testCachedWithNilUserId_whenExpiredAccessToken_shouldRefreshUsingRT
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenWithResource"];
+
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem:nil];
+    item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:-3600];
+    BOOL result =  [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    // ADFSv3 only returns access token and no id_token nor refresh_token in its response
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                               requestResource:TEST_RESOURCE
+                                              responseResource:nil
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:nil
+                                                newAccessToken:@"new access token"
+                                                    newIDToken:nil];
+
+    [ADTestURLSession addResponse:response];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    // Verify cache updated properly and refresh token is persisted
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(allItems.count, 1);
+
+    ADTokenCacheItem *adfsToken = allItems[0];
+    XCTAssertEqualObjects(adfsToken.refreshToken, TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(adfsToken.accessToken, @"new access token");
+    XCTAssertNil(adfsToken.userInformation);
+}
+
 - (void)testFailsWithNilUserIdAndMultipleCachedUsers
 {
     ADAuthenticationError* error = nil;
@@ -1114,7 +1170,8 @@ const int sAsyncContextTimeout = 10;
 
     ADTestURLResponse* response = [self adResponseRefreshToken:@"family refresh token"
                                                      authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
+                                               requestResource:TEST_RESOURCE
+                                              responseResource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                 requestHeaders:nil
                                                  correlationId:TEST_CORRELATION_ID
