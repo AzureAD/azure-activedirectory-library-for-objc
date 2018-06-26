@@ -41,7 +41,7 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDLegacyRefreshToken.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAADV2TokenResponse.h"
