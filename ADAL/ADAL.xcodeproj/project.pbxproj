@@ -967,7 +967,6 @@
 		94DD18E11C5ACFBF00F80C62 /* ADAL-Unit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Unit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		960E93721E296CC2008036C0 /* ADURLSessionDemux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADURLSessionDemux.h; sourceTree = "<group>"; };
 		960E93731E296CC2008036C0 /* ADURLSessionDemux.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLSessionDemux.m; sourceTree = "<group>"; };
-		96285D7020D87760004CA4BD /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.4.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		96AC69371E70E184008183A7 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
 		96AC69381E70E184008183A7 /* ADAutoResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
 		96B9F03D20DDD411006C806C /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = System/Library/Frameworks/GSS.framework; sourceTree = SDKROOT; };
@@ -1443,7 +1442,6 @@
 			children = (
 				96B9F04120DDD4A2006C806C /* WebKit.framework */,
 				96B9F03D20DDD411006C806C /* GSS.framework */,
-				96285D7020D87760004CA4BD /* SafariServices.framework */,
 				B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */,
 				B258488020747A54007FAD22 /* KeyVault.framework */,
 				B258487B20747998007FAD22 /* KeyVaultClient.framework */,
@@ -3526,6 +3524,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBA1FC370C100CD70C5 /* adal__debug.xcconfig */;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 			};
 			name = Debug;

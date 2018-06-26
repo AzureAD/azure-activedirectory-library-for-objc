@@ -63,7 +63,7 @@ static NSDictionary *s_userInfoKeyMapping;
                                    // Interactive flow
                                    @(MSIDErrorAuthorizationFailed) : @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
                                    @(MSIDErrorUserCancel) : @(AD_ERROR_UI_USER_CANCEL),
-                                   @(MSIDErrorSessionCanceledProgramatically) : @(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorSessionCanceledProgramatically) : @(AD_ERROR_UI_USER_CANCEL),
                                    @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
                                    @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
@@ -73,7 +73,7 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerOauth) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
                                    @(MSIDErrorServerRefreshTokenRejected) : @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
-                                   @(MSIDErrorServerInvalidRequest) :@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+                                   @(MSIDErrorServerInvalidRequest) :@(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidClient) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidGrant) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
