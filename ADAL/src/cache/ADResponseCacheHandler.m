@@ -49,7 +49,7 @@
     
     if (!result)
     {
-        if (response.oauthErrorCode == MSIDErrorInvalidGrant && refreshToken)
+        if (response.oauthErrorCode == MSIDErrorServerInvalidGrant && refreshToken)
         {
             NSError *removeError = nil;
 
