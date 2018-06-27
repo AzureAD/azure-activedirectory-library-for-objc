@@ -44,4 +44,19 @@ static BOOL adalAppInstalled = NO;
     }
 }
 
+- (void)testCoexistenceWithNonUnifiedADAL_startSigninInOlderADAL_withAADAccount_andDoTokenRefresh
+{
+
+}
+
+- (void)testCoexistenceWithNonUnifiedADAL_startSigninInUnifiedADAL_withAADAccount_andDoTokenRefresh
+{
+    
+}
+
+- (void)testCoexistenceWithNonUnifiedADAL_startSigninInOlderADAL_withADFSOnPremAccount_andDoTokenRefresh
+{
+
+}
+
 @end

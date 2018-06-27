@@ -40,8 +40,18 @@ static BOOL olderADALAppInstalled = NO;
     if (!olderADALAppInstalled)
     {
         olderADALAppInstalled = YES;
-        [self installAppWithId:@"1_2x_adal"];
+        [self installAppWithId:@"adal_1_2_x"];
     }
+}
+
+- (void)testCoexistenceWithADAL1_2_startSigninInADAL1_2_andDoTokenRefresh
+{
+
+}
+
+- (void)testCoexistenceWithADAL1_2_startSigninInNewADAL_andDoTokenRefresh
+{
+
 }
 
 @end

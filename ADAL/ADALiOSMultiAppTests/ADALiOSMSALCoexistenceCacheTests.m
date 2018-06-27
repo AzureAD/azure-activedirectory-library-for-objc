@@ -44,4 +44,39 @@ static BOOL msalAppInstalled = NO;
     }
 }
 
+- (void)testCoexistenceWithMSAL_whenSigninInADALFirst_andSameClientId
+{
+
+}
+
+- (void)testCoexistenceWithMSAL_whenSigninInMSALFirstAndUseScopes_andSameClientId
+{
+
+}
+
+- (void)testCoexistenceWithMSAL_whenSigninInMSALFirstAndUseDefaultScope_andSameClientId
+{
+
+}
+
+- (void)testCoexistenceWithMSAL_whenSigninInADALFirst_andDifferentClient_withFociSupport
+{
+
+}
+
+- (void)testCoexistenceWithMSAL_whenSigninInMSALFirst_andDifferentClient_withFociSupport
+{
+
+}
+
+- (void)testCoexistenceWithMSAL_whenSigninInMSALFirst_andSameClientId_andNoUserIdentifierProvided
+{
+
+}
+
+- (void)testCoexistenceWithMSAL_whenSigninInMSALFirst_andDifferentClient_withFociSupport_andAuthorityMigration
+{
+
+}
+
 @end
