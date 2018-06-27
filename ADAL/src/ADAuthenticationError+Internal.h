@@ -132,10 +132,12 @@
                               correlationId:(NSUUID *)correlationId
                                    userInfo:(NSDictionary*)userInfo;
 
+#if AD_BROKER
 /*! Adds a alternate token to an existing ADAuthentication error's userInfo dictionary */
 + (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *)error
                                                             correlationID:(NSUUID *)correlationId
                                                                     token:(ADTokenCacheItem*)token;
+#endif
 
 /*
     Returns string representation of ADErrorCode or error code number as string, if mapping for that error is missing
