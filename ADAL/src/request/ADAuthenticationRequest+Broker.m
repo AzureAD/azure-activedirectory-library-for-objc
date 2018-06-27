@@ -195,7 +195,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
+        NSMutableDictionary *brokerResponse = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
         if (queryParamsMap[BROKER_INTUNE_HASH_KEY] && queryParamsMap[BROKER_INTUNE_RESPONSE_KEY])
         {
             ADAuthenticationError *intuneTokenError = nil;
@@ -229,11 +229,11 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
             if (intuneTokenResult)
             {
-                [userInfo setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
+                [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
             }
         }
 
-        return [ADAuthenticationResult resultFromBrokerResponse:userInfo];
+        return [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     }
 
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
