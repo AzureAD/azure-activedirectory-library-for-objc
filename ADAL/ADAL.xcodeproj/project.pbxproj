@@ -254,6 +254,7 @@
 		B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */; };
 		B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */; };
 		B20DC6221F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */; };
+		B212D38D20E2FF76001575CD /* ADALCacheRemovalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B212D38C20E2FF76001575CD /* ADALCacheRemovalTests.m */; };
 		B227F2982057685700F7B822 /* ADMSIDDataSourceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */; };
 		B227F2992057685700F7B822 /* ADMSIDDataSourceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */; };
 		B227F29C2057685700F7B822 /* ADMSIDDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */; };
@@ -1019,6 +1020,7 @@
 		B20DC61C1F0DA39C00957806 /* ADBrokerKeyHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelperTests.m; sourceTree = "<group>"; };
 		B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthControllerTests.m; sourceTree = "<group>"; };
+		B212D38C20E2FF76001575CD /* ADALCacheRemovalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALCacheRemovalTests.m; sourceTree = "<group>"; };
 		B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADMSIDDataSourceWrapper.h; sourceTree = "<group>"; };
 		B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADMSIDDataSourceWrapper.m; sourceTree = "<group>"; };
 		B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenPkeyAuthTests.m; sourceTree = "<group>"; };
@@ -1395,6 +1397,7 @@
 				B2BA495F208BFDA800CE92FC /* ADALAuthorityMigrationTests.m */,
 				B2BA4961208C009F00CE92FC /* ADALClaimsChallengeTests.m */,
 				B2BA4963208C1F6700CE92FC /* ADALOnPremLoginTests.m */,
+				B212D38C20E2FF76001575CD /* ADALCacheRemovalTests.m */,
 			);
 			path = ADALiOSUITests;
 			sourceTree = "<group>";
@@ -3004,6 +3007,7 @@
 				23B791CF2012B7A9008D4BD2 /* ADALAADLoginTests.m in Sources */,
 				23766BB32013D91E00449D47 /* NSDictionary+ADALiOSUITests.m in Sources */,
 				B290F40F207C31AC0026F43D /* ADALNTLMLoginTests.m in Sources */,
+				B212D38D20E2FF76001575CD /* ADALCacheRemovalTests.m in Sources */,
 				23B791D32012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m in Sources */,
 				B2BA485C2089351C00CE92FC /* ADALGuestUsersLoginTest.m in Sources */,
 				23B791D72012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m in Sources */,

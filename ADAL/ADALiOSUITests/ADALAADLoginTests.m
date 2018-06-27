@@ -318,9 +318,6 @@
     configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
-    // TODO: remove this, once API is fixed to return multiple accounts
-    //[self.testConfiguration addAdditionalAccount:self.accountsProvider.defaultLabAccount];
-
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
 
     // User 1.
@@ -581,6 +578,49 @@
     [self acquireToken:config];
 
     [self assertAuthUIAppear];
+}
+
+- (void)testAcquireTokenByRefreshToken_withAADRefreshToken
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    NSDictionary *result = [self resultDictionary];
+    NSString *refreshToken = result[@"refresh_token"];
+    XCTAssertNotNil(refreshToken);
+
+    params = @{@"refresh_token": refreshToken};
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self closeResultView];
+
+    [self acquireTokenWithRefreshToken:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 #pragma mark - Private

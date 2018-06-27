@@ -30,7 +30,7 @@
 
 @implementation ADALOnPremLoginTests
 
-- (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv3
+- (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityFalse_loginHint_ADALWebView_ADFSv3
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
@@ -41,7 +41,7 @@
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"user_identifier": self.primaryAccount.account,
-                             @"validate_authority" : @NO // TODO: this should be yes, but lab's authority validation is broken
+                             @"validate_authority" : @NO
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -78,7 +78,116 @@
     [self closeResultView];
 }
 
-- (void)testInteractiveOnPremLogin_withPromptAlways_loginHint_ADALWebView_ADFSv4
+- (void)testInteractiveOnpremLogin_withPromptAuto_ValidateAuthorityFalse_loginHint_PassedInWebView_ADFSv3
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.appVersion = MSIDAppVersionOnPrem;
+    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
+    configurationRequest.accountFeatures = @[];
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"auto",
+                             @"user_identifier": self.primaryAccount.account,
+                             @"validate_authority" : @NO,
+                             @"web_view" : @"passed_in"
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self enterADFSPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now do acquiretoken again with prompt auto and expect result to be returned immediately
+    config = [self.testConfiguration configWithAdditionalConfiguration:@{}];
+    [self acquireToken:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
+- (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_noLoginHint_ADFSv3_shouldFailWithoutUPN
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.appVersion = MSIDAppVersionOnPrem;
+    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
+    configurationRequest.accountFeatures = @[];
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self assertError:@"AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION"];
+}
+
+- (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADFSv3
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.appVersion = MSIDAppVersionOnPrem;
+    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
+    configurationRequest.accountFeatures = @[];
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"user_identifier": self.primaryAccount.account,
+                             @"validate_authority" : @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self enterADFSPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now do silent #296725
+    config = [self.testConfiguration configWithAdditionalConfiguration:@{}];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
+- (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADALWebView_ADFSv4
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionOnPrem;
+    configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
+    configurationRequest.accountFeatures = @[];
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"user_identifier": self.primaryAccount.account,
+                             @"validate_authority" : @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self enterADFSPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now do silent #296725
+    NSDictionary *silentParams = @{
+                                   @"user_identifier" : self.primaryAccount.account
+                                   };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
+- (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityFalse_loginHint_ADALWebView_ADFSv4
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;

@@ -436,6 +436,77 @@
     [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
 
+- (IBAction)deleteSpecificTokens:(id)sender
+{
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> *parameters)
+    {
+        weakSelf.resultLogs = [NSMutableString new];
+
+        ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+
+        NSString *userIdentifier = parameters[@"user_identifier"];
+        NSString *clientId = parameters[@"client_id"];
+
+        NSError *error = nil;
+
+        if (userIdentifier && clientId)
+        {
+            [cache removeAllForUserId:userIdentifier clientId:clientId error:&error];
+        }
+        else if (clientId)
+        {
+            [cache removeAllForClientId:clientId error:&error];
+        }
+        else if (userIdentifier)
+        {
+            [cache wipeAllItemsForUserId:userIdentifier error:&error];
+        }
+
+        [weakSelf dismissViewControllerAnimated:NO completion:^{
+            [weakSelf displayResultJson:[NSString stringWithFormat:@"{\"delete_result\":\"%d\", \"error\":\"%@\"}", error != nil, error]
+                                   logs:weakSelf.resultLogs];
+        }];
+    };
+
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
+}
+
+- (IBAction)acquireTokenByRefreshToken:(id)sender
+{
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> *parameters)
+    {
+        weakSelf.resultLogs = [NSMutableString new];
+
+        NSString *refreshToken = parameters[@"refresh_token"];
+
+        ADAuthenticationContext* context =
+        [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+                                         validateAuthority:NO
+                                                     error:nil];
+
+        [context acquireTokenWithRefreshToken:refreshToken
+                                     resource:parameters[@"resource"]
+                                     clientId:parameters[@"client_id"]
+                                  redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                              completionBlock:^(ADAuthenticationResult *result) {
+
+                                  [weakSelf.webViewController dismissViewControllerAnimated:NO completion:nil];
+                                  weakSelf.webViewController = nil;
+                                  [weakSelf dismissViewControllerAnimated:NO completion:^{
+                                      [weakSelf displayAuthenticationResult:result
+                                                                       logs:weakSelf.resultLogs];
+                                  }];
+
+        }];
+    };
+
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
+}
+
 - (void)displayAuthenticationResult:(ADAuthenticationResult *)result logs:(NSString *)resultLogs
 {
     [self displayResultJson:[self createJsonFromResult:result] logs:resultLogs];

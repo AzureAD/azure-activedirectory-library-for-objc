@@ -47,6 +47,7 @@
 - (void)expireAccessToken:(NSDictionary *)config;
 - (void)acquireToken:(NSDictionary *)config;
 - (void)acquireTokenSilent:(NSDictionary *)config;
+- (void)acquireTokenWithRefreshToken:(NSDictionary *)config;
 - (void)clearCache;
 - (void)clearKeychain;
 - (void)clearCookies;
