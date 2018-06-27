@@ -36,7 +36,6 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
