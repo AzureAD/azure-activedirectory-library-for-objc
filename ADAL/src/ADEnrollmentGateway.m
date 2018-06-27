@@ -50,13 +50,13 @@ static NSString *s_intuneResourceJSON = nil;
 
 @interface ADEnrollmentGateway()
 
-+ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError *__autoreleasing *) error;
++ (NSString *)getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end
 
 @implementation ADEnrollmentGateway
 
-+ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *enrollIdJSON = [ADEnrollmentGateway allEnrollmentIds];
 
@@ -125,7 +125,7 @@ static NSString *s_intuneResourceJSON = nil;
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
 }
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
         return [[dic objectForKey:USER_ID] isEqualToString:userId];
@@ -133,7 +133,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
         return [[dic objectForKey:OID] isEqualToString:userObjectId] && [[dic objectForKey:TID] isEqualToString:tenantId];
@@ -141,7 +141,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
         return [[dic objectForKey:UNIQUE_ACCOUNT_ID] isEqualToString:uniqueAccountId];
@@ -149,7 +149,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *resourceJSON = nil;
 

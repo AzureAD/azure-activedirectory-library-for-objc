@@ -23,12 +23,12 @@
 
 @interface ADEnrollmentGateway : NSObject
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError*__autoreleasing *) error;
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError*__autoreleasing *) error;
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError*__autoreleasing *) error;
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError * __autoreleasing *) error;
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError * __autoreleasing *) error;
++ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError * __autoreleasing *) error;
 + (NSString *)allEnrollmentIds;
 
-+ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError*__autoreleasing *) error;
++ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *) error;
 
 #if AD_BROKER
 + (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources;
