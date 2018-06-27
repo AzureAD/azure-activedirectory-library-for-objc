@@ -26,7 +26,7 @@
 
 @implementation ADEnrollmentGateway (TestUtil)
 
-+ (NSString*) getTestEnrollmentIDJSON
++ (NSString *)getTestEnrollmentIDJSON
 {
     return [NSString stringWithFormat:
             @"{\"enrollment_ids\": [\n"
@@ -48,7 +48,7 @@
             "}"];
 }
 
-+ (NSString*) getTestResourceJSON
++ (NSString *)getTestResourceJSON
 {
     return [NSString stringWithFormat:
             @"{"

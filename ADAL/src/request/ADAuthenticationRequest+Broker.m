@@ -287,23 +287,23 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     
     AD_LOG_INFO(_requestParams.correlationId, @"Invoking broker for authentication");
 #if TARGET_OS_IPHONE // Broker Message Encryption
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    NSData* key = [brokerHelper getBrokerKey:error];
+    ADBrokerKeyHelper *brokerHelper = [[ADBrokerKeyHelper alloc] init];
+    NSData *key = [brokerHelper getBrokerKey:error];
     AUTH_ERROR_RETURN_IF_NIL(key, AD_ERROR_UNEXPECTED, @"Unable to retrieve broker key.", _requestParams.correlationId);
     
-    NSString* base64Key = [NSString adBase64UrlEncodeData:key];
+    NSString *base64Key = [NSString adBase64UrlEncodeData:key];
     AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _requestParams.correlationId);
-    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString *base64UrlKey = [base64Key adUrlFormEncode];
     AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _requestParams.correlationId);
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
-    NSString* adalVersion = [ADLogger getAdalVersion];
+    NSString *adalVersion = [ADLogger getAdalVersion];
     AUTH_ERROR_RETURN_IF_NIL(adalVersion, AD_ERROR_UNEXPECTED, @"Unable to retrieve ADAL version.", _requestParams.correlationId);
-    NSString* enrollmentIds = [ADEnrollmentGateway allEnrollmentIdsJSON];
-    NSString* mamResource = [ADEnrollmentGateway intuneMAMResourceJSON:[NSURL URLWithString:_requestParams.authority] error:NULL];
+    NSString *enrollmentIds = [ADEnrollmentGateway allEnrollmentIdsJSON];
+    NSString *mamResource = [ADEnrollmentGateway intuneMAMResourceJSON:[NSURL URLWithString:_requestParams.authority] error:NULL];
     mamResource = mamResource ? mamResource : @"" ;
     
-    NSDictionary* queryDictionary =
+    NSDictionary *queryDictionary =
     @{
       @"authority"      : _requestParams.authority,
       @"resource"       : _requestParams.resource,
@@ -330,8 +330,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     id<ADTokenCacheDataSource> dataSource = [_requestParams.tokenCache dataSource];
     if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
     {
-        NSString* keychainGroup = [(ADKeychainTokenCache*)dataSource sharedGroup];
-        NSString* teamId = [ADKeychainUtil keychainTeamId:error];
+        NSString *keychainGroup = [(ADKeychainTokenCache*)dataSource sharedGroup];
+        NSString *teamId = [ADKeychainUtil keychainTeamId:error];
         if (!teamId)
         {
             return nil;
@@ -366,9 +366,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    NSString* query = [queryDictionary adURLFormEncode];
+    NSString *query = [queryDictionary adURLFormEncode];
     
-    NSURL* brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
+    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
     AUTH_ERROR_RETURN_IF_NIL(brokerRequestURL, AD_ERROR_UNEXPECTED, @"Unable to encode broker request URL", _requestParams.correlationId);
     
     return brokerRequestURL;

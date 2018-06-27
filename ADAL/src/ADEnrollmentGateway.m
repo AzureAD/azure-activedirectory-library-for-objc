@@ -50,13 +50,13 @@ static NSString *s_intuneResourceJSON = nil;
 
 @interface ADEnrollmentGateway()
 
-+ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError *__autoreleasing *) error;
++ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary *)) idBlock error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end
 
 @implementation ADEnrollmentGateway
 
-+ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary *)) idBlock error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *enrollIdJSON = [ADEnrollmentGateway allEnrollmentIdsJSON];
 
@@ -136,7 +136,7 @@ static NSString *s_intuneResourceJSON = nil;
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
 }
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
         return [[dic objectForKey:USER_ID] isEqualToString:userId];
@@ -144,7 +144,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
         return [[dic objectForKey:OID] isEqualToString:userObjectId] && [[dic objectForKey:TID] isEqualToString:tenantId];
@@ -152,7 +152,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
         return [[dic objectForKey:UNIQUE_ACCOUNT_ID] isEqualToString:uniqueAccountId];
@@ -160,7 +160,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdIfAvailable:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIdIfAvailable:(ADAuthenticationError * __autoreleasing *)error
 {
     // this will just return the first enrollment ID
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * __unused dic) {
@@ -169,7 +169,7 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIDForUniqueAccountID:(NSString *) homeUserID userID:(NSString *) userID error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)enrollmentIDForUniqueAccountID:(NSString *) homeUserID userID:(NSString *) userID error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (homeUserID)
     {
@@ -190,7 +190,7 @@ static NSString *s_intuneResourceJSON = nil;
     }
 }
 
-+ (NSString *)intuneMAMResourceJSON:(NSURL *)authority error:(ADAuthenticationError *__autoreleasing *)error
++ (NSString *)intuneMAMResourceJSON:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *mamResource = [ADEnrollmentGateway intuneMAMResource:authority error:error];
     NSString *host = [authority adHostWithPortIfNecessary];
@@ -199,7 +199,7 @@ static NSString *s_intuneResourceJSON = nil;
     return mamResource;
 }
 
-+ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError *__autoreleasing *) error
++ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
@@ -209,7 +209,7 @@ static NSString *s_intuneResourceJSON = nil;
         return nil;
     }
     
-    NSError* internalError = nil;
+    NSError *internalError = nil;
     id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&internalError];
 
     if (internalError  || !resources)

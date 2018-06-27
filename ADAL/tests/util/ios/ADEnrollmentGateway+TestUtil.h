@@ -25,8 +25,8 @@
 
 @interface ADEnrollmentGateway (TestUtil)
 
-+ (NSString*) getTestEnrollmentIDJSON;
-+ (NSString*) getTestResourceJSON;
++ (NSString *)getTestEnrollmentIDJSON;
++ (NSString *)getTestResourceJSON;
 
 
 @end
