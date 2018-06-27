@@ -213,7 +213,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
             if (!keychainGroup)
             {
-                AD_LOG_WARN(correlationId, @"Failed to cache Intune token, no resume state found in NSUserDefaults");
+                AD_LOG_WARN(correlationId, @"Failed to cache Intune token, unable to acquire keychain group.");
             }
             else if (AD_SUCCEEDED != intuneTokenResult.status)
             {
