@@ -222,7 +222,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                               userInfo:userInfo];
     }
 
-    return [ADAuthenticationResult resultFromError:error correlationId:correlationId];;
+    return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
 }
 
 + (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
