@@ -78,7 +78,7 @@
     [self closeResultView];
 }
 
-- (void)testInteractiveOnpremLogin_withPromptAuto_ValidateAuthorityFalse_loginHint_PassedInWebView_ADFSv3
+- (void)testInteractiveOnpremLogin_withPromptAuto_ValidateAuthorityFalse_loginHint_ADALInWebView_ADFSv3
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
@@ -90,7 +90,6 @@
                              @"prompt_behavior" : @"auto",
                              @"user_identifier": self.primaryAccount.account,
                              @"validate_authority" : @NO,
-                             @"web_view" : @"passed_in"
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -101,7 +100,6 @@
     [self closeResultView];
 
     // Now do acquiretoken again with prompt auto and expect result to be returned immediately
-    config = [self.testConfiguration configWithAdditionalConfiguration:@{}];
     [self acquireToken:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -123,7 +121,7 @@
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
-    [self assertError:@"AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION"];
+    [self assertError:@"AD_ERROR_DEVELOPER_INVALID_ARGUMENT"];
 }
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADFSv3
