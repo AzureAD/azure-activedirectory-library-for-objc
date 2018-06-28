@@ -356,10 +356,11 @@
 
 }
 
-- (void)testintuneMAMResource_whenResourceDoesNotForHost_shouldFailWithoutError
+- (void)testintuneMAMResource_whenResourceDoesNotExistForAuthority_shouldReturnTheFirstResource
 {
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@"{\"login.microsoftonline.com\":\"https://www.microsoft.com/intune\"}"];
     ADAuthenticationError *error = nil;
-    XCTAssertNil([ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.notMicrosoft.com"] error:&error]);
+    XCTAssert([@"https://www.microsoft.com/intune" isEqualToString:[ADEnrollmentGateway intuneMAMResource:[NSURL URLWithString:@"https://login.notMicrosoft.com"] error:&error]]);
     XCTAssertNil(error);
 }
 

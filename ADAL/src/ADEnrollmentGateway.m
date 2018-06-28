@@ -244,6 +244,12 @@ static NSString *s_intuneResourceJSON = nil;
             return resources[host];
     }
 
+    if ([(NSDictionary *)resources count])
+    {
+        // if there are Intune Resources available at this point, just return the first
+        return [[resources allValues] objectAtIndex:0];
+    }
+
     return nil;
 }
 
