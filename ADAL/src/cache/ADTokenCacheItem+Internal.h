@@ -53,12 +53,12 @@
       requestCorrelationId:(NSUUID*)requestCorrelationId;
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
                             requestCorrelationId:(NSUUID*)requestCorrelationId
                                     fieldToCheck:(NSString*)fieldToCheck;
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
                             requestCorrelationId:(NSUUID*)requestCorrelationId;
 
 /*!

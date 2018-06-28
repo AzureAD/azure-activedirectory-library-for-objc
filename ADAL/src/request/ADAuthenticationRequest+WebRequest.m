@@ -66,7 +66,7 @@
          item.clientId = [_requestParams clientId];
          item.authority = authority;
          ADAuthenticationResult* result = [item processTokenResponse:response
-                                                         fromRefresh:NO
+                                                    fromRefreshToken:nil
                                                 requestCorrelationId:[_requestParams correlationId]];
          completionBlock(result);
          
