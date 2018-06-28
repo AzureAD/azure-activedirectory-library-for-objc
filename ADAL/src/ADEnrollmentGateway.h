@@ -40,9 +40,6 @@
 /*! Returns the Intune MAM resource for the associated authority*/
 + (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error;
 
-/*! Returns the Intune MAM resource for the associated authority as a JSON dicitonary with one entry*/
-+ (NSString *)intuneMAMResourceJSON:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error;
-
 /*! Returns all known Intune MAM authority:resource pairings as a JSON dictionary*/
 + (NSString *)allIntuneMAMResourcesJSON;
 

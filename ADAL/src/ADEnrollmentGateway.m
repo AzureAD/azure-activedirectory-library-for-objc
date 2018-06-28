@@ -190,15 +190,6 @@ static NSString *s_intuneResourceJSON = nil;
     }
 }
 
-+ (NSString *)intuneMAMResourceJSON:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
-{
-    NSString *mamResource = [ADEnrollmentGateway intuneMAMResource:authority error:error];
-    NSString *host = [authority adHostWithPortIfNecessary];
-    mamResource = mamResource ? [NSString stringWithFormat:@"{%@:%@}", host, mamResource] : nil ;
-    
-    return mamResource;
-}
-
 + (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
