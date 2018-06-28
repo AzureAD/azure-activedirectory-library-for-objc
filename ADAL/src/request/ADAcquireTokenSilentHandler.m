@@ -152,7 +152,7 @@
          resultItem.authority = [_requestParams authority];
          
          
-         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefreshToken:(cacheItem ? cacheItem : nil) requestCorrelationId:_requestParams.correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefreshToken:cacheItem requestCorrelationId:_requestParams.correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [[_requestParams tokenCache] updateCacheToResult:result
