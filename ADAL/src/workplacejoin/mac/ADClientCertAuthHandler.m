@@ -181,7 +181,7 @@
             AD_LOG_INFO(correlationId, @"No identity returned from cert chooser");
             
             // If no identity comes back then we can't handle the request
-            completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+            completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
             return YES;
         }
         
