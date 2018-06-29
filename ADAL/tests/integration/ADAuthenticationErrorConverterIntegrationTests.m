@@ -40,17 +40,23 @@
  */
 - (void)testErrorConversion_whenErrorConverterInitialized_shouldMapAllMSIDErrors
 {
-    NSInteger errorCode = MSIDErrorCodeFirst;
+    NSDictionary *domainsAndCodes = MSIDErrorDomainsAndCodes();
     
-    while (errorCode >= MSIDErrorCodeLast)
+    for (NSString *domain in domainsAndCodes)
     {
-        NSError *msidError = MSIDCreateError(MSIDErrorDomain, errorCode, @"test", nil, nil, nil, nil, nil);
-        ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
-        
-        XCTAssertNotEqual(error.code, errorCode);
-        
-        errorCode--;
+        NSArray *codes = domainsAndCodes[domain];
+        for (NSNumber *code in codes)
+        {
+            MSIDErrorCode errorCode = [code integerValue];
+            NSError *msidError = MSIDCreateError(domain, errorCode, @"test", nil, nil, nil, nil, nil);
+            ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+            
+            XCTAssertNotEqual(error.code, errorCode);
+            
+        }
     }
 }
+
+
 
 @end

@@ -41,7 +41,7 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDLegacyRefreshToken.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAADV2TokenResponse.h"
@@ -357,6 +357,30 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
+{
+    return [self adResponseRefreshToken:oldRefreshToken
+                              authority:authority
+                        requestResource:requestResource
+                       responseResource:responseResource
+                               clientId:clientId
+                         requestHeaders:nil
+                          correlationId:correlationId
+                        newRefreshToken:newRefreshToken
+                         newAccessToken:newAccessToken
+                             newIDToken:newIDToken
+                       additionalFields:nil
+                        responseHeaders:nil];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
                                      resource:(NSString *)resource
                                      clientId:(NSString *)clientId
                                 correlationId:(NSUUID *)correlationId
@@ -390,7 +414,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     return [self adResponseRefreshToken:oldRefreshToken
                               authority:authority
-                               resource:resource
+                        requestResource:resource
+                       responseResource:resource
                                clientId:clientId
                          requestHeaders:requestHeaders
                           correlationId:correlationId
@@ -403,7 +428,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
-                                     resource:(NSString *)resource
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
                                      clientId:(NSString *)clientId
                                requestHeaders:(NSDictionary *)requestHeaders
                                 correlationId:(NSUUID *)correlationId
@@ -413,10 +439,12 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders
 {
-    NSDictionary* jsonBody = @{ MSID_OAUTH2_REFRESH_TOKEN : newRefreshToken,
-                                MSID_OAUTH2_ACCESS_TOKEN : newAccessToken,
-                                MSID_OAUTH2_ID_TOKEN: newIDToken,
-                                MSID_OAUTH2_RESOURCE : resource};
+    NSMutableDictionary *jsonBody = [NSMutableDictionary dictionary];
+
+    if (newRefreshToken) jsonBody[MSID_OAUTH2_REFRESH_TOKEN] = newRefreshToken;
+    if (newAccessToken) jsonBody[MSID_OAUTH2_ACCESS_TOKEN] = newAccessToken;
+    if (newIDToken) jsonBody[MSID_OAUTH2_ID_TOKEN] = newIDToken;
+    if (responseResource) jsonBody[MSID_OAUTH2_RESOURCE] = responseResource;
     
     if (additionalFields)
     {
@@ -427,13 +455,14 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     
     return [self adResponseRefreshToken:oldRefreshToken
                               authority:authority
-                               resource:resource
+                               resource:requestResource
                                clientId:clientId
                          requestHeaders:requestHeaders
                           correlationId:correlationId
                            responseCode:400
                         responseHeaders:responseHeaders
-                           responseJson:jsonBody];
+                           responseJson:jsonBody
+                       useOpenidConnect:newIDToken != nil];
 }
 
 - (ADTestURLResponse *)adDefaultRefreshReponseCode:(NSInteger)responseCode
@@ -448,7 +477,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                           correlationId:TEST_CORRELATION_ID
                            responseCode:responseCode
                         responseHeaders:responseHeaders
-                           responseJson:responseJson];
+                           responseJson:responseJson
+                       useOpenidConnect:YES];
 }
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -460,6 +490,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                  responseCode:(NSInteger)responseCode
                               responseHeaders:(NSDictionary *)responseHeaders
                                  responseJson:(NSDictionary *)responseJson
+                             useOpenidConnect:(BOOL)useOpenidConnect
 
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
@@ -471,16 +502,22 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         [headers addEntriesFromDictionary:requestHeaders];
     }
 
+    NSMutableDictionary *requestParamsBody = [@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                                MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
+                                                MSID_OAUTH2_RESOURCE : resource,
+                                                MSID_OAUTH2_CLIENT_INFO: @"1",
+                                                MSID_OAUTH2_CLIENT_ID : clientId,
+                                                 } mutableCopy];
+
+    if (useOpenidConnect)
+    {
+        requestParamsBody[MSID_OAUTH2_SCOPE] = MSID_OAUTH2_SCOPE_OPENID_VALUE;
+    }
+
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
-                                           MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
-                                           MSID_OAUTH2_RESOURCE : resource,
-                                           MSID_OAUTH2_CLIENT_INFO: @"1",
-                                           MSID_OAUTH2_CLIENT_ID : clientId,
-                                           MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE
-                                           }
+                      requestParamsBody:requestParamsBody
                       responseURLString:@"https://contoso.com"
                            responseCode:responseCode
                        httpHeaderFields:responseHeaders ? responseHeaders : @{}

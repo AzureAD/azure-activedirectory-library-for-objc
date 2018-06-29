@@ -283,7 +283,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          if (![NSString msidIsStringNilOrBlank:oauthError])
          {
              NSError *msidError =
-             MSIDCreateError(MSIDErrorDomain, MSIDErrorDeveloperAuthorityValidation, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
+             MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
              
              // If the error is something other than invalid_instance then something wrong is happening
              // on the server.

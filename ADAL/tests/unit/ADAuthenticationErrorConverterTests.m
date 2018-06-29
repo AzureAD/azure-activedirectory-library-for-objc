@@ -76,7 +76,7 @@
 - (void)testErrorConversion_whenBothErrorDomainAndCodeAreMapped_shouldMapBoth {
     NSString *domain = MSIDErrorDomain;
     NSString *expectedDomain = ADAuthenticationErrorDomain;
-    NSInteger errorCode = MSIDErrorDeveloperAuthorityValidation;
+    NSInteger errorCode = MSIDErrorAuthorityValidation;
     NSInteger expectedMappedErrorCode = AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION;
     
     NSString *errorDescription = @"a fake error description.";
