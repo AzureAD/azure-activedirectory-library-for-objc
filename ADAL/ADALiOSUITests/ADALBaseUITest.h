@@ -53,6 +53,7 @@
 - (void)clearCookies;
 - (void)aadEnterEmail:(NSString *)email;
 - (void)aadEnterEmail;
+- (void)aadEnterEmailInApp:(XCUIApplication *)app;
 - (void)aadEnterPassword;
 - (void)aadEnterPassword:(NSString *)password;
 - (void)aadEnterPasswordInApp:(XCUIApplication *)app;

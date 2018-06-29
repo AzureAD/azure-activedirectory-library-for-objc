@@ -1,40 +1,104 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  ADALCacheRemovalTests.m
-//  ADALiOSUITests
+// This code is licensed under the MIT License.
 //
-//  Created by Olga Dalton on 6/26/18.
-//  Copyright © 2018 MS Open Tech. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
+#import "ADALBaseUITest.h"
 
-@interface ADALCacheRemovalTests : XCTestCase
+@interface ADALCacheRemovalTests : ADALBaseUITest
 
 @end
 
 @implementation ADALCacheRemovalTests
 
-- (void)setUp {
-    [super setUp];
-    
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-    
-    // In UI tests it is usually best to stop immediately when a failure occurs.
-    self.continueAfterFailure = NO;
-    // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
-    [[[XCUIApplication alloc] init] launch];
+- (void)testRemoveAllForUserIdAndClientId_whenMultipleUsersAndClientsInCache
+{
+    /*
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.needsMultipleUsers = YES;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 
-    // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
+               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
+               };
+
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireTokenSilent:config2];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    self.primaryAccount = self.testConfiguration.accounts[1];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    */
+
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
+- (void)testRemoveAllForClientId_whenMultipleUsersAndClientsInCache
+{
+
 }
 
-- (void)testExample {
-    // Use recording to get started writing UI tests.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void)testWipeAllForUserId_whenMultipleUsersAndClientsInCache
+{
+
 }
 
 @end

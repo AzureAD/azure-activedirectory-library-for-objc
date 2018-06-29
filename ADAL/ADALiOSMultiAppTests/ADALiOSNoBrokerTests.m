@@ -27,6 +27,7 @@
 
 @property (nonatomic) id interruptionMonitor;
 
+
 @end
 
 @implementation ADALiOSNoBrokerTests

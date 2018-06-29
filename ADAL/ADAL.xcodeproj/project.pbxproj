@@ -277,7 +277,7 @@
 		B2822A342055DBF900390B6E /* ADLegacyKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A312055DBF800390B6E /* ADLegacyKeychainTokenCache.m */; };
 		B2908C0E1FCA4E5900AFE98E /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		B290F40F207C31AC0026F43D /* ADALNTLMLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B290F40E207C31AC0026F43D /* ADALNTLMLoginTests.m */; };
-		B2948CB720D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB620D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m */; };
+		B2948CB720D717FA00FDAAEC /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB620D717FA00FDAAEC /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m */; };
 		B2948CB920D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */; };
 		B2948CBB20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */; };
 		B2948CCF20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */; };
@@ -1040,7 +1040,7 @@
 		B2822A312055DBF800390B6E /* ADLegacyKeychainTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLegacyKeychainTokenCache.m; sourceTree = "<group>"; };
 		B2822A332055DBF900390B6E /* ADLegacyKeychainTokenCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADLegacyKeychainTokenCache.h; sourceTree = "<group>"; };
 		B290F40E207C31AC0026F43D /* ADALNTLMLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALNTLMLoginTests.m; sourceTree = "<group>"; };
-		B2948CB620D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSADALCoexistenceCacheTests.m; sourceTree = "<group>"; };
+		B2948CB620D717FA00FDAAEC /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSNonUnifiedADALCoexistenceCacheTests.m; sourceTree = "<group>"; };
 		B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSOlderADALCoexistenceCacheTests.m; sourceTree = "<group>"; };
 		B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSADALDotNetCoexistenceCacheTests.m; sourceTree = "<group>"; };
 		B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALiOSNoBrokerTests.m; sourceTree = "<group>"; };
@@ -2025,7 +2025,7 @@
 			isa = PBXGroup;
 			children = (
 				B2A409D520D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m */,
-				B2948CB620D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m */,
+				B2948CB620D717FA00FDAAEC /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m */,
 				B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */,
 				B2948CBA20D7186800FDAAEC /* ADALiOSADALDotNetCoexistenceCacheTests.m */,
 				B2AACE0620DF2F8200AC88E2 /* ADALLegacyiOSBrokerTests.m */,
@@ -3269,7 +3269,7 @@
 				B2A409E420D3665D004AA9B7 /* ADALBaseUITest.m in Sources */,
 				B2948CCF20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m in Sources */,
 				B2A409E520D3665F004AA9B7 /* XCUIElement+ADALiOSUITests.m in Sources */,
-				B2948CB720D717FA00FDAAEC /* ADALiOSADALCoexistenceCacheTests.m in Sources */,
+				B2948CB720D717FA00FDAAEC /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m in Sources */,
 				B2A409D620D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m in Sources */,
 				B2AACE0720DF2F8200AC88E2 /* ADALLegacyiOSBrokerTests.m in Sources */,
 				B2AACDFF20DF23F000AC88E2 /* ADALiOSBrokerAndGuestUserTests.m in Sources */,

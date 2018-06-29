@@ -105,6 +105,34 @@
     [self closeResultView];
 }
 
+- (void)testInteractiveAndSilentAADMFALogin_withPromptAlways_noLoginHint_ADALWebView
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMFAEnabled];
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    // TODO: wait for MFA
+    [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+
+    sleep(5);
+
+    [self.testApp activate];
+    // TODO: check MFA still there
+}
+
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];

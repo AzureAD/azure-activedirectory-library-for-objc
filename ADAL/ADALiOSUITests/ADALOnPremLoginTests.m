@@ -57,6 +57,12 @@
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
+    // Now do silent with user identifier
+    config = [self.testConfiguration configWithAdditionalConfiguration:@{@"user_identifier": self.primaryAccount.account}];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
     // Now expire access token
     [self expireAccessToken:config];
     [self assertAccessTokenExpired];

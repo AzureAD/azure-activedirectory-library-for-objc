@@ -161,16 +161,16 @@
 
 #pragma mark - Actions
 
-- (void)aadEnterEmail:(NSString *)email
+- (void)aadEnterEmail:(NSString *)email inApp:(XCUIApplication *)app
 {
-    XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
+    XCUIElement *emailTextField = app.textFields[@"Email, phone, or Skype"];
     [self waitForElement:emailTextField];
     if ([email isEqualToString:emailTextField.value])
     {
         return;
     }
 
-    [self tapElementAndWaitForKeyboardToAppear:emailTextField];
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField app:app];
         
     // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
     // instead of empty string. In order to make it work we check that value of text field is not
@@ -178,14 +178,24 @@
     // See here: https://forums.developer.apple.com/thread/86653
     if (![emailTextField.placeholderValue isEqualToString:emailTextField.value] && emailTextField.value)
     {
-        [emailTextField selectAll:self.testApp];
+        [emailTextField selectAll:app];
     }
     [emailTextField typeText:email];
 }
 
+- (void)aadEnterEmail:(NSString *)email
+{
+    [self aadEnterEmail:email inApp:self.testApp];
+}
+
 - (void)aadEnterEmail
 {
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account] inApp:self.testApp];
+}
+
+- (void)aadEnterEmailInApp:(XCUIApplication *)app
+{
+    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account] inApp:app];
 }
 
 - (void)aadEnterPassword
