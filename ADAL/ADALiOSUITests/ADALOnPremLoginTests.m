@@ -58,8 +58,8 @@
     [self closeResultView];
 
     // Now do silent with user identifier
-    config = [self.testConfiguration configWithAdditionalConfiguration:@{@"user_identifier": self.primaryAccount.account}];
-    [self acquireTokenSilent:config];
+    NSDictionary *silentConfig = [self.testConfiguration configWithAdditionalConfiguration:@{@"user_identifier": self.primaryAccount.account}];
+    [self acquireTokenSilent:silentConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
