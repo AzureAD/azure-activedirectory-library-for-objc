@@ -27,7 +27,7 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
-#import "MSIDTestCacheIdentifiers.h"
+#import "MSIDTestIdentifiers.h"
 #import "MSIDLegacyTokenCacheItem.h"
 
 @interface ADTokenCacheItemArchivingToMSIDTokenTests : ADTestCase
