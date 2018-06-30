@@ -3,7 +3,7 @@
 //  
 
 #include "adal__common__ios.xcconfig"
-#include "adal__debug.xcconfig""
+#include "adal__debug.xcconfig"
 
 
 PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests
