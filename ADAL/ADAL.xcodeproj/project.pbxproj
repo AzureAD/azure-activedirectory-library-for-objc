@@ -317,6 +317,7 @@
 		B2BA4964208C1F6700CE92FC /* ADALOnPremLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BA4963208C1F6700CE92FC /* ADALOnPremLoginTests.m */; };
 		B2D184192082F2940001D445 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		B2D1841B208335300001D445 /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
+		B2E15FE120E8453D00D3CAC4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
 		B2FBFD8120D37E4E001EB7AA /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2FBFD8220D47528001EB7AA /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
 		D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */; };
@@ -1305,6 +1306,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2E15FE120E8453D00D3CAC4 /* WebKit.framework in Frameworks */,
 				B2A409E220D36545004AA9B7 /* libIdentityCore.a in Frameworks */,
 				B2A409E320D3654B004AA9B7 /* libIdentityAutomation iOS.a in Frameworks */,
 			);
