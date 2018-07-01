@@ -115,12 +115,15 @@
             
             [weakSelf.requestViewController presentViewController:weakSelf.webViewController animated:NO completion:nil];
         }
+
+        NSURL *redirectUri = [NSURL URLWithString:parameters[@"redirect_uri"]];
         
         if (parameters[@"use_broker"])
         {
             if ([parameters[@"use_broker"] boolValue])
             {
                 context.credentialsType = AD_CREDENTIALS_AUTO;
+                redirectUri = [NSURL URLWithString:@"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp"];
             }
             else context.credentialsType = AD_CREDENTIALS_EMBEDDED;
         }
@@ -177,7 +180,7 @@
         
         [context acquireTokenWithResource:parameters[@"resource"]
                                  clientId:parameters[@"client_id"]
-                              redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                              redirectUri:redirectUri
                            promptBehavior:promptBehavior
                            userIdentifier:userIdentifier
                      extraQueryParameters:parameters[@"extra_qp"]
@@ -219,7 +222,7 @@
         [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                          validateAuthority:[parameters[@"validate_authority"] boolValue]
                                                      error:nil];
-        
+
         if (parameters[@"use_broker"])
         {
             if ([parameters[@"use_broker"] boolValue])

@@ -21,13 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
+#import "AppDelegate.h"
 
-@interface XCUIElement (ADALiOSUITests)
+@interface AppDelegate ()
 
-- (void)pasteText:(NSString *)text application:(XCUIApplication *)app;
-- (void)clearText;
-- (void)selectAll:(XCUIApplication *)app;
-- (void)forceTap;
+@end
+
+@implementation AppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    // Insert code here to initialize your application
+}
+
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+    // Insert code here to tear down your application
+}
+
 
 @end

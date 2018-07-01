@@ -33,6 +33,13 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 @implementation ADALBaseUITest
 
++ (void)setUp
+{
+    [super setUp];
+    NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
+    self.class.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
+}
+
 - (void)setUp
 {
     [super setUp];
@@ -44,9 +51,6 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
     [self clearKeychain];
     [self clearCookies];
-
-    NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
-    self.class.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
 }
 
 - (void)tearDown
@@ -438,11 +442,13 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     if (appIcon.exists)
     {
         [appIcon pressForDuration:1.0f];
-        [appIcon.buttons[@"DeleteButton"] tap];
-
-        __auto_type deleteButton = springBoardApp.alerts.buttons[@"Delete"];
+        __auto_type deleteButton = appIcon.buttons[@"DeleteButton"];
         [self waitForElement:deleteButton];
-        [deleteButton tap];
+        [deleteButton forceTap];
+
+        __auto_type deleteConfirmationButton = springBoardApp.alerts.buttons[@"Delete"];
+        [self waitForElement:deleteConfirmationButton];
+        [deleteConfirmationButton tap];
 
         NSPredicate *appDeletedPredicate = [NSPredicate predicateWithFormat:@"exists == 0"];
         [self expectationForPredicate:appDeletedPredicate evaluatedWithObject:appIcon handler:nil];
@@ -492,6 +498,8 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [unregisterButton tap];
+
+    [brokerApp.alerts.buttons[@"Continue"] tap];
 
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     [self waitForElement:registerButton];

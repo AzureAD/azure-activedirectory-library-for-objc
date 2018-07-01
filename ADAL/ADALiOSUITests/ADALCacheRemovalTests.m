@@ -44,36 +44,15 @@
 
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                             @"validate_authority" : @YES
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     [self acquireToken:config];
-
     [self aadEnterEmail];
     [self aadEnterPassword];
-
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireTokenSilent:config2];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    self.primaryAccount = self.testConfiguration.accounts[1];
-    [self loadPasswordForAccount:self.primaryAccount];
 
     params = @{
                @"prompt_behavior" : @"always",
@@ -83,8 +62,22 @@
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES
+               };
+
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config2];
     [self aadEnterEmail];
     [self aadEnterPassword];
     [self assertAccessTokenNotNil];
@@ -92,18 +85,12 @@
 
     // Delete specific tokens
     NSDictionary *removeConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"};
+                                   @"client_id": self.testConfiguration.clientId};
 
-    NSString *jsonString = [removeConfig toJsonString];
-    [self.testApp.buttons[@"Delete specific tokens"] tap];
-    [self.testApp.textViews[@"requestInfo"] tap];
-    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] tap];
-    [self closeResultView];
+    [self deleteTokens:removeConfig];
 
     NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                                   @"client_id": self.testConfiguration.clientId
                                    };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
@@ -111,14 +98,6 @@
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                     @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707"
-                     };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    silentConfig = @{@"user_identifier": [self.primaryAccount username],
                      @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
                      };
 
@@ -139,36 +118,15 @@
 
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                             @"validate_authority" : @YES
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     [self acquireToken:config];
-
     [self aadEnterEmail];
     [self aadEnterPassword];
-
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireTokenSilent:config2];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    self.primaryAccount = self.testConfiguration.accounts[1];
-    [self loadPasswordForAccount:self.primaryAccount];
 
     params = @{
                @"prompt_behavior" : @"always",
@@ -178,46 +136,44 @@
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     [self acquireToken:config];
     [self aadEnterEmail];
     [self aadEnterPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
-    // Delete specific tokens
-    NSDictionary *removeConfig = @{@"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"};
+    self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
 
-    NSString *jsonString = [removeConfig toJsonString];
-    [self.testApp.buttons[@"Delete specific tokens"] tap];
-    [self.testApp.textViews[@"requestInfo"] tap];
-    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] tap];
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES
+               };
+
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config2];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
     [self closeResultView];
 
-    NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
-                                   };
+    // Delete specific tokens
+    NSDictionary *removeConfig = @{@"client_id": self.testConfiguration.clientId};
+
+    [self deleteTokens:removeConfig];
+
+    NSDictionary *silentConfig = @{@"client_id": self.testConfiguration.clientId};
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
     [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                     @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707"
-                     };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    silentConfig = @{@"user_identifier": [self.primaryAccount username],
                      @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
                      };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self assertAccessTokenNotNil];
     [self closeResultView];
 }
 
@@ -233,36 +189,15 @@
 
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                             @"validate_authority" : @YES
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     [self acquireToken:config];
-
     [self aadEnterEmail];
     [self aadEnterPassword];
-
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireTokenSilent:config2];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    self.primaryAccount = self.testConfiguration.accounts[1];
-    [self loadPasswordForAccount:self.primaryAccount];
 
     params = @{
                @"prompt_behavior" : @"always",
@@ -272,8 +207,22 @@
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES
+               };
+
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config2];
     [self aadEnterEmail];
     [self aadEnterPassword];
     [self assertAccessTokenNotNil];
@@ -281,17 +230,10 @@
 
     // Delete specific tokens
     NSDictionary *removeConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username]};
-
-    NSString *jsonString = [removeConfig toJsonString];
-    [self.testApp.buttons[@"Delete specific tokens"] tap];
-    [self.testApp.textViews[@"requestInfo"] tap];
-    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] tap];
-    [self closeResultView];
+    [self deleteTokens:removeConfig];
 
     NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                                   @"client_id": self.testConfiguration.clientId
                                    };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
@@ -299,19 +241,28 @@
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                     @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707"
+                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
                      };
-
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
     [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
     [self closeResultView];
 
-    silentConfig = @{@"user_identifier": [self.primaryAccount username],
+    silentConfig = @{@"user_identifier": self.primaryAccount.username,
                      @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
                      };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
     [self assertAccessTokenNotNil];
+
+}
+
+- (void)deleteTokens:(NSDictionary *)config
+{
+    [self.testApp.buttons[@"Delete specific tokens"] tap];
+    [self.testApp.textViews[@"requestInfo"] tap];
+    [self.testApp.textViews[@"requestInfo"] pasteText:[config toJsonString] application:self.testApp];
+    sleep(1);
+    [self.testApp.buttons[@"Go"] tap];
     [self closeResultView];
 }
 

@@ -53,4 +53,17 @@
     [app.menuItems[@"Select All"] tap];
 }
 
+- (void)forceTap
+{
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 11.0f)
+    {
+        [self tap];
+    }
+    else
+    {
+        __auto_type coordinate = [self coordinateWithNormalizedOffset:CGVectorMake(0, 0)];
+        [coordinate tap];
+    }
+}
+
 @end

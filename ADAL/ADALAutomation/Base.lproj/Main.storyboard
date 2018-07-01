@@ -74,7 +74,7 @@
                                         <accessibility key="accessibilityConfiguration" identifier="clearCache"/>
                                         <state key="normal" title="Clear Cookies"/>
                                         <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="clearCache"/>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="clearCookies"/>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="clearCookies:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gGP-XB-oJI"/>

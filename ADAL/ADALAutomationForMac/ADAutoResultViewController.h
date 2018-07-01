@@ -21,13 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
+#import <Cocoa/Cocoa.h>
 
-@interface XCUIElement (ADALiOSUITests)
+@interface ADAutoResultViewController : NSViewController
 
-- (void)pasteText:(NSString *)text application:(XCUIApplication *)app;
-- (void)clearText;
-- (void)selectAll:(XCUIApplication *)app;
-- (void)forceTap;
+@property NSString *resultInfoString;
+@property NSString *resultLogsString;
 
 @end

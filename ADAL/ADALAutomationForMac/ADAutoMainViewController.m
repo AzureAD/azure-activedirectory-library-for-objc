@@ -21,13 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
+#import "ViewController.h"
 
-@interface XCUIElement (ADALiOSUITests)
+@implementation ADAutoMainViewController
 
-- (void)pasteText:(NSString *)text application:(XCUIApplication *)app;
-- (void)clearText;
-- (void)selectAll:(XCUIApplication *)app;
-- (void)forceTap;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    // Do any additional setup after loading the view.
+}
+
+
+- (void)setRepresentedObject:(id)representedObject {
+    [super setRepresentedObject:representedObject];
+
+    // Update the view, if already loaded.
+}
+
 
 @end

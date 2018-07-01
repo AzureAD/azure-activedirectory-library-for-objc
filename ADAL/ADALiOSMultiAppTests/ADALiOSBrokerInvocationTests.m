@@ -51,6 +51,15 @@ static BOOL brokerAppInstalled = NO;
     }
 }
 
+- (void)tearDown
+{
+    NSString *appBundleId = [self.class.accountsProvider appInstallForConfiguration:@"broker"][@"app_bundle_id"];
+
+    XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
+    [brokerApp terminate];
+    [super tearDown];
+}
+
 - (void)testBasicBrokerLoginWithBlackforestAccount
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
@@ -62,7 +71,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Do interactive login
     NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
+                             @"prompt_behavior" : @"force",
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
@@ -129,8 +138,6 @@ static BOOL brokerAppInstalled = NO;
     // Now do access token refresh
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
-
-    [brokerApp terminate];
 }
 
 - (void)testAppTerminationDuringBrokeredLogin
@@ -175,8 +182,6 @@ static BOOL brokerAppInstalled = NO;
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    [brokerApp terminate];
 }
 
 - (void)testDeviceAuthInInteractiveFlow
@@ -270,8 +275,6 @@ static BOOL brokerAppInstalled = NO;
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    [brokerApp terminate];
 }
 
 @end

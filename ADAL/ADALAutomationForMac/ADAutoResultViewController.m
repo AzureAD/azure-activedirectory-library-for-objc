@@ -21,13 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <XCTest/XCTest.h>
+#import "ADAutoResultViewController.h"
 
-@interface XCUIElement (ADALiOSUITests)
+@interface ADAutoResultViewController ()
 
-- (void)pasteText:(NSString *)text application:(XCUIApplication *)app;
-- (void)clearText;
-- (void)selectAll:(XCUIApplication *)app;
-- (void)forceTap;
+@property (strong, nonatomic) IBOutlet NSTextView *resultInfo;
+@property (strong, nonatomic) IBOutlet NSTextView *resultLogs;
+
+@end
+
+@implementation ADAutoResultViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+
+    self.resultInfo.text = self.resultInfoString;
+    self.resultLogs.text = self.resultLogsString;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)done:(id)sender {
+    (void)sender;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 @end
