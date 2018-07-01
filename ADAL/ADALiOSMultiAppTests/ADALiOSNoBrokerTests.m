@@ -215,6 +215,7 @@
     [allowButton tap];
 
     [self.testApp activate];
+    [self closeResultView];
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
