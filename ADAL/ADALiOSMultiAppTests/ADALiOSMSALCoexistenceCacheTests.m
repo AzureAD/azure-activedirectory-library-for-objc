@@ -209,7 +209,7 @@ static BOOL msalAppInstalled = NO;
     mutableConfig[@"user_identifier"] = self.primaryAccount.homeAccountId;
 
     // Acquire token silent
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:mutableConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -247,8 +247,11 @@ static BOOL msalAppInstalled = NO;
     // Go back to MSAL test app
     self.testApp = [self msalTestApp];
 
+    NSMutableDictionary *mutableConfig = [config mutableCopy];
+    mutableConfig[@"user_identifier"] = self.primaryAccount.homeAccountId;
+
     // Acquire token silent
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:mutableConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }

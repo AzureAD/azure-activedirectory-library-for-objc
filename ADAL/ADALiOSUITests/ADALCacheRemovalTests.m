@@ -73,6 +73,7 @@
     [self closeResultView];
 
     self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
 
     params = @{
                @"prompt_behavior" : @"always",
@@ -167,6 +168,7 @@
     [self closeResultView];
 
     self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
 
     params = @{
                @"prompt_behavior" : @"always",
@@ -260,6 +262,7 @@
     [self closeResultView];
 
     self.primaryAccount = self.testConfiguration.accounts[1];
+    [self loadPasswordForAccount:self.primaryAccount];
 
     params = @{
                @"prompt_behavior" : @"always",
