@@ -249,6 +249,7 @@ static BOOL msalAppInstalled = NO;
 
     NSMutableDictionary *mutableConfig = [config mutableCopy];
     mutableConfig[@"user_identifier"] = self.primaryAccount.homeAccountId;
+    mutableConfig[@"authority"] = [NSString stringWithFormat:@"https://login.windows.net/%@", self.primaryAccount.targetTenantId];
 
     // Acquire token silent
     [self acquireTokenSilent:mutableConfig];
