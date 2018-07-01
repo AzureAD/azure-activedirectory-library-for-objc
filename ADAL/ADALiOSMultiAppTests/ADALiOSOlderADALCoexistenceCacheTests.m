@@ -169,7 +169,7 @@ static BOOL olderADALAppInstalled = NO;
 
 - (XCUIApplication *)olderADALApp
 {
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"adal_1_2_x"];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"adal_1_2_x"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *olderApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];

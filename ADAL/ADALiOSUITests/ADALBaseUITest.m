@@ -29,6 +29,8 @@
 #import "NSDictionary+ADALiOSUITests.h"
 #import "MSIDAADV1IdTokenClaims.h"
 
+static MSIDTestAccountsProvider *s_accountsProvider;
+
 @implementation ADALBaseUITest
 
 - (void)setUp
@@ -44,13 +46,23 @@
     [self clearCookies];
 
     NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
-    self.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
+    self.class.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
 }
 
 - (void)tearDown
 {
     [self.testApp terminate];
     [super tearDown];
+}
+
++ (MSIDTestAccountsProvider *)accountsProvider
+{
+    return s_accountsProvider;
+}
+
++ (void)setAccountsProvider:(MSIDTestAccountsProvider *)accountsProvider
+{
+    s_accountsProvider = accountsProvider;
 }
 
 #pragma mark - Asserts
@@ -121,8 +133,8 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
 
-    [self.accountsProvider configurationWithRequest:request
-                                  completionHandler:^(MSIDTestAutomationConfiguration *configuration) {
+    [self.class.accountsProvider configurationWithRequest:request
+                                        completionHandler:^(MSIDTestAutomationConfiguration *configuration) {
 
                                       testConfig = configuration;
                                       [expectation fulfill];
@@ -146,8 +158,8 @@
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
 
-    [self.accountsProvider passwordForAccount:account
-                            completionHandler:^(NSString *password) {
+    [self.class.accountsProvider passwordForAccount:account
+                                  completionHandler:^(NSString *password) {
                                 [expectation fulfill];
                             }];
 
@@ -332,7 +344,7 @@
 {
     XCTAssertNotNil(appId);
 
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:appId];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
     XCTAssertNotNil(appConfiguration);
 
     NSString *appInstallUrl = appConfiguration[@"install_url"];
@@ -390,7 +402,7 @@
 
     sleep(3);
 
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:appId];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
     NSString *appName = appConfiguration[@"app_name"];
 
     __auto_type appIcon = springBoardApp.icons[appName];
@@ -411,7 +423,7 @@
 {
     XCTAssertNotNil(appId);
 
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:appId];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
     XCTAssertNotNil(appConfiguration);
 
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
@@ -444,7 +456,7 @@
 
 - (XCUIApplication *)brokerApp
 {
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"broker"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
@@ -487,7 +499,7 @@
 
 - (XCUIApplication *)openDeviceRegistrationMenuInAuthenticator
 {
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"broker"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
     XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
     [brokerApp terminate];

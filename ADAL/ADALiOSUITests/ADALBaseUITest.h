@@ -30,7 +30,7 @@
 @interface ADALBaseUITest : XCTestCase
 
 @property (nonatomic) XCUIApplication *testApp;
-@property (nonatomic) MSIDTestAccountsProvider *accountsProvider;
+@property (nonatomic, class) MSIDTestAccountsProvider *accountsProvider;
 @property (nonatomic) MSIDTestAccount *primaryAccount;
 @property (nonatomic) MSIDTestAutomationConfiguration *testConfiguration;
 

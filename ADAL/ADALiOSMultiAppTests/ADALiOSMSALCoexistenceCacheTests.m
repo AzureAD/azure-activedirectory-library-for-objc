@@ -247,7 +247,7 @@ static BOOL msalAppInstalled = NO;
 
 - (XCUIApplication *)msalTestApp
 {
-    NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"msal_objc"];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"msal_objc"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *msalApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
