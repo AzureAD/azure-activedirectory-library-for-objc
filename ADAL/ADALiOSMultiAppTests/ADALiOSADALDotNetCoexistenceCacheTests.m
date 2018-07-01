@@ -44,12 +44,12 @@ static BOOL dotnetAppInstalled = NO;
     }
 }
 
-- (void)testCoexistenceWithDotNetMSAL_startSigninInDotNetMSAL_withAADAccount_andDoTokenRefresh
+- (void)DISABLED_testCoexistenceWithDotNetMSAL_startSigninInDotNetMSAL_withAADAccount_andDoTokenRefresh
 {
 
 }
 
-- (void)testCoexistenceWithDotNetMSAL_startSigninInADAL_withAADAccount_andDoTokenRefresh
+- (void)DISABLED_testCoexistenceWithDotNetMSAL_startSigninInADAL_withAADAccount_andDoTokenRefresh
 {
 
 }

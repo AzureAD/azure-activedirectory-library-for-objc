@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADALBaseUITest.h"
+#import "NSDictionary+ADALiOSUITests.h"
 
 @interface ADALCacheRemovalTests : ADALBaseUITest
 
@@ -29,9 +30,10 @@
 
 @implementation ADALCacheRemovalTests
 
+/* TODO: these tests need to be converted into integration tests */
+
 - (void)testRemoveAllForUserIdAndClientId_whenMultipleUsersAndClientsInCache
 {
-    /*
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
@@ -87,18 +89,227 @@
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
-    */
+    // Delete specific tokens
+    NSDictionary *removeConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"};
 
+    NSString *jsonString = [removeConfig toJsonString];
+    [self.testApp.buttons[@"Delete specific tokens"] tap];
+    [self.testApp.textViews[@"requestInfo"] tap];
+    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
+    [self.testApp.buttons[@"Go"] tap];
+    [self closeResultView];
+
+    NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                                   };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self closeResultView];
+
+    silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                     @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707"
+                     };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    silentConfig = @{@"user_identifier": [self.primaryAccount username],
+                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                     };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 - (void)testRemoveAllForClientId_whenMultipleUsersAndClientsInCache
 {
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.needsMultipleUsers = YES;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
+               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
+               };
+
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireTokenSilent:config2];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    self.primaryAccount = self.testConfiguration.accounts[1];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Delete specific tokens
+    NSDictionary *removeConfig = @{@"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"};
+
+    NSString *jsonString = [removeConfig toJsonString];
+    [self.testApp.buttons[@"Delete specific tokens"] tap];
+    [self.testApp.textViews[@"requestInfo"] tap];
+    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
+    [self.testApp.buttons[@"Go"] tap];
+    [self closeResultView];
+
+    NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                                   };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self closeResultView];
+
+    silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                     @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707"
+                     };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    silentConfig = @{@"user_identifier": [self.primaryAccount username],
+                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                     };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self closeResultView];
 }
 
 - (void)testWipeAllForUserId_whenMultipleUsersAndClientsInCache
 {
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.needsMultipleUsers = YES;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
 
+    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
+               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
+               };
+
+    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireTokenSilent:config2];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    self.primaryAccount = self.testConfiguration.accounts[1];
+
+    params = @{
+               @"prompt_behavior" : @"always",
+               @"validate_authority" : @YES,
+               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
+               };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Delete specific tokens
+    NSDictionary *removeConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username]};
+
+    NSString *jsonString = [removeConfig toJsonString];
+    [self.testApp.buttons[@"Delete specific tokens"] tap];
+    [self.testApp.textViews[@"requestInfo"] tap];
+    [self.testApp.textViews[@"requestInfo"] pasteText:jsonString application:self.testApp];
+    sleep(1);
+    [self.testApp.buttons[@"Go"] tap];
+    [self closeResultView];
+
+    NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                                   @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                                   };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self closeResultView];
+
+    silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
+                     @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707"
+                     };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self closeResultView];
+
+    silentConfig = @{@"user_identifier": [self.primaryAccount username],
+                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                     };
+
+    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 @end

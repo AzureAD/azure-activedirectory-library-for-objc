@@ -205,4 +205,54 @@
     [self assertRefreshTokenNotNil];
 }
 
+// #test 296735
+- (void)testBasicBrokerLoginAndAuthenticatorRemoval
+{
+    [self installAppWithId:@"broker"];
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    [self waitForElement:allowButton];
+    [allowButton tap];
+
+    [self.testApp activate];
+
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"auto",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @YES
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+
+    XCUIApplication *brokerApp = [self brokerApp];
+    [self aadEnterPasswordInApp:brokerApp];
+    [self waitForRedirectToTheTestApp];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    // Now remove authenticator, test #296748
+    [self removeAppWithId:@"broker"];
+    [self.testApp activate];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
 @end

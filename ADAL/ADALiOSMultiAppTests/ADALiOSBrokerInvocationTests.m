@@ -51,49 +51,6 @@ static BOOL brokerAppInstalled = NO;
     }
 }
 
-// #test 296735
-- (void)testBasicBrokerLoginAndAuthenticatorRemoval
-{
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
-    [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-
-    XCUIApplication *brokerApp = [self brokerApp];
-
-    [self aadEnterPasswordInApp:brokerApp];
-    [self waitForRedirectToTheTestApp];
-
-    [self assertAccessTokenNotNil];
-    [self assertRefreshTokenNotNil];
-    [self closeResultView];
-
-    // Now remove authenticator, test #296748
-    [self removeAppWithId:@"broker"];
-    [self.testApp activate];
-
-    // Now expire access token
-    [self expireAccessToken:config];
-    [self assertAccessTokenExpired];
-    [self closeResultView];
-
-    // Now do access token refresh
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-}
-
 - (void)testBasicBrokerLoginWithBlackforestAccount
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
@@ -117,6 +74,11 @@ static BOOL brokerAppInstalled = NO;
     [self acquireToken:config];
 
     XCUIApplication *brokerApp = [self brokerApp];
+
+    __auto_type nextButton = brokerApp.buttons[@"Next"];
+    [self waitForElement:nextButton];
+    [nextButton tap];
+
     XCUIElement *passwordTextField = brokerApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:brokerApp];
@@ -167,6 +129,8 @@ static BOOL brokerAppInstalled = NO;
     // Now do access token refresh
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+
+    [brokerApp terminate];
 }
 
 - (void)testAppTerminationDuringBrokeredLogin
@@ -211,6 +175,8 @@ static BOOL brokerAppInstalled = NO;
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
+
+    [brokerApp terminate];
 }
 
 - (void)testDeviceAuthInInteractiveFlow
@@ -246,6 +212,8 @@ static BOOL brokerAppInstalled = NO;
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
     [self closeResultView];
+
+    [brokerApp terminate];
 }
 
 - (void)testDeviceAuthInSilentFlow
@@ -302,6 +270,8 @@ static BOOL brokerAppInstalled = NO;
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
+
+    [brokerApp terminate];
 }
 
 @end
