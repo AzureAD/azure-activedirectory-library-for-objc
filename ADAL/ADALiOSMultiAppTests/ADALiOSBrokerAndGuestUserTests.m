@@ -194,6 +194,8 @@ static BOOL brokerAppInstalled = NO;
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
+
+    [self unregisterDeviceInAuthenticator];
 }
 
 @end

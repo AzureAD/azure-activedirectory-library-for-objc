@@ -115,7 +115,8 @@
 
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
+                             @"validate_authority" : @YES,
+                             @"resource": @"https://graph.microsoft.com"
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -124,13 +125,19 @@
     [self aadEnterEmail];
     [self aadEnterPassword];
 
-    // TODO: wait for MFA
+    __auto_type mfaTitle = self.testApp.staticTexts[@"Enter code"];
+    [self waitForElement:mfaTitle];
+
     [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
 
     sleep(5);
 
     [self.testApp activate];
-    // TODO: check MFA still there
+    __auto_type signinButton = self.testApp.links[@"Sign in another way"];
+    [signinButton tap];
+
+    __auto_type verifyTitle = self.testApp.staticTexts[@"Verify your identity"];
+    [self waitForElement:verifyTitle];
 }
 
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled

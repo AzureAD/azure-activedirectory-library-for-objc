@@ -68,6 +68,7 @@
 - (XCUIApplication *)brokerApp;
 - (void)waitForRedirectToTheTestApp;
 - (void)registerDeviceInAuthenticator;
+- (void)unregisterDeviceInAuthenticator;
 
 - (void)waitForElement:(id)object;
 - (NSDictionary *)resultDictionary;

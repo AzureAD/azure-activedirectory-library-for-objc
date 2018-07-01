@@ -461,6 +461,32 @@
 
 - (void)registerDeviceInAuthenticator
 {
+    __auto_type brokerApp = [self openDeviceRegistrationMenuInAuthenticator];
+
+    __auto_type emailTextField = brokerApp.tables.textFields[@"Organization email"];
+    [self waitForElement:emailTextField];
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField app:brokerApp];
+    [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
+
+    __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
+    [registerButton tap];
+
+    [self aadEnterPasswordInApp:brokerApp];
+}
+
+- (void)unregisterDeviceInAuthenticator
+{
+    __auto_type brokerApp = [self openDeviceRegistrationMenuInAuthenticator];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
+    [unregisterButton tap];
+
+    __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
+    [self waitForElement:registerButton];
+}
+
+- (XCUIApplication *)openDeviceRegistrationMenuInAuthenticator
+{
     NSDictionary *appConfiguration = [self.accountsProvider appInstallForConfiguration:@"broker"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
     XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
@@ -485,15 +511,7 @@
         [deviceRegistrationMenu tap];
     }
 
-    __auto_type emailTextField = brokerApp.tables.textFields[@"Organization email"];
-    [self waitForElement:emailTextField];
-    [self tapElementAndWaitForKeyboardToAppear:emailTextField app:brokerApp];
-    [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
-
-    __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
-    [registerButton tap];
-
-    [self aadEnterPasswordInApp:brokerApp];
+    return brokerApp;
 }
 
 @end
