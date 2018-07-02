@@ -319,6 +319,13 @@
 		B2D1841B208335300001D445 /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2D32CFB20E9C317002C39AD /* ADALiOSStressTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D32CFA20E9C317002C39AD /* ADALiOSStressTests.m */; };
 		B2D32D0620E9C33F002C39AD /* ADALBaseUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */; };
+		B2D32D0820E9D5F8002C39AD /* XCUIElement+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */; };
+		B2D32D0920E9D5FA002C39AD /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
+		B2D32D0A20E9D701002C39AD /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
+		B2D32D0B20E9D724002C39AD /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
+		B2D32D0D20E9D804002C39AD /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
+		B2D32D0E20E9D860002C39AD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
+		B2D32D0F20E9D91C002C39AD /* XCTestCase+TextFieldTap.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BA485920884A0C00CE92FC /* XCTestCase+TextFieldTap.m */; };
 		B2E15FE120E8453D00D3CAC4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
 		B2E9684320E96B7800906F3D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9684220E96B7800906F3D /* AppDelegate.m */; };
 		B2E9684620E96B7800906F3D /* ADAutoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9684520E96B7800906F3D /* ADAutoMainViewController.m */; };
@@ -1348,6 +1355,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D32D0E20E9D860002C39AD /* WebKit.framework in Frameworks */,
+				B2D32D0B20E9D724002C39AD /* libIdentityCore.a in Frameworks */,
+				B2D32D0A20E9D701002C39AD /* libIdentityAutomation iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2633,6 +2643,7 @@
 				B2D32CF420E9C317002C39AD /* Sources */,
 				B2D32CF520E9C317002C39AD /* Frameworks */,
 				B2D32CF620E9C317002C39AD /* Resources */,
+				B2D32D0C20E9D759002C39AD /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -3142,6 +3153,19 @@
 			shellPath = /bin/sh;
 			shellScript = "FILENAME=conf.json\nRESOURCE_PATH=~/aadtests/$FILENAME\nBUILD_APP_DIR=${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}-Runner.app/PlugIns/${PRODUCT_NAME}.xctest\n\nif [ -e $RESOURCE_PATH ]\nthen cp $RESOURCE_PATH $BUILD_APP_DIR/$FILENAME\nfi";
 		};
+		B2D32D0C20E9D759002C39AD /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "FILENAME=conf.json\nRESOURCE_PATH=~/aadtests/$FILENAME\nBUILD_APP_DIR=${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}-Runner.app/PlugIns/${PRODUCT_NAME}.xctest\n\nif [ -e $RESOURCE_PATH ]\nthen cp $RESOURCE_PATH $BUILD_APP_DIR/$FILENAME\nfi";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -3440,8 +3464,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D32D0920E9D5FA002C39AD /* NSDictionary+ADALiOSUITests.m in Sources */,
 				B2D32D0620E9C33F002C39AD /* ADALBaseUITest.m in Sources */,
+				B2D32D0F20E9D91C002C39AD /* XCTestCase+TextFieldTap.m in Sources */,
+				B2D32D0820E9D5F8002C39AD /* XCUIElement+ADALiOSUITests.m in Sources */,
 				B2D32CFB20E9C317002C39AD /* ADALiOSStressTests.m in Sources */,
+				B2D32D0D20E9D804002C39AD /* ADALUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4116,6 +4144,7 @@
 		};
 		B2D32CFF20E9C317002C39AD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -4151,6 +4180,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -4175,6 +4205,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSStressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = ADALAutomation;
 			};
@@ -4182,6 +4213,7 @@
 		};
 		B2D32D0020E9C317002C39AD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -4217,6 +4249,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -4234,6 +4267,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSStressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = ADALAutomation;
 				VALIDATE_PRODUCT = YES;

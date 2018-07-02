@@ -59,7 +59,6 @@
     [self aadEnterPassword];
     
     [self assertAccessTokenNotNil];
-    
     [self closeResultView];
     
     // Acquire token again.

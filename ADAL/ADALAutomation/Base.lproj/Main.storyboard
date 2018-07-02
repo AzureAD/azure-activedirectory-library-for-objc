@@ -151,7 +151,7 @@
                                         <accessibility key="accessibilityConfiguration" identifier="invalidateToken"/>
                                         <state key="normal" title="Empty cache stress test"/>
                                         <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="cacheStressTest"/>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="emptyCacheStressTest"/>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="emptyCacheStressTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="RkW-JG-hzl"/>
@@ -162,7 +162,7 @@
                                         <accessibility key="accessibilityConfiguration" identifier="invalidateToken"/>
                                         <state key="normal" title="Non-Empty cache stress test"/>
                                         <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="cacheStressTest"/>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="nonEmptyCacheStressTest"/>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="nonEmptyCacheStressTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oTf-nT-Yih"/>
