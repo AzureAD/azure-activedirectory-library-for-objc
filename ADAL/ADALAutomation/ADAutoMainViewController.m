@@ -510,6 +510,106 @@
     [self presentViewController:self.requestViewController animated:NO completion:nil];
 }
 
+- (IBAction)interactivePollingStressTest:(id)sender
+{
+    [self runStressTestWithStop:YES removeToken:NO];
+}
+
+- (IBAction)emptyCacheStressTest:(id)sender
+{
+    [self runStressTestWithStop:NO removeToken:NO];
+}
+
+- (IBAction)nonEmptyCacheStressTest:(id)sender
+{
+    [self runStressTestWithStop:NO removeToken:YES];
+}
+
+- (void)runStressTestWithStop:(BOOL)stopOnSuccess removeToken:(BOOL)removeToken
+{
+    __weak typeof(self) weakSelf = self;
+    self.requestViewController = [ADAutoRequestViewController new];
+    self.requestViewController.completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    {
+        _resultLogs = [NSMutableString new];
+
+        ADAuthenticationContext* context =
+        [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+                                         validateAuthority:YES
+                                                     error:nil];
+
+        NSURL *redirectUri = [NSURL URLWithString:parameters[@"redirect_uri"]];
+
+        if(parameters[@"correlation_id"])
+        {
+            context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
+        }
+
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+            dispatch_semaphore_t sem = dispatch_semaphore_create(10);
+
+            __block BOOL stop = NO;
+
+            while (stopOnSuccess ? !stop : YES)
+            {
+                dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    ADAuthenticationError *error = nil;
+                    ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+                                                                                        validateAuthority:YES
+                                                                                                    error:&error];
+
+                    [context acquireTokenSilentWithResource:parameters[@"resource"]
+                                                   clientId:parameters[@"client_id"]
+                                                redirectUri:redirectUri
+                                                     userId:parameters[@"user_identifier"]
+                                            completionBlock:^(ADAuthenticationResult *result) {
+
+                                                if (result.status == AD_SUCCEEDED)
+                                                {
+                                                    if (stopOnSuccess)
+                                                    {
+                                                        stop = YES;
+                                                    }
+                                                    else if (removeToken)
+                                                    {
+                                                        ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+                                                        [cache removeItem:result.tokenCacheItem error:nil];
+                                                    }
+                                                }
+
+                                                dispatch_semaphore_signal(sem);
+                    }];
+                });
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf.webViewController dismissViewControllerAnimated:NO completion:nil];
+                weakSelf.webViewController = nil;
+                [weakSelf dismissViewControllerAnimated:NO completion:^{
+                    [weakSelf displayResultJson:@"{\"result\": \"1\"}" logs:weakSelf.resultLogs];
+                }];
+            });
+
+        });
+
+        if (stopOnSuccess)
+        {
+            [context acquireTokenWithResource:parameters[@"resource"]
+                                     clientId:parameters[@"client_id"]
+                                  redirectUri:redirectUri
+                                       userId:parameters[@"user_identifier"]
+                              completionBlock:^(ADAuthenticationResult *result) {
+                                  (void) result;
+                              }];
+        }
+    };
+
+    [self presentViewController:self.requestViewController animated:NO completion:nil];
+}
+
 - (void)displayAuthenticationResult:(ADAuthenticationResult *)result logs:(NSString *)resultLogs
 {
     [self displayResultJson:[self createJsonFromResult:result] logs:resultLogs];
