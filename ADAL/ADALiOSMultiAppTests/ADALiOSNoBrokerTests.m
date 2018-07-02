@@ -92,7 +92,7 @@
     XCUIApplication *brokerApp = [self installAppWithIdWithSafariOpen:@"broker"];
 
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
-    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    __auto_type allowButton = [springBoardApp.alerts.buttons elementBoundByIndex:0];
     [self waitForElement:allowButton];
     [allowButton tap];
 
@@ -149,7 +149,7 @@
 
     XCUIApplication *brokerApp = [self installAppWithId:@"broker"];
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
-    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    __auto_type allowButton = [springBoardApp.alerts.buttons elementBoundByIndex:0];
     [self waitForElement:allowButton];
     [allowButton tap];
 
@@ -210,7 +210,7 @@
 {
     [self installAppWithId:@"broker"];
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
-    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    __auto_type allowButton = [springBoardApp.alerts.buttons elementBoundByIndex:0];
     [self waitForElement:allowButton];
     [allowButton tap];
 

@@ -365,7 +365,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)allowNotificationsInSystemAlert
 {
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
-    __auto_type allowButton = springBoardApp.alerts.buttons[@"Allow"];
+    __auto_type allowButton = [springBoardApp.alerts.buttons elementBoundByIndex:0];
     [self waitForElement:allowButton];
     [allowButton tap];
 }
@@ -442,7 +442,17 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     if (appIcon.exists)
     {
         [appIcon pressForDuration:1.0f];
-        __auto_type deleteButton = appIcon.buttons[@"DeleteButton"];
+
+        XCUIElement *deleteButton = nil;
+
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] < 10.0f)
+        {
+            deleteButton = springBoardApp.otherElements[@"Authenticator"].buttons[@"DeleteButton"];
+        }
+        else
+        {
+            deleteButton = appIcon.buttons[@"DeleteButton"];
+        }
         [self waitForElement:deleteButton];
         [deleteButton forceTap];
 
