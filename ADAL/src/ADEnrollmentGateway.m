@@ -58,11 +58,11 @@ static NSString *s_intuneResourceJSON = nil;
 
 + (NSString *)getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSString *enrollIdJSON = [ADEnrollmentGateway allEnrollmentIds];
+    NSString *enrollIdJSON = [ADEnrollmentGateway allEnrollmentIdsJSON];
 
     if (!enrollIdJSON)
     {
-        AD_LOG_VERBOSE(nil,@"No Intune Enrollment ID JSON found.");
+        AD_LOG_VERBOSE(nil, @"No Intune Enrollment ID JSON found.");
         return nil;
     }
 
@@ -114,7 +114,7 @@ static NSString *s_intuneResourceJSON = nil;
     return nil;
 }
 
-+ (NSString *)allEnrollmentIds
++ (NSString *)allEnrollmentIdsJSON
 {
     @synchronized (self)
     {
@@ -123,6 +123,17 @@ static NSString *s_intuneResourceJSON = nil;
     }
 
     return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_ENROLLMENT_ID_KEY];
+}
+
++ (NSString *)allIntuneMAMResourcesJSON
+{
+    @synchronized(self)
+    {
+        if (s_intuneResourceJSON)
+            return s_intuneResourceJSON;
+    }
+    
+    return [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
 }
 
 + (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError * __autoreleasing *)error
@@ -149,27 +160,46 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)intuneMamResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
++ (NSString *)enrollmentIdIfAvailable:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSString *resourceJSON = nil;
-
-    @synchronized(self)
-    {
-        if (s_intuneResourceJSON)
-        {
-            resourceJSON = s_intuneResourceJSON;
-        }
+    // this will just return the first enrollment ID
+    return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary * __unused dic) {
+        return true;
     }
+                                                       error:error];
+}
+
++ (NSString *)enrollmentIDForUniqueAccountID:(NSString *) homeUserID userID:(NSString *) userID error:(ADAuthenticationError * __autoreleasing *)error
+{
+    if (homeUserID)
+    {
+        // If homeAccountID is provided, always require an exact match
+        return [ADEnrollmentGateway enrollmentIdForUniqueAccountId:homeUserID error:error];
+    }
+    else
+    {
+        // If legacy userID is provided and we didn't find an exact match, do a fallback to any enrollment ID to support no userID or single userID scenarios
+        NSString *enrollmentID = userID ? [ADEnrollmentGateway enrollmentIdForUserId:userID error:error] : nil;
+        if (enrollmentID)
+        {
+            return enrollmentID;
+        }
+
+        enrollmentID = [ADEnrollmentGateway enrollmentIdIfAvailable:error];
+        return enrollmentID;
+    }
+}
+
++ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
+{
+    NSString *resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
     if (!resourceJSON)
     {
-        resourceJSON = [[NSUserDefaults standardUserDefaults] objectForKey:AD_INTUNE_RESOURCE_ID_KEY];
-        if (!resourceJSON)
-        {
-            AD_LOG_VERBOSE(nil,@"No Intune Resource JSON found.");
-            return nil;
-        }
+        AD_LOG_VERBOSE(nil, @"No Intune Resource JSON found.");
+        return nil;
     }
+    
     NSError *internalError = nil;
     id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&internalError];
 
@@ -208,7 +238,7 @@ static NSString *s_intuneResourceJSON = nil;
     return nil;
 }
 
-+ (void)setIntuneMamResourceWithJsonBlob:(NSString *)resources
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources
 {
     @synchronized (self)
     {

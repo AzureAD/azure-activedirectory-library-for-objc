@@ -175,4 +175,3 @@
 
 //Verifes that "error" local variable is nil. If not prints the error
 #define ADAssertNoError XCTAssertNil(error, "Unexpected error occurred: %@", error.errorDetails)
-

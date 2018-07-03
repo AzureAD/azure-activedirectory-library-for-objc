@@ -204,6 +204,8 @@
 		96C75D251E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */; };
 		96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
+		A50D057920DAE4610009B649 /* ADEnrollmentGateway+TestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A50D057720DAE4590009B649 /* ADEnrollmentGateway+TestUtil.m */; };
+		A50D057A20DAE4610009B649 /* ADEnrollmentGateway+TestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A50D057720DAE4590009B649 /* ADEnrollmentGateway+TestUtil.m */; };
 		A5EE636B20B31BD4005A8085 /* ADEnrollmentGateway.m in Sources */ = {isa = PBXBuildFile; fileRef = A5EE636A20B31BD4005A8085 /* ADEnrollmentGateway.m */; };
 		A5EE636C20B31BD4005A8085 /* ADEnrollmentGateway.m in Sources */ = {isa = PBXBuildFile; fileRef = A5EE636A20B31BD4005A8085 /* ADEnrollmentGateway.m */; };
 		A5EE637D20B4AD5C005A8085 /* ADEnrollmentGatewayTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A5EE637A20B4AD57005A8085 /* ADEnrollmentGatewayTests.m */; };
@@ -731,6 +733,8 @@
 		97A522481A1A752D001D77CE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A50D057620DAE3C70009B649 /* ADEnrollmentGateway+TestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADEnrollmentGateway+TestUtil.h"; sourceTree = "<group>"; };
+		A50D057720DAE4590009B649 /* ADEnrollmentGateway+TestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ADEnrollmentGateway+TestUtil.m"; sourceTree = "<group>"; };
 		A5EE636920B31BA1005A8085 /* ADEnrollmentGateway.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADEnrollmentGateway.h; sourceTree = "<group>"; };
 		A5EE636A20B31BD4005A8085 /* ADEnrollmentGateway.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADEnrollmentGateway.m; sourceTree = "<group>"; };
 		A5EE637A20B4AD57005A8085 /* ADEnrollmentGatewayTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADEnrollmentGatewayTests.m; sourceTree = "<group>"; };
@@ -1581,6 +1585,8 @@
 			children = (
 				D6771E011F749FD800D0DCDC /* ADApplicationTestUtil.h */,
 				D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */,
+				A50D057620DAE3C70009B649 /* ADEnrollmentGateway+TestUtil.h */,
+				A50D057720DAE4590009B649 /* ADEnrollmentGateway+TestUtil.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -2099,6 +2105,7 @@
 				96C75D241E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
 				D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */,
 				D632B5521F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
+				A50D057A20DAE4610009B649 /* ADEnrollmentGateway+TestUtil.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */,
 				D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
@@ -2271,6 +2278,7 @@
 				D6BA665020167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
 				D66A9F1D1F76D05900144011 /* NSURL+ADTestUtil.m in Sources */,
 				B20DC6121F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
+				A50D057920DAE4610009B649 /* ADEnrollmentGateway+TestUtil.m in Sources */,
 				B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */,
 				D632B54D1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */,
 				D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
