@@ -50,13 +50,13 @@ static NSString *s_intuneResourceJSON = nil;
 
 @interface ADEnrollmentGateway()
 
-+ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary *)) idBlock error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString *)getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end
 
 @implementation ADEnrollmentGateway
 
-+ (NSString *) getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary *)) idBlock error:(ADAuthenticationError * __autoreleasing *)error
++ (NSString *)getEnrollmentIDForIdentifier:(BOOL (^)(NSDictionary*)) idBlock error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *enrollIdJSON = [ADEnrollmentGateway allEnrollmentIdsJSON];
 
