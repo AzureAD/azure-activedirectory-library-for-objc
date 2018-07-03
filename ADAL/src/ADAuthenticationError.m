@@ -316,18 +316,28 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:userInfo];
 }
 
-+ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
-                                                            correlationID:(NSUUID *) correlationId
-                                                                    token:(ADTokenCacheItem*) token
++ (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
+                                    correlationID:(NSUUID *) correlationId
+                               additionalUserInfo:(NSDictionary *)userInfo
 {
-    NSMutableDictionary* userInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:1];
-    [userInfo setObject:token forKey:@"ADMAMToken"];
+    NSMutableDictionary* newUserInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:[userInfo count]];
+    [newUserInfo addEntriesFromDictionary:userInfo];
     return [self errorWithDomainInternal:error.domain
                                     code:error.code
                        protocolErrorCode:error.protocolCode
                             errorDetails:error.errorDetails
                            correlationId:correlationId
-                                userInfo:userInfo];
+                                userInfo:newUserInfo];
+}
+
++ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
+                                                            correlationID:(NSUUID *) correlationId
+                                                                    token:(ADTokenCacheItem*) token
+{
+    NSDictionary *tokenDictionary = token ? @{@"ADMAMToken":token} : @{};
+    return [ADAuthenticationError errorFromExistingError:error
+                                           correlationID:correlationId
+                                      additionalUserInfo:tokenDictionary];
 }
 
 - (NSString*)getStringForErrorCode:(NSInteger)code

@@ -98,12 +98,9 @@
             {
                 [userInfo setObject:refreshToken.userInformation.userId forKey:ADUserIdKey];
             }
-            error = [ADAuthenticationError errorWithDomain:error.domain
-                                                      code:error.code
-                                         protocolErrorCode:error.protocolCode
-                                              errorDetails:error.errorDetails
-                                             correlationId:requestCorrelationId
-                                                  userInfo:userInfo];
+            error = [ADAuthenticationError errorFromExistingError:error
+                                                    correlationID:requestCorrelationId
+                                               additionalUserInfo:userInfo];
         }
         return [ADAuthenticationResult resultFromError:error];
     }

@@ -130,7 +130,11 @@
                                 description:(NSString *)description
                                        code:(NSInteger)code
                               correlationId:(NSUUID *)correlationId
-                                   userInfo:(NSDictionary*)userInfo;
+                                   userInfo:(NSDictionary *)userInfo;
+
++ (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
+                                    correlationID:(NSUUID *) correlationId
+                               additionalUserInfo:(NSDictionary *)userInfo;
 
 #if AD_BROKER
 /*! Adds a alternate token to an existing ADAuthentication error's userInfo dictionary */
