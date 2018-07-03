@@ -419,7 +419,7 @@
     XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
 }
 
-- (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent
+- (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent_shouldSucceed
 {
     [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
@@ -428,6 +428,7 @@
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
     NSString *enrollmentIDs = [ADEnrollmentGateway getTestEnrollmentIDJSON];
+    NSString *intuneResource = [ADEnrollmentGateway getTestResourceJSON];
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
@@ -450,7 +451,7 @@
           @"extra_qp" : @"",
           @"claims" : @"",
           @"intune_enrollment_ids" : enrollmentIDs,
-          @"intune_mam_resource" : @"{login.windows.net:https://www.microsoft.com/windowsIntune}",
+          @"intune_mam_resource" : intuneResource,
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
