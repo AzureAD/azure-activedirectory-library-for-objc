@@ -2,14 +2,14 @@
 //  adal__uitest__ios.xcconfig
 //  
 
-#include "adal__common__ios.xcconfig"
+#include "adal__common__mac.xcconfig"
 #include "adal__debug.xcconfig"
 
 
 PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSUITests
-PRODUCT_NAME = ADALiOSUITests
+PRODUCT_NAME = InteractiveMacOSTests
 INFOPLIST_FILE = automation/tests/interactive/Info.plist
-TEST_TARGET_NAME = ADALAutomation;
+TEST_TARGET_NAME = ADALAutomationForMac;
 GCC_OPTIMIZATION_LEVEL = 0;
 CLANG_ENABLE_MODULES = YES;
 USER_HEADER_SEARCH_PATHS = $(inherited) $(HOME)/aadoverrides/** $IDCORE_PATH/tests/automation/** $IDCORE_PATH/src/**;
