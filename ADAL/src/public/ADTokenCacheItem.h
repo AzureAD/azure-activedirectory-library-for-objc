@@ -34,6 +34,7 @@
     NSUInteger _hash;
     NSString* _resource;
     NSString* _authority;
+    NSString* _storageAuthority;
     NSString* _clientId;
     NSString* _familyId;
     NSString* _accessToken;
