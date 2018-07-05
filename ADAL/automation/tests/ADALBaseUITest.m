@@ -239,6 +239,29 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     [passwordTextField typeText:password];
 }
 
+- (void)adfsEnterPassword
+{
+    [self adfsEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
+}
+
+- (void)adfsEnterPasswordInApp:(XCUIApplication *)app
+{
+    [self adfsEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password] testApp:app];
+}
+
+- (void)adfsEnterPassword:(NSString *)password
+{
+    [self adfsEnterPassword:password testApp:self.testApp];
+}
+
+- (void)adfsEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
+{
+    XCUIElement *passwordTextField = testApp.secureTextFields[@"Password"];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:testApp];
+    [passwordTextField typeText:password];
+}
+
 - (void)closeAuthUI
 {
      [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] msidTap];

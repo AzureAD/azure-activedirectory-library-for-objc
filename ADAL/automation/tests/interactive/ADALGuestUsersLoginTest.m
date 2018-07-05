@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
+#import "XCTestCase+TextFieldTap.h"
 
 @interface ADALGuestUsersLoginTest : ADALBaseUITest
 
@@ -53,7 +54,7 @@
 
     [self acquireToken:config];
     [self aadEnterEmail];
-    [self aadEnterPassword];
+    [self adfsEnterPassword];
 
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -107,7 +108,7 @@
 
     [self acquireToken:homeParams];
     [self aadEnterEmail];
-    [self aadEnterPassword];
+    [self adfsEnterPassword];
 
     [self assertAccessTokenNotNil];
 
@@ -126,7 +127,7 @@
     guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
     [self acquireToken:guestParams];
     [self aadEnterEmail];
-    [self aadEnterPassword];
+    [self adfsEnterPassword];
 
     [self assertAccessTokenNotNil];
 
@@ -181,7 +182,7 @@
 
     [self acquireToken:homeParams];
     [self aadEnterEmail];
-    [self aadEnterPassword];
+    [self adfsEnterPassword];
 
     [self assertAccessTokenNotNil];
 

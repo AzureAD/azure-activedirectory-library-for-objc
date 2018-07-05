@@ -70,7 +70,7 @@ static BOOL brokerAppInstalled = NO;
 
     XCUIApplication *brokerApp = [self brokerApp];
 
-    [self aadEnterPasswordInApp:brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -106,7 +106,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Expect sign in to be handled in broker
     XCUIApplication *brokerApp = [self brokerApp];
-    [self aadEnterPasswordInApp:brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
 
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
@@ -123,7 +123,7 @@ static BOOL brokerAppInstalled = NO;
 
     guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
     [self acquireToken:guestParams];
-    [self aadEnterPasswordInApp:brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
 
     [self waitForRedirectToTheTestApp];
 

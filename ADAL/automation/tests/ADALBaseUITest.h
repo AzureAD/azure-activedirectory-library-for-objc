@@ -58,6 +58,10 @@
 - (void)aadEnterPassword:(NSString *)password;
 - (void)aadEnterPasswordInApp:(XCUIApplication *)app;
 - (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp;
+- (void)adfsEnterPassword;
+- (void)adfsEnterPasswordInApp:(XCUIApplication *)app;
+- (void)adfsEnterPassword:(NSString *)password;
+- (void)adfsEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp;
 - (void)closeAuthUI;
 - (void)openURL:(NSDictionary *)config;
 

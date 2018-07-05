@@ -57,7 +57,7 @@
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     [registerButton tap];
 
-    [self aadEnterPasswordInApp:brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
 }
 
 - (void)unregisterDeviceInAuthenticator
