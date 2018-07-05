@@ -21,30 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-extern NSString *const ADAL_CLIENT_FAMILY_ID;
+#import "ADEnrollmentGateway.h"
 
-extern NSString *const ADAL_BROKER_MAX_PROTOCOL_VERSION;
-extern NSString *const ADAL_BROKER_MESSAGE_VERSION;
-extern NSString *const ADAL_BROKER_APP_VERSION;
-extern NSString *const ADAL_BROKER_RESPONSE_KEY;
-extern NSString *const ADAL_BROKER_HASH_KEY;
-extern NSString *const ADAL_BROKER_INTUNE_RESPONSE_KEY;
-extern NSString *const ADAL_BROKER_INTUNE_HASH_KEY;
-extern NSString *const ADAL_MS_ENROLLMENT_ID;
+@interface ADEnrollmentGateway (TestUtil)
 
-extern NSString *const ADAL_CLIENT_TELEMETRY;
++ (NSString *)getTestEnrollmentIDJSON;
++ (NSString *)getTestResourceJSON;
 
-//Diagnostic traces sent to the Azure Active Directory servers:
-extern NSString *const ADAL_ID_VERSION;
 
-extern NSString *const ADAL_AAD_SECURECONVERSATION_LABEL;
-
-extern NSString *const ADAL_AUTH_USERNAME_KEY;
-extern NSString *const ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME;
-extern NSString *const ADAL_AUTH_SUBERROR;
-extern NSString *const ADAL_AUTH_PROTECTION_POLICY_REQUIRED;
-
-extern NSString* const ADAL_BROKER_SCHEME;
-extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;
-extern NSString* const ADAL_BROKER_APP_BUNDLE_ID;
-
+@end

@@ -35,11 +35,13 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "ADAuthorityUtils.h"
+#import "ADEnrollmentGateway.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
 #import "ADUserInformation.h"
 #import "ADResponseCacheHandler.h"
+#import "MSIDAuthority.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -524,7 +526,19 @@
     {
         [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
-    
+
+    if (![MSIDAuthority isADFSInstance:_requestParams.authority])
+    {
+        ADAuthenticationError *error = nil;
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil
+                                                                          userID:_requestParams.identifier.userId
+                                                                           error:&error];
+        if (enrollId)
+        {
+            [requestData setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
+        }
+    }
+
     [self executeRequest:requestData
               completion:completionBlock];
 }

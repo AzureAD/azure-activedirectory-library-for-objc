@@ -29,6 +29,9 @@ NSString *const ADAL_BROKER_MESSAGE_VERSION          = @"msg_protocol_ver";
 NSString *const ADAL_BROKER_APP_VERSION              = @"x-broker-app-ver";
 NSString *const ADAL_BROKER_RESPONSE_KEY             = @"response";
 NSString *const ADAL_BROKER_HASH_KEY                 = @"hash";
+NSString *const ADAL_BROKER_INTUNE_RESPONSE_KEY      = @"intune_mam_token";
+NSString *const ADAL_BROKER_INTUNE_HASH_KEY          = @"intune_mam_token_hash";
+NSString *const ADAL_MS_ENROLLMENT_ID                = @"microsoft_enrollment_id";
 
 NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";
 
@@ -39,6 +42,8 @@ NSString *const ADAL_AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation
 
 NSString *const ADAL_AUTH_USERNAME_KEY                = @"username";
 NSString *const ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
+NSString *const ADAL_AUTH_SUBERROR                    = @"suberror";
+NSString *const ADAL_AUTH_PROTECTION_POLICY_REQUIRED  = @"protection_policy_required";
 
 //application constants
 NSString* const ADAL_BROKER_SCHEME = @"msauth";

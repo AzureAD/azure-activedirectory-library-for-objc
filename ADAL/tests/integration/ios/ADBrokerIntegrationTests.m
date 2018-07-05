@@ -44,6 +44,15 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "ADEnrollmentGateway.h"
+#import "ADEnrollmentGateway+TestUtil.h"
+
+@interface ADEnrollmentGateway ()
+
++ (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
+
+@end
 
 @interface ADBrokerIntegrationTests : ADTestCase
 
@@ -91,6 +100,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -182,6 +193,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -285,6 +298,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -391,6 +406,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -472,6 +489,97 @@
     XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
     XCTAssertEqualObjects([tokenCache getFRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
+}
+
+- (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent_shouldSucceed
+{
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    NSString *enrollmentIDs = [ADEnrollmentGateway getTestEnrollmentIDJSON];
+    NSString *intuneResource = [ADEnrollmentGateway getTestResourceJSON];
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          @"intune_enrollment_ids" : enrollmentIDs,
+          @"intune_mam_resource" : intuneResource,
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+        NSDictionary *responseParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"client_id" : TEST_CLIENT_ID,
+          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+          @"access_token" : @"i-am-a-access-token",
+          @"refresh_token" : @"i-am-a-refresh-token",
+          @"foci" : @"1",
+          @"expires_in" : @"3600",
+          @"client_info" : [self adCreateClientInfo].rawClientInfo
+          };
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"i-am-a-access-token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"i-am-a-refresh-token");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
+
+    XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
+    XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
 }
 
 #pragma mark - Private
