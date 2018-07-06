@@ -33,9 +33,7 @@
     NSArray *pathComponents = [[NSURL URLWithString:self.authority] pathComponents];
     NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
     BOOL fValidTenant = self.validAuthority != nil || [tenant isEqualToString:@"common"];
-    BOOL replay = [NSString msidIsStringNilOrBlank:self.clientInfo];
-    
-    return !fValidTenant || replay;
+    return !fValidTenant;
 }
 
 @end
