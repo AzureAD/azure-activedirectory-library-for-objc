@@ -27,5 +27,7 @@
 
 - (void)msidTap;
 - (void)msidPasteText:(NSString *)text application:(XCUIApplication *)app;
+- (void)selectTextWithApp:(XCUIApplication *)app;
+- (void)activateTextField;
 
 @end

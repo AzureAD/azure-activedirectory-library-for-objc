@@ -25,6 +25,7 @@
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "XCUIElement+CrossPlat.h"
 
 @interface ADALShibInteractiveLoginTests : ADALBaseUITest
 
@@ -67,6 +68,7 @@
     // Acquire token again.
     [self acquireToken:config];
     [self assertAuthUIAppear];
+
 }
 
 // #290995 iteration 6
@@ -101,6 +103,7 @@
     XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
     [self waitForElement:usernameTextField];
     [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
+    [usernameTextField activateTextField];
     [usernameTextField typeText:self.primaryAccount.username];
 }
 
@@ -109,6 +112,7 @@
     XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [passwordTextField activateTextField];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 

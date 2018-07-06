@@ -48,4 +48,28 @@
 #endif
 }
 
+- (void)selectTextWithApp:(XCUIApplication *)app
+{
+#if TARGET_OS_IPHONE
+    // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
+    // instead of empty string. In order to make it work we check that value of text field is not
+    // equal to placeholder.
+    // See here: https://forums.developer.apple.com/thread/86653
+    if (![self.placeholderValue isEqualToString:self.value] && self.value)
+    {
+        [self pressForDuration:0.5];
+        [app.menuItems[@"Select All"] tap];
+    }
+#else
+    [self typeKey:@"a" modifierFlags:XCUIKeyModifierCommand];
+#endif
+}
+
+- (void)activateTextField
+{
+#if !TARGET_OS_IPHONE
+    [self click];
+#endif
+}
+
 @end

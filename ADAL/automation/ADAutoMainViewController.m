@@ -532,6 +532,19 @@
                 });
             }
         });
+
+        if (stopOnSuccess)
+        {
+            ADAuthenticationContext *context = [self contextFromParameters:parameters];
+
+            [context acquireTokenWithResource:parameters[@"resource"]
+                                     clientId:parameters[@"client_id"]
+                                  redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                                       userId:parameters[@"user_identifier"]
+                              completionBlock:^(ADAuthenticationResult *result) {
+                                  (void) result;
+                              }];
+        }
     };
 
     [self showRequestDataViewWithCompletionHandler:completionBlock];

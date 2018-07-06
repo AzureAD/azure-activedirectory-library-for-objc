@@ -40,12 +40,6 @@
     [self typeText:string];
 }
 
-- (void)selectAll:(XCUIApplication *)app
-{
-    [self pressForDuration:0.5];
-    [app.menuItems[@"Select All"] tap];
-}
-
 - (void)forceTap
 {
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 11.0f)

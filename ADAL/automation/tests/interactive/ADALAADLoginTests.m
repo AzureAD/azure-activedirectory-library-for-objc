@@ -248,8 +248,7 @@
     
     // Acquire token again.
     [self acquireToken:config];
-    
-    [self assertAuthUIAppear];
+    [self aadEnterPassword];
 }
 
 // #296277: FoCI: Acquire a token using an FRT
@@ -500,13 +499,22 @@
     XCUIElement *enrollButton = self.testApp.buttons[@"Enroll now"];
     [self waitForElement:enrollButton];
     [enrollButton msidTap];
-
+#if TARGET_OS_IPHONE
     XCUIApplication *safari = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
+#else
+    XCUIApplication *safari = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.Safari"];
+#endif
+
     BOOL result = [safari waitForState:XCUIApplicationStateRunningForeground timeout:20];
     XCTAssertTrue(result);
-    
+
+#if TARGET_OS_IPHONE
     XCUIElement *getTheAppButton = safari.staticTexts[@"GET THE APP"];
     [self waitForElement:getTheAppButton];
+#else
+    XCUIElement *enterPassword = safari.staticTexts[@"Enter password"];
+    [self waitForElement:enterPassword];
+#endif
     
     [self.testApp activate];
 }

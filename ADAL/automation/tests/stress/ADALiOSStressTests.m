@@ -85,10 +85,10 @@
 {
     NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[testType] msidTap];
-    [self.testApp.textViews[@"requestInfo"] tap];
+    [self.testApp.textViews[@"requestInfo"] msidTap];
     [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
     sleep(1);
-    [self.testApp.buttons[@"Go"] tap];
+    [self.testApp.buttons[@"Go"] msidTap];
 }
 
 @end

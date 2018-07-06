@@ -91,7 +91,9 @@
 
     // Acquire token again.
     [self acquireToken:config];
-    [self assertAuthUIAppear];
+    [self ntlmWaitForAlert];
+    [self ntlmCancel];
+    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
 }
 
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView_andCancelAuth
@@ -113,14 +115,14 @@
 
 - (void)ntlmWaitForAlert
 {
-    XCUIElement *ntlmAlert = self.testApp.alerts[@"Enter your credentials"];
-    [self waitForElement:ntlmAlert];
+    [self waitForElement:[self ntlmAlert]];
 }
 
 - (void)ntlmEnterUsername
 {
     XCUIElement *usernameField = [self.testApp.textFields firstMatch];
     [self tapElementAndWaitForKeyboardToAppear:usernameField];
+    [usernameField activateTextField];
     [usernameField typeText:self.primaryAccount.account];
 }
 
@@ -128,19 +130,27 @@
 {
     XCUIElement *passwordField = [self.testApp.secureTextFields firstMatch];
     [self tapElementAndWaitForKeyboardToAppear:passwordField];
+    [passwordField activateTextField];
     [passwordField typeText:self.primaryAccount.password];
 }
 
 - (void)ntlmLogin
 {
-    XCUIElement *ntlmAlert = self.testApp.alerts[@"Enter your credentials"];
-    [ntlmAlert.buttons[@"Login"] msidTap];
+    [[self ntlmAlert].buttons[@"Login"] msidTap];
 }
 
 - (void)ntlmCancel
 {
-    XCUIElement *ntlmAlert = self.testApp.alerts[@"Enter your credentials"];
-    [ntlmAlert.buttons[@"Cancel"] msidTap];
+    [[self ntlmAlert].buttons[@"Cancel"] msidTap];
+}
+
+- (XCUIElement *)ntlmAlert
+{
+#if TARGET_OS_IPHONE
+    return self.testApp.alerts[@"Enter your credentials"];
+#else
+    return self.testApp.sheets.firstMatch;
+#endif
 }
 
 @end

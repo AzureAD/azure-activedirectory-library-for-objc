@@ -26,7 +26,6 @@
 @interface XCUIElement (ADALiOSUITests)
 
 - (void)clearText;
-- (void)selectAll:(XCUIApplication *)app;
 - (void)forceTap;
 
 @end

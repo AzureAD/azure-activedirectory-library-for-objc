@@ -947,6 +947,7 @@
                                 <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO" javaScriptCanOpenWindowsAutomatically="NO">
                                     <nil key="identifier"/>
                                 </webPreferences>
+                                <accessibility identifier="ADAL_SIGN_IN_WEBVIEW"/>
                             </webView>
                         </subviews>
                         <constraints>

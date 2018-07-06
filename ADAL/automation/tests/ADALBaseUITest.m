@@ -88,7 +88,11 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 - (void)assertAuthUIAppear
 {
+#if TARGET_OS_IPHONE
     XCUIElement *webView = self.testApp.otherElements[@"ADAL_SIGN_IN_WEBVIEW"].firstMatch;
+#else
+    XCUIElement *webView = self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].firstMatch;
+#endif
     
     BOOL result = [webView waitForExistenceWithTimeout:2.0];
     
@@ -188,15 +192,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     }
 
     [self tapElementAndWaitForKeyboardToAppear:emailTextField app:app];
-        
-    // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
-    // instead of empty string. In order to make it work we check that value of text field is not
-    // equal to placeholder.
-    // See here: https://forums.developer.apple.com/thread/86653
-    if (![emailTextField.placeholderValue isEqualToString:emailTextField.value] && emailTextField.value)
-    {
-        [emailTextField selectAll:app];
-    }
+    [emailTextField selectTextWithApp:app];
     [emailTextField typeText:email];
 }
 
@@ -264,7 +260,11 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 - (void)closeAuthUI
 {
+#if TARGET_OS_IPHONE
      [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] msidTap];
+#else
+    [self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
+#endif
 }
 
 - (void)closeResultView

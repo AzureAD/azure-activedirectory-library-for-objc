@@ -95,7 +95,7 @@
                                    };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
@@ -166,7 +166,7 @@
     NSDictionary *silentConfig = @{@"client_id": self.testConfiguration.clientId};
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
@@ -238,18 +238,18 @@
                                    };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
                      @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
                      };
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_USER_INPUT_NEEDED"];
+    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": self.primaryAccount.username,
-                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
+                     @"client_id": self.testConfiguration.clientId
                      };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
@@ -263,7 +263,7 @@
     [self.testApp.textViews[@"requestInfo"] msidTap];
     [self.testApp.textViews[@"requestInfo"] msidPasteText:[config toJsonString] application:self.testApp];
     sleep(1);
-    [self.testApp.buttons[@"Go"] tap];
+    [self.testApp.buttons[@"Go"] msidTap];
     [self closeResultView];
 }
 

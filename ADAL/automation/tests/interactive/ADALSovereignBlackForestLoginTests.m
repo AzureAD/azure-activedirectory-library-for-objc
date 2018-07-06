@@ -62,18 +62,16 @@
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
-
-    XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
-    [self waitForElement:emailTextField];
-    [self.testApp.buttons[@"Next"] msidTap];
-    
     [self blackforestComEnterPassword];
     
     [self assertAccessTokenNotNil];
     [self closeResultView];
+
+    NSMutableDictionary *mutableConfig = [config mutableCopy];
+    [mutableConfig removeObjectForKey:@"user_identifier"];
     
     // Acquire token again.
-    [self acquireToken:config];
+    [self acquireToken:mutableConfig];
     [self assertAuthUIAppear];
 
     [self closeAuthUI];
@@ -145,7 +143,7 @@
 
 - (void)blackforestComEnterEmail
 {
-    XCUIElement *emailTextField = self.testApp.textFields[@"Email, phone, or Skype"];
+    XCUIElement *emailTextField = self.testApp.textFields[@"Enter your email, phone, or Skype."];
     [self waitForElement:emailTextField];
     [self tapElementAndWaitForKeyboardToAppear:emailTextField];
     [emailTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account]];
@@ -153,7 +151,7 @@
 
 - (void)blackforestComEnterPassword
 {
-    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Password"];
+    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Enter password"];
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
