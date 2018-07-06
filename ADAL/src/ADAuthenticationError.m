@@ -23,7 +23,6 @@
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationError.h"
-#import "ADOAuth2Constants.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
