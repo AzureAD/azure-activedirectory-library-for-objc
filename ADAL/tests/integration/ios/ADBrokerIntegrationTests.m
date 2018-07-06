@@ -616,7 +616,6 @@
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
-
         NSMutableDictionary *responseParams =
         [[NSMutableDictionary alloc] initWithDictionary:@{
                                                           @"error_code" : @"213", // AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED
@@ -624,6 +623,7 @@
                                                           @"error" : @"unauthorized_client",
                                                           @"suberror" : @"protection_policies_required",
                                                           }];
+
         NSDictionary *intune_token_response = @{
                                                 @"authority" : authority,
                                                 @"resource" : TEST_RESOURCE,
@@ -632,7 +632,9 @@
                                                 @"access_token" : @"i-am-a-access-token",
                                                 @"refresh_token" : @"i-am-a-refresh-token",
                                                 @"foci" : @"1",
-                                                @"expires_in" : @"3600"};
+                                                @"expires_in" : @"3600",
+                                                @"client_info" : [self adCreateClientInfo].rawClientInfo
+                                                };
         NSDictionary* encrypted_token = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:intune_token_response];
 
         [responseParams setValue:encrypted_token[ADAL_BROKER_RESPONSE_KEY] forKey:ADAL_BROKER_INTUNE_RESPONSE_KEY];
