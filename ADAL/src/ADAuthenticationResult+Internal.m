@@ -173,11 +173,17 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     // Otherwise parse out the error condition
     ADAuthenticationError* error = nil;
+    NSMutableDictionary* userInfo = nil;
     
     NSString* errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
     if (!errorDetails)
     {
         errorDetails = @"Broker did not provide any details";
+    }
+
+    if ([response valueForKey:ADAL_BROKER_APP_VERSION])
+    {
+        [userInfo setValue:[response valueForKey:ADAL_BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
     }
         
     NSString* strErrorCode = [response valueForKey:@"error_code"];
@@ -186,7 +192,24 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         errorCode = [strErrorCode integerValue];
     }
+
     
+
+    if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
+    {
+        // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
+        userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
+        if ([response valueForKey:ADAL_AUTH_SUBERROR])
+        {
+            [userInfo setValue:[response valueForKey:ADAL_AUTH_SUBERROR] forKey:ADSuberrorKey];
+        }
+
+        if ([response valueForKey:@"user_id"])
+        {
+            [userInfo setValue:[response valueForKey:@"user_id"] forKey:ADUserIdKey];
+        }
+    }
+
     NSString* protocolCode = [response valueForKey:@"protocol_code"];
     if (!protocolCode)
     {
@@ -210,9 +233,10 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                   code:errorCode
                                      protocolErrorCode:protocolCode
                                           errorDetails:errorDetails
-                                         correlationId:correlationId];
+                                         correlationId:correlationId
+                                              userInfo:userInfo];
     }
-    
+
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
 }
 

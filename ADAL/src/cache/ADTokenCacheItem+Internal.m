@@ -62,17 +62,17 @@
 }
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
                             requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     return [self processTokenResponse:response
-                          fromRefresh:fromRefreshTokenWorkflow
+                     fromRefreshToken:refreshToken
                  requestCorrelationId:requestCorrelationId
                          fieldToCheck:MSID_OAUTH2_ACCESS_TOKEN];
 }
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
                             requestCorrelationId:(NSUUID*)requestCorrelationId
                                     fieldToCheck:(NSString*)fieldToCheck
 {
@@ -87,9 +87,20 @@
     
     [self checkCorrelationId:response requestCorrelationId:requestCorrelationId];
     
-    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
+    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(refreshToken) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
     if (error)
     {
+        if (refreshToken)
+        {
+            NSMutableDictionary *userInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:1];
+            if (refreshToken.userInformation.userId)
+            {
+                [userInfo setObject:refreshToken.userInformation.userId forKey:ADUserIdKey];
+            }
+            error = [ADAuthenticationError errorFromExistingError:error
+                                                    correlationID:requestCorrelationId
+                                               additionalUserInfo:userInfo];
+        }
         return [ADAuthenticationResult resultFromError:error];
     }
     
