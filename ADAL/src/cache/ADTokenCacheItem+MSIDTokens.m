@@ -130,6 +130,7 @@
     {
         _clientId = baseToken.clientId;
         _authority = baseToken.authority.absoluteString;
+        _storageAuthority = baseToken.storageAuthority.absoluteString;
         _additionalServer = baseToken.additionalServerInfo;
     }
     
@@ -138,7 +139,7 @@
 
 - (MSIDLegacyTokenCacheKey *)tokenCacheKey
 {
-    NSURL *authorityURL = [NSURL URLWithString:self.authority];
+    NSURL *authorityURL = [NSURL URLWithString:self.storageAuthority ? self.storageAuthority : self.authority];
 
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:authorityURL
                                                                              clientId:self.clientId

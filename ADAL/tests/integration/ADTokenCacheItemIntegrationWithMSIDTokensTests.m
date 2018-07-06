@@ -53,6 +53,7 @@
 - (void)testInitWithAccessToken_shouldInitADTokenCacheItem
 {
     MSIDLegacyAccessToken *accessToken = [self adCreateAccessToken];
+    accessToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
                                                              homeAccountId:accessToken.clientInfo.accountIdentifier];
     
@@ -68,6 +69,7 @@
     XCTAssertNil(adToken.familyId);
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.storageAuthority, @"https://login.authority2.com/common");
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
 }
@@ -82,6 +84,7 @@
 - (void)testInitWithRefreshToken_shouldInitADTokenCacheItem
 {
     MSIDLegacyRefreshToken *refreshToken = [self adCreateRefreshToken];
+    refreshToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
                                                              homeAccountId:refreshToken.clientInfo.accountIdentifier];
     
@@ -97,6 +100,7 @@
     XCTAssertEqualObjects(adToken.familyId, @"family Id");
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.storageAuthority, @"https://login.authority2.com/common");
     XCTAssertNil(adToken.resource);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
 }
@@ -111,6 +115,7 @@
 - (void)testInitWithLegacySingleResourceToken_shouldInitADTokenCacheItem
 {
     MSIDLegacySingleResourceToken *legacySingleResourceToken = [self adCreateLegacySingleResourceToken];
+    legacySingleResourceToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
                                                              homeAccountId:legacySingleResourceToken.clientInfo.accountIdentifier];
     
@@ -126,6 +131,7 @@
     XCTAssertNil(adToken.familyId);
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.storageAuthority, @"https://login.authority2.com/common");
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
 }
