@@ -65,6 +65,7 @@
     {
         _userInformation = [self createUserInfoWithIdToken:refreshToken.idToken
                                              homeAccountId:refreshToken.clientInfo.accountIdentifier];
+
         _refreshToken = refreshToken.refreshToken;
         _familyId = refreshToken.familyId;
     }
