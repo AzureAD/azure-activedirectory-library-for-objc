@@ -38,7 +38,6 @@
 #import "ADEnrollmentGateway.h"
 #import "MSIDAuthority.h"
 #import "MSIDKeychainTokenCache.h"
-#import "ADTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDBrokerResponse.h"
 #import "ADResponseCacheHandler.h"
@@ -210,33 +209,51 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
                                                  ADAL_BROKER_HASH_KEY:queryParamsMap[ADAL_BROKER_INTUNE_HASH_KEY],
                                                  ADAL_BROKER_MESSAGE_VERSION:queryParamsMap[ADAL_BROKER_MESSAGE_VERSION] ? queryParamsMap[ADAL_BROKER_MESSAGE_VERSION] : @1};
 
-            NSDictionary *intuneTokenResponse = [ADBrokerKeyHelper decryptBrokerResponse:responseDictionary
-                                                                   correlationId:correlationId
-                                                                           error:&intuneTokenError];
+            NSDictionary *decryptedIntuneTokenResponse = [ADBrokerKeyHelper decryptBrokerResponse:responseDictionary
+                                                                                    correlationId:correlationId
+                                                                                            error:&intuneTokenError];
 
-            ADAuthenticationResult *intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
-                                                                                    fromRefreshToken:nil
-                                                                                requestCorrelationId:intuneTokenResponse[MSID_OAUTH2_CORRELATION_ID_RESPONSE]];
+            NSError *tokenResponseError = nil;
+            MSIDBrokerResponse *intuneTokenResponse = [[MSIDBrokerResponse alloc] initWithDictionary:decryptedIntuneTokenResponse error:&tokenResponseError];
 
             if (!keychainGroup)
             {
                 MSID_LOG_WARN(nil, @"Failed to cache Intune token, unable to acquire keychain group.");
             }
-            else if (AD_SUCCEEDED != intuneTokenResult.status)
+            else if (tokenResponseError)
             {
-                MSID_LOG_WARN(nil, @"Failed to acquire Intune token.");
+                MSID_LOG_WARN(nil, @"Error parsing Intune token response");
             }
             else
             {
-                ADTokenCacheAccessor *cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
-                                                                                             authority:intuneTokenResult.tokenCacheItem.authority];
+                
+                ADAuthenticationResult *intuneTokenResult = [ADAuthenticationResult resultFromBrokerResponse:intuneTokenResponse];
+                if (AD_SUCCEEDED != intuneTokenResult.status)
+                {
+                    MSID_LOG_WARN(nil, @"Failed to acquire Intune token.");
+                }
+                else
+                {
+                    if (intuneTokenResult.tokenCacheItem.userInformation.userId)
+                    {
+                        [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
+                    }
 
-                [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
-            }
+                    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
+                    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+                    MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
+                    MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
-            if (intuneTokenResult)
-            {
-                [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
+                    BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
+                                                         saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid
+                                                                  context:nil
+                                                                    error:&tokenResponseError];
+
+                    if (!saveResult)
+                    {
+                        MSID_LOG_WARN(nil, @"Failed to save Intune token");
+                    }
+                }
             }
         }
 
