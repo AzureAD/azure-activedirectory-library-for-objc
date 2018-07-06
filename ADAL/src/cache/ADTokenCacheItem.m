@@ -29,9 +29,6 @@
 #import "ADTokenCacheItem+Internal.h"
 
 @implementation ADTokenCacheItem
-{
-    NSString *_storageAuthority;
-}
 
 @synthesize accessToken = _accessToken;
 @synthesize accessTokenType = _accessTokenType;

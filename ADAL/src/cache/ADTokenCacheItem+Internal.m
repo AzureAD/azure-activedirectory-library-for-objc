@@ -43,7 +43,7 @@
     }
     
     ADUserInformation* info = [ADUserInformation userInformationWithIdToken:idToken
-                                                                 homeUserId:clientInfo.userIdentifier
+                                                              homeAccountId:clientInfo.accountIdentifier
                                                                       error:nil];
     
     self.userInformation = info;

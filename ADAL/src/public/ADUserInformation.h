@@ -31,7 +31,7 @@
     NSString *_uniqueId;
     NSString *_rawIdToken;
     NSDictionary *_allClaims;
-    NSString *_homeUserId;
+    NSString *_homeAccountId;
 }
 
 /*! Factory method to extract user information from the AAD id_token parameter.
@@ -45,8 +45,8 @@
  will validate against this property. */
 @property (readonly) NSString *userId;
 
-/*! Unique AAD user identifier across tenants based on user's home OID/home tenantId. */
-@property (readonly) NSString *homeUserId;
+/*! Unique AAD account identifier across tenants based on user's home OID/home tenantId. */
+@property (readonly) NSString *homeAccountId;
 
 /*! Determines whether userId is displayable */
 @property (readonly) BOOL userIdDisplayable;
