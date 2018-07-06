@@ -263,22 +263,24 @@
                          error:(ADAuthenticationError **)error
 {
     NSArray *items = [self allItems:nil];
-    
+
     if (!items)
     {
         return NO;
     }
-    
+
     for (ADTokenCacheItem *item in items)
     {
         if ((!userId || [userId isEqualToString:[[item userInformation] userId]])
-            && (!clientId || [clientId isEqualToString:[item clientId]])
-            && ![self removeItem:item error:error])
+            && (!clientId || [clientId isEqualToString:[item clientId]]))
         {
-            return NO;
+            if (![self removeItem:item error:error])
+            {
+                return NO;
+            }
         }
     }
-    
+
     return YES;
 }
 
