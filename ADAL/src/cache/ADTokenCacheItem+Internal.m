@@ -62,17 +62,17 @@
 }
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
+                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
                             requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     return [self processTokenResponse:response
-                     fromRefreshToken:refreshToken
+                          fromRefresh:(BOOL)fromRefreshTokenWorkflow
                  requestCorrelationId:requestCorrelationId
                          fieldToCheck:MSID_OAUTH2_ACCESS_TOKEN];
 }
 
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
+                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
                             requestCorrelationId:(NSUUID*)requestCorrelationId
                                     fieldToCheck:(NSString*)fieldToCheck
 {
@@ -87,24 +87,13 @@
     
     [self checkCorrelationId:response requestCorrelationId:requestCorrelationId];
     
-    ADAuthenticationError *error = [ADAuthenticationContext errorFromDictionary:response errorCode:(refreshToken) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
+    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
     if (error)
     {
-        if (refreshToken)
-        {
-            NSMutableDictionary *userInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:1];
-            if (refreshToken.userInformation.userId)
-            {
-                [userInfo setObject:refreshToken.userInformation.userId forKey:ADUserIdKey];
-            }
-            error = [ADAuthenticationError errorFromExistingError:error
-                                                    correlationID:requestCorrelationId
-                                               additionalUserInfo:userInfo];
-        }
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    NSString *value = [response objectForKey:fieldToCheck];
+    NSString* value = [response objectForKey:fieldToCheck];
     if (![NSString msidIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
@@ -115,8 +104,8 @@
     else
     {
         // Bad item, the field we're looking for is missing.
-        NSString *details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
-        ADAuthenticationError *error = [ADAuthenticationError unexpectedInternalError:details correlationId:requestCorrelationId];
+        NSString* details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];
     }
 }
