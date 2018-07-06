@@ -48,6 +48,10 @@
     sleep(3600); // run stress test for one hour
 }
 
+/*
+ TODO: This stress test really shouldn't go against PROD ESTS.
+ */
+
 - (void)testStressRun_withNonEmptyCache
 {
     NSDictionary *params = @{

@@ -220,7 +220,7 @@
     builder.updatedRefreshToken = updatedRT;
     builder.updatedAccessToken = updatedAT;
     builder.responseBody[@"foci"] = @"1";
-    builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeUserId:nil].rawIdToken;
+    builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeAccountId:nil].rawIdToken;
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
@@ -323,7 +323,7 @@
     builder.updatedRefreshToken = updatedRT;
     builder.updatedAccessToken = updatedAT;
     builder.responseBody[@"foci"] = @"1";
-    builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeUserId:nil].rawIdToken;
+    builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeAccountId:nil].rawIdToken;
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
@@ -429,7 +429,7 @@
     builder.updatedRefreshToken = updatedRT;
     builder.updatedAccessToken = updatedAT;
     builder.responseBody[@"foci"] = @"1";
-    builder.updatedIdToken = [[self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeUserId:nil] rawIdToken];
+    builder.updatedIdToken = [[self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeAccountId:nil] rawIdToken];
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     

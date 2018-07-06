@@ -37,7 +37,6 @@
 #import "ADTelemetryBrokerEvent.h"
 #import "MSIDAuthority.h"
 #import "MSIDKeychainTokenCache.h"
-#import "ADTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDBrokerResponse.h"
 #import "ADResponseCacheHandler.h"
