@@ -66,7 +66,7 @@
                             requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     return [self processTokenResponse:response
-                          fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                          fromRefresh:fromRefreshTokenWorkflow
                  requestCorrelationId:requestCorrelationId
                          fieldToCheck:MSID_OAUTH2_ACCESS_TOKEN];
 }
@@ -78,7 +78,7 @@
 {
     if (!response)
     {
-        ADAuthenticationError *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                               protocolCode:nil
                                                                               errorDetails:@"processTokenResponse called without a response dictionary"
                                                                              correlationId:requestCorrelationId];
