@@ -41,14 +41,14 @@ extern NSString *const ID_TOKEN_GUEST_ID;
 
 /*! Factory method to extract user information from the AAD id_token parameter.
  @param idToken The contents of the id_token parameter, as passed by the server.
- @param homeUserId Unique AAD user identifier across tenants based on user's home OID/home tenantId.
+ @param homeAccountId Unique AAD account identifier across tenants based on user's home OID/home tenantId.
  */
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
-                                       homeUserId:(NSString *)homeUserId
+                                    homeAccountId:(NSString *)homeAccountId
                                             error:(ADAuthenticationError * __autoreleasing *)error;
 
 - (id)initWithIdToken:(NSString *)idToken
-           homeUserId:(NSString *)homeUserId
+        homeAccountId:(NSString *)homeAccountId
                 error:(ADAuthenticationError * __autoreleasing *)error;
 
 + (ADAuthenticationError *)invalidIdTokenError;

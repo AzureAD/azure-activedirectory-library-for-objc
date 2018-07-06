@@ -48,30 +48,8 @@
  */
 @property (readonly) NSString *speInfo;
 
-- (void)checkCorrelationId:(NSDictionary*)response
-      requestCorrelationId:(NSUUID*)requestCorrelationId;
-
-- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
-                            requestCorrelationId:(NSUUID*)requestCorrelationId
-                                    fieldToCheck:(NSString*)fieldToCheck;
-
-- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
-                            requestCorrelationId:(NSUUID*)requestCorrelationId;
-
-/*!
-    Fills out the cache item with the given response dictionary
- 
-    @return Whether the resulting item is a Multi Resource Refresh Token
- */
-- (BOOL)fillItemWithResponse:(NSDictionary*)response;
-
 - (void)logMessage:(NSString *)message
              level:(MSIDLogLevel)level
      correlationId:(NSUUID*)correlationId;
-
-/*! Return YES only if the item contains an access token and ext_expires_in in additionalServer has not expired. */
-- (BOOL)isExtendedLifetimeValid;
 
 @end
