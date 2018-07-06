@@ -46,7 +46,7 @@
     if (self)
     {
         _userInformation = [self createUserInfoWithIdToken:accessToken.idToken
-                                                homeUserId:accessToken.clientInfo.userIdentifier];
+                                                homeUserId:accessToken.clientInfo.accountIdentifier];
         _accessTokenType = accessToken.accessTokenType;
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
@@ -64,7 +64,7 @@
     if (self)
     {
         _userInformation = [self createUserInfoWithIdToken:refreshToken.idToken
-                                                homeUserId:refreshToken.clientInfo.userIdentifier];
+                                                homeUserId:refreshToken.clientInfo.accountIdentifier];
         _refreshToken = refreshToken.refreshToken;
         _familyId = refreshToken.familyId;
     }
