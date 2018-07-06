@@ -38,19 +38,19 @@
 #import "ADUserIdentifier.h"
 #import "ADWebAuthDelegate.h"
 #import "ADWebFingerRequest.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "ADAuthenticationContext+TestUtil.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
 
 @interface AADAuthorityValidationTests : ADTestCase
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 @property (nonatomic) ADTokenCache *adTokenCache;
 
 @end
@@ -60,12 +60,9 @@
 - (void)setUp
 {
     [super setUp];
-    
+
     self.adTokenCache = [ADTokenCache new];
-    
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 }
 
 - (void)tearDown
@@ -149,7 +146,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]].validated);
+    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary].validated);
 }
 
 //Ensures that an invalid authority is not approved
@@ -178,7 +175,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -209,7 +206,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -247,7 +244,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -282,6 +279,7 @@
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:updatedRT
                   newAccessToken:updatedAT
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
     [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:authority],
                                      tokenResponse]];
@@ -310,7 +308,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -352,7 +350,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
     // Failing to connect should not create a validation record
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
+    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNil(record);
 }
 
@@ -376,15 +374,17 @@
                                                             resource:resource1
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId1
-                                                     newRefreshToken:@"new-rt-1"
-                                                      newAccessToken:@"new-at-1"];
+                                                     newRefreshToken:TEST_REFRESH_TOKEN
+                                                      newAccessToken:@"new-at-1"
+                                                          newIDToken:[self adDefaultIDToken]];
     ADTestURLResponse *tokenResponse2 = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                            authority:authority
                                                             resource:resource2
                                                             clientId:TEST_CLIENT_ID
                                                        correlationId:correlationId2
-                                                     newRefreshToken:@"new-rt-2"
-                                                      newAccessToken:@"new-at-2"];
+                                                     newRefreshToken:TEST_REFRESH_TOKEN
+                                                      newAccessToken:@"new-at-2"
+                                                          newIDToken:[self adDefaultIDToken]];
     [ADTestURLSession addResponse:validationResponse];
     [ADTestURLSession addResponse:tokenResponse1];
     [ADTestURLSession addResponse:tokenResponse2];
@@ -405,7 +405,6 @@
         [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
         
         [context setCorrelationId:correlationId1];
-
 
         [context acquireTokenSilentWithResource:resource1
                                        clientId:TEST_CLIENT_ID
@@ -430,6 +429,7 @@
     __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire thread 2"];
     dispatch_async(concurrentQueue, ^{
         ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+        context.tokenCache = self.tokenCache;
         ADTokenCacheItem *mrrt = [self adCreateMRRTCacheItem];
         mrrt.authority = authority;
         [self.adTokenCache addOrUpdateItem:mrrt correlationId:nil error:nil];
@@ -468,7 +468,8 @@
                                                            clientId:TEST_CLIENT_ID
                                                       correlationId:TEST_CORRELATION_ID
                                                     newRefreshToken:@"new-rt-1"
-                                                     newAccessToken:@"new-at-1"];
+                                                     newAccessToken:@"new-at-1"
+                                                         newIDToken:[self adDefaultIDToken]];
 
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
@@ -515,7 +516,8 @@
                                                            clientId:TEST_CLIENT_ID
                                                       correlationId:TEST_CORRELATION_ID
                                                     newRefreshToken:@"new-rt-1"
-                                                     newAccessToken:@"new-at-1"];
+                                                     newAccessToken:@"new-at-1"
+                                                         newIDToken:[self adDefaultIDToken]];
 
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
@@ -560,6 +562,7 @@
     [ADTestURLSession addResponses:@[validationResponse, authCodeResponse]];
 
     ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    context.tokenCache = self.tokenCache;
     XCTAssertNotNil(context);
     [context setCorrelationId:TEST_CORRELATION_ID];
 
@@ -633,6 +636,7 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:updatedRT
                   newAccessToken:updatedAT
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
@@ -688,6 +692,7 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:updatedRT
                   newAccessToken:updatedAT
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];

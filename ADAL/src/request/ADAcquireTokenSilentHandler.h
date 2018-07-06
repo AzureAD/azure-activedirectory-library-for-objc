@@ -28,7 +28,7 @@
 @class MSIDRefreshToken;
 @class MSIDBaseToken;
 @protocol MSIDRefreshableToken;
-@class MSIDSharedTokenCache;
+@class MSIDLegacyTokenCacheAccessor;
 
 @interface ADAcquireTokenSilentHandler : NSObject
 {
@@ -46,7 +46,7 @@
 }
 
 + (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
-                                        tokenCache:(MSIDSharedTokenCache *)tokenCache;
+                                        tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache;
 
 - (void)getToken:(ADAuthenticationCallback)completionBlock;
 
@@ -54,6 +54,7 @@
 // information and updates the cache
 - (void)acquireTokenByRefreshToken:(NSString*)refreshToken
                          cacheItem:(MSIDBaseToken<MSIDRefreshableToken> *)cacheItem
+                  useOpenidConnect:(BOOL)useOpenidConnect
                    completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

@@ -26,15 +26,16 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDError.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDTokenResponse.h"
 
 @implementation ADResponseCacheHandler
 
 + (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                                              cache:(MSIDSharedTokenCache *)cache
+                                              cache:(MSIDLegacyTokenCacheAccessor *)cache
                                              params:(ADRequestParameters *)requestParams
 {
     NSError *msidError = nil;
@@ -48,14 +49,13 @@
     
     if (!result)
     {
-        if (response.oauthErrorCode == MSIDErrorInvalidGrant && refreshToken)
+        if (response.oauthErrorCode == MSIDErrorServerInvalidGrant && refreshToken)
         {
             NSError *removeError = nil;
-            
-            BOOL result = [cache removeRTForAccount:requestParams.account
-                                              token:refreshToken
-                                            context:requestParams
-                                              error:&removeError];
+
+            BOOL result = [cache validateAndRemoveRefreshToken:refreshToken
+                                                       context:requestParams
+                                                         error:&removeError];
             
             if (!result)
             {
@@ -67,18 +67,17 @@
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
     }
     
-    result = [cache saveTokensWithFactory:factory
-                             requestParams:requestParams.msidParameters
-                                  response:response
-                                   context:requestParams
-                                     error:&msidError];
+    result = [cache saveTokensWithConfiguration:requestParams.msidConfig
+                                       response:response
+                                        context:requestParams
+                                          error:&msidError];
     
     if (!result)
     {
         return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
     }
     
-    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response request:requestParams.msidParameters];
+    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:requestParams.msidConfig];
     
     ADTokenCacheItem *adTokenCacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     

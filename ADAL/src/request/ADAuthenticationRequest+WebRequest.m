@@ -102,7 +102,7 @@
 // Encodes the state parameter for a protocol message
 - (NSString *)encodeProtocolState
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _requestParams.scope, @"s", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _requestParams.scopesString, @"s", nil]
              msidURLFormEncode] msidBase64UrlEncode];
 }
 
@@ -274,9 +274,9 @@
                        @"1", @"nux",
                        @"none", @"prompt", nil];
         
-        if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
+        if (![NSString msidIsStringNilOrBlank:_requestParams.scopesString])
         {
-            [requestData setObject:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
+            [requestData setObject:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
         }
         
         if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])

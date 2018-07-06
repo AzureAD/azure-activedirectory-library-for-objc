@@ -36,13 +36,15 @@
 #import "ADUserIdentifier.h"
 #import "ADTestAuthenticationViewController.h"
 #import "ADAuthorityValidation.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "ADAuthenticationContext+TestUtil.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "ADTokenCacheKey.h"
+#import "MSIDBaseToken.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -71,8 +73,8 @@ const int sAsyncContextTimeout = 10;
 
 @interface ADAcquireTokenTests : ADTestCase
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
-@property (nonatomic) MSIDSharedTokenCache *msalTokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *msalTokenCache;
 @property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
 
 @end
@@ -89,20 +91,17 @@ const int sAsyncContextTimeout = 10;
     [MSIDKeychainTokenCache reset];
     
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
+
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
     
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor] factory:[MSIDAADV1Oauth2Factory new]];
     
-    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:@[defaultTokenCacheAccessor]];
-    self.msalTokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:defaultTokenCacheAccessor otherCacheAccessors:@[legacyTokenCacheAccessor]];
+    self.tokenCache = legacyTokenCacheAccessor;
+    self.msalTokenCache = defaultTokenCacheAccessor;
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
 
@@ -432,6 +431,62 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testCachedWithNilUserId_whenExpiredAccessToken_shouldRefreshUsingRT
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenWithResource"];
+
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem:nil];
+    item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:-3600];
+    BOOL result =  [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    // ADFSv3 only returns access token and no id_token nor refresh_token in its response
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                               requestResource:TEST_RESOURCE
+                                              responseResource:nil
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:nil
+                                                newAccessToken:@"new access token"
+                                                    newIDToken:nil];
+
+    [ADTestURLSession addResponse:response];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    // Verify cache updated properly and refresh token is persisted
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(allItems.count, 1);
+
+    ADTokenCacheItem *adfsToken = allItems[0];
+    XCTAssertEqualObjects(adfsToken.refreshToken, TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(adfsToken.accessToken, @"new access token");
+    XCTAssertNil(adfsToken.userInformation);
+}
+
 - (void)testFailsWithNilUserIdAndMultipleCachedUsers
 {
     ADAuthenticationError* error = nil;
@@ -709,7 +764,7 @@ const int sAsyncContextTimeout = 10;
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
 
-    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
+    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]]];
 
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -777,10 +832,10 @@ const int sAsyncContextTimeout = 10;
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
 
-    ADTestURLResponse *response = [self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"];
+    ADTestURLResponse *response = [self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]];
     // We're using a hardcoded JSON string in the test because we want to test a specific string to see how it is decoded
     // and make sure it gets handled properly
-    NSString *responseJson = @"{\"refresh_token\":\"new refresh token\",\"access_token\":\"new access token\",\"resource\":\"" TEST_RESOURCE "\",\"expires_in\":3600,\"ext_expires_in\":360000}" ;
+    NSString *responseJson = [NSString stringWithFormat:@"{\"refresh_token\":\"new refresh token\",\"access_token\":\"new access token\",\"id_token\":\"%@\",\"resource\":\"" TEST_RESOURCE "\",\"expires_in\":3600,\"ext_expires_in\":360000}", [self adDefaultIDToken]];
     [response setResponseData:[responseJson dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES]];
 
     [ADTestURLSession addResponse:response];
@@ -863,6 +918,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: @"openid",
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
     [ADTestURLSession addResponse:response];
 
@@ -957,6 +1013,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
 
     //It should hit network twice for trying and retrying the refresh token because it is an server error
@@ -1008,6 +1065,7 @@ const int sAsyncContextTimeout = 10;
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:TEST_REFRESH_TOKEN
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:additional];
 
     [ADTestURLSession addResponse:response];
@@ -1057,6 +1115,7 @@ const int sAsyncContextTimeout = 10;
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:TEST_REFRESH_TOKEN
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
 
     [ADTestURLSession addResponse:response];
@@ -1111,12 +1170,14 @@ const int sAsyncContextTimeout = 10;
 
     ADTestURLResponse* response = [self adResponseRefreshToken:@"family refresh token"
                                                      authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
+                                               requestResource:TEST_RESOURCE
+                                              responseResource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                 requestHeaders:nil
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"new family refresh token"
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}
                                                responseHeaders:@{@"x-ms-clitelem" : @"1,0,0,2550.0643,I"}];
 
@@ -1171,6 +1232,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:TEST_ACCESS_TOKEN
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
 
     [ADTestURLSession addResponses:@[badMRRT, frtResponse]];
@@ -1251,6 +1313,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
 
     [ADTestURLSession addResponses:@[badFRTResponse, mrrtResponse]];
@@ -1321,6 +1384,7 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     [ADTestURLSession addResponse:mrrtResponse];
 
@@ -1412,6 +1476,7 @@ const int sAsyncContextTimeout = 10;
                                                     correlationId:TEST_CORRELATION_ID
                                                   newRefreshToken:@"refresh token"
                                                    newAccessToken:@"access token"
+                                                    newIDToken:[self adDefaultIDToken]
                                                  additionalFields:@{ @"ext_expires_in" : @"3600"}]];
 
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -1464,6 +1529,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
 
     // Add the responsce twice because retry will happen
@@ -1514,6 +1580,7 @@ const int sAsyncContextTimeout = 10;
                                                     correlationId:TEST_CORRELATION_ID
                                                   newRefreshToken:@"refresh token"
                                                    newAccessToken:@"access token"
+                                                    newIDToken:[self adDefaultIDToken]
                                                  additionalFields:@{ @"ext_expires_in" : @"0"}]];
 
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -1561,6 +1628,22 @@ const int sAsyncContextTimeout = 10;
 
     [cache removeItem:rtItem error:&error];
     XCTAssertNil(error);
+
+    // Also remove common entry
+    rtItem.authority = @"https://login.windows.net/common";
+    [cache removeItem:rtItem error:&error];
+    XCTAssertNil(error);
+
+    // Clear MSAL cache, otherwise it will get into the way
+    NSArray *allMSALItems = [_msalTokenCache allTokensWithContext:nil error:nil];
+
+    for (MSIDBaseToken *token in allMSALItems)
+    {
+        if (token.credentialType == MSIDRefreshTokenType)
+        {
+            [_msalTokenCache validateAndRemoveRefreshToken:(MSIDRefreshToken *)token context:nil error:nil];
+        }
+    }
 
     expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
 
@@ -1947,6 +2030,7 @@ const int sAsyncContextTimeout = 10;
                                        @"client_id" : TEST_CLIENT_ID,
                                        @"grant_type" : @"refresh_token",
                                        MSID_OAUTH2_CLIENT_INFO: @"1",
+                                       MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        @"refresh_token" : TEST_REFRESH_TOKEN }];
 
     [ADTestURLSession addResponse:response];
@@ -2012,7 +2096,8 @@ const int sAsyncContextTimeout = 10;
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"];
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
     
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
@@ -2059,7 +2144,8 @@ const int sAsyncContextTimeout = 10;
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"refresh token from server"
-                                                newAccessToken:@"access token from server"];
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
     
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
@@ -2170,12 +2256,10 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
 
-    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
-    BOOL result = [_msalTokenCache saveTokensWithFactory:factory
-                                           requestParams:[self adCreateV2DefaultParams]
-                                                response:[self adCreateV2TokenResponse]
-                                                 context:nil
-                                                   error:&error];
+    BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
+                                                      response:[self adCreateV2TokenResponse]
+                                                       context:nil
+                                                         error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
@@ -2187,12 +2271,14 @@ const int sAsyncContextTimeout = 10;
                    correlationId:TEST_CORRELATION_ID
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
+                      newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     [ADTestURLSession addResponse:mrrtResponse];
 
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
                             completionBlock:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result);

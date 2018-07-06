@@ -43,29 +43,42 @@ static NSDictionary *s_userInfoKeyMapping;
 + (void)initialize
 {
     s_errorDomainMapping = @{
-                             MSIDErrorDomain : ADAuthenticationErrorDomain
+                             MSIDErrorDomain : ADAuthenticationErrorDomain,
+                             MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
+                             MSIDKeychainErrorDomain : ADKeychainErrorDomain
                              };
     
     s_errorCodeMapping = @{
                            MSIDErrorDomain:@{
-                                   @(MSIDErrorInternal):@(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInvalidInternalParameter):@(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInvalidDeveloperParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
-                                   @(MSIDErrorAmbiguousAuthority): @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInteractionRequired):@(AD_ERROR_SERVER_USER_INPUT_NEEDED),
-                                   @(MSIDErrorCacheMultipleUsers):@(AD_ERROR_CACHE_MULTIPLE_USERS),
-                                   @(MSIDErrorTokenCacheItemFailure):@(AD_ERROR_CACHE_BAD_FORMAT),
-                                   @(MSIDErrorWrapperCacheFailure): @(AD_ERROR_CACHE_BAD_FORMAT),
-                                   @(MSIDErrorCacheBadFormat): @(AD_ERROR_CACHE_BAD_FORMAT),
-                                   @(MSIDErrorCacheVersionMismatch): @(AD_ERROR_CACHE_VERSION_MISMATCH),
-                                   @(MSIDErrorServerInvalidResponse):@(AD_ERROR_SERVER_INVALID_RESPONSE),
-                                   @(MSIDErrorServerRefreshTokenRejected):@(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
-                                   @(MSIDErrorServerOauth): @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorInvalidRequest): @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorInvalidClient): @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorInvalidGrant): @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
-                                   @(MSIDErrorInvalidParameter):@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
-                                   @(MSIDErrorDeveloperAuthorityValidation):@(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION)
+                                   // General
+                                   @(MSIDErrorInternal) : @(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInvalidInternalParameter) : @(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInvalidDeveloperParameter) :@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+                                   @(MSIDErrorUnsupportedFunctionality): @(AD_ERROR_UNEXPECTED),
+                                   // Cache
+                                   @(MSIDErrorCacheMultipleUsers) : @(AD_ERROR_CACHE_MULTIPLE_USERS),
+                                   @(MSIDErrorCacheBadFormat) : @(AD_ERROR_CACHE_BAD_FORMAT),
+                                   // Authority Validation
+                                   @(MSIDErrorAuthorityValidation) : @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
+                                   // Interactive flow
+                                   @(MSIDErrorAuthorizationFailed) : @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
+                                   @(MSIDErrorUserCancel) : @(AD_ERROR_UI_USER_CANCEL),
+                                   @(MSIDErrorSessionCanceledProgrammatically) : @(AD_ERROR_UI_USER_CANCEL),
+                                   @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
+                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
+                                   },
+                           MSIDOAuthErrorDomain:@{
+                                   @(MSIDErrorInteractionRequired) : @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
+                                   @(MSIDErrorServerOauth) : @(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
+                                   @(MSIDErrorServerRefreshTokenRejected) : @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
+                                   @(MSIDErrorServerInvalidRequest) :@(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorServerInvalidClient) : @(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorServerInvalidGrant) : @(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
+                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT)
                                    }
                            };
     

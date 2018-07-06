@@ -35,7 +35,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "ADAuthorityUtils.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
 #import "ADUserInformation.h"
@@ -378,19 +378,7 @@
              BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
              if (result.status == AD_SUCCEEDED && replay)
              {
-                 if (_requestParams.scope == nil)
-                 {
-                    [self setScope:@"openid"];
-                 }
-                 else
-                 {
-                     NSArray *scopes = [_requestParams.scope componentsSeparatedByString:@" "];
-                     if (![scopes containsObject:@"openid"])
-                     {
-                         [self setScope:[NSString stringWithFormat:@"openid %@", _requestParams.scope]];
-                     }
-                 }
-                 
+                 _requestParams.cloudAuthority = result.authority;
                  [self getAccessToken:completionBlock];
                  return;
              }
@@ -410,8 +398,22 @@
     ADAuthenticationCallback originalCompletionBlock = completionBlock;
     completionBlock = ^(ADAuthenticationResult* result)
     {
-        [ADAuthenticationRequest releaseExclusionLock];
-        originalCompletionBlock(result);
+        // If we got back a valid RT but no access token, then replay the RT for a new AT.
+        BOOL replay = [NSString msidIsStringNilOrBlank:result.tokenCacheItem.accessToken];
+        if (result.status == AD_SUCCEEDED && replay)
+        {
+            _requestParams.cloudAuthority = result.authority;
+            [self getAccessToken:^(ADAuthenticationResult *result) {
+                [ADAuthenticationRequest releaseExclusionLock];
+                originalCompletionBlock(result);
+            }];
+            return;
+        }
+        else
+        {
+            [ADAuthenticationRequest releaseExclusionLock];
+            originalCompletionBlock(result);
+        }
     };
 
     __block BOOL silentRequest = _allowSilent;
@@ -518,9 +520,9 @@
                                           MSID_OAUTH2_CLIENT_INFO: @YES
                                           } mutableCopy];
 
-    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
+    if (![NSString msidIsStringNilOrBlank:_requestParams.scopesString])
     {
-        [requestData setValue:_requestParams.scope forKey:MSID_OAUTH2_SCOPE];
+        [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
     
     [self executeRequest:requestData
@@ -533,6 +535,7 @@
                                                                                tokenCache:self.tokenCache];
     [request acquireTokenByRefreshToken:_refreshToken
                               cacheItem:nil
+                       useOpenidConnect:YES
                         completionBlock:^(ADAuthenticationResult *result)
      {
          completionBlock(result);

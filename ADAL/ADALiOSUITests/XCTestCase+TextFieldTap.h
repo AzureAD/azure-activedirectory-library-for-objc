@@ -21,15 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-@protocol MSIDTokenCacheDataSource;
-@protocol MSIDCredentialItemSerializer;
-@protocol ADTokenCacheDataSource;
+@interface XCTestCase (TextFieldTap)
 
-@interface ADMSIDDataSourceWrapper : NSObject <ADTokenCacheDataSource>
-
-- (instancetype)initWithMSIDDataSource:(id<MSIDTokenCacheDataSource>)dataSource
-                            serializer:(id<MSIDCredentialItemSerializer>)serializer;
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element;
 
 @end

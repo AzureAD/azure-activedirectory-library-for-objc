@@ -38,7 +38,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDKeychainTokenCache.h"
 #import "ADTokenCacheAccessor.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDBrokerResponse.h"
 #import "ADResponseCacheHandler.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
@@ -266,17 +266,14 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     if (AD_SUCCEEDED == result.status && keychainGroup)
     {
         MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
-        MSIDLegacyTokenCacheAccessor *primaryAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource];
-        MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource];
-        
-        MSIDSharedTokenCache *cache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:primaryAccessor otherCacheAccessors:@[defaultAccessor]];
+        MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
+        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
-        MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-        BOOL saveResult = [cache saveTokensWithFactory:factory
-                                         brokerResponse:brokerResponse
-                                   saveRefreshTokenOnly:brokerResponse.isAccessTokenInvalid
-                                                context:nil
-                                                  error:&msidError];
+        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                             saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
+                                                      context:nil
+                                                        error:&msidError];
         
         if (!saveResult)
         {

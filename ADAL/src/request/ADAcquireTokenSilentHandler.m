@@ -34,24 +34,27 @@
 #import "ADTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAccount.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDRefreshToken.h"
 #import "ADResponseCacheHandler.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAccountIdentifier.h"
+#import "ADAuthenticationSettings.h"
 
 @interface ADAcquireTokenSilentHandler()
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDAADV1Oauth2Factory *factory;
 
 @end
 
 @implementation ADAcquireTokenSilentHandler
 
 + (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
-                                        tokenCache:(MSIDSharedTokenCache *)tokenCache
+                                        tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
     
@@ -60,6 +63,7 @@
     
     handler->_requestParams = requestParams;
     handler.tokenCache = tokenCache;
+    handler.factory = [MSIDAADV1Oauth2Factory new];
     
     return handler;
 }
@@ -98,6 +102,7 @@
 //information and updates the cache:
 - (void)acquireTokenByRefreshToken:(NSString *)refreshToken
                          cacheItem:(MSIDBaseToken<MSIDRefreshableToken> *)cacheItem
+                  useOpenidConnect:(BOOL)useOpenidConnect
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     [[MSIDLogger sharedLogger] logToken:refreshToken
@@ -107,29 +112,12 @@
                                 context:_requestParams];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
-    
-    /*
-     TODO!
-    if(cacheItem.sessionKey)
-    {
-        NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem];
-        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        _requestParams.redirectUri, @"redirect_uri",
-                        _requestParams.clientId, @"client_id",
-                        @"2.0", @"windows_api_version",
-                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", MSID_OAUTH2_GRANT_TYPE,
-                        jwtToken, @"request",
-                        nil];
-        
-    }
-    else
-    {*/
-        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+
+    request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         MSID_OAUTH2_REFRESH_TOKEN, MSID_OAUTH2_GRANT_TYPE,
                         refreshToken, MSID_OAUTH2_REFRESH_TOKEN,
                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
                         nil];
-    //}
     
     request_data[MSID_OAUTH2_CLIENT_INFO] = @YES;
     
@@ -137,14 +125,20 @@
     {
         [request_data setObject:[_requestParams resource] forKey:MSID_OAUTH2_RESOURCE];
     }
-    
-    if (![NSString msidIsStringNilOrBlank:_requestParams.scope])
+
+    if (useOpenidConnect)
     {
-        request_data[MSID_OAUTH2_SCOPE] = _requestParams.scope;
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
     }
-    
+    else
+    {
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.scopesString;
+    }
+
+    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+
     ADWebAuthRequest* webReq =
-    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
+    [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
     
@@ -161,11 +155,10 @@
          }
          
          NSError *msidError = nil;
-         MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-         MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:response
-                                                              refreshToken:cacheItem
-                                                                   context:nil
-                                                                     error:&msidError];
+         MSIDTokenResponse *tokenResponse = [self.factory tokenResponseFromJSON:response
+                                                                   refreshToken:cacheItem
+                                                                        context:nil
+                                                                          error:&msidError];
          
          if (msidError)
          {
@@ -217,12 +210,14 @@
 
 - (void)acquireTokenWithItem:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                  refreshType:(NSString *)refreshType
+            useOpenidConnect:(BOOL)useOpenidConnect
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
     [[MSIDTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
     [self acquireTokenByRefreshToken:refreshToken.refreshToken
                            cacheItem:refreshToken
+                    useOpenidConnect:useOpenidConnect
                      completionBlock:^(ADAuthenticationResult *result)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
@@ -281,11 +276,11 @@
     NSUUID* correlationId = [_requestParams correlationId];
 
     NSError *msidError = nil;
-    
-    MSIDLegacySingleResourceToken *item = [self.tokenCache getLegacyTokenForAccount:_requestParams.account
-                                                                      requestParams:_requestParams.msidParameters
-                                                                            context:_requestParams
-                                                                              error:&msidError];
+
+    MSIDLegacySingleResourceToken *item = [self.tokenCache getSingleResourceTokenForAccount:_requestParams.account
+                                                                              configuration:_requestParams.msidConfig
+                                                                                    context:_requestParams
+                                                                                      error:&msidError];
     
     // If some error ocurred during the cache lookup then we need to fail out right away.
     if (msidError)
@@ -298,9 +293,12 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        item = [self.tokenCache getLegacyTokenWithRequestParams:_requestParams.msidParameters
-                                                        context:_requestParams
-                                                          error:&msidError];
+        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"" homeAccountId:nil];
+
+        item = [self.tokenCache getSingleResourceTokenForAccount:account
+                                                   configuration:_requestParams.msidConfig
+                                                         context:_requestParams
+                                                           error:&msidError];
         
         if (msidError)
         {
@@ -318,7 +316,7 @@
     }
 
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && !item.isExpired)
+    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer])
     {
         [[MSIDLogger sharedLogger] logToken:item.accessToken
                                   tokenType:@"AT"
@@ -352,11 +350,10 @@
         if (!item.isExtendedLifetimeValid)
         {
             NSError *msidError = nil;
-            
-            BOOL result = [self.tokenCache removeToken:item
-                                            forAccount:_requestParams.account
-                                               context:_requestParams
-                                                 error:&msidError];
+
+            BOOL result = [self.tokenCache removeAccessToken:item
+                                                     context:_requestParams
+                                                       error:&msidError];
             
             if (!result)
             {
@@ -379,6 +376,7 @@
     
     [self acquireTokenWithItem:item
                    refreshType:nil
+              useOpenidConnect:item.idToken != nil
                completionBlock:completionBlock
                       fallback:^(ADAuthenticationResult* result)
      {
@@ -398,10 +396,12 @@
     if (!_mrrtItem)
     {
         NSError *msidError = nil;
-        MSIDRefreshToken *refreshToken = [self.tokenCache getRTForAccount:_requestParams.account
-                                                            requestParams:_requestParams.msidParameters
-                                                                  context:_requestParams
-                                                                    error:&msidError];
+
+        MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
+                                                                            familyId:nil
+                                                                       configuration:_requestParams.msidConfig
+                                                                             context:_requestParams
+                                                                               error:&msidError];
         
         _mrrtItem = refreshToken;
         
@@ -430,6 +430,7 @@
     // Otherwise try the MRRT
     [self acquireTokenWithItem:_mrrtItem
                    refreshType:@"Multi Resource"
+              useOpenidConnect:YES
                completionBlock:completionBlock
                       fallback:^(ADAuthenticationResult* result)
      {
@@ -459,12 +460,18 @@
     _attemptedFRT = YES;
     
     NSError *msidError = nil;
-    
-    MSIDRefreshToken *refreshToken = [self.tokenCache getFRTforAccount:_requestParams.account
-                                                         requestParams:_requestParams.msidParameters
-                                                              familyId:familyId
-                                                               context:_requestParams
-                                                                 error:&msidError];
+
+    if (!familyId)
+    {
+        // Use default family ID if no familyID provided to preserve the previous ADAL functionality
+        familyId = @"1";
+    }
+
+    MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
+                                                                        familyId:familyId
+                                                                   configuration:_requestParams.msidConfig
+                                                                         context:_requestParams
+                                                                           error:&msidError];
     
     if (!refreshToken && msidError)
     {
@@ -489,6 +496,7 @@
     
     [self acquireTokenWithItem:refreshToken
                    refreshType:@"Family"
+              useOpenidConnect:YES
                completionBlock:completionBlock
                       fallback:^(ADAuthenticationResult *result)
      {

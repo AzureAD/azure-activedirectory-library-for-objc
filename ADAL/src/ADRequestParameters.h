@@ -24,8 +24,8 @@
 #import "ADTokenCacheDataSource.h"
 #import "MSIDRequestContext.h"
 
-@class MSIDRequestParameters;
-@class MSIDAccount;
+@class MSIDConfiguration;
+@class MSIDAccountIdentifier;
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
@@ -33,7 +33,7 @@
     NSString *_resource;
     NSString *_clientId;
     NSString *_redirectUri;
-    NSString *_scope;
+    NSString *_scopesString;
     ADUserIdentifier *_identifier;
     BOOL _extendedLifetime;
     NSUUID *_correlationId;
@@ -45,14 +45,15 @@
 @property (retain, nonatomic) NSString* resource;
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
-@property (retain, nonatomic) NSString* scope;
+@property (retain, nonatomic) NSString* scopesString;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
 @property BOOL extendedLifetime;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
-@property (retain, nonatomic) MSIDAccount *account;
-@property (retain, nonatomic, readonly) MSIDRequestParameters *msidParameters;
+@property (retain, nonatomic, readonly) NSString* openidScopesString;
+@property (retain, nonatomic) MSIDAccountIdentifier *account;
+@property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource

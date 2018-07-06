@@ -25,6 +25,6 @@
 
 @interface ADAuthenticationContext (TestUtil)
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 
 @end

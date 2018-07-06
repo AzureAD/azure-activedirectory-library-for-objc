@@ -27,13 +27,14 @@
 #import "ADTestURLResponse.h"
 #import "ADTelemetryTestDispatcher.h"
 #import "ADAuthorityValidation.h"
-#import "MSIDSharedTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADAuthenticationContext+TestUtil.h"
 #import "MSIDDeviceId.h"
 #import "ADTokenCacheKey.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -45,7 +46,7 @@
 
 @interface ADAcquireTokenTelemetryTests : ADTestCase
 
-@property (nonatomic) MSIDSharedTokenCache *tokenCache;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 @property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
 @property (nonatomic) NSMutableArray *receivedEvents;
 
@@ -75,17 +76,11 @@
     [MSIDKeychainTokenCache reset];
     
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache];
-    
-    self.tokenCache = [[MSIDSharedTokenCache alloc] initWithPrimaryCacheAccessor:legacyTokenCacheAccessor otherCacheAccessors:nil];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
 
@@ -98,12 +93,13 @@
     
     ADTestURLResponse *response = [self adResponseRefreshToken:@"family refresh token"
                                                      authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
-                                                      clientId:TEST_CLIENT_ID
+                                               requestResource:TEST_RESOURCE
+                                              responseResource:TEST_RESOURCE                                                                          clientId:TEST_CLIENT_ID
                                                 requestHeaders:nil
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:@"new family refresh token"
                                                 newAccessToken:TEST_ACCESS_TOKEN
+                                                    newIDToken:[self adDefaultIDToken]
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}
                                                responseHeaders:@{@"x-ms-clitelem" : @"1,0,0,2550.0643,I"}];
     

@@ -35,6 +35,7 @@
 #import "MSIDError.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAuthority.h"
+#import "NSURL+MSIDExtensions.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -202,7 +203,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
@@ -253,7 +254,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:record.error]);
@@ -282,7 +283,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          if (![NSString msidIsStringNilOrBlank:oauthError])
          {
              NSError *msidError =
-             MSIDCreateError(MSIDErrorDomain, MSIDErrorDeveloperAuthorityValidation, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
+             MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
              
              // If the error is something other than invalid_instance then something wrong is happening
              // on the server.
