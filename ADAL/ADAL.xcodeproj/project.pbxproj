@@ -221,6 +221,8 @@
 		96B9F04720DDFC0C006C806C /* adal__additional_settings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 96B9F04620DDFC0C006C806C /* adal__additional_settings.xcconfig */; };
 		96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
+		B2000C8420EC5E990092790A /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; };
+		B2000C8520EC5E990092790A /* ADAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */; };
 		B20DC5961F0D96A100957806 /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
@@ -462,7 +464,6 @@
 		D6D9A5591FBFB62500EFA430 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A5181FBFB58000EFA430 /* Credits.rtf */; };
 		D6D9A5631FBFB96600EFA430 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		D6D9A5641FBFBA6000EFA430 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6D9A5131FBFB58000EFA430 /* Images.xcassets */; };
-		D6D9A5671FBFBEE700EFA430 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; };
 		D6D9A5691FBFBF8100EFA430 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9A5681FBFBF8100EFA430 /* Cocoa.framework */; };
 		D6D9A56B1FBFBF8900EFA430 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D9A56A1FBFBF8900EFA430 /* Security.framework */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
@@ -510,6 +511,13 @@
 			remoteInfo = ADAL;
 		};
 		94DD18E71C5ACFBF00F80C62 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
+			remoteInfo = "ADAL Mac";
+		};
+		B2000C8620EC5E990092790A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
 			proxyType = 1;
@@ -719,13 +727,6 @@
 			remoteGlobalIDString = D664F16A1D302B9C0017B799;
 			remoteInfo = "ADAL-core";
 		};
-		D6D9A5651FBFBED200EFA430 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
-			remoteInfo = "ADAL Mac";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -751,6 +752,17 @@
 				D69A72181D4FF65200E91DB3 /* ADKeychainTokenCache.h in Copy Files */,
 			);
 			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2000C8820EC5E9A0092790A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B2000C8520EC5E990092790A /* ADAL.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B2FE1381207C404D0012F0FD /* CopyFiles */ = {
@@ -1295,8 +1307,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6D9A56B1FBFBF8900EFA430 /* Security.framework in Frameworks */,
+				B2000C8420EC5E990092790A /* ADAL.framework in Frameworks */,
 				D6D9A5691FBFBF8100EFA430 /* Cocoa.framework in Frameworks */,
-				D6D9A5671FBFBEE700EFA430 /* ADAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2514,11 +2526,12 @@
 				D6D9A4F51FBFB47200EFA430 /* Sources */,
 				D6D9A4F61FBFB47200EFA430 /* Frameworks */,
 				D6D9A4F71FBFB47200EFA430 /* Resources */,
+				B2000C8820EC5E9A0092790A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				D6D9A5661FBFBED200EFA430 /* PBXTargetDependency */,
+				B2000C8720EC5E990092790A /* PBXTargetDependency */,
 			);
 			name = MacTestApp;
 			productName = MacTestApp;
@@ -3302,6 +3315,11 @@
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = 94DD18E71C5ACFBF00F80C62 /* PBXContainerItemProxy */;
 		};
+		B2000C8720EC5E990092790A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
+			targetProxy = B2000C8620EC5E990092790A /* PBXContainerItemProxy */;
+		};
 		B20DC5841F0D96A100957806 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 04AB6D411D9D619B007E9A83 /* UnitTestHostApp */;
@@ -3381,11 +3399,6 @@
 			isa = PBXTargetDependency;
 			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
 			targetProxy = D6D9A5611FBFB95E00EFA430 /* PBXContainerItemProxy */;
-		};
-		D6D9A5661FBFBED200EFA430 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
-			targetProxy = D6D9A5651FBFBED200EFA430 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -3725,6 +3738,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */;
 			buildSettings = {
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 			};
 			name = Debug;
 		};
@@ -3732,6 +3746,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */;
 			buildSettings = {
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 			};
 			name = Release;
 		};
