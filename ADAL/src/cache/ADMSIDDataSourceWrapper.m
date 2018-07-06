@@ -34,11 +34,16 @@
 #import "ADUserInformation.h"
 #import "MSIDLegacyTokenCacheQuery.h"
 #import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface ADMSIDDataSourceWrapper()
 
 @property (nonatomic) id<MSIDTokenCacheDataSource> dataSource;
 @property (nonatomic) id<MSIDCredentialItemSerializer> seriazer;
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *legacyAccessor;
 
 @end
 
@@ -55,6 +60,14 @@
     {
         self.dataSource = dataSource;
         self.seriazer = serializer;
+
+        MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+#if TARGET_OS_IPHONE
+        MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil factory:factory];
+        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[defaultAccessor] factory:factory];
+#else
+        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil factory:factory];
+#endif
     }
     
     return self;
@@ -248,38 +261,27 @@
     MSID_LOG_WARN(nil, @"Removing all items for user.");
     MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
     
-    BOOL result = [self removeAllForUserIdImpl:userId clientId:nil error:error];
-    
-    if (result)
-    {
-        [self.dataSource saveWipeInfoWithContext:nil error:nil];
-    }
-    
-    return result;
+    return [self removeAllForUserIdImpl:userId clientId:nil error:error];
 }
 
 - (BOOL)removeAllForUserIdImpl:(NSString *)userId
                       clientId:(NSString *)clientId
                          error:(ADAuthenticationError **)error
 {
-    NSArray *items = [self allItems:nil];
-    
-    if (!items)
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:userId homeAccountId:nil];
+
+    NSError *msidError = nil;
+    BOOL result = [_legacyAccessor clearCacheForAccount:account
+                                               clientId:clientId
+                                                context:nil
+                                                  error:&msidError];
+
+    if (!result && error)
     {
-        return NO;
+        *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
     }
-    
-    for (ADTokenCacheItem *item in items)
-    {
-        if ((!userId || [userId isEqualToString:[[item userInformation] userId]])
-            && (!clientId || [clientId isEqualToString:[item clientId]])
-            && ![self removeItem:item error:error])
-        {
-            return NO;
-        }
-    }
-    
-    return YES;
+
+    return result;
 }
 
 - (NSDictionary *)getWipeTokenData
