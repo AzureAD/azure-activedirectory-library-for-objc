@@ -169,8 +169,8 @@
 
 //Creates a sample user information object
 - (ADUserInformation *)adCreateUserInformation:(NSString *)userId;
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeUserId:(NSString *)homeUserId;
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeUserId:(NSString *)homeUserId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeAccountId:(NSString *)homeAccountId;
 
 - (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
 - (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;

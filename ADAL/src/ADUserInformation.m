@@ -80,7 +80,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
                                             error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [[ADUserInformation alloc] initWithIdToken:idToken
-                                           homeUserId:nil
+                                        homeAccountId:nil
                                                 error:error];
 }
 
@@ -88,9 +88,9 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
     NSString *idtoken = [_rawIdToken copyWithZone:zone];
-    NSString *homeUserId = [_homeUserId copyWithZone:zone];
+    NSString *homeAccountId = [_homeAccountId copyWithZone:zone];
     ADUserInformation *info = [[ADUserInformation allocWithZone:zone] initWithIdToken:idtoken
-                                                                           homeUserId:homeUserId
+                                                                        homeAccountId:homeAccountId
                                                                                 error:nil];
     return info;
 }
@@ -116,7 +116,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     
     BOOL result = YES;
     result &= (!self.rawIdToken && !rhs.rawIdToken) || [self.rawIdToken isEqualToString:rhs.rawIdToken];
-    result &= (!self.homeUserId && !rhs.homeUserId) || [self.homeUserId isEqualToString:rhs.homeUserId];
+    result &= (!self.homeAccountId && !rhs.homeAccountId) || [self.homeAccountId isEqualToString:rhs.homeAccountId];
     
     return result;
 }
@@ -147,7 +147,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     NSString* idToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
     
     return [self initWithIdToken:idToken
-                      homeUserId:nil
+                   homeAccountId:nil
                            error:nil];
 }
 

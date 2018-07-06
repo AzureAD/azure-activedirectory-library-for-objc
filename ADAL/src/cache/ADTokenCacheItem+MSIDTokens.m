@@ -46,7 +46,7 @@
     if (self)
     {
         _userInformation = [self createUserInfoWithIdToken:accessToken.idToken
-                                                homeUserId:accessToken.clientInfo.userIdentifier];
+                                             homeAccountId:accessToken.clientInfo.accountIdentifier];
         _accessTokenType = accessToken.accessTokenType;
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
@@ -64,7 +64,7 @@
     if (self)
     {
         _userInformation = [self createUserInfoWithIdToken:refreshToken.idToken
-                                                homeUserId:refreshToken.clientInfo.userIdentifier];
+                                             homeAccountId:refreshToken.clientInfo.accountIdentifier];
         _refreshToken = refreshToken.refreshToken;
         _familyId = refreshToken.familyId;
     }
@@ -107,11 +107,11 @@
 
 #pragma mark - Private
 
-- (ADUserInformation *)createUserInfoWithIdToken:(NSString *)idToken homeUserId:(NSString *)homeUserId
+- (ADUserInformation *)createUserInfoWithIdToken:(NSString *)idToken homeAccountId:(NSString *)homeAccountId
 {
     NSError *error;
     ADUserInformation *userInformation = [ADUserInformation userInformationWithIdToken:idToken
-                                                                            homeUserId:homeUserId
+                                                                         homeAccountId:homeAccountId
                                                                                  error:&error];
     if (error)
     {
@@ -164,7 +164,7 @@
     cacheItem.authority = [NSURL URLWithString:self.authority];
     cacheItem.environment = cacheItem.authority.msidHostWithPortIfNecessary;
     cacheItem.realm = cacheItem.authority.msidTenant;
-    cacheItem.homeAccountId = self.userInformation.homeUserId;
+    cacheItem.homeAccountId = self.userInformation.homeAccountId;
     cacheItem.credentialType = [MSIDCredentialTypeHelpers credentialTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
     cacheItem.additionalInfo = self.additionalServer;
     return cacheItem;

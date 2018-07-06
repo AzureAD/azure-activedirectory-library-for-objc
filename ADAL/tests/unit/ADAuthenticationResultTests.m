@@ -220,7 +220,7 @@
     XCTAssertNotNil(result);
     XCTAssertNil(result.error);
     XCTAssertNotNil(result.tokenCacheItem);
-    XCTAssertNil(result.tokenCacheItem.userInformation.homeUserId);
+    XCTAssertNil(result.tokenCacheItem.userInformation.homeAccountId);
     XCTAssertEqual(result.tokenCacheItem.expiresOn.timeIntervalSince1970, 1444166530);
     XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"MyFakeAccessToken");
     XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"MyFakeRefreshToken");

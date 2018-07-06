@@ -120,7 +120,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     if (![NSString msidIsStringNilOrBlank:userId])
     {
-        item.userInformation = [self adCreateUserInformation:userId homeUserId:nil];
+        item.userInformation = [self adCreateUserInformation:userId homeAccountId:nil];
     }
     item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
     
@@ -175,7 +175,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.familyId = foci;
     if (![NSString msidIsStringNilOrBlank:userId])
     {
-        item.userInformation = [self adCreateUserInformation:userId homeUserId:nil];
+        item.userInformation = [self adCreateUserInformation:userId homeAccountId:nil];
     }
     
     return item;
@@ -218,19 +218,19 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     return [self adCreateUserInformation:userId
                                 tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
-                              homeUserId:nil];
+                           homeAccountId:nil];
 }
 
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeUserId:(NSString *)homeUserId
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId
 {
     return [self adCreateUserInformation:userId
                                 tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
-                              homeUserId:homeUserId];
+                           homeAccountId:homeAccountId];
 }
 
 - (ADUserInformation *)adCreateUserInformation:(NSString *)userId
                                       tenantId:(NSString *)tid
-                                    homeUserId:(NSString *)homeUserId
+                                 homeAccountId:(NSString *)homeAccountId
 {
     NSAssert(userId, @"userId cannot be nil!");
     NSDictionary* part1_claims = @{ @"typ" : @"JWT",
@@ -256,7 +256,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                          [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken
-                                                                     homeUserId:homeUserId
+                                                                  homeAccountId:homeAccountId
                                                                           error:nil];
     
     // If you're hitting this you might as well fix it before trying to run other tests.
