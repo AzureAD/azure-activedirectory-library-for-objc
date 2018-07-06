@@ -307,15 +307,15 @@
         //no UI to be shown.
         //If the underlying error is AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED,
         //Intune MAM remediation is needed and we should pass that instead.
-        ADAuthenticationResult* result;
+        ADAuthenticationResult *result;
         if (AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED == _underlyingError.code)
         {
             result = [ADAuthenticationResult resultFromError:_underlyingError correlationId:correlationId];
         }
         else
         {
-            NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-            ADAuthenticationError* error =
+            NSDictionary *underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
+            ADAuthenticationError *error =
             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                    protocolCode:nil
                                                    errorDetails:ADCredentialsNeeded

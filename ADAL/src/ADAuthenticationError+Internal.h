@@ -134,7 +134,7 @@
                                    userInfo:(NSDictionary *)userInfo;
 
 + (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
-                                    correlationID:(NSUUID *) correlationId
+                                    correlationID:(NSUUID *)correlationId
                                additionalUserInfo:(NSDictionary *)userInfo;
 
 #if AD_BROKER

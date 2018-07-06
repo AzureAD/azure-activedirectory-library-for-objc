@@ -78,7 +78,7 @@
 {
     if (!response)
     {
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
+        ADAuthenticationError *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                               protocolCode:nil
                                                                               errorDetails:@"processTokenResponse called without a response dictionary"
                                                                              correlationId:requestCorrelationId];
@@ -87,7 +87,7 @@
     
     [self checkCorrelationId:response requestCorrelationId:requestCorrelationId];
     
-    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(refreshToken) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
+    ADAuthenticationError *error = [ADAuthenticationContext errorFromDictionary:response errorCode:(refreshToken) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
     if (error)
     {
         if (refreshToken)
@@ -104,7 +104,7 @@
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    NSString* value = [response objectForKey:fieldToCheck];
+    NSString *value = [response objectForKey:fieldToCheck];
     if (![NSString msidIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
@@ -115,8 +115,8 @@
     else
     {
         // Bad item, the field we're looking for is missing.
-        NSString* details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details correlationId:requestCorrelationId];
+        NSString *details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
+        ADAuthenticationError *error = [ADAuthenticationError unexpectedInternalError:details correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];
     }
 }

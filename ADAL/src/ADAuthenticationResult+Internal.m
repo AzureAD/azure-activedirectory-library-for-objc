@@ -162,20 +162,20 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [ADAuthenticationResult resultFromError:error correlationId:nil];
 }
 
-+ (ADAuthenticationResult*)resultForBrokerErrorResponse:(NSDictionary*)response
++ (ADAuthenticationResult *)resultForBrokerErrorResponse:(NSDictionary *)response
 {
-    NSUUID* correlationId = nil;
-    NSString* uuidString = [response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID *correlationId = nil;
+    NSString *uuidString = [response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
     if (uuidString)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]];
     }
     
     // Otherwise parse out the error condition
-    ADAuthenticationError* error = nil;
-    NSMutableDictionary* userInfo = nil;
+    ADAuthenticationError *error = nil;
+    NSMutableDictionary *userInfo = nil;
     
-    NSString* errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+    NSString *errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
     if (!errorDetails)
     {
         errorDetails = @"Broker did not provide any details";
@@ -186,7 +186,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         [userInfo setValue:[response valueForKey:ADAL_BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
     }
         
-    NSString* strErrorCode = [response valueForKey:@"error_code"];
+    NSString *strErrorCode = [response valueForKey:@"error_code"];
     NSInteger errorCode = AD_ERROR_TOKENBROKER_UNKNOWN;
     if (strErrorCode && ![strErrorCode isEqualToString:@"0"])
     {
@@ -210,7 +210,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         }
     }
 
-    NSString* protocolCode = [response valueForKey:@"protocol_code"];
+    NSString *protocolCode = [response valueForKey:@"protocol_code"];
     if (!protocolCode)
     {
         // Older brokers used to send the protocol code as "code" and the error code not at all

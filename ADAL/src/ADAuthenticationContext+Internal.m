@@ -52,17 +52,17 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
-    NSString* serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
+    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
     if (![NSString msidIsStringNilOrBlank:serverOAuth2Error])
     {
-        NSString* errorDetails = [dictionary objectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        NSString *errorDetails = [dictionary objectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
         // Error response from the server
-        NSUUID* correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+        NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
                                 [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
 
         ADErrorCode code = errorCode;
-        NSString* suberror = [dictionary objectForKey:ADAL_AUTH_SUBERROR];
+        NSString *suberror = [dictionary objectForKey:ADAL_AUTH_SUBERROR];
         if (suberror && [suberror isEqualToString:ADAL_AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
