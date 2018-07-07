@@ -26,8 +26,6 @@
 #import "ADAuthenticationContext.h"
 #import "ADRequestParameters.h"
 
-#define TEST_APP
-
 @class ADUserIdentifier;
 @class MSIDLegacyTokenCacheAccessor;
 

@@ -24,8 +24,6 @@
 
 #import <Foundation/Foundation.h>
 
-#define TEST_APP
-
 @class MSIDLegacySingleResourceToken;
 @class MSIDRefreshToken;
 @class MSIDBaseToken;
