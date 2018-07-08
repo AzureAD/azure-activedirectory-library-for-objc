@@ -495,7 +495,7 @@
     
     [self acquireToken:config];
     [self aadEnterPassword];
-    
+
     XCUIElement *enrollButton = self.testApp.buttons[@"Enroll now"];
     [self waitForElement:enrollButton];
     [enrollButton msidTap];

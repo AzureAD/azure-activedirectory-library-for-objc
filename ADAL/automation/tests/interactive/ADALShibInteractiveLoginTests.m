@@ -90,6 +90,7 @@
     
     [self assertAccessTokenNotNil];
     [self closeResultView];
+    [self clearCookies];
     
     // Acquire token again.
     [self acquireToken:config];

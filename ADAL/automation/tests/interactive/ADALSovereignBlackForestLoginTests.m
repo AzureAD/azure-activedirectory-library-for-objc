@@ -62,6 +62,11 @@
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
     [self acquireToken:config];
+
+    XCUIElement *emailTextField = self.testApp.textFields[@"Enter your email, phone, or Skype."];
+    [self waitForElement:emailTextField];
+    [self.testApp.buttons[@"Next"] msidTap];
+
     [self blackforestComEnterPassword];
     
     [self assertAccessTokenNotNil];
