@@ -75,14 +75,14 @@
 
 }
 
-- (void)testenrollmentIdForUniqueAccountId_whenJSONIsCorrect_shouldReturnEnrollmentID
+- (void)testenrollmentIdForHomeAccountId_whenJSONIsCorrect_shouldReturnEnrollmentID
 {
     ADAuthenticationError *error = nil;
 
-    XCTAssert([@"adf79e3f-mike-454d-9f0f-2299e76dbfd5" isEqualToString: [ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]]);
+    XCTAssert([@"adf79e3f-mike-454d-9f0f-2299e76dbfd5" isEqualToString: [ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]]);
     XCTAssertNil(error);
 
-    XCTAssert([@"64d0557f-dave-4193-b630-8491ffd3b180" isEqualToString: [ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"1e4dd613-dave-4527-b50a-97aca38b57ba" error:&error]]);
+    XCTAssert([@"64d0557f-dave-4193-b630-8491ffd3b180" isEqualToString: [ADEnrollmentGateway enrollmentIdForHomeAccountId:@"1e4dd613-dave-4527-b50a-97aca38b57ba" error:&error]]);
     XCTAssertNil(error);
 
 }
@@ -105,12 +105,12 @@
     XCTAssertNotNil(error);
 }
 
-- (void)testEnrollmentIDforUniqueAccountId_whenJSONIsCorrupted_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDforHomeAccountId_whenJSONIsCorrupted_shouldReturnNilAndPopulateError
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"jlbasdivuhaefv98yqewrgiuyrviuahiuahiuvargiuho"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNotNil(error);
 }
 
@@ -133,12 +133,12 @@
 
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenJSONIsEmptyString_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsEmptyString_shouldReturnNilAndPopulateError
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@""]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNotNil(error);
 
 }
@@ -162,12 +162,12 @@
 
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenJSONIsEmptyDictionary_shouldReturnNilWithoutError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsEmptyDictionary_shouldReturnNilWithoutError
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"enrollment_ids\":[]}"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNil(error);
 
 }
@@ -193,13 +193,13 @@
 
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenJSONIsArbitraryDictionary_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsArbitraryDictionary_shouldReturnNilAndPopulateError
 {
     // random dictionary
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"aKey\":\"aValue\"}"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNotNil(error);
 }
 
@@ -223,13 +223,13 @@
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenJSONIsRightHighLevelFormWithMisconfiguredEntries_shouldReturnNilWithoutError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsRightHighLevelFormWithMisconfiguredEntries_shouldReturnNilWithoutError
 {
     // dictionary with right form but wrong entries
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"enrollment_ids\":[{\"aKey\":\"aValue\"},{\"anotherKey\":\"anotherValue\"}]}"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNil(error);
 }
 
@@ -253,13 +253,13 @@
     XCTAssertNotNil(error);
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenJSONIsDictionaryOfDictionaries_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsDictionaryOfDictionaries_shouldReturnNilAndPopulateError
 {
     // dictionary of dictionaries
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"{\"enrollment_ids\":{\"enrollment_ids\":{\"enrollment_ids\":\"enrollment_ids\"}}}"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNotNil(error);
 
 }
@@ -267,7 +267,7 @@
 - (void)testEnrollmentIDForUserId_whenJSONIsArrayInsteadOfDictionary_shouldReturnNilAndPopulateError
 {
     // top level is array instead of dictionary
-    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"unique_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
     ADAuthenticationError *error = nil;
 
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com" error:&error]);
@@ -277,20 +277,20 @@
 - (void)testEnrollmentIDForUserObjectId_whenJSONIsArrayInsteadOfDictionary_shouldReturnNilAndPopulateError
 {
     // top level is array instead of dictionary
-    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"unique_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
     ADAuthenticationError *error = nil;
 
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1" error:&error]);
     XCTAssertNotNil(error);
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenJSONIsArrayInsteadOfDictionary_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsArrayInsteadOfDictionary_shouldReturnNilAndPopulateError
 {
     // top level is array instead of dictionary
-    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"unique_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@"[{\"user_id\":\"mike@contoso.com\"},{\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\"}]"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNotNil(error);
 }
 
@@ -302,7 +302,7 @@
                                                        "{\n"
                                                        "\"tid\" : \"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\n"
                                                        "\"oid\" : \"d3444455-mike-4271-b6ea-e499cc0cab46\",\n"
-                                                       "\"unique_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
+                                                       "\"home_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
                                                        "\"user_id\" : \"mike@contoso.com\"\n"
                                                        "}]}"]];
     ADAuthenticationError *error = nil;
@@ -320,7 +320,7 @@
                                                        "{\n"
                                                        "\"tid\" : \"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\n"
                                                        "\"oid\" : \"d3444455-mike-4271-b6ea-e499cc0cab46\",\n"
-                                                       "\"unique_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
+                                                       "\"home_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
                                                        "\"user_id\" : \"mike@contoso.com\"\n"
                                                        "}]}"]];
     ADAuthenticationError *error = nil;
@@ -330,7 +330,7 @@
 
 }
 
-- (void)testEnrollmentIDForUniqueAccountId_whenEnrollmentIdIsMissing_shouldReturnNilWithoutError
+- (void)testEnrollmentIDForHomeAccountId_whenEnrollmentIdIsMissing_shouldReturnNilWithoutError
 {
     // enrollmentId missing
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:
@@ -338,12 +338,12 @@
                                                        "{\n"
                                                        "\"tid\" : \"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\n"
                                                        "\"oid\" : \"d3444455-mike-4271-b6ea-e499cc0cab46\",\n"
-                                                       "\"unique_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
+                                                       "\"home_account_id\" : \"60406d5d-mike-41e1-aa70-e97501076a22\",\n"
                                                        "\"user_id\" : \"mike@contoso.com\"\n"
                                                        "}]}"]];
     ADAuthenticationError *error = nil;
 
-    XCTAssertNil([ADEnrollmentGateway enrollmentIdForUniqueAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
+    XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
     XCTAssertNil(error);
 
 }

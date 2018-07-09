@@ -40,7 +40,7 @@ NSString *const ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 
 NSString *const TID = @"tid";
 NSString *const OID = @"oid";
-NSString *const UNIQUE_ACCOUNT_ID = @"unique_account_id";
+NSString *const HOME_ACCOUNT_ID = @"home_account_id";
 NSString *const USER_ID = @"user_id";
 NSString *const ENROLLMENT_ID = @"enrollment_id";
 
@@ -152,10 +152,10 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError * __autoreleasing *)error
++ (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [ADEnrollmentGateway getEnrollmentIDForIdentifier:^BOOL(NSDictionary *dic) {
-        return [[dic objectForKey:UNIQUE_ACCOUNT_ID] isEqualToString:uniqueAccountId];
+        return [[dic objectForKey:HOME_ACCOUNT_ID] isEqualToString:homeAccountId];
     }
                                                        error:error];
 }
@@ -169,12 +169,12 @@ static NSString *s_intuneResourceJSON = nil;
                                                        error:error];
 }
 
-+ (NSString *)enrollmentIDForUniqueAccountID:(NSString *) homeUserID userID:(NSString *) userID error:(ADAuthenticationError * __autoreleasing *)error
++ (NSString *)enrollmentIDForHomeAccountId:(NSString *) homeAccountId userID:(NSString *) userID error:(ADAuthenticationError * __autoreleasing *)error
 {
-    if (homeUserID)
+    if (homeAccountId)
     {
         // If homeAccountID is provided, always require an exact match
-        return [ADEnrollmentGateway enrollmentIdForUniqueAccountId:homeUserID error:error];
+        return [ADEnrollmentGateway enrollmentIdForHomeAccountId:homeAccountId error:error];
     }
     else
     {

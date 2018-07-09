@@ -25,7 +25,7 @@
 
 + (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError * __autoreleasing *)error;
 + (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError * __autoreleasing *)error;
-+ (NSString *)enrollmentIdForUniqueAccountId:(NSString *)uniqueAccountId error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*! Returns all known Intune MAM Enrollments IDs as JSON*/
 + (NSString *)allEnrollmentIdsJSON;
@@ -33,9 +33,9 @@
 /*! Returns the first available enrollmentID if one is available */
 + (NSString *)enrollmentIdIfAvailable:(ADAuthenticationError * __autoreleasing *)error;
 
-/*! Tries to find an enrollmentID for a homeUserID/uniqueAccoutnID first, then checks userID,
+/*! Tries to find an enrollmentID for a homeAccountId first, then checks userID,
     then returns any enrollmentID available */
-+ (NSString*)enrollmentIDForUniqueAccountID:(NSString*) homeUserID userID:(NSString*) userID error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString*)enrollmentIDForHomeAccountId:(NSString*) homeAccountId userID:(NSString*) userID error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*! Returns the Intune MAM resource for the associated authority*/
 + (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error;
