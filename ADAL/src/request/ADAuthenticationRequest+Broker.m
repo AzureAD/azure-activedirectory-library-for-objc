@@ -236,7 +236,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
                 {
                     if (intuneTokenResult.tokenCacheItem.userInformation.userId)
                     {
-                        [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"userID"];
+                        [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"user_id"];
                     }
 
                     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
