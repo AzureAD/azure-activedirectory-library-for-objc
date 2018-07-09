@@ -519,7 +519,7 @@
     if (![ADHelpers isADFSInstance:_requestParams.authority])
     {
         ADAuthenticationError *error = nil;
-        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
                                                                           userID:_requestParams.identifier.userId
                                                                            error:&error];
         if (enrollId)

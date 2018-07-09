@@ -131,7 +131,7 @@
     {
         NSString *userId = (cacheItem.userInformation.userId ? cacheItem.userInformation.userId : _requestParams.identifier.userId);
         ADAuthenticationError *error = nil;
-        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForUniqueAccountID:nil
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
                                                                           userID:userId
                                                                            error:&error];
 
