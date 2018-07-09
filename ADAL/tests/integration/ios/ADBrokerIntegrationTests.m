@@ -634,7 +634,7 @@
                                                 @"refresh_token" : @"i-am-a-refresh-token",
                                                 @"foci" : @"1",
                                                 @"expires_in" : @"3600",
-                                                @"client_info" : [self adCreateClientInfo].rawClientInfo
+                                                @"vt" : @YES,
                                                 };
         NSDictionary* encrypted_token = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:intune_token_response];
 
