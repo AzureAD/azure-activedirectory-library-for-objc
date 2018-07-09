@@ -28,10 +28,11 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
+#import <ADAL/ADTelemetry.h>
 
-@interface ADAutoMainViewController ()
+@interface ADAutoMainViewController () <ADDispatcher>
 
-@property (nonatomic) NSMutableString *resultLogs;
+@property (atomic) NSMutableString *resultLogs;
 
 @end
 
@@ -50,6 +51,7 @@
      }];
 
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
+    [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
 }
 
 - (ADAuthenticationContext *)contextFromParameters:(NSDictionary *)parameters
@@ -89,6 +91,10 @@
     return context;
 }
 
+- (void)dispatchEvent:(nonnull NSDictionary<NSString*, NSString*> *)event
+{
+    /* We don't want to do anything in the automation app with the event */
+}
 
 - (IBAction)acquireToken:(__unused id)sender
 {
@@ -475,7 +481,10 @@
 
     void (^completionBlock)(NSDictionary<NSString *, NSString *> * parameters) = ^void(NSDictionary<NSString *, NSString *> * parameters) {
 
-        weakSelf.resultLogs = [NSMutableString new];
+        /*
+         For stress tests we don't want to accumulate all the logs, otherwise it will run out of memory.
+         */
+        weakSelf.resultLogs = nil;
 
         if (parameters[@"error"])
         {
@@ -496,6 +505,7 @@
                 dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
                     ADAuthenticationError *error = nil;
                     ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                                                                         validateAuthority:YES
