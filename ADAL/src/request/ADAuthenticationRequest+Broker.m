@@ -225,10 +225,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
                                                                                              authority:intuneTokenResult.tokenCacheItem.authority];
 
                 [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
-            }
-
-            if (intuneTokenResult)
-            {
                 [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"user_id"];
             }
         }
