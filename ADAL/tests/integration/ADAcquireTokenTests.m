@@ -2236,12 +2236,214 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertEqualObjects(result.error.protocolCode, @"invalid_grant");
+         XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED);
 
          [expectation fulfill];
      }];
 
     [self waitForExpectations:@[expectation] timeout:1];
 
+    // Refresh token in cache should not be deleted because the token itself is different from
+    // the one provided by developer
+    ADTokenCacheItem *rtInCache = [self.cacheDataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
+    XCTAssertNotNil(rtInCache);
+}
+
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenIsNotPassedIn_shouldReturnError
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    [context acquireTokenWithRefreshToken:nil
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         //Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenIsPassedIn_shouldSkipCacheAndUseTheGivenRefreshToken
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // Add an AT and an MRRT to the cache
+    [self.cacheDataSource addOrUpdateItem:[self adCreateATCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // the request should be using refresh token from developer
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"refresh token from server"
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         //we should skip cache and hit network and get back new access token
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         XCTAssertEqualObjects(result.accessToken, @"access token from server");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"refresh token from server");
+         XCTAssertEqualObjects(result.tokenCacheItem.resource, TEST_RESOURCE);
+         XCTAssertEqualObjects(result.tokenCacheItem.clientId, TEST_CLIENT_ID);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenIsPassedIn_shouldStoreTokensIfSucceed
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // the request should be using refresh token from developer
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"refresh token from server"
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         //we should skip cache and hit network and get back new access token
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertEqualObjects(result.accessToken, @"access token from server");
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // make a silent call again to see if tokens are stored properly
+    expectation = [self expectationWithDescription:@"acquireTokenSilent"];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         XCTAssertEqualObjects(result.accessToken, @"access token from server");
+         XCTAssertEqualObjects(result.tokenCacheItem.resource, TEST_RESOURCE);
+         XCTAssertEqualObjects(result.tokenCacheItem.clientId, TEST_CLIENT_ID);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenRejected_shouldNotDeleteTokenInCacheWithSameCacheKey
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // Add an MRRT to the cache
+    [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Network Response to reject developer's refresh token
+    ADTestURLResponse *response = [self adResponseBadRefreshToken:@"refresh token from developer"
+                                                        authority:TEST_AUTHORITY
+                                                         resource:TEST_RESOURCE
+                                                         clientId:TEST_CLIENT_ID
+                                                       oauthError:@"invalid_grant"
+                                                    correlationId:TEST_CORRELATION_ID];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         // We should fail with "invalid_grant" error
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqualObjects(result.error.protocolCode, @"invalid_grant");
+         XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
     // Refresh token in cache should not be deleted because the token itself is different from
     // the one provided by developer
     ADTokenCacheItem *rtInCache = [self.cacheDataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
