@@ -622,6 +622,7 @@
                                                           @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
                                                           @"error" : @"unauthorized_client",
                                                           @"suberror" : @"protection_policies_required",
+                                                          ADAL_BROKER_APP_VERSION : @"2",
                                                           }];
 
         NSDictionary *intune_token_response = @{
@@ -664,6 +665,9 @@
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"protection_policies_required");
+         XCTAssertEqualObjects(result.error.userInfo[ADUserIdKey], [[self adCreateUserInformation:TEST_USER_ID] userId]);
+         XCTAssertEqualObjects(result.error.userInfo[ADBrokerVersionKey], @"2");
 
          [expectation fulfill];
      }];
