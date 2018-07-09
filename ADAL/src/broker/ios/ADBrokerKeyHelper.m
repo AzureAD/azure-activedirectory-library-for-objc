@@ -324,6 +324,12 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 
     NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
+    if (!decryptedString)
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to initialize decrypted string", correlationId);
+        return nil;
+    }
+
     //now compute the hash on the unencrypted data
     NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
     if(![hash isEqualToString:actualHash])
