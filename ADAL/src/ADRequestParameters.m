@@ -34,6 +34,7 @@
 @synthesize identifier = _identifier;
 @synthesize tokenCache = _tokenCache;
 @synthesize extendedLifetime = _extendedLifetime;
+@synthesize forceRefresh = _forceRefresh;
 @synthesize correlationId = _correlationId;
 @synthesize telemetryRequestId = _telemetryRequestId;
 
@@ -80,6 +81,7 @@
     parameters->_tokenCache = _tokenCache;
     parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
+    parameters->_forceRefresh = _forceRefresh;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     
     return parameters;

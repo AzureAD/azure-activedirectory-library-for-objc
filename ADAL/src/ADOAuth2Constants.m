@@ -100,6 +100,8 @@ NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
 NSString *const AUTH_SUBERROR                    = @"suberror";
 NSString *const AUTH_PROTECTION_POLICY_REQUIRED  = @"protection_policy_required";
 
+NSString *const AD_MICROSOFT_ENROLLMENT_ID   = @"microsoft_enrollment_id";
+
 //application constants
 NSString* const ADAL_BROKER_SCHEME = @"msauth";
 NSString* const ADAL_BROKER_APP_REDIRECT_URI = @"urn:ietf:wg:oauth:2.0:oob";

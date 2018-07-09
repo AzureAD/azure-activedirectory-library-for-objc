@@ -36,6 +36,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADEnrollmentGateway.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -126,7 +127,19 @@
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
     }
     
-    ADWebAuthRequest* webReq =
+    if (![ADHelpers isADFSInstance:_requestParams.authority])
+    {
+        NSString *userId = (cacheItem.userInformation.userId ? cacheItem.userInformation.userId : _requestParams.identifier.userId);
+        ADAuthenticationError *error = nil;
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
+                                                                          userID:userId
+                                                                           error:&error];
+
+        if (enrollId)
+            [request_data setObject:enrollId forKey:AD_MICROSOFT_ENROLLMENT_ID];
+    }
+
+    ADWebAuthRequest *webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
@@ -301,7 +314,7 @@
     }
     
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && !item.isExpired)
+    if (item.accessToken && !item.isExpired && !_requestParams.forceRefresh)
     {
         [ADLogger logToken:item.accessToken
                  tokenType:@"AT"
@@ -317,7 +330,7 @@
     }
     
     // If the access token is good in terms of extended lifetime then store it for later use
-    if (item.accessToken && item.isExtendedLifetimeValid)
+    if (item.accessToken && item.isExtendedLifetimeValid && !_requestParams.forceRefresh)
     {
         _extendedLifetimeAccessTokenItem = item;
     }

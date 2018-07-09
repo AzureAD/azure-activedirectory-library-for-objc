@@ -1,3 +1,15 @@
+Version 2.6.4 (07.13.2018)
+-------------
+* Improved Negotiate handler to decide if it should use default handling or reject for macOS authentication (#1181)
+* ADCertAuthHandler should match preferred identity by both host and URL for macOS certificate based authentication (#1183)
+* Reject protection space when no suitable cert is found for macOS certificate based authentication (#1190)
+* Add new API to skip access token in cache by passing a forceRefresh parameter (#1205)
+* intune enrollment id support (#1218, #1219, #1209, #1210, #1211, #1212, #1217)
+
+Version 2.6.3 (04.24.2018)
+-------------
+* Fixed iOS 11.3 issue, when backgrounding application during the interactive authentication fails the login flow (#1196)
+
 Version 2.6.2 (03.27.2018)
 -------------
 * Fix a bug in remove APIs that could cause user not being completely removed (#1175)
