@@ -191,7 +191,7 @@
     XCTAssertEqualObjects(result.tokenCacheItem.userInformation.userId, @"myfakeuser@contoso.com");
 }
 
-- (void)testResultFromBrokerResponse_whenResponseIsValidWithSpecificTenantAndVTFlagNoClientInfo_shouldReturnResultWithTokenCacheItemWithNilAccessToken
+- (void)testResultFromBrokerResponse_whenResponseIsValidWithSpecificTenantAndVTFlagNoClientInfo_shouldReturnResultWithTokenCacheItemWithAndAccessToken
 {
     // Not a complete IDToken, but enough to get past the parser. If you're seeing this test fail and have recently
     // changed the idtoken code then this might have to be tweaked.
@@ -220,8 +220,9 @@
     XCTAssertNotNil(result);
     XCTAssertNil(result.error);
     XCTAssertNotNil(result.tokenCacheItem);
+    XCTAssertNil(result.tokenCacheItem.userInformation.homeAccountId);
     XCTAssertEqual(result.tokenCacheItem.expiresOn.timeIntervalSince1970, 1444166530);
-    XCTAssertNil(result.tokenCacheItem.accessToken);
+    XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"MyFakeAccessToken");
     XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"MyFakeRefreshToken");
     XCTAssertEqualObjects(result.tokenCacheItem.resource, @"MyFakeResource");
     XCTAssertEqualObjects(result.tokenCacheItem.clientId, @"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F");

@@ -308,7 +308,7 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:nil];
+        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"" homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
                                                    configuration:_requestParams.msidConfig

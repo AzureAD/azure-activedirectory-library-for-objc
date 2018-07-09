@@ -53,9 +53,10 @@
 - (void)testInitWithAccessToken_shouldInitADTokenCacheItem
 {
     MSIDLegacyAccessToken *accessToken = [self adCreateAccessToken];
+    accessToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
-                                                                homeUserId:accessToken.clientInfo.userIdentifier];
-    
+                                                             homeAccountId:accessToken.clientInfo.accountIdentifier];
+
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithLegacyAccessToken:accessToken];
     
     XCTAssertNotNil(adToken);
@@ -68,6 +69,7 @@
     XCTAssertNil(adToken.familyId);
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.storageAuthority, @"https://login.authority2.com/common");
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
 }
@@ -82,9 +84,10 @@
 - (void)testInitWithRefreshToken_shouldInitADTokenCacheItem
 {
     MSIDLegacyRefreshToken *refreshToken = [self adCreateRefreshToken];
+    refreshToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
-                                                                homeUserId:refreshToken.clientInfo.userIdentifier];
-    
+                                                             homeAccountId:refreshToken.clientInfo.accountIdentifier];
+
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithLegacyRefreshToken:refreshToken];
     
     XCTAssertNotNil(adToken);
@@ -97,6 +100,7 @@
     XCTAssertEqualObjects(adToken.familyId, @"family Id");
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.storageAuthority, @"https://login.authority2.com/common");
     XCTAssertNil(adToken.resource);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
 }
@@ -111,9 +115,10 @@
 - (void)testInitWithLegacySingleResourceToken_shouldInitADTokenCacheItem
 {
     MSIDLegacySingleResourceToken *legacySingleResourceToken = [self adCreateLegacySingleResourceToken];
+    legacySingleResourceToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
-                                                                homeUserId:legacySingleResourceToken.clientInfo.userIdentifier];
-    
+                                                             homeAccountId:legacySingleResourceToken.clientInfo.accountIdentifier];
+
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:legacySingleResourceToken];
     
     XCTAssertNotNil(adToken);
@@ -126,6 +131,7 @@
     XCTAssertNil(adToken.familyId);
     XCTAssertEqualObjects(adToken.clientId, TEST_CLIENT_ID);
     XCTAssertEqualObjects(adToken.authority, TEST_AUTHORITY);
+    XCTAssertEqualObjects(adToken.storageAuthority, @"https://login.authority2.com/common");
     XCTAssertEqualObjects(adToken.resource, TEST_RESOURCE);
     XCTAssertEqualObjects(adToken.additionalServer, @{@"key2" : @"value2"});
 }
@@ -135,8 +141,8 @@
     MSIDLegacyAccessToken *accessToken = [self adCreateAccessToken];
     MSIDLegacyTokenCacheItem *accessTokenCacheItem = [accessToken legacyTokenCacheItem];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
-                                                                homeUserId:accessTokenCacheItem.clientInfo.userIdentifier];
-    
+                                                             homeAccountId:accessTokenCacheItem.clientInfo.accountIdentifier];
+
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithMSIDLegacyTokenCacheItem:accessTokenCacheItem];
     
     XCTAssertNotNil(adToken);
@@ -157,7 +163,7 @@
 {
     MSIDLegacyTokenCacheItem *refreshTokenCacheItem = [[self adCreateRefreshToken] legacyTokenCacheItem];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
-                                                                homeUserId:refreshTokenCacheItem.clientInfo.userIdentifier];
+                                                             homeAccountId:refreshTokenCacheItem.clientInfo.accountIdentifier];
     
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithMSIDLegacyTokenCacheItem:refreshTokenCacheItem];
     
@@ -179,8 +185,8 @@
 {
     MSIDLegacyTokenCacheItem *legacySingleResourceToken = [[self adCreateLegacySingleResourceToken] legacyTokenCacheItem];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
-                                                                homeUserId:legacySingleResourceToken.clientInfo.userIdentifier];
-    
+                                                             homeAccountId:legacySingleResourceToken.clientInfo.accountIdentifier];
+
     ADTokenCacheItem *adToken = [[ADTokenCacheItem alloc] initWithMSIDLegacyTokenCacheItem:legacySingleResourceToken];
     
     XCTAssertNotNil(adToken);
@@ -200,7 +206,7 @@
 - (void)testCreateTokenCacheIten_whenAccessToken_shouldReturnMSIDTokenCacheItem
 {
     ADUserInformation *userInfo = [self adCreateUserInformation:TEST_USER_ID
-                                                     homeUserId:@"uid.utid"];
+                                                  homeAccountId:@"uid.utid"];
     
     ADTokenCacheItem *cacheItem = [ADTokenCacheItem new];
     cacheItem.clientId = TEST_CLIENT_ID;
@@ -228,7 +234,7 @@
 - (void)testCreateTokenCacheIten_whenRefreshToken_shouldReturnMSIDTokenCacheItem
 {
     ADUserInformation *userInfo = [self adCreateUserInformation:TEST_USER_ID
-                                                     homeUserId:@"uid.utid"];
+                                                  homeAccountId:@"uid.utid"];
     
     ADTokenCacheItem *cacheItem = [ADTokenCacheItem new];
     cacheItem.clientId = TEST_CLIENT_ID;
@@ -252,7 +258,7 @@
 - (void)testCreateTokenCacheIten_whenSingleResourceRefreshToken_shouldReturnMSIDTokenCacheItem
 {
     ADUserInformation *userInfo = [self adCreateUserInformation:TEST_USER_ID
-                                                     homeUserId:@"uid.utid"];
+                                                  homeAccountId:@"uid.utid"];
     
     ADTokenCacheItem *cacheItem = [ADTokenCacheItem new];
     cacheItem.clientId = TEST_CLIENT_ID;

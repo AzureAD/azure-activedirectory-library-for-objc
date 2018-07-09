@@ -51,17 +51,17 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
 @implementation ADUserInformation (Internal)
 
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
-                                      homeUserId:(NSString *)homeUserId
+                                    homeAccountId:(NSString *)homeAccountId
                                            error:(ADAuthenticationError * __autoreleasing *)error
 {
     ADUserInformation *userInfo = [[ADUserInformation alloc] initWithIdToken:idToken
-                                                                  homeUserId:homeUserId
+                                                               homeAccountId:homeAccountId
                                                                        error:error];
     return userInfo;
 }
 
 - (id)initWithIdToken:(NSString *)idToken
-           homeUserId:(NSString *)homeUserId
+        homeAccountId:(NSString *)homeAccountId
                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (!(self = [super init]))
@@ -77,7 +77,7 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     _rawIdToken = idToken;
-    _homeUserId = homeUserId;
+    _homeAccountId = homeAccountId;
 
     NSError *idTokenError = nil;
     MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:_rawIdToken error:&idTokenError];

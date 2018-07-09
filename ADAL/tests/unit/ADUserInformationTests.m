@@ -45,8 +45,8 @@
 
 - (void)testIsEqual_whenAllPropertiesAreEqual_shouldReturnTrue
 {
-    ADUserInformation *lhs = [self adCreateUserInformation:@"eric_cartman@contoso.com" homeUserId:@"123"];
-    ADUserInformation *rhs = [self adCreateUserInformation:@"eric_cartman@contoso.com" homeUserId:@"123"];
+    ADUserInformation *lhs = [self adCreateUserInformation:@"eric_cartman@contoso.com" homeAccountId:@"123"];
+    ADUserInformation *rhs = [self adCreateUserInformation:@"eric_cartman@contoso.com" homeAccountId:@"123"];
     
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -61,12 +61,12 @@
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenHomeUserIdIsNotEqual_shouldReturnFalse
+- (void)testIsEqual_whenHomeAccountIdIsNotEqual_shouldReturnFalse
 {
     ADUserInformation *lhs = [self createEmptyUserInformation];
-    [lhs setValue:@"qwe" forKey:@"homeUserId"];
+    [lhs setValue:@"qwe" forKey:@"homeAccountId"];
     ADUserInformation *rhs = [self createEmptyUserInformation];
-    [rhs setValue:@"asd" forKey:@"homeUserId"];
+    [rhs setValue:@"asd" forKey:@"homeAccountId"];
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
@@ -188,7 +188,7 @@
 
 - (ADUserInformation *)createEmptyUserInformation
 {
-    ADUserInformation *information = [self adCreateUserInformation:@"eric_cartman@contoso.com" homeUserId:@"1234.home"];
+    ADUserInformation *information = [self adCreateUserInformation:@"eric_cartman@contoso.com" homeAccountId:@"1234.home"];
     [information setValue:nil forKey:@"allClaims"];
     [information setValue:nil forKey:@"rawIdToken"];
     [information setValue:nil forKey:@"uniqueId"];
