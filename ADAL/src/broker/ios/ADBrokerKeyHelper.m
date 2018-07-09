@@ -291,7 +291,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     s_symmetricKeyOverride = base64Key ? [NSString adBase64UrlDecodeData:base64Key] : nil;
 }
 
-+ (NSDictionary *) decryptBrokerResponse:(NSDictionary *) response correlationId:(NSUUID *) correlationId error:(ADAuthenticationError * __autoreleasing *)error
++ (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString* hash = [response valueForKey:BROKER_HASH_KEY];
     if (!hash)
