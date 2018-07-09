@@ -49,6 +49,10 @@
 
 - (void)tearDown
 {
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:@"{}"];
+
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@"{}"];
+    
     [super tearDown];
 }
 
