@@ -470,14 +470,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
                          redirectUri:(NSURL *)redirectUri
-                      userIdentifier:(ADUserIdentifier *)userId
+                              userId:(NSString *)userId
                      completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     CHECK_STRING_ARG_BLOCK(refreshToken);
     [request setRefreshToken:refreshToken];
-    [request setUserIdentifier:userId];
+    [request setUserId:userId];
     [request setScopesString:MSID_OAUTH2_SCOPE_OPENID_VALUE];
     [request setSilent:YES];
     

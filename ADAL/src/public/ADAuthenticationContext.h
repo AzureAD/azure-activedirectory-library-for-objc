@@ -458,14 +458,14 @@ typedef enum
  @param resource The resource whose token is needed.
  @param clientId The client identifier
  @param redirectUri The redirect URI according to OAuth2 protocol
- @param userId An ADUserIdentifier object describing the user being authenticated
+ @param userId The user matching the refresh token provided. If there is a mismatch, error will be returned
  @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithRefreshToken:(NSString *)refreshToken
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
                          redirectUri:(NSURL *)redirectUri
-                      userIdentifier:(ADUserIdentifier *)userId
+                              userId:(NSString *)userId
                      completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

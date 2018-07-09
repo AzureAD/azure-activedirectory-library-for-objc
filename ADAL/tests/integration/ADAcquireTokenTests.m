@@ -2259,7 +2259,7 @@ const int sAsyncContextTimeout = 10;
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL
-                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                   userId:TEST_USER_ID
                           completionBlock:^(ADAuthenticationResult *result)
      {
          //Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
@@ -2311,7 +2311,7 @@ const int sAsyncContextTimeout = 10;
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL
-                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                   userId:TEST_USER_ID
                           completionBlock:^(ADAuthenticationResult *result)
      {
          //we should skip cache and hit network and get back new access token
@@ -2360,7 +2360,7 @@ const int sAsyncContextTimeout = 10;
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL
-                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                   userId:TEST_USER_ID
                           completionBlock:^(ADAuthenticationResult *result)
      {
          //we should skip cache and hit network and get back new access token
@@ -2429,7 +2429,7 @@ const int sAsyncContextTimeout = 10;
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL
-                           userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                   userId:TEST_USER_ID
                           completionBlock:^(ADAuthenticationResult *result)
      {
          // We should fail with "invalid_grant" error
@@ -2448,6 +2448,51 @@ const int sAsyncContextTimeout = 10;
     // the one provided by developer
     ADTokenCacheItem *rtInCache = [self.cacheDataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
     XCTAssertNotNil(rtInCache);
+}
+
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenAndUserIdMismatch_shouldReturnError
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
+    
+    // the request should be using refresh token from developer
+    ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"refresh token from server"
+                                                newAccessToken:@"access token from server"
+                                                    newIDToken:[self adDefaultIDToken]];
+    
+    // explicitly set scope=open as the required field in request body
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                       MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
+                                       MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+    
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenWithRefreshToken:@"refresh token from developer"
+                                 resource:TEST_RESOURCE
+                                 clientId:TEST_CLIENT_ID
+                              redirectUri:TEST_REDIRECT_URL
+                                   userId:@"mismatchuser@abc.com"
+                          completionBlock:^(ADAuthenticationResult *result)
+     {
+         //error is returned because user id provided does not match the refresh token
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqual(result.error.domain, ADAuthenticationErrorDomain);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_WRONG_USER);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
 }
 
 #if TARGET_OS_IPHONE
