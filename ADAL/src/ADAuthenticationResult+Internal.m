@@ -173,7 +173,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     // Otherwise parse out the error condition
     ADAuthenticationError *error = nil;
-    NSMutableDictionary *userInfo = nil;
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
     
     NSString *errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
     if (!errorDetails)
@@ -198,7 +198,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
         // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
-        userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
+
         if ([response valueForKey:ADAL_AUTH_SUBERROR])
         {
             [userInfo setValue:[response valueForKey:ADAL_AUTH_SUBERROR] forKey:ADSuberrorKey];
