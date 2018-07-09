@@ -329,6 +329,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:newUserInfo];
 }
 
+#if AD_BROKER
 + (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
                                                             correlationID:(NSUUID *) correlationId
                                                                     token:(ADTokenCacheItem*) token
@@ -338,6 +339,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                            correlationID:correlationId
                                       additionalUserInfo:tokenDictionary];
 }
+#endif
 
 - (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain
