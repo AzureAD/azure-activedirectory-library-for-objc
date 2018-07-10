@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+ // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -43,7 +43,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
     BOOL result = [factory verifyResponse:response
-                          fromRefreshToken:refreshToken != nil
+                          fromRefreshToken:refreshToken
                                    context:requestParams
                                      error:&msidError];
     

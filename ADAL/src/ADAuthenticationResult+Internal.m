@@ -265,7 +265,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
     BOOL processResult = [factory verifyResponse:response.tokenResponse
-                                fromRefreshToken:NO
+                                fromRefreshToken:nil
                                          context:nil
                                            error:&msidError];
     
