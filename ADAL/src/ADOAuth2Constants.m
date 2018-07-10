@@ -67,6 +67,8 @@ NSString *const BROKER_MESSAGE_VERSION          = @"msg_protocol_ver";
 NSString *const BROKER_APP_VERSION              = @"x-broker-app-ver";
 NSString *const BROKER_RESPONSE_KEY             = @"response";
 NSString *const BROKER_HASH_KEY                 = @"hash";
+NSString *const BROKER_INTUNE_RESPONSE_KEY      = @"intune_mam_token";
+NSString *const BROKER_INTUNE_HASH_KEY          = @"intune_mam_token_hash";
 
 NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";
 
@@ -94,6 +96,9 @@ NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 
 NSString *const AUTH_USERNAME_KEY                = @"username";
 NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
+
+NSString *const AUTH_SUBERROR                    = @"suberror";
+NSString *const AUTH_PROTECTION_POLICY_REQUIRED  = @"protection_policy_required";
 
 NSString *const AD_MICROSOFT_ENROLLMENT_ID   = @"microsoft_enrollment_id";
 

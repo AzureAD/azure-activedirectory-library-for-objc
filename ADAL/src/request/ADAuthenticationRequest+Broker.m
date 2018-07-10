@@ -160,19 +160,18 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     if (!response)
     {
-        
         return nil;
     }
     
-    NSDictionary* resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
     if (!resumeDictionary)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_NO_RESUME_STATE, @"No resume state found in NSUserDefaults", nil);
         return nil;
     }
     
-    NSUUID* correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
-    NSString* redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
+    NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
     if (!redirectUri)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_BAD_RESUME_STATE, @"Resume state is missing the redirect uri!", correlationId);
@@ -187,74 +186,82 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     }
     
     // NSURLComponents resolves some URLs which can't get resolved by NSURL
-    NSURLComponents* components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
-    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    
+    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
+
+    NSString *keychainGroup = resumeDictionary[@"keychain_group"];
+
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
-        return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+        // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
+        NSMutableDictionary *brokerResponse = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
+        if (queryParamsMap[BROKER_INTUNE_HASH_KEY] && queryParamsMap[BROKER_INTUNE_RESPONSE_KEY])
+        {
+            ADAuthenticationError *intuneTokenError = nil;
+            NSDictionary *responseDictionary = @{BROKER_RESPONSE_KEY:queryParamsMap[BROKER_INTUNE_RESPONSE_KEY],
+                                                 BROKER_HASH_KEY:queryParamsMap[BROKER_INTUNE_HASH_KEY],
+                                                 BROKER_MESSAGE_VERSION:queryParamsMap[BROKER_MESSAGE_VERSION] ? queryParamsMap[BROKER_MESSAGE_VERSION] : @1};
+
+            NSDictionary *intuneTokenResponse = [ADBrokerKeyHelper decryptBrokerResponse:responseDictionary
+                                                                   correlationId:correlationId
+                                                                           error:&intuneTokenError];
+
+            ADAuthenticationResult *intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
+                                                                                    fromRefreshToken:nil
+                                                                                requestCorrelationId:intuneTokenResponse[OAUTH2_CORRELATION_ID_RESPONSE]];
+
+            if (!keychainGroup)
+            {
+                AD_LOG_WARN(correlationId, @"Failed to cache Intune token, unable to acquire keychain group.");
+            }
+            else if (AD_SUCCEEDED != intuneTokenResult.status)
+            {
+                AD_LOG_WARN(correlationId, @"Failed to acquire Intune token.");
+            }
+            else
+            {
+                ADTokenCacheAccessor *cacheAccessor = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
+                                                                                             authority:intuneTokenResult.tokenCacheItem.authority];
+
+                [cacheAccessor updateCacheToResult:intuneTokenResult cacheItem:nil refreshToken:nil context:nil];
+                [brokerResponse setValue:intuneTokenResult.tokenCacheItem.userInformation.userId forKey:@"user_id"];
+            }
+        }
+
+        return [ADAuthenticationResult resultFromBrokerResponse:brokerResponse];
     }
-    
+
     // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
     // accidentally going to the wrong app
-    NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
-    if (!hash)
+
+    s_brokerProtocolVersion = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
+
+    ADAuthenticationError *decryptionError = nil;
+    queryParamsMap = [ADBrokerKeyHelper decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
+
+    if(decryptionError)
     {
-        AUTH_ERROR(AD_ERROR_TOKENBROKER_HASH_MISSING, @"Key hash is missing from the broker response", correlationId);
+        if (error)
+        {
+            (*error) = decryptionError;
+        }
         return nil;
     }
-    
-    NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-    NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
-    NSInteger protocolVersion = 1;
-    
-    if (msgVer)
-    {
-        protocolVersion = [msgVer integerValue];
-    }
-    s_brokerProtocolVersion = msgVer;
-    
-    //decrypt response first
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    ADAuthenticationError* decryptionError = nil;
-    NSData *encryptedResponse = [NSString adBase64UrlDecodeData:encryptedBase64Response ];
-    NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
-                                                    version:protocolVersion
-                                                      error:&decryptionError];
-    if (!decrypted)
-    {
-        AUTH_ERROR_UNDERLYING(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt broker message", decryptionError, correlationId)
-        return nil;
-    }
-    
-    
-    NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
-    //now compute the hash on the unencrypted data
-    NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
-    if(![hash isEqualToString:actualHash])
-    {
-        AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);
-        return nil;
-    }
-    
-    // create response from the decrypted payload
-    queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
-    [ADHelpers removeNullStringFrom:queryParamsMap];
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     
     s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
     
-    NSString* keychainGroup = resumeDictionary[@"keychain_group"];
     if (AD_SUCCEEDED == result.status && keychainGroup)
     {
-        ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
+        ADTokenCacheAccessor *cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
                                                                              authority:result.tokenCacheItem.authority];
         
         [cache updateCacheToResult:result cacheItem:nil refreshToken:nil context:nil];
         
-        NSString* userId = [[[result tokenCacheItem] userInformation] userId];
+        NSString *userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]];
     }
