@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0830"
+   LastUpgradeVersion = "0940"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D64C1F471DB9B05900850036"
-               BuildableName = "ADALAutomation.app"
-               BlueprintName = "ADALAutomation"
+               BlueprintIdentifier = "B2E9683E20E96B7700906F3D"
+               BuildableName = "ADALAutomationForMac.app"
+               BlueprintName = "ADALAutomationForMac"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "23658C7C201023F70055CE7D"
-               BuildableName = "ADALiOSUITests.xctest"
-               BlueprintName = "InteractiveIOSTests"
+               BlueprintIdentifier = "B2000C1320EC1CE90092790A"
+               BuildableName = "InteractiveMacOSTests.xctest"
+               BlueprintName = "InteractiveMacOSTests"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -42,19 +42,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B2A409D220D36524004AA9B7"
-               BuildableName = "MultiAppIOSTests.xctest"
-               BlueprintName = "MultiAppIOSTests"
-               ReferencedContainer = "container:ADAL.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B2D32CF720E9C317002C39AD"
-               BuildableName = "StressIOSTests.xctest"
-               BlueprintName = "StressIOSTests"
+               BlueprintIdentifier = "B2000C3F20EC2F6E0092790A"
+               BuildableName = "StressMacOSTests.xctest"
+               BlueprintName = "StressMacOSTests"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -62,9 +52,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D64C1F471DB9B05900850036"
-            BuildableName = "ADALAutomation.app"
-            BlueprintName = "ADALAutomation"
+            BlueprintIdentifier = "B2E9683E20E96B7700906F3D"
+            BuildableName = "ADALAutomationForMac.app"
+            BlueprintName = "ADALAutomationForMac"
             ReferencedContainer = "container:ADAL.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -85,9 +75,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D64C1F471DB9B05900850036"
-            BuildableName = "ADALAutomation.app"
-            BlueprintName = "ADALAutomation"
+            BlueprintIdentifier = "B2E9683E20E96B7700906F3D"
+            BuildableName = "ADALAutomationForMac.app"
+            BlueprintName = "ADALAutomationForMac"
             ReferencedContainer = "container:ADAL.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -104,9 +94,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D64C1F471DB9B05900850036"
-            BuildableName = "ADALAutomation.app"
-            BlueprintName = "ADALAutomation"
+            BlueprintIdentifier = "B2E9683E20E96B7700906F3D"
+            BuildableName = "ADALAutomationForMac.app"
+            BlueprintName = "ADALAutomationForMac"
             ReferencedContainer = "container:ADAL.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
