@@ -205,6 +205,17 @@
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
     
+    UIButton* mamRegister = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamRegister setTitle:@"MAM Register" forState:UIControlStateNormal];
+    [mamRegister addTarget:self action:@selector(mamRegister:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIButton* mamUnregister = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamUnregister setTitle:@"MAM Unregister" forState:UIControlStateNormal];
+    [mamUnregister addTarget:self action:@selector(mamUnregister:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIView* mamButtonsView = [self createTwoItemLayoutView:mamRegister item2:mamUnregister];
+    [layout addCenteredView:mamButtonsView key:@"mamButtons"];
+    
     _resultView = [[UITextView alloc] init];
     _resultView.layer.borderWidth = 1.0f;
     _resultView.layer.borderColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f].CGColor;
@@ -726,6 +737,14 @@
     
     _resultView.text = [NSString stringWithFormat:@"Wiped cache for %@.", userId];
     
+}
+
+- (IBAction)mamRegister:(id)sender
+{
+}
+
+- (IBAction)mamUnregister:(id)sender
+{
 }
 
 - (IBAction)changeProfile:(id)sender
