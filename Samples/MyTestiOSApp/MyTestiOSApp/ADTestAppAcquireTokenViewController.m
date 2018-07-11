@@ -28,7 +28,15 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 
-@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
+#if MAM_SDK_TESTING
+#import <IntuneMAMWalledGarden/IntuneMAM.h>
+#endif
+
+@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate
+#if MAM_SDK_TESTING
+, IntuneMAMComplianceDelegate
+#endif
+>
 
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
@@ -72,6 +80,9 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
+#if MAM_SDK_TESTING
+    [[IntuneMAMComplianceManager instance] setDelegate:self];
+#endif
     
     return self;
 }
@@ -739,17 +750,51 @@
     
 }
 
-- (IBAction)mamRegister:(id)sender
-{
-}
-
-- (IBAction)mamUnregister:(id)sender
-{
-}
-
 - (IBAction)changeProfile:(id)sender
 {
     [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
 }
+
+- (IBAction)mamRegister:(id)sender
+{
+#if MAM_SDK_TESTING
+    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    {
+        _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking register!"];
+        return;
+    }
+    
+    ADTestAppSettings* settings = [ADTestAppSettings settings];
+    [[IntuneMAMPolicyManager instance] setAadAuthorityUriOverride:settings.authority];
+    [[IntuneMAMPolicyManager instance] setAadClientIdOverride:settings.clientId];
+    [[IntuneMAMPolicyManager instance] setAadRedirectUriOverride:settings.redirectUri.absoluteString];
+    
+    [[IntuneMAMComplianceManager instance] remediateComplianceForIdentity:self.identifier.userId silent:NO];
+#endif
+}
+
+- (IBAction)mamUnregister:(id)sender
+{
+#if MAM_SDK_TESTING
+    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    {
+        _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
+        return;
+    }
+    
+    [[IntuneMAMEnrollmentManager instance] deRegisterAndUnenrollAccount:self.identifier.userId withWipe:YES];
+    
+    _resultView.text = [NSString stringWithFormat:@"Unregister request sent to MAM SDK."];
+#endif
+}
+
+#if MAM_SDK_TESTING
+- (void)identity:(NSString*)identity hasComplianceStatus:(IntuneMAMComplianceStatus)status withErrorString:(NSString *)error
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _resultView.text = [NSString stringWithFormat:@"MAM Enrollment for %@ with status: %lu, error: %@", identity, (unsigned long)status, error];
+    });
+}
+#endif
 
 @end
