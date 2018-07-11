@@ -105,7 +105,7 @@ static NSDictionary *s_userInfoKeyMapping;
     if (msidError.domain && msidError.code && s_errorCodeMapping[msidError.domain])
     {
         NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
-        if (mappedErrorCode)
+        if (mappedErrorCode != nil)
         {
             errorCode = [mappedErrorCode integerValue];
         }
