@@ -34,7 +34,7 @@
 
 @interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate
 #if AD_MAM_SDK_TESTING
-, IntuneMAMComplianceDelegate
+, IntuneMAMComplianceDelegate, IntuneMAMEnrollmentDelegate
 #endif
 >
 
@@ -82,6 +82,7 @@
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
 #if AD_MAM_SDK_TESTING
     [[IntuneMAMComplianceManager instance] setDelegate:self];
+    [[IntuneMAMEnrollmentManager instance] setDelegate:self];
 #endif
     
     return self;
@@ -781,10 +782,12 @@
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
         return;
     }
+
+    _resultView.text = [NSString stringWithFormat:@"Sending Unenroll request to MAM SDK..."];
     
-    [[IntuneMAMEnrollmentManager instance] deRegisterAndUnenrollAccount:self.identifier.userId withWipe:YES];
-    
-    _resultView.text = [NSString stringWithFormat:@"Unregister request sent to MAM SDK."];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[IntuneMAMEnrollmentManager instance] deRegisterAndUnenrollAccount:self.identifier.userId withWipe:YES];
+    });
 #endif
 }
 
@@ -793,6 +796,13 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         _resultView.text = [NSString stringWithFormat:@"MAM Enrollment for %@ with status: %lu, error: %@", identity, (unsigned long)status, error];
+    });
+}
+
+- (void)unenrollRequestWithStatus:(IntuneMAMEnrollmentStatus *_Nonnull)status
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _resultView.text = [NSString stringWithFormat:@"Unenrollment status for %@: success: %@, status code: %lu, errorString: %@, error: %@", status.identity, status.didSucceed ? @"YES":@"NO", (unsigned long)status.statusCode, status.errorString, status.error];
     });
 }
 #endif
