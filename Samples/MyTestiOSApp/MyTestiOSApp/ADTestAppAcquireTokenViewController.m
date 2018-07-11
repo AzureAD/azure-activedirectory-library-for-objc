@@ -28,15 +28,16 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 
-#if AD_MAM_SDK_TESTING
+#ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAMWalledGarden/IntuneMAM.h>
 #endif
 
-@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate
-#if AD_MAM_SDK_TESTING
-, IntuneMAMComplianceDelegate, IntuneMAMEnrollmentDelegate
+@interface ADTestAppAcquireTokenViewController ()
+#ifdef AD_MAM_SDK_TESTING
+<UITextFieldDelegate, IntuneMAMComplianceDelegate, IntuneMAMEnrollmentDelegate>
+#else
+<UITextFieldDelegate>
 #endif
->
 
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
@@ -80,7 +81,7 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
-#if AD_MAM_SDK_TESTING
+#ifdef AD_MAM_SDK_TESTING
     [[IntuneMAMComplianceManager instance] setDelegate:self];
     [[IntuneMAMEnrollmentManager instance] setDelegate:self];
 #endif
@@ -758,7 +759,7 @@
 
 - (IBAction)mamEnroll:(id)sender
 {
-#if AD_MAM_SDK_TESTING
+#ifdef AD_MAM_SDK_TESTING
     if ([NSString adIsStringNilOrBlank:self.identifier.userId])
     {
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking register!"];
@@ -776,7 +777,7 @@
 
 - (IBAction)mamUnenroll:(id)sender
 {
-#if AD_MAM_SDK_TESTING
+#ifdef AD_MAM_SDK_TESTING
     if ([NSString adIsStringNilOrBlank:self.identifier.userId])
     {
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
@@ -791,7 +792,7 @@
 #endif
 }
 
-#if AD_MAM_SDK_TESTING
+#ifdef AD_MAM_SDK_TESTING
 - (void)identity:(NSString*)identity hasComplianceStatus:(IntuneMAMComplianceStatus)status withErrorString:(NSString *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
