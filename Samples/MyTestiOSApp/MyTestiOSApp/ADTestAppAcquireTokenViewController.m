@@ -28,7 +28,16 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 
-@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
+#ifdef AD_MAM_SDK_TESTING
+#import <IntuneMAMWalledGarden/IntuneMAM.h>
+#endif
+
+@interface ADTestAppAcquireTokenViewController ()
+#ifdef AD_MAM_SDK_TESTING
+<UITextFieldDelegate, IntuneMAMComplianceDelegate, IntuneMAMEnrollmentDelegate>
+#else
+<UITextFieldDelegate>
+#endif
 
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
@@ -72,6 +81,10 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
+#ifdef AD_MAM_SDK_TESTING
+    [[IntuneMAMComplianceManager instance] setDelegate:self];
+    [[IntuneMAMEnrollmentManager instance] setDelegate:self];
+#endif
     
     return self;
 }
@@ -204,6 +217,17 @@
     
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
+    
+    UIButton* mamEnroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamEnroll setTitle:@"MAM Enroll" forState:UIControlStateNormal];
+    [mamEnroll addTarget:self action:@selector(mamEnroll:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIButton* mamUnenroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamUnenroll setTitle:@"MAM Unenroll" forState:UIControlStateNormal];
+    [mamUnenroll addTarget:self action:@selector(mamUnenroll:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIView* mamButtonsView = [self createTwoItemLayoutView:mamEnroll item2:mamUnenroll];
+    [layout addCenteredView:mamButtonsView key:@"mamButtons"];
     
     _resultView = [[UITextView alloc] init];
     _resultView.layer.borderWidth = 1.0f;
@@ -732,5 +756,56 @@
 {
     [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
 }
+
+- (IBAction)mamEnroll:(id)sender
+{
+#ifdef AD_MAM_SDK_TESTING
+    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    {
+        _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking register!"];
+        return;
+    }
+    
+    ADTestAppSettings* settings = [ADTestAppSettings settings];
+    [[IntuneMAMPolicyManager instance] setAadAuthorityUriOverride:settings.authority];
+    [[IntuneMAMPolicyManager instance] setAadClientIdOverride:settings.clientId];
+    [[IntuneMAMPolicyManager instance] setAadRedirectUriOverride:settings.redirectUri.absoluteString];
+    
+    [[IntuneMAMComplianceManager instance] remediateComplianceForIdentity:self.identifier.userId silent:NO];
+#endif
+}
+
+- (IBAction)mamUnenroll:(id)sender
+{
+#ifdef AD_MAM_SDK_TESTING
+    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    {
+        _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
+        return;
+    }
+
+    _resultView.text = [NSString stringWithFormat:@"Sending Unenroll request to MAM SDK..."];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[IntuneMAMEnrollmentManager instance] deRegisterAndUnenrollAccount:self.identifier.userId withWipe:YES];
+    });
+#endif
+}
+
+#ifdef AD_MAM_SDK_TESTING
+- (void)identity:(NSString*)identity hasComplianceStatus:(IntuneMAMComplianceStatus)status withErrorString:(NSString *)error
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _resultView.text = [NSString stringWithFormat:@"MAM Enrollment for %@ with status: %lu, error: %@", identity, (unsigned long)status, error];
+    });
+}
+
+- (void)unenrollRequestWithStatus:(IntuneMAMEnrollmentStatus *_Nonnull)status
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _resultView.text = [NSString stringWithFormat:@"Unenrollment status for %@: success: %@, status code: %lu, errorString: %@, error: %@", status.identity, status.didSucceed ? @"YES":@"NO", (unsigned long)status.statusCode, status.errorString, status.error];
+    });
+}
+#endif
 
 @end
