@@ -217,15 +217,15 @@
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
     
-    UIButton* mamRegister = [UIButton buttonWithType:UIButtonTypeSystem];
-    [mamRegister setTitle:@"MAM Register" forState:UIControlStateNormal];
-    [mamRegister addTarget:self action:@selector(mamRegister:) forControlEvents:UIControlEventTouchUpInside];
+    UIButton* mamEnroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamEnroll setTitle:@"MAM Enroll" forState:UIControlStateNormal];
+    [mamEnroll addTarget:self action:@selector(mamEnroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIButton* mamUnregister = [UIButton buttonWithType:UIButtonTypeSystem];
-    [mamUnregister setTitle:@"MAM Unregister" forState:UIControlStateNormal];
-    [mamUnregister addTarget:self action:@selector(mamUnregister:) forControlEvents:UIControlEventTouchUpInside];
+    UIButton* mamUnenroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamUnenroll setTitle:@"MAM Unenroll" forState:UIControlStateNormal];
+    [mamUnenroll addTarget:self action:@selector(mamUnenroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIView* mamButtonsView = [self createTwoItemLayoutView:mamRegister item2:mamUnregister];
+    UIView* mamButtonsView = [self createTwoItemLayoutView:mamEnroll item2:mamUnenroll];
     [layout addCenteredView:mamButtonsView key:@"mamButtons"];
     
     _resultView = [[UITextView alloc] init];
@@ -756,7 +756,7 @@
     [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
 }
 
-- (IBAction)mamRegister:(id)sender
+- (IBAction)mamEnroll:(id)sender
 {
 #if AD_MAM_SDK_TESTING
     if ([NSString adIsStringNilOrBlank:self.identifier.userId])
@@ -774,7 +774,7 @@
 #endif
 }
 
-- (IBAction)mamUnregister:(id)sender
+- (IBAction)mamUnenroll:(id)sender
 {
 #if AD_MAM_SDK_TESTING
     if ([NSString adIsStringNilOrBlank:self.identifier.userId])
