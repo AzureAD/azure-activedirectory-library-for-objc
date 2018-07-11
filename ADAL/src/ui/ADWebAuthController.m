@@ -336,7 +336,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         [self handlePKeyAuthChallenge:requestURL];
         return NO;
     }
-    
+
     // redirecting to non-https url is not allowed
     if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
