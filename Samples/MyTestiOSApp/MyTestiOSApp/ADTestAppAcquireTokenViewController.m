@@ -29,7 +29,7 @@
 #import "ADTestAppClaimsPickerController.h"
 
 #ifdef AD_MAM_SDK_TESTING
-#import <IntuneMAMWalledGarden/IntuneMAM.h>
+#import <IntuneMAM/IntuneMAM.h>
 #endif
 
 @interface ADTestAppAcquireTokenViewController ()
