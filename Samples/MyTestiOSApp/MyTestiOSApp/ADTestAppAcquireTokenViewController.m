@@ -27,6 +27,7 @@
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
+#import "ADEnrollmentGateway.h"
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAMWalledGarden/IntuneMAM.h>
@@ -226,7 +227,11 @@
     [mamUnenroll setTitle:@"MAM Unenroll" forState:UIControlStateNormal];
     [mamUnenroll addTarget:self action:@selector(mamUnenroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIView* mamButtonsView = [self createTwoItemLayoutView:mamEnroll item2:mamUnenroll];
+    UIButton* mamEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamEnrollIds setTitle:@"MAM Enroll IDs" forState:UIControlStateNormal];
+    [mamEnrollIds addTarget:self action:@selector(mamEnrollIds:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIView* mamButtonsView = [self createThreeItemLayoutView:mamEnroll item2:mamUnenroll item3:mamEnrollIds];
     [layout addCenteredView:mamButtonsView key:@"mamButtons"];
     
     _resultView = [[UITextView alloc] init];
@@ -789,6 +794,13 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [[IntuneMAMEnrollmentManager instance] deRegisterAndUnenrollAccount:self.identifier.userId withWipe:YES];
     });
+#endif
+}
+
+- (IBAction)mamEnrollIds:(id)sender
+{
+#ifdef AD_MAM_SDK_TESTING
+    _resultView.text = [ADEnrollmentGateway allEnrollmentIdsJSON];
 #endif
 }
 
