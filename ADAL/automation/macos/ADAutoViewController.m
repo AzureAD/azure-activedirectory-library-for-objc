@@ -29,6 +29,7 @@
 #import "ADTokenCache.h"
 #import "ADTokenCache+Internal.h"
 #import "ADAutoWebViewController.h"
+#import "ADTestAppCache.h"
 
 @interface ADAutoViewController ()
 
@@ -90,11 +91,13 @@
 - (void)clearCache
 {
     [[ADTokenCache defaultCache].macTokenCache clear];
+    [[ADTestAppCache sharedCache] clearCacheWithError:nil];
 }
 
 - (void)clearKeychain
 {
     [[ADTokenCache defaultCache].macTokenCache clear];
+    [[ADTestAppCache sharedCache] clearCacheWithError:nil];
 }
 
 - (void)openURL:(NSURL *)url

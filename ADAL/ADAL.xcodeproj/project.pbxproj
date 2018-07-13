@@ -245,7 +245,6 @@
 		B2000C6E20EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C6B20EC39BA0092790A /* XCUIElement+CrossPlat.m */; };
 		B2000C6F20EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C6B20EC39BA0092790A /* XCUIElement+CrossPlat.m */; };
 		B2000C7020EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C6B20EC39BA0092790A /* XCUIElement+CrossPlat.m */; };
-		B2000C7120EC3A970092790A /* ADALAADLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */; };
 		B2000C8420EC5E990092790A /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; };
 		B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */; };
@@ -290,8 +289,6 @@
 		B227F29D2057686200F7B822 /* ADMSIDDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B227F2972057685700F7B822 /* ADMSIDDataSourceWrapper.m */; };
 		B2375EC920EECBE800E7686A /* ADALShibInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D02012BC25008D4BD2 /* ADALShibInteractiveLoginTests.m */; };
 		B2375ECA20EECBEB00E7686A /* ADALPingInteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D22012BCE6008D4BD2 /* ADALPingInteractiveLoginTests.m */; };
-		B2375ECB20EECBED00E7686A /* ADALADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */; };
-		B2375ECC20EECBEE00E7686A /* ADALADFSv4InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AACE0420DF2CFF00AC88E2 /* ADALADFSv4InteractiveLoginTests.m */; };
 		B2375ECD20EECBF000E7686A /* ADALSovereignBlackForestLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D62012C442008D4BD2 /* ADALSovereignBlackForestLoginTests.m */; };
 		B2375ECE20EECBF200E7686A /* ADALNTLMLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B290F40E207C31AC0026F43D /* ADALNTLMLoginTests.m */; };
 		B2375ECF20EECBF500E7686A /* ADALGuestUsersLoginTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BA485B2089351C00CE92FC /* ADALGuestUsersLoginTest.m */; };
@@ -340,6 +337,10 @@
 		B29A36D020B211E800427B63 /* ADRefreshResponseBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BA664E20167BA2001085EC /* ADRefreshResponseBuilder.m */; };
 		B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
+		B2A02CE720F598B20048792D /* ADTestAppCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A5431FBFB58100EFA430 /* ADTestAppCache.m */; };
+		B2A02CE820F5AEEB0048792D /* ADALAADLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */; };
+		B2A02CE920F5AEF20048792D /* ADALADFSv4InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AACE0420DF2CFF00AC88E2 /* ADALADFSv4InteractiveLoginTests.m */; };
+		B2A02CEA20F5AEF50048792D /* ADALADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */; };
 		B2A409D620D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A409D520D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m */; };
 		B2A409E220D36545004AA9B7 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		B2A409E320D3654B004AA9B7 /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
@@ -3607,14 +3608,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2A02CE920F5AEF20048792D /* ADALADFSv4InteractiveLoginTests.m in Sources */,
 				B2375ED220EECBFB00E7686A /* ADALOnPremLoginTests.m in Sources */,
-				B2375ECC20EECBEE00E7686A /* ADALADFSv4InteractiveLoginTests.m in Sources */,
 				B2000C1E20EC1E3D0092790A /* ADALBaseUITest.m in Sources */,
+				B2A02CE820F5AEEB0048792D /* ADALAADLoginTests.m in Sources */,
+				B2A02CEA20F5AEF50048792D /* ADALADFSv3InteractiveLoginTests.m in Sources */,
 				B2000C2720EC2A960092790A /* ADALUITests.swift in Sources */,
-				B2375ECB20EECBED00E7686A /* ADALADFSv3InteractiveLoginTests.m in Sources */,
 				B2375ED320EECBFD00E7686A /* ADALCacheRemovalTests.m in Sources */,
 				B2375ECE20EECBF200E7686A /* ADALNTLMLoginTests.m in Sources */,
-				B2000C7120EC3A970092790A /* ADALAADLoginTests.m in Sources */,
 				B2000C6920EC395C0092790A /* XCTestCase+TextFieldTap.m in Sources */,
 				B2375ECF20EECBF500E7686A /* ADALGuestUsersLoginTest.m in Sources */,
 				B2375ED020EECBF700E7686A /* ADALAuthorityMigrationTests.m in Sources */,
@@ -3750,6 +3751,7 @@
 				B2E9684E20E96B7A00906F3D /* main.m in Sources */,
 				B2EE688920EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */,
 				B2E9684320E96B7800906F3D /* AppDelegate.m in Sources */,
+				B2A02CE720F598B20048792D /* ADTestAppCache.m in Sources */,
 				B2E9685B20E970E600906F3D /* ADAutoResultViewController.m in Sources */,
 				B2EE688D20EA8ECC00AA78A9 /* ADAutoWebViewController.m in Sources */,
 			);
@@ -4870,6 +4872,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"FILE_BASED_TEST_CACHE=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;

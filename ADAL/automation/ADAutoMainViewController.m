@@ -282,21 +282,28 @@
 
         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
-        NSString *authority = [[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL URLWithString:parameters[@"authority"]] context:nil] absoluteString];
+        NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
 
-        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority
-                                                        resource:parameters[@"resource"]
-                                                        clientId:parameters[@"client_id"]
-                                                           error:nil];
+        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:parameters[@"authority"]]];
 
-        NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
-                                                             userId:parameters[@"user_identifier"]
-                                                      correlationId:nil
-                                                              error:nil];
+        for (NSURL *alias in aliases)
+        {
+            ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:alias.absoluteString
+                                                            resource:parameters[@"resource"]
+                                                            clientId:parameters[@"client_id"]
+                                                               error:nil];
+
+            NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
+                                                                 userId:parameters[@"user_identifier"]
+                                                          correlationId:nil
+                                                                  error:nil];
+
+            [allItems addObjectsFromArray:items];
+        }
 
         int refreshTokenCount = 0;
 
-        for (ADTokenCacheItem *item in items)
+        for (ADTokenCacheItem *item in allItems)
         {
             if (item.refreshToken)
             {
@@ -346,21 +353,26 @@
 
         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
-        NSString *authority = [[[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:[NSURL URLWithString:parameters[@"authority"]] context:nil] absoluteString];
+        NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
 
-        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:authority
-                                                        resource:parameters[@"resource"]
-                                                        clientId:parameters[@"client_id"]
-                                                           error:nil];
+        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:parameters[@"authority"]]];
 
-        NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
-                                                             userId:parameters[@"user_identifier"]
-                                                      correlationId:nil
-                                                              error:nil];
+        for (NSURL *alias in aliases)
+        {
+            ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:alias.absoluteString
+                                                            resource:parameters[@"resource"]
+                                                            clientId:parameters[@"client_id"]
+                                                               error:nil];
+
+            [allItems addObjectsFromArray:[cache getItemsWithKey:key
+                                                          userId:parameters[@"user_identifier"]
+                                                   correlationId:nil
+                                                           error:nil]];
+        }
 
         int accessTokenCount = 0;
 
-        for (ADTokenCacheItem *item in items)
+        for (ADTokenCacheItem *item in allItems)
         {
             if (item.accessToken)
             {

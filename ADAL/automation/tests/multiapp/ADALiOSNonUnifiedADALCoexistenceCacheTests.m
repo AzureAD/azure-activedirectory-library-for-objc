@@ -160,7 +160,7 @@ static BOOL adalAppInstalled = NO;
     self.testApp = [self olderADALApp];
 
     // Do silent first
-    config = [self.testConfiguration configWithAdditionalConfiguration:@{}];
+    config = [self.testConfiguration configWithAdditionalConfiguration:@{@"validate_authority" : @NO}];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
