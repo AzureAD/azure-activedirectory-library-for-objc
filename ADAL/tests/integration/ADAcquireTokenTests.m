@@ -1303,6 +1303,7 @@ const int sAsyncContextTimeout = 10;
                            resource:TEST_RESOURCE
                            clientId:TEST_CLIENT_ID
                          oauthError:@"invalid_grant"
+                      oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID];
 
     ADTestURLResponse* mrrtResponse =
@@ -2213,6 +2214,7 @@ const int sAsyncContextTimeout = 10;
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
                                                        oauthError:@"invalid_grant"
+                                                    oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID];
     
     // explicitly set scope=open as the required field in request body
@@ -2412,6 +2414,7 @@ const int sAsyncContextTimeout = 10;
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
                                                        oauthError:@"invalid_grant"
+                                                    oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID];
     
     // explicitly set scope=open as the required field in request body
@@ -2535,6 +2538,97 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+#endif
+
+- (void)testAcquireToken_whenPolicyProtectionRequiredErrorReturned_shouldNotRemoveTokenAndReturnUserId
+{
+    // Refresh tokens should only be deleted when the server returns a 'invalid_grant' error
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [self.cacheDataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Set up the mock connection to reject the MRRT with a policy protection required error
+    MSIDTestURLResponse *response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
+                                                          authority:TEST_AUTHORITY
+                                                           resource:TEST_RESOURCE
+                                                           clientId:TEST_CLIENT_ID
+                                                         oauthError:@"unauthorized_client"
+                                                      oauthSubError:@"protection_policy_required"
+                                                      correlationId:TEST_CORRELATION_ID];
+
+    [ADTestURLSession addResponse:response];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertNil(result.authority);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssertEqualObjects(result.error.userInfo[ADUserIdKey], TEST_USER_ID);
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    // The MRRT should still be in the cache
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
+#if TARGET_OS_IPHONE
+- (void)testAcquireToken_whenPolicyProtectionRequiredErrorReturned_andMRRTInDifferentCache_shouldNotRemoveTokenAndReturnUserId
+{
+    // Write MRRT refresh token into keychain by using v2 token response
+    ADAuthenticationError *error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
+
+    BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
+                                                      response:[self adCreateV2TokenResponse]
+                                                       context:nil
+                                                         error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    // Set up the mock connection to reject the MRRT with a policy protection required error
+    MSIDTestURLResponse *response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
+                                                          authority:TEST_AUTHORITY
+                                                           resource:TEST_RESOURCE
+                                                           clientId:TEST_CLIENT_ID
+                                                         oauthError:@"unauthorized_client"
+                                                      oauthSubError:@"protection_policy_required"
+                                                      correlationId:TEST_CORRELATION_ID];
+
+    [ADTestURLSession addResponse:response];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertNil(result.authority);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssertEqualObjects(result.error.userInfo[ADUserIdKey], TEST_USER_ID);
          [expectation fulfill];
      }];
 
