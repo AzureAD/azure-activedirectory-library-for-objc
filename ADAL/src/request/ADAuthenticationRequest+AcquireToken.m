@@ -42,6 +42,8 @@
 #import "ADUserInformation.h"
 #import "ADResponseCacheHandler.h"
 #import "MSIDAuthority.h"
+#import "MSIDLegacyRefreshToken.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -558,8 +560,16 @@
 {
     ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
                                                                                tokenCache:self.tokenCache];
+    
+    // Construct a refresh token object to wrap up the refresh token provided by developer
+    MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
+    refreshTokenItem.refreshToken = _refreshToken;
+    refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
+    refreshTokenItem.authority = [NSURL URLWithString:_requestParams.authority];
+    refreshTokenItem.clientId  = _requestParams.clientId;
+    
     [request acquireTokenByRefreshToken:_refreshToken
-                              cacheItem:nil
+                              cacheItem:refreshTokenItem
                        useOpenidConnect:YES
                         completionBlock:^(ADAuthenticationResult *result)
      {

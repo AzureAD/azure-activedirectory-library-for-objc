@@ -141,9 +141,10 @@
     
     if (![MSIDAuthority isADFSInstance:authority])
     {
-        NSString *userId = (cacheItem.primaryUserId ? cacheItem.primaryUserId : _requestParams.identifier.userId);
+        NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
+        NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
         ADAuthenticationError *error = nil;
-        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.homeAccountId
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
                                                                           userID:userId
                                                                            error:&error];
         
