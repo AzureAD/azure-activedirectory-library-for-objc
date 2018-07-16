@@ -34,7 +34,27 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "23658C7C201023F70055CE7D"
                BuildableName = "ADALiOSUITests.xctest"
-               BlueprintName = "ADALiOSUITests"
+               BlueprintName = "InteractiveIOSTests"
+               ReferencedContainer = "container:ADAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B2A409D220D36524004AA9B7"
+               BuildableName = "MultiAppIOSTests.xctest"
+               BlueprintName = "MultiAppIOSTests"
+               ReferencedContainer = "container:ADAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B2D32CF720E9C317002C39AD"
+               BuildableName = "StressIOSTests.xctest"
+               BlueprintName = "StressIOSTests"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </TestableReference>
