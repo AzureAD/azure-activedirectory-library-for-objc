@@ -160,18 +160,17 @@
         item.translatesAutoresizingMaskIntoConstraints = NO;
         [view addSubview:item];
         
-        NSString name = [NSString stringWithFormat:@"item%d", count++];
+        NSString *name = [NSString stringWithFormat:@"item%d", count++];
         [viewsForConstraints setValue:item forKey:name];
     }
     
     // add constraints
-    count = 1;
     NSString *horizontalFormatStr = @"H:|";
-    for (UIView *item in items)
+    for (int i = 1; i<count; i++)
     {
         // vertical contraints
-        NSString verticalFormatStr = [NSString stringWithFormat:@"V:|[item%d(20)]|", count++];
-        NSArray* verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:verticalFormatStr options:0 metrics:NULL views:constraintViews];
+        NSString *verticalFormatStr = [NSString stringWithFormat:@"V:|[item%d(20)]|", i];
+        NSArray *verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:verticalFormatStr options:0 metrics:NULL views:viewsForConstraints];
         [view addConstraints:verticalConstraints];
         
         // horizontal contraints
@@ -179,11 +178,11 @@
         {
             horizontalFormatStr = [horizontalFormatStr stringByAppendingString:@"-"];
         }
-        horizontalFormatStr = [horizontalFormatStr stringByAppendingString:[NSString stringWithFormat:@"[item%d]", count]];
+        horizontalFormatStr = [horizontalFormatStr stringByAppendingString:[NSString stringWithFormat:@"[item%d]", i]];
     }
     horizontalFormatStr = [horizontalFormatStr stringByAppendingString:@"|"];
 
-    NSArray* horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:horizontalFormatStr options:0 metrics:NULL views:constraintViews];
+    NSArray *horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:horizontalFormatStr options:0 metrics:NULL views:viewsForConstraints];
     [view addConstraints:horizontalConstraints];
     
     return view;
@@ -265,24 +264,24 @@
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
     
-    UIButton* mamEnroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamEnroll = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamEnroll setTitle:@"MAM Enroll" forState:UIControlStateNormal];
     [mamEnroll addTarget:self action:@selector(mamEnroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIButton* mamUnenroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamUnenroll = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamUnenroll setTitle:@"MAM Unenroll" forState:UIControlStateNormal];
     [mamUnenroll addTarget:self action:@selector(mamUnenroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIButton* mamEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamEnrollIds setTitle:@"MAM Enroll IDs" forState:UIControlStateNormal];
     [mamEnrollIds addTarget:self action:@selector(mamEnrollIds:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIButton* mamDelEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamDelEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamDelEnrollIds setTitle:@"Delete MAM IDs" forState:UIControlStateNormal];
     [mamDelEnrollIds addTarget:self action:@selector(mamDelEnrollIds:) forControlEvents:UIControlEventTouchUpInside];
     
-    NSArray *buttons = @{mamEnroll, mamUnenroll, mamEnrollIds, mamDelEnrollIds};
-    UIView* mamButtonsView = [self createItemLayoutView:buttons];
+    NSArray *buttons = @[mamEnroll, mamUnenroll, mamEnrollIds, mamDelEnrollIds];
+    UIView *mamButtonsView = [self createItemLayoutView:buttons];
     [layout addCenteredView:mamButtonsView key:@"mamButtons"];
     
     _resultView = [[UITextView alloc] init];
@@ -819,7 +818,7 @@
 - (IBAction)mamEnroll:(id)sender
 {
 #ifdef AD_MAM_SDK_TESTING
-    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    if ([NSString msidIsStringNilOrBlank:self.identifier.userId])
     {
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking register!"];
         return;
@@ -837,7 +836,7 @@
 - (IBAction)mamUnenroll:(id)sender
 {
 #ifdef AD_MAM_SDK_TESTING
-    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    if ([NSString msidIsStringNilOrBlank:self.identifier.userId])
     {
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
         return;
