@@ -41,6 +41,7 @@
 #import "ADUserInformation.h"
 #import "ADResponseCacheHandler.h"
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -538,7 +539,7 @@
     // Construct a refresh token object to wrap up the refresh token provided by developer
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
     refreshTokenItem.refreshToken = _refreshToken;
-    refreshTokenItem.legacyUserId = _requestParams.identifier.userId;
+    refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
     refreshTokenItem.authority = [NSURL URLWithString:_requestParams.authority];
     refreshTokenItem.clientId  = _requestParams.clientId;
     
