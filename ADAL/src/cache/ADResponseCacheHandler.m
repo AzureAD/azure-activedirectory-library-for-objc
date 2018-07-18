@@ -43,7 +43,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
     BOOL result = [factory verifyResponse:response
-                          fromRefreshToken:refreshToken != nil
+                          fromRefreshToken:refreshToken
                                    context:requestParams
                                      error:&msidError];
     

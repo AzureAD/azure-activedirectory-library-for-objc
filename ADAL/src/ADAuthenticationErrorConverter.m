@@ -78,11 +78,16 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerInvalidGrant) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT)
+                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
+                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
                                    }
                            };
     
-    s_userInfoKeyMapping = @{MSIDHTTPHeadersKey : ADHTTPHeadersKey};
+    s_userInfoKeyMapping = @{
+                             MSIDHTTPHeadersKey : ADHTTPHeadersKey,
+                             MSIDUserIdKey  : ADUserIdKey,
+                             MSIDOAuthSubErrorKey : ADSuberrorKey
+                             };
 }
 
 + (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
