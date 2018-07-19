@@ -32,6 +32,7 @@
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADEnrollmentGateway.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
@@ -43,6 +44,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAccountIdentifier.h"
 #import "ADAuthenticationSettings.h"
+#import "MSIDAuthority.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -136,6 +138,20 @@
     }
 
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+    
+    if (![MSIDAuthority isADFSInstance:authority])
+    {
+        NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
+        NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
+        ADAuthenticationError *error = nil;
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
+                                                                          userID:userId
+                                                                           error:&error];
+        
+        if (enrollId)
+            [request_data setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
+    }
+
 
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]

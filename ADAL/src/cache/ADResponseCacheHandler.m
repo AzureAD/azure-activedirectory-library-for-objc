@@ -30,6 +30,8 @@
 #import "MSIDError.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDAccountIdentifier.h"
+#import "ADAuthenticationErrorConverter.h"
 
 @implementation ADResponseCacheHandler
 
@@ -43,28 +45,17 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
     BOOL result = [factory verifyResponse:response
-                          fromRefreshToken:refreshToken != nil
-                                   context:requestParams
-                                     error:&msidError];
+                         fromRefreshToken:refreshToken != nil
+                                  context:requestParams
+                                    error:&msidError];
     
     if (!result)
     {
-        if (response.oauthErrorCode == MSIDErrorServerInvalidGrant && refreshToken)
-        {
-            NSError *removeError = nil;
-
-            BOOL result = [cache validateAndRemoveRefreshToken:refreshToken
-                                                       context:requestParams
-                                                         error:&removeError];
-            
-            if (!result)
-            {
-                MSID_LOG_WARN(requestParams, @"Failed removing refresh token");
-                MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
-            }
-        }
-        
-        return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
+        return [self handleError:msidError
+                    fromResponse:response
+                fromRefreshToken:refreshToken
+                           cache:cache
+                          params:requestParams];
     }
     
     result = [cache saveTokensWithConfiguration:requestParams.msidConfig
@@ -86,6 +77,73 @@
                                                                           correlationId:requestParams.correlationId];
     
     return [ADAuthenticationContext updateResult:adResult toUser:[requestParams identifier]]; //Verify the user
+}
+
++ (ADAuthenticationResult *)handleError:(NSError *)msidError
+                           fromResponse:(MSIDTokenResponse *)response
+                       fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+                                  cache:(MSIDLegacyTokenCacheAccessor *)cache
+                                 params:(ADRequestParameters *)requestParams
+{
+    if (response.oauthErrorCode == MSIDErrorServerInvalidGrant && refreshToken)
+    {
+        NSError *removeError = nil;
+
+        BOOL result = [cache validateAndRemoveRefreshToken:refreshToken
+                                                   context:requestParams
+                                                     error:&removeError];
+
+        if (!result)
+        {
+            MSID_LOG_WARN(requestParams, @"Failed removing refresh token");
+            MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
+        }
+    }
+    else if ([msidError.domain isEqualToString:MSIDOAuthErrorDomain] && msidError.code == MSIDErrorServerProtectionPoliciesRequired)
+    {
+        NSString *legacyAccountId = [self legacyAccountIdWithRefreshToken:refreshToken
+                                                                    cache:cache
+                                                                   params:requestParams];
+
+        if (legacyAccountId)
+        {
+            ADAuthenticationError *adError = [ADAuthenticationError errorFromExistingError:[ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]
+                                                                             correlationID:requestParams.correlationId
+                                                                        additionalUserInfo:@{ADUserIdKey : legacyAccountId}];
+            return [ADAuthenticationResult resultFromError:adError];
+        }
+    }
+
+    return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
+}
+
++ (NSString *)legacyAccountIdWithRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+                                        cache:(MSIDLegacyTokenCacheAccessor *)cache
+                                       params:(ADRequestParameters *)requestParams
+{
+    NSString *legacyAccountId = refreshToken.accountIdentifier.legacyAccountId;
+
+    if (!legacyAccountId)
+    {
+        NSError *accountReadError = nil;
+        MSIDAccount *account = [cache accountForIdentifier:refreshToken.accountIdentifier
+                                                  familyId:refreshToken.familyId
+                                             configuration:requestParams.msidConfig
+                                                   context:requestParams
+                                                     error:&accountReadError];
+
+        if (!account)
+        {
+            MSID_LOG_WARN(requestParams, @"Couldn't find the account for refresh token, returning error without user_id");
+            MSID_LOG_WARN(requestParams, @"Couldn't find the account for refresh token, returning error without user_id (home account id = %@)", refreshToken.accountIdentifier.homeAccountId);
+        }
+        else
+        {
+            legacyAccountId = account.accountIdentifier.legacyAccountId;
+        }
+    }
+
+    return legacyAccountId;
 }
 
 @end

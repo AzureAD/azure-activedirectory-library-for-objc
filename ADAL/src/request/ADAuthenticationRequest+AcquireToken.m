@@ -35,11 +35,13 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 #import "ADAuthorityUtils.h"
+#import "ADEnrollmentGateway.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDAccessToken.h"
 #import "ADUserInformation.h"
 #import "ADResponseCacheHandler.h"
+#import "MSIDAuthority.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
 
@@ -301,18 +303,29 @@
 
     if (_silent && !_allowSilent)
     {
+        
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token, but the developer, requested
-        //no UI to be shown:
-        NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
-                                               protocolCode:nil
-                                               errorDetails:ADCredentialsNeeded
-                                                   userInfo:underlyingError
-                                              correlationId:correlationId];
-
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+        //no UI to be shown.
+        //If the underlying error is AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED,
+        //Intune MAM remediation is needed and we should pass that instead.
+        ADAuthenticationResult *result;
+        if (AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED == _underlyingError.code)
+        {
+            result = [ADAuthenticationResult resultFromError:_underlyingError correlationId:correlationId];
+        }
+        else
+        {
+            NSDictionary *underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
+            ADAuthenticationError *error =
+            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
+                                                   protocolCode:nil
+                                                   errorDetails:ADCredentialsNeeded
+                                                       userInfo:underlyingError
+                                                  correlationId:correlationId];
+            result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+        }
+        
         completionBlock(result);
         return;
     }
@@ -526,7 +539,19 @@
     {
         [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
-    
+
+    if (![MSIDAuthority isADFSInstance:_requestParams.authority])
+    {
+        ADAuthenticationError *error = nil;
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
+                                                                          userID:_requestParams.identifier.userId
+                                                                           error:&error];
+        if (enrollId)
+        {
+            [requestData setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
+        }
+    }
+
     [self executeRequest:requestData
               completion:completionBlock];
 }
