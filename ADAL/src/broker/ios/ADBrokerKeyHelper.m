@@ -28,6 +28,9 @@
 #import "ADBrokerKeyHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
+#import "ADPkeyAuthHelper.h"
+#import "MSIDOAuth2Constants.h"
+#import "ADHelpers.h"
 
 static NSData* s_symmetricKeyOverride = nil;
 
@@ -284,6 +287,60 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 + (void)setSymmetricKey:(NSString *)base64Key
 {
     s_symmetricKeyOverride = base64Key ? [NSString msidBase64UrlDecodeData:base64Key] : nil;
+}
+
++ (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(ADAuthenticationError * __autoreleasing *)error
+{
+    NSString *hash = [response valueForKey:ADAL_BROKER_HASH_KEY];
+    if (!hash)
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_HASH_MISSING, @"Key hash is missing from the broker response", correlationId);
+        return nil;
+    }
+
+    NSString *encryptedBase64Response = [response valueForKey:ADAL_BROKER_RESPONSE_KEY];
+    NSString *msgVer = [response valueForKey:ADAL_BROKER_MESSAGE_VERSION];
+    NSInteger protocolVersion = 1;
+    if (msgVer)
+    {
+        protocolVersion = [msgVer integerValue];
+    }
+
+    //decrypt response first
+    ADBrokerKeyHelper *brokerHelper = [[ADBrokerKeyHelper alloc] init];
+    ADAuthenticationError *decryptionError = nil;
+    NSData *encryptedResponse = [NSString msidBase64UrlDecodeData:encryptedBase64Response ];
+    NSData *decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
+                                                    version:protocolVersion
+                                                      error:&decryptionError];
+
+    if (!decrypted)
+    {
+        AUTH_ERROR_UNDERLYING(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt broker message", decryptionError, correlationId)
+        return nil;
+    }
+
+
+    NSString *decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
+    if (!decryptedString)
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to initialize decrypted string", correlationId);
+        return nil;
+    }
+
+    //now compute the hash on the unencrypted data
+    NSString *actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
+    if(![hash isEqualToString:actualHash])
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);
+        return nil;
+    }
+
+    // create response from the decrypted payload
+    NSDictionary *decryptedResponse = [NSDictionary msidURLFormDecode:decryptedString];
+    [ADHelpers removeNullStringFrom:decryptedResponse];
+
+    return decryptedResponse;
 }
 
 @end
