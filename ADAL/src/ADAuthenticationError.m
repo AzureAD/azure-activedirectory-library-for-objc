@@ -31,6 +31,9 @@ NSString* const ADHTTPErrorCodeDomain = @"ADHTTPErrorCodeDomain";
 NSString* const ADOAuthServerErrorDomain = @"ADOAuthServerErrorDomain";
 
 NSString* const ADHTTPHeadersKey = @"ADHTTPHeadersKey";
+NSString* const ADSuberrorKey = @"ADSuberrorKey";
+NSString* const ADBrokerVersionKey = @"ADBrokerVersionKey";
+NSString* const ADUserIdKey = @"ADUserIdKey";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
@@ -174,6 +177,21 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
++ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
+                                      code:(NSInteger)code
+                         protocolErrorCode:(NSString *)protocolCode
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId
+                                  userInfo:(NSDictionary *)userInfo
+{
+    return [self errorWithDomainInternal:domain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:errorDetails
+                           correlationId:correlationId
+                                userInfo:userInfo];
+}
+
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString *)protocolCode
                                           errorDetails:(NSString *)errorDetails
@@ -283,6 +301,46 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code
+                              correlationId:(NSUUID *)correlationId
+                                   userInfo:(NSDictionary *)userInfo
+{
+    return [self errorWithDomainInternal:ADOAuthServerErrorDomain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:description
+                           correlationId:correlationId
+                                userInfo:userInfo];
+}
+
++ (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
+                                    correlationID:(NSUUID *) correlationId
+                               additionalUserInfo:(NSDictionary *)userInfo
+{
+    NSMutableDictionary* newUserInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:[userInfo count]];
+    [newUserInfo addEntriesFromDictionary:userInfo];
+    return [self errorWithDomainInternal:error.domain
+                                    code:error.code
+                       protocolErrorCode:error.protocolCode
+                            errorDetails:error.errorDetails
+                           correlationId:correlationId
+                                userInfo:newUserInfo];
+}
+
+#if AD_BROKER
++ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
+                                                            correlationID:(NSUUID *) correlationId
+                                                                    token:(ADTokenCacheItem*) token
+{
+    NSDictionary *tokenDictionary = token ? @{@"ADMAMToken":token} : @{};
+    return [ADAuthenticationError errorFromExistingError:error
+                                           correlationID:correlationId
+                                      additionalUserInfo:tokenDictionary];
+}
+#endif
+
 - (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain
 {
@@ -318,6 +376,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_UNSUPPORTED_REQUEST);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_AUTHORIZATION_CODE);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_MULTIPLE_USERS);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_VERSION_MISMATCH);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_BAD_FORMAT);

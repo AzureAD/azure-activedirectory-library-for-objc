@@ -270,6 +270,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
+                                   oauthSubError:(NSString *)oauthSubError
                                    correlationId:(NSUUID *)correlationId
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
@@ -285,6 +286,15 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     {
         requestHeaders = [ADTestURLResponse defaultHeaders];
     }
+
+    NSMutableDictionary *jsonDictionary = [NSMutableDictionary new];
+    jsonDictionary[MSID_OAUTH2_ERROR] = oauthError;
+    jsonDictionary[MSID_OAUTH2_ERROR_DESCRIPTION] = @"oauth error description";
+
+    if (oauthSubError)
+    {
+        jsonDictionary[MSID_OAUTH2_SUB_ERROR] = oauthSubError;
+    }
     
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
@@ -299,8 +309,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
-                       dictionaryAsJSON:@{ MSID_OAUTH2_ERROR : oauthError,
-                                           MSID_OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
+                       dictionaryAsJSON:jsonDictionary];
     
     return response;
 }
@@ -312,6 +321,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                   resource:TEST_RESOURCE
                                   clientId:TEST_CLIENT_ID
                                 oauthError:oauthError
+                             oauthSubError:nil
                              correlationId:TEST_CORRELATION_ID];
 
 }
