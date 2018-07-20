@@ -332,7 +332,7 @@
     }
 
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer])
+    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer] && !_requestParams.forceRefresh)
     {
         [[MSIDLogger sharedLogger] logToken:item.accessToken
                                   tokenType:@"AT"
@@ -351,7 +351,7 @@
     }
 
     // If the access token is good in terms of extended lifetime then store it for later use
-    if (item.accessToken && item.isExtendedLifetimeValid)
+    if (item.accessToken && item.isExtendedLifetimeValid && !_requestParams.forceRefresh)
     {
         _extendedLifetimeAccessTokenItem = item;
     }

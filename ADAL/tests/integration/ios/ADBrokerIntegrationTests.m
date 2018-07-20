@@ -275,13 +275,13 @@
     NSString *updatedRT = @"updated-refresh-token";
     NSString *updatedAT = @"updated-access-token";
     NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
-
+    
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
-
+    
     // Parameters for launching broker
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
-
+        
         NSDictionary *expectedParams =
         @{
           @"authority" : authority,
@@ -301,11 +301,11 @@
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
           };
-
+        
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
-
+        
         // Broker response back to client
         NSDictionary *responseParams =
         @{
@@ -318,11 +318,11 @@
           @"foci" : @"1",
           @"expires_in" : @"3600"
           };
-
+        
         [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
         return YES;
     }];
-
+    
     NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.de",
                               @"preferred_cache" : @"login.microsoftonline2.de",
                               @"aliases" : @[ @"login.microsoftonline2.de", @"login.microsoftonline.de"] } ];
@@ -330,7 +330,7 @@
     [ADTestAuthorityValidationResponse validAuthority:authority
                                           trustedHost:@"login.microsoftonline.com"
                                          withMetadata:metadata];
-
+    
     ADRefreshResponseBuilder *builder = [ADRefreshResponseBuilder new];
     builder.oldRefreshToken = brokerRT;
     builder.authority = @"https://login.microsoftonline.de/contoso.net";
@@ -341,7 +341,7 @@
     builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeAccountId:nil].rawIdToken;
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
-
+    
     ADAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -351,18 +351,18 @@
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
-
+         
          XCTAssertEqualObjects(result.tokenCacheItem.accessToken, updatedAT);
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, updatedRT);
          XCTAssertEqualObjects(result.authority, @"https://login.microsoftonline.de/contoso.net");
-
+         
          [expectation fulfill];
      }];
-
+    
     [self waitForExpectations:@[expectation] timeout:1.0];
-
+    
     ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-
+    
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
@@ -459,9 +459,9 @@
     params.clientId = TEST_CLIENT_ID;
     params.redirectUri = redirectUri;
     params.scopesString = @"aza bzb";
-
+    
     MSIDLegacyTokenCacheAccessor *sharedCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
-
+    
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
                                                                  requestParams:params
                                                                     tokenCache:sharedCache
