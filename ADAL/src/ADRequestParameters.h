@@ -36,6 +36,7 @@
     NSString *_scopesString;
     ADUserIdentifier *_identifier;
     BOOL _extendedLifetime;
+    BOOL _forceRefresh;
     NSUUID *_correlationId;
     NSString *_telemetryRequestId;
 }
@@ -48,6 +49,7 @@
 @property (retain, nonatomic) NSString* scopesString;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
 @property BOOL extendedLifetime;
+@property BOOL forceRefresh;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;

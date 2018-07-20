@@ -198,7 +198,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
         // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
-
         if ([response valueForKey:ADAL_AUTH_SUBERROR])
         {
             [userInfo setValue:[response valueForKey:ADAL_AUTH_SUBERROR] forKey:ADSuberrorKey];

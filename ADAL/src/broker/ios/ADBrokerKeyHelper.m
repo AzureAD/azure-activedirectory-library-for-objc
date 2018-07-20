@@ -320,7 +320,6 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         return nil;
     }
 
-
     NSString *decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
     if (!decryptedString)
     {

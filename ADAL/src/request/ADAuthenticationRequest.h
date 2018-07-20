@@ -103,6 +103,7 @@
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
 - (void)setSilent:(BOOL)silent;
 - (void)setSkipCache:(BOOL)skipCache;
+- (void)setForceRefresh:(BOOL)forceRefresh;
 - (void)setCorrelationId:(NSUUID*)correlationId;
 - (NSUUID*)correlationId;
 - (NSString*)telemetryRequestId;

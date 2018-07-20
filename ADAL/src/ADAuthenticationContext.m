@@ -394,6 +394,22 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:@"8" completionBlock:completionBlock];
 }
 
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
+                          forceRefresh:(BOOL)forceRefresh
+                       completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setUserId:userId];
+    [request setSilent:YES];
+    [request setForceRefresh:forceRefresh];
+    [request acquireToken:@"9" completionBlock:completionBlock];
+}
+
 - (void)acquireTokenWithResource:(NSString*)resource
                         clientId:(NSString*)clientId
                      redirectUri:(NSURL*)redirectUri

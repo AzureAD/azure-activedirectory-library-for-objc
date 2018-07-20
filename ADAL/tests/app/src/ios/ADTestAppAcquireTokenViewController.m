@@ -27,7 +27,7 @@
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
-
+#import "ADEnrollmentGateway.h"
 #import "ADUserIdentifier.h"
 #import "ADWebAuthController.h"
 #import "ADEnrollmentGateway.h"
@@ -42,7 +42,6 @@
 #else
 <UITextFieldDelegate>
 #endif
-
 
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
