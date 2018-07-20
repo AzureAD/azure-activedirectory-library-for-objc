@@ -43,17 +43,6 @@
 <UITextFieldDelegate>
 #endif
 
-#ifdef AD_MAM_SDK_TESTING
-#import <IntuneMAM/IntuneMAM.h>
-#endif
-
-@interface ADTestAppAcquireTokenViewController ()
-#ifdef AD_MAM_SDK_TESTING
-<UITextFieldDelegate, IntuneMAMComplianceDelegate, IntuneMAMEnrollmentDelegate>
-#else
-<UITextFieldDelegate>
-#endif
-
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
 
 @end
