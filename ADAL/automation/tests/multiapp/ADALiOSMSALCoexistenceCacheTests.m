@@ -29,7 +29,7 @@
 
 @implementation ADALiOSMSALCoexistenceCacheTests
 
-static BOOL msalAppInstalled = NO;
+//static BOOL msalAppInstalled = NO;
 
 - (void)setUp
 {
@@ -115,7 +115,6 @@ static BOOL msalAppInstalled = NO;
                              @"resource": @"https://graph.microsoft.com",
                              @"authority": @"https://login.microsoftonline.com/organizations",
                              @"ui_behavior": @"force",
-                             @"slice_params": @{@"dc":@"PROD-WST-TEST1"}
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -175,7 +174,6 @@ static BOOL msalAppInstalled = NO;
                              @"scopes": @"https://graph.microsoft.com/.default",
                              @"authority": @"https://login.microsoftonline.com/organizations",
                              @"ui_behavior": @"force",
-                             @"slice_params": @{@"dc":@"PROD-WST-TEST1"}
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -248,7 +246,8 @@ static BOOL msalAppInstalled = NO;
     self.testApp = [self msalTestApp];
 
     NSMutableDictionary *mutableConfig = [config mutableCopy];
-    mutableConfig[@"user_identifier"] = self.primaryAccount.homeAccountId;
+    mutableConfig[@"user_identifier"] = nil;
+    mutableConfig[@"user_legacy_identifier"] = self.primaryAccount.username;
     mutableConfig[@"authority"] = [NSString stringWithFormat:@"https://login.windows.net/%@", self.primaryAccount.targetTenantId];
 
     // Acquire token silent
