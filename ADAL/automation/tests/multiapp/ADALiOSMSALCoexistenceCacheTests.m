@@ -29,7 +29,7 @@
 
 @implementation ADALiOSMSALCoexistenceCacheTests
 
-//static BOOL msalAppInstalled = NO;
+static BOOL msalAppInstalled = NO;
 
 - (void)setUp
 {
