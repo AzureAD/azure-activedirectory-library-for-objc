@@ -2616,6 +2616,7 @@ const int sAsyncContextTimeout = 10;
                                                       correlationId:TEST_CORRELATION_ID];
     
     [ADTestURLSession addResponse:response];
+    
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL

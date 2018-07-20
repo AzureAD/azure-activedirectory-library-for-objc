@@ -394,10 +394,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:@"8" completionBlock:completionBlock];
 }
 
-- (void)acquireTokenSilentWithResource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(NSString*)userId
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
                           forceRefresh:(BOOL)forceRefresh
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {

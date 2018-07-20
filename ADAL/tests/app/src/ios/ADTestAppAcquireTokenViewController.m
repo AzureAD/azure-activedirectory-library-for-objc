@@ -85,10 +85,6 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
-#ifdef AD_MAM_SDK_TESTING
-    [[IntuneMAMComplianceManager instance] setDelegate:self];
-    [[IntuneMAMEnrollmentManager instance] setDelegate:self];
-#endif
     
 #ifdef AD_MAM_SDK_TESTING
     [[IntuneMAMComplianceManager instance] setDelegate:self];
@@ -844,7 +840,7 @@
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
         return;
     }
-
+    
     _resultView.text = [NSString stringWithFormat:@"Sending Unenroll request to MAM SDK..."];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
