@@ -30,6 +30,18 @@
 #import "ADEnrollmentGateway.h"
 #import "ADUserIdentifier.h"
 #import "ADWebAuthController.h"
+#import "ADEnrollmentGateway.h"
+
+#ifdef AD_MAM_SDK_TESTING
+#import <IntuneMAM/IntuneMAM.h>
+#endif
+
+@interface ADTestAppAcquireTokenViewController ()
+#ifdef AD_MAM_SDK_TESTING
+<UITextFieldDelegate, IntuneMAMComplianceDelegate, IntuneMAMEnrollmentDelegate>
+#else
+<UITextFieldDelegate>
+#endif
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAM/IntuneMAM.h>
@@ -84,6 +96,11 @@
     [self setTabBarItem:tabBarItem];
     
     [self setEdgesForExtendedLayout:UIRectEdgeTop];
+#ifdef AD_MAM_SDK_TESTING
+    [[IntuneMAMComplianceManager instance] setDelegate:self];
+    [[IntuneMAMEnrollmentManager instance] setDelegate:self];
+#endif
+    
 #ifdef AD_MAM_SDK_TESTING
     [[IntuneMAMComplianceManager instance] setDelegate:self];
     [[IntuneMAMEnrollmentManager instance] setDelegate:self];
@@ -144,6 +161,46 @@
     return view;
 }
 
+- (UIView *)createItemLayoutView:(NSArray<UIView *> *)items
+{
+    UIView *view = [UIView new];
+    view.translatesAutoresizingMaskIntoConstraints = NO;
+
+    NSMutableDictionary *viewsForConstraints = [NSMutableDictionary new];
+    
+    int count = 1;
+    for (UIView *item in items)
+    {
+        item.translatesAutoresizingMaskIntoConstraints = NO;
+        [view addSubview:item];
+        
+        NSString *name = [NSString stringWithFormat:@"item%d", count++];
+        [viewsForConstraints setValue:item forKey:name];
+    }
+    
+    // add constraints
+    NSString *horizontalFormatStr = @"H:|";
+    for (int i = 1; i<count; i++)
+    {
+        // vertical contraints
+        NSString *verticalFormatStr = [NSString stringWithFormat:@"V:|[item%d(20)]|", i];
+        NSArray *verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:verticalFormatStr options:0 metrics:NULL views:viewsForConstraints];
+        [view addConstraints:verticalConstraints];
+        
+        // horizontal contraints
+        if (count > 1)
+        {
+            horizontalFormatStr = [horizontalFormatStr stringByAppendingString:@"-"];
+        }
+        horizontalFormatStr = [horizontalFormatStr stringByAppendingString:[NSString stringWithFormat:@"[item%d]", i]];
+    }
+    horizontalFormatStr = [horizontalFormatStr stringByAppendingString:@"|"];
+
+    NSArray *horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:horizontalFormatStr options:0 metrics:NULL views:viewsForConstraints];
+    [view addConstraints:horizontalConstraints];
+    
+    return view;
+}
 
 - (UIView*)createSettingsAndResultView
 {
@@ -221,19 +278,24 @@
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
     
-    UIButton* mamEnroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamEnroll = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamEnroll setTitle:@"MAM Enroll" forState:UIControlStateNormal];
     [mamEnroll addTarget:self action:@selector(mamEnroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIButton* mamUnenroll = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamUnenroll = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamUnenroll setTitle:@"MAM Unenroll" forState:UIControlStateNormal];
     [mamUnenroll addTarget:self action:@selector(mamUnenroll:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIButton* mamEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *mamEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
     [mamEnrollIds setTitle:@"MAM Enroll IDs" forState:UIControlStateNormal];
     [mamEnrollIds addTarget:self action:@selector(mamEnrollIds:) forControlEvents:UIControlEventTouchUpInside];
     
-    UIView* mamButtonsView = [self createThreeItemLayoutView:mamEnroll item2:mamUnenroll item3:mamEnrollIds];
+    UIButton *mamDelEnrollIds = [UIButton buttonWithType:UIButtonTypeSystem];
+    [mamDelEnrollIds setTitle:@"Delete MAM IDs" forState:UIControlStateNormal];
+    [mamDelEnrollIds addTarget:self action:@selector(mamDelEnrollIds:) forControlEvents:UIControlEventTouchUpInside];
+    
+    NSArray *buttons = @[mamEnroll, mamUnenroll, mamEnrollIds, mamDelEnrollIds];
+    UIView *mamButtonsView = [self createItemLayoutView:buttons];
     [layout addCenteredView:mamButtonsView key:@"mamButtons"];
     
     _resultView = [[UITextView alloc] init];
@@ -770,7 +832,7 @@
 - (IBAction)mamEnroll:(id)sender
 {
 #ifdef AD_MAM_SDK_TESTING
-    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    if ([NSString msidIsStringNilOrBlank:self.identifier.userId])
     {
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking register!"];
         return;
@@ -788,7 +850,7 @@
 - (IBAction)mamUnenroll:(id)sender
 {
 #ifdef AD_MAM_SDK_TESTING
-    if ([NSString adIsStringNilOrBlank:self.identifier.userId])
+    if ([NSString msidIsStringNilOrBlank:self.identifier.userId])
     {
         _resultView.text = [NSString stringWithFormat:@"Please specify user id before clicking unregister!"];
         return;
@@ -805,6 +867,14 @@
 - (IBAction)mamEnrollIds:(id)sender
 {
 #ifdef AD_MAM_SDK_TESTING
+    _resultView.text = [ADEnrollmentGateway allEnrollmentIdsJSON];
+#endif
+}
+
+- (IBAction)mamDelEnrollIds:(id)sender
+{
+#ifdef AD_MAM_SDK_TESTING
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"intune_app_protection_enrollment_id_V1"];
     _resultView.text = [ADEnrollmentGateway allEnrollmentIdsJSON];
 #endif
 }
