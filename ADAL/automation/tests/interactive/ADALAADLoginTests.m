@@ -512,8 +512,8 @@
     XCUIElement *getTheAppButton = safari.staticTexts[@"GET THE APP"];
     [self waitForElement:getTheAppButton];
 #else
-    XCUIElement *enterPassword = safari.staticTexts[@"Enter password"];
-    [self waitForElement:enterPassword];
+    XCUIElement *safariWindow = safari.windows.firstMatch;
+    [self waitForElement:safariWindow];
 #endif
     
     [self.testApp activate];

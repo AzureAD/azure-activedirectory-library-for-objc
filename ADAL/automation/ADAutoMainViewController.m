@@ -464,7 +464,9 @@
                                   redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                               completionBlock:^(ADAuthenticationResult *result) {
 
-                                  [self displayAuthenticationResult:result logs:weakSelf.resultLogs];
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
+                                  });
                               }];
 
     };
