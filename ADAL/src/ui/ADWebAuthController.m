@@ -125,6 +125,7 @@ static ADAuthenticationResult *s_result = nil;
                                                                 context:requestParams
                                                       completionHandler:^(MSIDWebviewResponse *response, NSError *error)
     {
+
                                                           
     
     }];

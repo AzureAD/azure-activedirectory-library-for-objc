@@ -35,6 +35,7 @@
 @synthesize redirectUri = _redirectUri;
 @synthesize identifier = _identifier;
 @synthesize extendedLifetime = _extendedLifetime;
+@synthesize forceRefresh = _forceRefresh;
 @synthesize correlationId = _correlationId;
 @synthesize telemetryRequestId = _telemetryRequestId;
 
@@ -77,6 +78,7 @@
     parameters->_identifier = [_identifier copyWithZone:zone];
     parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
+    parameters->_forceRefresh = _forceRefresh;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
     parameters->_account = [_account copyWithZone:zone];

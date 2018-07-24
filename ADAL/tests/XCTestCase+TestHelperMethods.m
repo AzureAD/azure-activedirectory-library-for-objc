@@ -45,6 +45,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAADV2TokenResponse.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -269,6 +270,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
+                                   oauthSubError:(NSString *)oauthSubError
                                    correlationId:(NSUUID *)correlationId
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
@@ -284,6 +286,15 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     {
         requestHeaders = [ADTestURLResponse defaultHeaders];
     }
+
+    NSMutableDictionary *jsonDictionary = [NSMutableDictionary new];
+    jsonDictionary[MSID_OAUTH2_ERROR] = oauthError;
+    jsonDictionary[MSID_OAUTH2_ERROR_DESCRIPTION] = @"oauth error description";
+
+    if (oauthSubError)
+    {
+        jsonDictionary[MSID_OAUTH2_SUB_ERROR] = oauthSubError;
+    }
     
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
@@ -298,8 +309,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
-                       dictionaryAsJSON:@{ MSID_OAUTH2_ERROR : oauthError,
-                                           MSID_OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
+                       dictionaryAsJSON:jsonDictionary];
     
     return response;
 }
@@ -311,6 +321,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                   resource:TEST_RESOURCE
                                   clientId:TEST_CLIENT_ID
                                 oauthError:oauthError
+                             oauthSubError:nil
                              correlationId:TEST_CORRELATION_ID];
 
 }
@@ -708,23 +719,21 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (void)fillBaseToken:(MSIDBaseToken *)baseToken
 {
-    [baseToken setValue:[[NSURL alloc] initWithString:TEST_AUTHORITY] forKey:@"authority"];
-    [baseToken setValue:TEST_CLIENT_ID forKey:@"clientId"];
-    [baseToken setValue:@"unique User Id" forKey:@"homeAccountId"];
-    MSIDClientInfo *clientInfo = [self adCreateClientInfo];
-    [baseToken setValue:clientInfo forKey:@"clientInfo"];
-    [baseToken setValue:@{@"key2" : @"value2"} forKey:@"additionalServerInfo"];
+    baseToken.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
+    baseToken.clientId = TEST_CLIENT_ID;
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"unique User Id"];
+    baseToken.clientInfo = [self adCreateClientInfo];
+    baseToken.additionalServerInfo = @{@"key2" : @"value2"};
 }
 
 - (void)fillAccessToken:(MSIDLegacyAccessToken *)accessToken
 {
-    [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"expiresOn"];
-    [accessToken setValue:[NSDate dateWithTimeIntervalSince1970:1100000000] forKey:@"cachedAt"];
-    [accessToken setValue:@"access token" forKey:@"accessToken"];
-    [accessToken setValue:@"Bearer" forKey:@"accessTokenType"];
-    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
-    [accessToken setValue:rawIdToken forKey:@"idToken"];
-    [accessToken setValue:TEST_RESOURCE forKey:@"target"];
+    accessToken.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    accessToken.cachedAt = [NSDate dateWithTimeIntervalSince1970:1100000000];
+    accessToken.accessToken = @"access token";
+    accessToken.accessTokenType = @"Bearer";
+    accessToken.idToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    accessToken.resource = TEST_RESOURCE;
 }
 
 - (NSString *)base64UrlFromJson:(NSDictionary *)json

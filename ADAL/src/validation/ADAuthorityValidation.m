@@ -116,7 +116,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSSet *authorities = [_validatedAdfsAuthorities objectForKey:domain];
     for (NSURL *url in authorities)
     {
-        if([url msidIsEquivalentAuthority:authority])
+        if ([url msidIsEquivalentAuthorityHost:authority])
         {
             return YES;
         }
@@ -439,7 +439,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL msidIsEquivalentAuthority:authority])
+            [targetURL msidIsEquivalentAuthorityHost:authority])
         {
             return YES;
         }

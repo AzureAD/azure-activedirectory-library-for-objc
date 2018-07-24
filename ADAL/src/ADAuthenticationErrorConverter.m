@@ -78,11 +78,15 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerInvalidGrant) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT)
+                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
+                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
                                    }
                            };
     
-    s_userInfoKeyMapping = @{MSIDHTTPHeadersKey : ADHTTPHeadersKey};
+    s_userInfoKeyMapping = @{
+                             MSIDHTTPHeadersKey : ADHTTPHeadersKey,
+                             MSIDOAuthSubErrorKey : ADSuberrorKey
+                             };
 }
 
 + (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
@@ -105,7 +109,7 @@ static NSDictionary *s_userInfoKeyMapping;
     if (msidError.domain && msidError.code && s_errorCodeMapping[msidError.domain])
     {
         NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
-        if (mappedErrorCode)
+        if (mappedErrorCode != nil)
         {
             errorCode = [mappedErrorCode integerValue];
         }

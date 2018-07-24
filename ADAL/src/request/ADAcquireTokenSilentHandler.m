@@ -32,6 +32,7 @@
 #import "ADTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADEnrollmentGateway.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
@@ -43,6 +44,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAccountIdentifier.h"
 #import "ADAuthenticationSettings.h"
+#import "MSIDAuthority.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -136,6 +138,20 @@
     }
 
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+    
+    if (![MSIDAuthority isADFSInstance:authority])
+    {
+        NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
+        NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
+        ADAuthenticationError *error = nil;
+        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
+                                                                          userID:userId
+                                                                           error:&error];
+        
+        if (enrollId)
+            [request_data setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
+    }
+
 
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
@@ -316,7 +332,7 @@
     }
 
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer])
+    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer] && !_requestParams.forceRefresh)
     {
         [[MSIDLogger sharedLogger] logToken:item.accessToken
                                   tokenType:@"AT"
@@ -335,7 +351,7 @@
     }
 
     // If the access token is good in terms of extended lifetime then store it for later use
-    if (item.accessToken && item.isExtendedLifetimeValid)
+    if (item.accessToken && item.isExtendedLifetimeValid && !_requestParams.forceRefresh)
     {
         _extendedLifetimeAccessTokenItem = item;
     }

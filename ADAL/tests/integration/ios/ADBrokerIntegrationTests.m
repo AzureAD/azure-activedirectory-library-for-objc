@@ -44,6 +44,15 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "ADEnrollmentGateway.h"
+#import "ADEnrollmentGateway+TestUtil.h"
+
+@interface ADEnrollmentGateway ()
+
++ (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
+
+@end
 
 @interface ADBrokerIntegrationTests : ADTestCase
 
@@ -91,6 +100,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -182,6 +193,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -262,13 +275,13 @@
     NSString *updatedRT = @"updated-refresh-token";
     NSString *updatedAT = @"updated-access-token";
     NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
-
+    
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
-
+    
     // Parameters for launching broker
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
-
+        
         NSDictionary *expectedParams =
         @{
           @"authority" : authority,
@@ -285,12 +298,14 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
-
+        
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
-
+        
         // Broker response back to client
         NSDictionary *responseParams =
         @{
@@ -303,11 +318,11 @@
           @"foci" : @"1",
           @"expires_in" : @"3600"
           };
-
+        
         [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
         return YES;
     }];
-
+    
     NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.de",
                               @"preferred_cache" : @"login.microsoftonline2.de",
                               @"aliases" : @[ @"login.microsoftonline2.de", @"login.microsoftonline.de"] } ];
@@ -315,7 +330,7 @@
     [ADTestAuthorityValidationResponse validAuthority:authority
                                           trustedHost:@"login.microsoftonline.com"
                                          withMetadata:metadata];
-
+    
     ADRefreshResponseBuilder *builder = [ADRefreshResponseBuilder new];
     builder.oldRefreshToken = brokerRT;
     builder.authority = @"https://login.microsoftonline.de/contoso.net";
@@ -326,7 +341,7 @@
     builder.updatedIdToken = [self adCreateUserInformation:TEST_USER_ID tenantId:correctTid homeAccountId:nil].rawIdToken;
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
-
+    
     ADAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -336,18 +351,18 @@
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
-
+         
          XCTAssertEqualObjects(result.tokenCacheItem.accessToken, updatedAT);
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, updatedRT);
          XCTAssertEqualObjects(result.authority, @"https://login.microsoftonline.de/contoso.net");
-
+         
          [expectation fulfill];
      }];
-
+    
     [self waitForExpectations:@[expectation] timeout:1.0];
-
+    
     ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
-
+    
     XCTAssertEqualObjects([tokenCache getAT:cacheAuthority], updatedAT);
     XCTAssertEqualObjects([tokenCache getMRRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
@@ -391,6 +406,8 @@
           @"skip_cache" : @"NO",
           @"extra_qp" : @"",
           @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
@@ -442,9 +459,9 @@
     params.clientId = TEST_CLIENT_ID;
     params.redirectUri = redirectUri;
     params.scopesString = @"aza bzb";
-
+    
     MSIDLegacyTokenCacheAccessor *sharedCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
-
+    
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
                                                                  requestParams:params
                                                                     tokenCache:sharedCache
@@ -474,18 +491,304 @@
     XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
 }
 
+- (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent_shouldSucceed
+{
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    NSString *enrollmentIDs = [ADEnrollmentGateway getTestEnrollmentIDJSON];
+    NSString *intuneResource = [ADEnrollmentGateway getTestResourceJSON];
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          @"intune_enrollment_ids" : enrollmentIDs,
+          @"intune_mam_resource" : intuneResource,
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+        NSDictionary *responseParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"client_id" : TEST_CLIENT_ID,
+          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+          @"access_token" : @"i-am-a-access-token",
+          @"refresh_token" : @"i-am-a-refresh-token",
+          @"foci" : @"1",
+          @"expires_in" : @"3600",
+          @"client_info" : [self adCreateClientInfo].rawClientInfo
+          };
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"i-am-a-access-token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"i-am-a-refresh-token");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
+
+    XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
+    XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
+    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
+    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
+}
+
+- (void)testBroker_whenFailWithProtectionRequiredError_shouldStoreMamTokenAndReturnError
+{
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+        NSMutableDictionary *responseParams =
+        [[NSMutableDictionary alloc] initWithDictionary:@{
+                                                          @"error_code" : @"213", // AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED
+                                                          @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
+                                                          @"error" : @"unauthorized_client",
+                                                          @"suberror" : @"protection_policies_required",
+                                                          ADAL_BROKER_APP_VERSION : @"2",
+                                                          }];
+
+        NSDictionary *intune_token_response = @{
+                                                @"authority" : authority,
+                                                @"resource" : TEST_RESOURCE,
+                                                @"client_id" : TEST_CLIENT_ID,
+                                                @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+                                                @"access_token" : @"i-am-a-access-token",
+                                                @"refresh_token" : @"i-am-a-refresh-token",
+                                                @"foci" : @"1",
+                                                @"expires_in" : @"3600",
+                                                @"vt" : @YES,
+                                                };
+        NSDictionary* encrypted_token = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:intune_token_response];
+
+        [responseParams setValue:encrypted_token[ADAL_BROKER_RESPONSE_KEY] forKey:ADAL_BROKER_INTUNE_RESPONSE_KEY];
+        [responseParams setValue:encrypted_token[ADAL_BROKER_HASH_KEY] forKey:ADAL_BROKER_INTUNE_HASH_KEY];
+        [responseParams setValue:encrypted_token[@"msg_protocol_ver"] forKey:@"msg_protocol_ver"];
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"protection_policies_required");
+         XCTAssertEqualObjects(result.error.userInfo[ADUserIdKey], [[self adCreateUserInformation:TEST_USER_ID] userId]);
+         XCTAssertEqualObjects(result.error.userInfo[ADBrokerVersionKey], @"2");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    // Assert that MAM token was added to cache even though broker returned an error code
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
+
+    XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
+    XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
+    XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
+}
+
+- (void)testBroker_whenFailWithProtectionRequiredErrorWithoutToken_shouldReturnErrorWithoutToken
+{
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+
+        NSMutableDictionary *responseParams =
+        [[NSMutableDictionary alloc] initWithDictionary:@{
+                                                          @"error_code" : @"213", // AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED
+                                                          @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
+                                                          @"error" : @"unauthorized_client",
+                                                          @"suberror" : @"protection_policies_required",
+                                                          }];
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    // Assert that MAM token was added to cache even though broker returned an error code
+    ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
+
+    XCTAssertNil([tokenCache getAT:authority]);
+    XCTAssertNil([tokenCache getMRRT:authority]);
+    XCTAssertNil([tokenCache getFRT:authority]);
+}
+
+
+
 #pragma mark - Private
 
 + (NSURL *)createV2BrokerResponse:(NSDictionary *)parameters
                       redirectUri:(NSString *)redirectUri
 {
+    NSDictionary* message = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:parameters];
+    
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidURLFormEncode]]];
+}
+
++ (NSURL *)createV2BrokerErrorResponse:(NSDictionary *)parameters
+                           redirectUri:(NSString *)redirectUri
+{
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [parameters msidURLFormEncode]]];
+}
+
++ (NSDictionary *) createV2BrokerResponseDicitonary:(NSDictionary *) parameters
+{
     NSData *payload = [[parameters msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
-    
+
     size_t bufferSize = [payload length] + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
     size_t numBytesEncrypted = 0;
-    
+
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
                                           [brokerKey bytes], kCCKeySizeAES256,
                                           NULL /* initialization vector (optional) */,
@@ -496,7 +799,7 @@
     {
         return nil;
     }
-    
+
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256([payload bytes], (CC_LONG)[payload length], hash);
     NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 3];
@@ -504,15 +807,15 @@
     {
         [fingerprint appendFormat:@"%02x", hash[i]];
     }
-    
+
     NSDictionary *message =
     @{
       @"msg_protocol_ver" : @"2",
       @"response" :  [NSString msidBase64UrlEncodeData:[NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted]],
       @"hash" : [fingerprint uppercaseString],
       };
-    
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidURLFormEncode]]];
+
+    return message;
 }
 
 - (ADAuthenticationContext *)getBrokerTestContext:(NSString *)authority

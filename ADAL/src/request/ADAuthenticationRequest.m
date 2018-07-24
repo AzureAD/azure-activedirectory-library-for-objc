@@ -172,6 +172,12 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _skipCache = skipCache;
 }
 
+- (void)setForceRefresh:(BOOL)forceRefresh
+{
+    CHECK_REQUEST_STARTED;
+    [_requestParams setForceRefresh:forceRefresh];
+}
+
 - (void)setCorrelationId:(NSUUID*)correlationId
 {
     CHECK_REQUEST_STARTED;

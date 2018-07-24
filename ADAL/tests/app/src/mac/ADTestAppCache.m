@@ -44,8 +44,11 @@
     
     dispatch_once(&once, ^{
         cache = [[ADTestAppCache alloc] init];
-        //[cache readFromFile:[self defaultSavePath]];
+#ifdef FILE_BASED_TEST_CACHE
+        [cache readFromFile:[self defaultSavePath]];
+#else
         [cache readFromKeychain];
+#endif
         [[ADAuthenticationSettings sharedInstance] setDefaultStorageDelegate:cache];
     });
     
@@ -76,7 +79,11 @@
 {
     @synchronized(self)
     {
+#ifdef FILE_BASED_TEST_CACHE
+        [self readFromFile:[[self class] defaultSavePath]];
+#else
         [self readFromKeychain];
+#endif
         
         if (_data)
         {
@@ -96,7 +103,11 @@
 {
     @synchronized(self)
     {
+#ifdef FILE_BASED_TEST_CACHE
+        [self readFromFile:[[self class] defaultSavePath]];
+#else
         [self readFromKeychain];
+#endif
         [cache deserialize:_data error:nil];
     }
 }
@@ -106,8 +117,11 @@
     @synchronized(self)
     {
         _data = [cache serialize];
-        //[self writeToFile:[ADTestAppCache defaultSavePath]];
+#ifdef FILE_BASED_TEST_CACHE
+        [self writeToFile:[ADTestAppCache defaultSavePath]];
+#else
         [self writeToKeychain];
+#endif
     }
 }
 
@@ -192,9 +206,12 @@
         {
             return NO;
         }
-        
+
+#ifdef FILE_BASED_TEST_CACHE
+        return [[NSFileManager defaultManager] removeItemAtPath:[ADTestAppCache defaultSavePath] error:error];
+#else
         OSStatus deleteResult = SecItemDelete((CFDictionaryRef)@{ DEFAULT_KEYCHAIN_ATTRS });
-        
+
         if (deleteResult == errSecSuccess || deleteResult == errSecItemNotFound)
         {
             return YES;
@@ -203,8 +220,9 @@
         {
             *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:deleteResult userInfo:nil];
         }
-        
+
         return NO;
+#endif
     }
 }
 

@@ -28,6 +28,9 @@ extern NSString *const ADAL_BROKER_MESSAGE_VERSION;
 extern NSString *const ADAL_BROKER_APP_VERSION;
 extern NSString *const ADAL_BROKER_RESPONSE_KEY;
 extern NSString *const ADAL_BROKER_HASH_KEY;
+extern NSString *const ADAL_BROKER_INTUNE_RESPONSE_KEY;
+extern NSString *const ADAL_BROKER_INTUNE_HASH_KEY;
+extern NSString *const ADAL_MS_ENROLLMENT_ID;
 
 extern NSString *const ADAL_CLIENT_TELEMETRY;
 
@@ -38,6 +41,8 @@ extern NSString *const ADAL_AAD_SECURECONVERSATION_LABEL;
 
 extern NSString *const ADAL_AUTH_USERNAME_KEY;
 extern NSString *const ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME;
+extern NSString *const ADAL_AUTH_SUBERROR;
+extern NSString *const ADAL_AUTH_PROTECTION_POLICY_REQUIRED;
 
 extern NSString* const ADAL_BROKER_SCHEME;
 extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;
