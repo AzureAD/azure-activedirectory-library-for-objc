@@ -30,6 +30,7 @@
 @class ADUserIdentifier;
 @class UIViewController;
 @class ADTokenCache;
+@class WKWebView;
 
 #if !TARGET_OS_IPHONE
 @protocol ADTokenCacheDelegate;
@@ -123,11 +124,6 @@ typedef enum
     BOOL _extendedLifetimeEnabled;
     NSString* _logComponent;
     NSUUID* _correlationId;
-#if __has_feature(objc_arc)
-    __weak WebViewType* _webView;
-#else 
-    WebViewType* _webView;
-#endif
 }
 
 #if TARGET_OS_IPHONE
@@ -268,7 +264,7 @@ typedef enum
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */
-@property (weak) WebViewType* webView;
+@property (weak) WKWebView* webView;
 
 /*! Enable to return access token with extended lifetime during server outage. */
 @property BOOL extendedLifetimeEnabled;

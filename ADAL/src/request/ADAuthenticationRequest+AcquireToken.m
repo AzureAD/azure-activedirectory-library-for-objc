@@ -298,7 +298,7 @@
         return;
     }
 
-    if (_silent && !_allowSilent)
+    if (_silent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token, but the developer, requested
@@ -417,8 +417,6 @@
         }
     };
 
-    __block BOOL silentRequest = _allowSilent;
-    
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
     // Get the code first:
@@ -430,13 +428,6 @@
 
          if (error)
          {
-             if (silentRequest)
-             {
-                 _allowSilent = NO;
-                 [self requestToken:completionBlock];
-                 return;
-             }
-             
              ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
              

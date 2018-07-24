@@ -21,14 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADWebAuthDelegate <NSObject>
-
-@required
-- (void)webAuthDidCancel;
-- (void)webAuthDidStartLoad:(NSURL*)url;
-- (void)webAuthDidFinishLoad:(NSURL*)url;
-- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request;
-- (void)webAuthDidCompleteWithURL:(NSURL *)endURL;
-- (void)webAuthDidFailWithError:(NSError *)error;
-
-@end
+//@protocol ADWebAuthDelegate <NSObject>
+//
+//@required
+//- (void)webAuthDidCancel;
+//- (void)webAuthDidStartLoad:(NSURL*)url;
+//- (void)webAuthDidFinishLoad:(NSURL*)url;
+//- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request;
+//- (void)webAuthDidCompleteWithURL:(NSURL *)endURL;
+//- (void)webAuthDidFailWithError:(NSError *)error;
+//
+//@end

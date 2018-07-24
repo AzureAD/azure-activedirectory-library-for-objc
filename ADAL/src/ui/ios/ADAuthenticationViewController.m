@@ -154,7 +154,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (IBAction)onCancel:(id)sender
 {
     (void)sender;
-    [_delegate webAuthDidCancel];
+//    [_delegate webAuthDidCancel];
 }
 
 // Fired 2 seconds after a page loads starts to show waiting indicator
@@ -217,12 +217,12 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     (void)navigationType;
 
     // Forward to the UIWebView controller
-    return [_delegate webAuthShouldStartLoadRequest:request];
+    return NO;// [_delegate webAuthShouldStartLoadRequest:request];
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    [_delegate webAuthDidStartLoad:webView.request.URL];
+   // [_delegate webAuthDidStartLoad:webView.request.URL];
 }
 
 - (void)stopSpinner
@@ -233,13 +233,13 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    [_delegate webAuthDidFinishLoad:webView.request.URL];
+   // [_delegate webAuthDidFinishLoad:webView.request.URL];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     (void)webView;
-    [_delegate webAuthDidFailWithError:error];
+  //  [_delegate webAuthDidFailWithError:error];
 }
 
 #pragma mark - Background task

@@ -31,6 +31,8 @@
 #import "ADUserIdentifier.h"
 #import "ADWebAuthController.h"
 
+#import <WebKit/WebKit.h>
+
 @interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
 
 @property (nonatomic) ADTestAppClaimsPickerController *claimsPickerController;
@@ -57,7 +59,7 @@
     UITextView* _resultView;
     
     UIView* _authView;
-    UIWebView* _webView;
+    WKWebView* _webView;
     
     NSLayoutConstraint* _bottomConstraint;
     NSLayoutConstraint* _bottomConstraint2;
@@ -270,7 +272,7 @@
     
     UIView* contentView = blurView.contentView;
     
-    _webView = [[UIWebView alloc] init];
+    _webView = [[WKWebView alloc] init];
     _webView.translatesAutoresizingMaskIntoConstraints = NO;
     [contentView addSubview:_webView];
     

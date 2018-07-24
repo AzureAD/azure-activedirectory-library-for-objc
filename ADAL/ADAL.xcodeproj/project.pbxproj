@@ -211,6 +211,7 @@
 		960E93751E296CC9008036C0 /* ADURLSessionDemux.h in Headers */ = {isa = PBXBuildFile; fileRef = 960E93721E296CC2008036C0 /* ADURLSessionDemux.h */; };
 		960E93761E296CCF008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
 		960E93771E296CD0008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
+		9615DB2A20F6A9730002A75D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
 		967E351720E1C69500A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		967E351820E1C77100A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96AC69381E70E184008183A7 /* ADAutoResultViewController.m */; };
@@ -219,6 +220,7 @@
 		96B9F04720DDFC0C006C806C /* adal__additional_settings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 96B9F04620DDFC0C006C806C /* adal__additional_settings.xcconfig */; };
 		96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
+		96D537F620F560530090F4BB /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
 		B2000C8420EC5E990092790A /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; };
 		B2000C8520EC5E990092790A /* ADAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
@@ -1215,6 +1217,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96D537F620F560530090F4BB /* WebKit.framework in Frameworks */,
 				96B9F04020DDD43E006C806C /* libIdentityCore.a in Frameworks */,
 				D6CF4ECD1FC3786B00CD70C5 /* Security.framework in Frameworks */,
 				D6CF4ECB1FC3786400CD70C5 /* UIKit.framework in Frameworks */,
@@ -1289,6 +1292,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9615DB2A20F6A9730002A75D /* WebKit.framework in Frameworks */,
 				967E351720E1C69500A2F09E /* libIdentityCore.a in Frameworks */,
 				94D188CF201D4ABA0093B799 /* CoreGraphics.framework in Frameworks */,
 				D6CF4EE31FC37EE900CD70C5 /* Security.framework in Frameworks */,

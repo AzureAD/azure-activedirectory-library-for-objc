@@ -21,38 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class ADAuthenticationError;
-
 #import "ADAuthenticationContext.h"
+#import "MSIDWebviewAuthorization.h"
 #import "ADWebAuthController.h"
 
-typedef void (^ADBrokerCallback)(ADAuthenticationError* error, NSURL*);
-@interface ADWebAuthController (Internal)
+@class ADAuthenticationError;
+@class WKWebView;
 
-+ (ADWebAuthController *)sharedInstance;
+@interface ADWebAuthController (Internal)
 
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
 // the authentication process.
-- (void)start:(NSURL *)startURL
-          end:(NSURL *)endURL
-  refreshCred:(NSString *)refreshCred
-#if TARGET_OS_IPHONE
-       parent:(UIViewController *)parent
-   fullScreen:(BOOL)fullScreen
-#endif
-      webView:(WebViewType*)webView
-      context:(ADRequestParameters*)requestParams
-   completion:(ADBrokerCallback)completionBlock;
++ (void)startWithRequest:(ADRequestParameters *)requestParams
+          promptBehavior:(ADPromptBehavior)promptBehavior
+                 context:(ADAuthenticationContext *)context
+              completion:(ADAuthorizationCodeCallback)completionBlock;
 
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on
-- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError *)error;
+- (void)cancelCurrentWebAuthSession;
 
 #if TARGET_OS_IPHONE
 + (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result;
 #endif // TARGET_OS_IPHONE
 
-- (ADAuthenticationViewController*)viewController;
+
+
 
 @end

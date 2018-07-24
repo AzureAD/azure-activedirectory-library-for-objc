@@ -99,7 +99,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _promptBehavior = AD_PROMPT_AUTO;
     
     // This line is here to suppress a analyzer warning, has no effect
-    _allowSilent = NO;
     _skipCache = NO;
     
     return self;
@@ -209,12 +208,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     // We knowingly do this mid-request when we have to change auth types
     // Thus no CHECK_REQUEST_STARTED
     [_requestParams setRedirectUri:redirectUri];
-}
-
-- (void)setAllowSilentRequests:(BOOL)allowSilent
-{
-    CHECK_REQUEST_STARTED;
-    _allowSilent = allowSilent;
 }
 
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential

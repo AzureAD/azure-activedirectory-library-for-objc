@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -155,5 +156,18 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     
     return result;
 }
+
+static MSIDAADV1Oauth2Factory *s_oauthFactory;
+
+- (MSIDOauth2Factory *)oauthFactory
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s_oauthFactory = [MSIDAADV1Oauth2Factory new];
+    });
+    
+    return s_oauthFactory;
+}
+
 
 @end
