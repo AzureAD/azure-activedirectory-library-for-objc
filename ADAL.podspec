@@ -19,7 +19,8 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.10"
   s.source       = { 
     :git => "https://github.com/AzureAD/azure-activedirectory-library-for-objc.git", 
-    :tag => s.version.to_s
+    :tag => s.version.to_s,
+    :submodules => true
   }
 
   s.pod_target_xcconfig = { 'CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF' => 'NO' }
@@ -31,13 +32,13 @@ Pod::Spec.new do |s|
   s.module_map = "ADAL/resources/mac/adal_mac.modulemap"
   
   s.subspec 'app-lib' do |app|
-  	app.source_files = "ADAL/src/**/*.{h,m}"
+  	app.source_files = "ADAL/src/**/*.{h,m}", "ADAL/IdentityCore/IdentityCore/src/**/*.{h,m}"
   	app.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
   	app.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   
-  	app.ios.exclude_files = "ADAL/src/**/mac/*"
+  	app.ios.exclude_files = "ADAL/src/**/mac/*", "ADAL/IdentityCore/IdentityCore/src/**/mac/*"
   		
-  	app.osx.exclude_files = "ADAL/src/**/ios/*"
+  	app.osx.exclude_files = "ADAL/src/**/ios/*", "ADAL/IdentityCore/IdentityCore/src/**/ios/*"
   	app.osx.resources = "ADAL/resources/mac/ADCredentialViewController.xib"
   	
   	app.requires_arc = true
@@ -57,14 +58,14 @@ Pod::Spec.new do |s|
   # Note, ADAL has limited support for running in app extensions.
   s.subspec 'extension' do |ext|
   	ext.compiler_flags = '-DADAL_EXTENSION_SAFE=1'
-  	ext.source_files = "ADAL/src/**/*.{h,m}"
+  	ext.source_files = "ADAL/src/**/*.{h,m}", "ADAL/IdentityCore/IdentityCore/src/**/*.{h,m}"
   	ext.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
   	ext.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   
   	# There is currently a bug in CocoaPods where it doesn't combine the public headers
   	# for both the platform and overall.
-  	ext.ios.exclude_files = "ADAL/src/**/mac/*"
-  	ext.osx.exclude_files = "ADAL/src/**/ios/*"
+  	ext.ios.exclude_files = "ADAL/src/**/mac/*", "ADAL/IdentityCore/IdentityCore/src/**/mac/*"
+  	ext.osx.exclude_files = "ADAL/src/**/ios/*", "ADAL/IdentityCore/IdentityCore/src/**/ios/*"
   	
   	ext.requires_arc = true
   	
