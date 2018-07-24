@@ -1,3 +1,9 @@
+Version 2.7.0 (07.23.2018)
+-------------
+* Add new API to skip access token in cache by passing a forceRefresh parameter (#1234)
+* Intune enrollment id support for MAM scenarios (#1232)
+* Cache co-existence with apps using MSAL Objective-C and MSAL .NET SDKs
+
 Version 2.6.4 (07.13.2018)
 -------------
 * Improved Negotiate handler to decide if it should use default handling or reject for macOS authentication (#1181)
