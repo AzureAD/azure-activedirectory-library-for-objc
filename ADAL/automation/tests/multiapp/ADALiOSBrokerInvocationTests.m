@@ -83,10 +83,7 @@ static BOOL brokerAppInstalled = NO;
     [self acquireToken:config];
 
     XCUIApplication *brokerApp = [self brokerApp];
-
-    __auto_type nextButton = brokerApp.buttons[@"Next"];
-    [self waitForElement:nextButton];
-    [nextButton tap];
+    [self blackForestWaitForNextButton:brokerApp];
 
     XCUIElement *passwordTextField = brokerApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
