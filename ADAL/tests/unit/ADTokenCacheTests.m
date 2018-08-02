@@ -224,9 +224,9 @@ static ADTokenCacheItem* CartmanItem(NSString* resource)
     item.resource = resource;
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
-    item.accessToken = @"Grant me access, hippie!";
+    item.accessToken = @"Access token";
     item.accessTokenType = @"Bearer";
-    item.refreshToken = @"I am a refresh token.";
+    item.refreshToken = @"Refresh token";
     item.userInformation = [ADUserInformation userInformationWithIdToken:CartmanIdtoken() error:nil];
     
     return item;
@@ -623,6 +623,128 @@ static ADTokenCacheItem* CartmanItem(NSString* resource)
     // Make sure both of the items are in the array
     XCTAssertTrue([items[0] isEqual:item1] || [items[1] isEqual:item1], @"Item1 wasn't found in allItems!");
     XCTAssertTrue([items[0] isEqual:item2] || [items[1] isEqual:item2], @"Item2 wasn't found in allItems!");
-} 
+}
+
+- (void)testADTokenCacheGetItemWithKey_whenTombstonesInCacheAndNoOtherItemsInCache_shouldNotReturnTombstones
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = CartmanItem(@"test_resource");
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *item = [wrapper getItemWithKey:[testItem extractKey:nil] userId:testItem.userInformation.userId correlationId:nil error:&error];
+    XCTAssertNil(item);
+    XCTAssertNil(error);
+}
+
+- (void)testADTokenCacheGetItemWithKey_whenTombstonesInCacheAndOtherItemsInCache_shouldNotReturnTombstones_AndReturnCorrectItem
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = CartmanItem(@"test_resource");
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *secondItem = ReginaItem(@"test_resource");
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *item = [wrapper getItemWithKey:[secondItem extractKey:nil] userId:nil correlationId:nil error:&error];
+    XCTAssertNotNil(item);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(item, secondItem);
+}
+
+- (void)testADTokenCacheGetItemsWithKey_whenTombstonesInCacheAndNoOtherItemsInCache_shouldNotReturnTombstones
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = CartmanItem(@"test_resource");
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper getItemsWithKey:[testItem extractKey:nil] userId:testItem.userInformation.userId correlationId:nil error:&error];
+    XCTAssertEqual([items count], 0);
+    XCTAssertNil(error);
+}
+
+- (void)testADTokenCacheGetItemsWithKey_whenTombstonesInCacheAndOtherItemsInCache_shouldNotReturnTombstones_AndReturnCorrectItem
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = CartmanItem(@"test_resource");
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *secondItem = ReginaItem(@"test_resource");
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper getItemsWithKey:[secondItem extractKey:nil] userId:nil correlationId:nil error:&error];
+    XCTAssertEqual([items count], 1);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(items[0], secondItem);
+}
+
+
+- (void)testADTokenCacheGetAllItems_whenTomsbtonesInCache_shouldNotReturnTombstones
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = CartmanItem(@"test_resource");
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *secondItem = CartmanItem(@"test_resource2");
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper allItems:&error];
+    XCTAssertEqual([items count], 1);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(items[0], secondItem);
+}
+
+- (void)testADTokenCacheSetItem_whenTombstoneInCache_shouldReplaceTombstoneWithNewItem
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = CartmanItem(@"test_resource");
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    // Save item with the same resource
+    ADTokenCacheItem *secondItem = CartmanItem(@"test_resource");
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper allItems:&error];
+    XCTAssertEqual([items count], 1);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(items[0], secondItem);
+}
 
 @end
