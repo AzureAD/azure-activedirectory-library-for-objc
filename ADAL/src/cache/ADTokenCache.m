@@ -253,6 +253,12 @@
     if (item)
     {
         item = [item copy];
+
+        // Skip tombstones generated from previous versions of ADAL
+        if (item.refreshToken != nil && [item.refreshToken isEqualToString:@"<tombstone>"])
+        {
+            return;
+        }
         
         [items addObject:item];
     }

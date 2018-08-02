@@ -1,3 +1,8 @@
+Version 2.6.5 (08.01.2018)
+------------
+* Skip tombstones in macOS token cache (#1258)
+
+
 Version 2.6.4 (07.13.2018)
 -------------
 * Improved Negotiate handler to decide if it should use default handling or reject for macOS authentication (#1181)
