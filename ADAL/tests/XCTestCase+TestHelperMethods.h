@@ -33,11 +33,15 @@
 @class ADUserInformation;
 @class ADTokenCacheKey;
 @class ADTestURLResponse;
+@class MSIDLegacyTokenCacheItem;
+@class MSIDClientInfo;
+@class MSIDLegacyAccessToken;
+@class MSIDLegacyRefreshToken;
+@class MSIDLegacySingleResourceToken;
+@class MSIDConfiguration;
+@class MSIDAADV2TokenResponse;
 
 @interface XCTestCase (HelperMethods)
-
-+ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
-                                      tenantId:(NSString *)tid;
 
 - (void)adAssertStringEquals:(NSString *)actual
             stringExpression:(NSString *)expression
@@ -50,12 +54,15 @@
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
+                                   oauthSubError:(NSString *)oauthSubError
                                    correlationId:(NSUUID *)correlationId;
+
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
-                                    accessToken:(NSString *)newAccessToken;
+                                    accessToken:(NSString *)newAccessToken
+                                     newIDToken:(NSString *)newIDToken;
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
@@ -63,7 +70,18 @@
                                      clientId:(NSString *)clientId
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
-                               newAccessToken:(NSString *)newAccessToken;
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken;
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken;
 
 /*! Used for constructing a refresh token response with additional information in the JSON body */
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -73,6 +91,7 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields;
 
 
@@ -84,16 +103,19 @@
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields;
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
-                                     resource:(NSString *)resource
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
                                      clientId:(NSString *)clientId
                                requestHeaders:(NSDictionary *)requestHeaders
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders;
 
@@ -116,11 +138,14 @@
                                 correlationId:(NSUUID *)correlationId
                                  responseCode:(NSInteger)responseCode
                               responseHeaders:(NSDictionary *)responseHeaders
-                                 responseJson:(NSDictionary *)responseJson;
+                                 responseJson:(NSDictionary *)responseJson
+                             useOpenidConnect:(BOOL)useOpenidConnect;
 
 - (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId;
+
+- (NSString *)adDefaultIDToken;
 
 /*! Used for constructing a response with a specific HTTP code and HTTP headers 
     to a default refresh token request */
@@ -135,7 +160,6 @@
 - (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
                                    userId:(NSString *)userId;
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
@@ -146,7 +170,23 @@
 - (ADTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object
-- (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId;
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeAccountId:(NSString *)homeAccountId;
+
+- (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;
+- (MSIDLegacyTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem;
+
+- (MSIDClientInfo *)adCreateClientInfo;
+
+- (MSIDLegacyAccessToken *)adCreateAccessToken;
+- (MSIDLegacyRefreshToken *)adCreateRefreshToken;
+- (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken;
+
+- (MSIDConfiguration *)adCreateV2DefaultConfiguration;
+- (MSIDAADV2TokenResponse *)adCreateV2TokenResponse;
+- (NSString *)adCreateV2IdToken;
 
 @end
 

@@ -22,9 +22,10 @@
 // THE SOFTWARE.
 
 #import "ADEnrollmentGateway.h"
-#import "NSURL+ADExtensions.h"
 #import "ADAuthorityValidation.h"
 #import "ADAuthenticationError+Internal.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDAadAuthorityCache.h"
 
 // Keys for Intune Enrollment ID
 #define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
@@ -62,7 +63,7 @@ static NSString *s_intuneResourceJSON = nil;
 
     if (!enrollIdJSON)
     {
-        AD_LOG_VERBOSE(nil, @"No Intune Enrollment ID JSON found.");
+        MSID_LOG_VERBOSE(nil, @"No Intune Enrollment ID JSON found.");
         return nil;
     }
 
@@ -196,7 +197,7 @@ static NSString *s_intuneResourceJSON = nil;
 
     if (!resourceJSON)
     {
-        AD_LOG_VERBOSE(nil, @"No Intune Resource JSON found.");
+        MSID_LOG_VERBOSE(nil, @"No Intune Resource JSON found.");
         return nil;
     }
     
@@ -225,11 +226,11 @@ static NSString *s_intuneResourceJSON = nil;
         return nil;
     }
 
-    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance] cacheAliasesForAuthority:authority];
+    NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance].aadCache cacheAliasesForAuthority:authority];
 
     for(NSURL *alias in aliases)
     {
-        NSString *host = [alias adHostWithPortIfNecessary];
+        NSString *host = [alias msidHostWithPortIfNecessary];
 
         if(resources[host])
             return resources[host];

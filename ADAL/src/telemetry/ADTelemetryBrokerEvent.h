@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetryDefaultEvent.h"
+#import "MSIDTelemetryBaseEvent.h"
 
-@interface ADTelemetryBrokerEvent : ADTelemetryDefaultEvent
+@interface ADTelemetryBrokerEvent : MSIDTelemetryBaseEvent
 
 - (void)setBrokerAppVersion:(NSString*)version;
 - (void)setBrokerProtocolVersion:(NSString*)version;

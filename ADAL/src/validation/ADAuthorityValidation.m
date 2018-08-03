@@ -24,16 +24,18 @@
 
 #import "ADAuthorityValidation.h"
 
-#import "ADAadAuthorityCache.h"
+#import "MSIDAadAuthorityCache.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADHelpers.h"
-#import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-#import "NSURL+ADExtensions.h"
 #import "ADAuthenticationError.h"
 #import "ADAuthorityUtils.h"
+#import "MSIDError.h"
+#import "ADAuthenticationErrorConverter.h"
+#import "MSIDAuthority.h"
+#import "NSURL+MSIDExtensions.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -75,7 +77,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
-    _aadCache = [ADAadAuthorityCache new];
+    _aadCache = [MSIDAadAuthorityCache sharedInstance];
     
     // A serial dispatch queue for all authority validation operations. A very common pattern is for
     // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
@@ -114,7 +116,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSSet *authorities = [_validatedAdfsAuthorities objectForKey:domain];
     for (NSURL *url in authorities)
     {
-        if([url isEquivalentAuthority:authority])
+        if ([url msidIsEquivalentAuthorityHost:authority])
         {
             return YES;
         }
@@ -149,7 +151,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     // Check for AAD or ADFS
-    if ([ADHelpers isADFSInstanceURL:authorityURL])
+    if ([MSIDAuthority isADFSInstanceURL:authorityURL])
     {
         if (!validateAuthority)
         {
@@ -159,7 +161,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         // Check for upn suffix
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
-        if ([NSString adIsStringNilOrBlank:upnSuffix])
+        if ([NSString msidIsStringNilOrBlank:upnSuffix])
         {
             error = [ADAuthenticationError errorFromArgument:upnSuffix
                                                 argumentName:@"user principal name"
@@ -201,10 +203,10 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    ADAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
-        completionBlock(record.validated, record.error);
+        completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
         return;
     }
     
@@ -239,9 +241,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         if (dispatch_semaphore_wait(dsem, DISPATCH_TIME_NOW) != 0)
         {
             // Only bother logging if we have to wait on the queue.
-            AD_LOG_INFO(requestParams.correlationId, @"Waiting on Authority Validation Queue");
+            MSID_LOG_INFO(requestParams, @"Waiting on Authority Validation Queue");
             dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-            AD_LOG_INFO(requestParams.correlationId, @"Returned from Authority Validation Queue");
+            MSID_LOG_INFO(requestParams, @"Returned from Authority Validation Queue");
         }
     });
 }
@@ -252,10 +254,10 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    ADAadAuthorityCacheRecord *record = [_aadCache checkCache:authority];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
-        completionBlock(record.validated, record.error);
+        completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:record.error]);
         return;
     }
     
@@ -263,7 +265,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     if ([ADAuthorityUtils isKnownHost:authority])
     {
-        trustedHost = authority.adHostWithPortIfNecessary;
+        trustedHost = authority.msidHostWithPortIfNecessary;
     }
     
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
@@ -278,89 +280,36 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          }
          
          NSString *oauthError = response[@"error"];
-         if (![NSString adIsStringNilOrBlank:oauthError])
+         if (![NSString msidIsStringNilOrBlank:oauthError])
          {
-             ADAuthenticationError *adError =
-             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                    protocolCode:oauthError
-                                                    errorDetails:response[@"error_description"]
-                                                   correlationId:requestParams.correlationId];
+             NSError *msidError =
+             MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
              
              // If the error is something other than invalid_instance then something wrong is happening
              // on the server.
              if ([oauthError isEqualToString:@"invalid_instance"])
              {
-                 [_aadCache addInvalidRecord:authority oauthError:adError context:requestParams];
+                 [_aadCache addInvalidRecord:authority oauthError:msidError context:requestParams];
              }
              
-             completionBlock(NO, adError);
+             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
          
          
-         ADAuthenticationError *adError = nil;
+         NSError *msidError = nil;
          if (![_aadCache processMetadata:response[@"metadata"]
                                authority:authority
                                  context:requestParams
-                                   error:&adError])
+                                   error:&msidError])
          {
-             completionBlock(NO, adError);
+             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
          
          completionBlock(YES, nil);
      }];
 }
-
-#pragma mark - AAD Authority URL utilities
-
-- (NSURL *)networkUrlForAuthority:(NSURL *)authority
-                          context:(id<ADRequestContext>)context
-{
-    if ([ADHelpers isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
-    
-    NSURL *url = [_aadCache networkUrlForAuthority:authority];
-    if (!url)
-    {
-        AD_LOG_WARN(context.correlationId, @"No cached preferred_network for authority");
-        return authority;
-    }
-    
-    return url;
-}
-
-- (NSURL *)cacheUrlForAuthority:(NSURL *)authority
-                        context:(id<ADRequestContext>)context
-{
-    if ([ADHelpers isADFSInstanceURL:authority])
-    {
-        return authority;
-    }
-    
-    NSURL *url = [_aadCache cacheUrlForAuthority:authority];
-    if (!url)
-    {
-        AD_LOG_WARN(context.correlationId, @"No cached preferred_cache for authority");
-        return authority;
-    }
-    
-    
-    return url;
-}
-
-- (NSArray<NSURL *> *)cacheAliasesForAuthority:(NSURL *)authority
-{
-    if ([ADHelpers isADFSInstanceURL:authority])
-    {
-        return @[ authority ];
-    }
-    
-    return [_aadCache cacheAliasesForAuthority:authority];
-}
-
 
 - (void)addInvalidAuthority:(NSString *)authority
 {
@@ -415,7 +364,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 }
 
 - (void)requestDrsDiscovery:(NSString *)domain
-                    context:(id<ADRequestContext>)context
+                    context:(id<MSIDRequestContext>)context
             completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
@@ -443,7 +392,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 - (void)requestWebFingerValidation:(NSString *)passiveAuthEndpoint
                          authority:(NSURL *)authority
-                           context:(id<ADRequestContext>)context
+                           context:(id<MSIDRequestContext>)context
                    completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
 {
     [ADWebFingerRequest requestWebFinger:passiveAuthEndpoint
@@ -490,7 +439,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL isEquivalentAuthority:authority])
+            [targetURL msidIsEquivalentAuthorityHost:authority])
         {
             return YES;
         }

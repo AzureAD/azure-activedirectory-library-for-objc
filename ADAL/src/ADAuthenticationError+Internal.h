@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationError.h"
+#import "ADErrorCodes.h"
 #import "ADTokenCacheItem.h"
 
 #define AUTH_ERROR(_CODE, _DETAILS, _CORRELATION) \
@@ -133,7 +134,7 @@
                                    userInfo:(NSDictionary *)userInfo;
 
 + (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
-                                    correlationID:(NSUUID *) correlationId
+                                    correlationID:(NSUUID *)correlationId
                                additionalUserInfo:(NSDictionary *)userInfo;
 
 #if AD_BROKER

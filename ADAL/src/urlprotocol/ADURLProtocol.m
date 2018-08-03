@@ -26,22 +26,26 @@
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADURLSessionDemux.h"
 #import "ADAuthorityUtils.h"
 
 static NSMutableDictionary *s_handlers      = nil;
 static NSString *s_endURL                   = nil;
-static ADTelemetryUIEvent *s_telemetryEvent = nil;
+static MSIDTelemetryUIEvent *s_telemetryEvent = nil;
 
 static NSString *s_kADURLProtocolPropertyKey  = @"ADURLProtocol";
 
-static id<ADRequestContext> _reqContext(NSURLRequest* request)
+static id<MSIDRequestContext> _reqContext(NSURLRequest* request)
 {
     return [NSURLProtocol propertyForKey:@"context" inRequest:request];
 }
 
+/*
+ This class implemented following Apple's CustomHTTPProtocol demo code:
+ https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
+ */
 
 @implementation ADURLProtocol
 
@@ -69,7 +73,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 }
 
 + (BOOL)registerProtocol:(NSString *)endURL
-          telemetryEvent:(ADTelemetryUIEvent *)telemetryEvent
+          telemetryEvent:(MSIDTelemetryUIEvent *)telemetryEvent
 {
     if (s_endURL!=endURL)
     {
@@ -95,7 +99,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     }
 }
 
-+ (void)addContext:(id<ADRequestContext>)context
++ (void)addContext:(id<MSIDRequestContext>)context
                toRequest:(NSMutableURLRequest *)request
 {
     if (!context)
@@ -136,8 +140,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-        AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [request.URL host]);
+        MSID_LOG_VERBOSE(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+        MSID_LOG_VERBOSE_PII(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] handling host - host: %@", [request.URL host]);
         
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
@@ -147,30 +151,30 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
+    MSID_LOG_VERBOSE(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_reqContext(request), @"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(request).correlationId, @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
+    MSID_LOG_VERBOSE(_reqContext(request), @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [ADAuthorityUtils isKnownHost:request.URL] ? [request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_reqContext(request), @"%@ - host: %@", @"+[ADURLProtocol canonicalRequestForRequest:]", [request.URL host]);
     
     return request;
 }
 
 - (void)startLoading
 {
-    id<ADRequestContext> context = _reqContext(self.request);
+    id<MSIDRequestContext> context = _reqContext(self.request);
     if (context)
     {
         _context = context;
     }
     
-    AD_LOG_VERBOSE(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(context.correlationId, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
+    MSID_LOG_VERBOSE(context, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(context, @"%@ - host: %@", @"-[ADURLProtocol startLoading]", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
      [ADCustomHeaderHandler applyCustomHeadersTo:request];
@@ -189,8 +193,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
-    AD_LOG_VERBOSE_PII(_reqContext(self.request).correlationId, @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
+    MSID_LOG_VERBOSE(_reqContext(self.request), @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [ADAuthorityUtils isKnownHost:self.request.URL] ? [self.request.URL host] : @"unknown host");
+    MSID_LOG_VERBOSE_PII(_reqContext(self.request), @"%@ - host: %@", @"-[ADURLProtocol stopLoading]", [self.request.URL host]);
     
     [_dataTask cancel];
     _dataTask = nil;
@@ -240,17 +244,9 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 
     [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
     
-    // If we don't cancel out the connection in the redirectResponse case then we will end up
-    // with duplicate connections
-    
-    // Here are the comments from Apple's CustomHTTPProtocol demo code:
-    // https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
-    
-    // Stop our load.  The CFNetwork infrastructure will create a new NSURLProtocol instance to run
-    // the load of the redirect.
-    
-    // The following ends up calling -URLSession:task:didCompleteWithError: with NSURLErrorDomain / NSURLErrorCancelled,
-    // which specificallys traps and ignores the error.
+    /* If we don't cancel out the connection in the redirectResponse case then we will end up with duplicate connections.
+     This code makes sure we don't end up with duplicate connections. The CFNetwork will create a new NSURLProtocol instance to process the redirect, so the old connection is no longer necessary.
+     After task is canceled, the -URLSession:task:didCompleteWithError: delegate method will be called with NSURLErrorCancelled error. This error is explicitly ignored in the delegate method to not cause the whole connection to fail.*/
     
     [task cancel];
     [self.client URLProtocol:self
@@ -267,7 +263,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE(_context.correlationId,
+    MSID_LOG_VERBOSE(_context,
                    @"%@ - %@. Previous challenge failure count: %ld",
                    @"session:task:didReceiveChallenge:completionHandler",
                    authMethod, (long)challenge.previousFailureCount);
@@ -294,7 +290,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     
     if ([authMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame)
     {
-        [s_telemetryEvent setNtlm:AD_TELEMETRY_VALUE_YES];
+        [s_telemetryEvent setNtlm:MSID_TELEMETRY_VALUE_YES];
     }
 }
 
@@ -309,8 +305,8 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
     else if ([error.domain isEqual:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
     {
-        // Do nothing.  This happens in two cases - 
-        // during a redirect, and request cancellation via -stopLoading.
+        // Do nothing. This is explicit handling for redirects. When a redirect happens, we cancel out the previous connection and the new one is created. The previous connection completes with a NSURLErrorCancelled error. If we don't catch it here, the whole request will fail.
+        // Another case, when this is called, is via -stopLoading;
     }
     else
     {

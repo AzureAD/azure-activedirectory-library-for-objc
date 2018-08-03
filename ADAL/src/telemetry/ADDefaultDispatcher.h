@@ -21,20 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface ADDefaultDispatcher : NSObject
+#import "MSIDTelemetryDispatcher.h"
+
+@interface ADDefaultDispatcher : NSObject <MSIDTelemetryDispatcher>
 {
     NSMutableDictionary* _objectsToBeDispatched;
     id<ADDispatcher> _dispatcher;
     NSLock* _dispatchLock;
 }
 
-- (id)initWithDispatcher:(id<ADDispatcher>)dispatcher;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithDispatcher:(id<ADDispatcher>)dispatcher;
 
-- (void)receive:(NSString *)requestId
-          event:(id<ADTelemetryEventInterface>)event;
-
-- (void)flush:(NSString*)requestId;
-
-- (BOOL)containsDispatcher:(id<ADDispatcher>)dispatcher;
+- (void)dispatchEvent:(NSDictionary<NSString*, NSString*> *)event;
 
 @end

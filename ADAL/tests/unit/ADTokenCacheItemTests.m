@@ -199,7 +199,6 @@
     XCTAssertEqualObjects(item.expiresOn, itemCopy.expiresOn);
     XCTAssertEqualObjects(item.userInformation, itemCopy.userInformation);
     XCTAssertEqualObjects(item.sessionKey, itemCopy.sessionKey);
-    XCTAssertEqualObjects(item.additionalClient, itemCopy.additionalClient);
     XCTAssertEqualObjects(item.additionalServer, itemCopy.additionalServer);
     XCTAssertEqualObjects(item, itemCopy);
     XCTAssertNotEqual([itemCopy hash], 0);
@@ -418,26 +417,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testIsEqual_whenAdditionalClientIsNotEqual_shouldReturnFalse
-{
-    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
-    lhs.additionalClient = [@{@"k1":@"v1"} mutableCopy];
-    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
-    rhs.additionalClient = [@{@"k2":@"v2"} mutableCopy];
-    
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testIsEqual_whenAdditionalClientIsEqual_shouldReturnTrue
-{
-    ADTokenCacheItem *lhs = [ADTokenCacheItem new];
-    lhs.additionalClient = [@{@"k1":@"v1"} mutableCopy];
-    ADTokenCacheItem *rhs = [ADTokenCacheItem new];
-    rhs.additionalClient = [@{@"k1":@"v1"} mutableCopy];
-    
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 - (void)testIsEqual_whenAdditionalServerIsNotEqual_shouldReturnFalse
 {
     ADTokenCacheItem *lhs = [ADTokenCacheItem new];
@@ -515,7 +494,6 @@
     item.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
     item.sessionKey = [@"session key" dataUsingEncoding:NSUTF8StringEncoding];
-    item.additionalClient = [@{@"some key": @"some value"} mutableCopy];
     [item setValue:@{@"some key": @"some value"} forKey:@"additionalServer"];
     
     return item;
