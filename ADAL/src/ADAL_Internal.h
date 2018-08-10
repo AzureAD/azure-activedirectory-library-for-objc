@@ -59,10 +59,11 @@
 
 @class ADAuthenticationResult;
 @class MSIDTokenResponse;
+@class MSIDWebviewResponse;
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^MSIDAuthorizationCodeCallback)(MSIDWebviewResponse *response, ADAuthenticationError *error);
 typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADAuthenticationError *error);
 
 #import "ADAuthenticationRequest.h"

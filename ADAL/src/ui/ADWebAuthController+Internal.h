@@ -36,7 +36,7 @@
 + (void)startWithRequest:(ADRequestParameters *)requestParams
           promptBehavior:(ADPromptBehavior)promptBehavior
                  context:(ADAuthenticationContext *)context
-              completion:(ADAuthorizationCodeCallback)completionBlock;
+              completion:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on

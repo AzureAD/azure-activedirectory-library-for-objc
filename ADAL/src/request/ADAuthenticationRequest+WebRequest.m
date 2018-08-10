@@ -80,7 +80,7 @@
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCode:(ADAuthorizationCodeCallback)completionBlock
+- (void)requestCode:(MSIDAuthorizationCodeCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
@@ -88,7 +88,16 @@
     MSID_LOG_VERBOSE(_requestParams, @"Requesting authorization code");
     MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
 
-    [ADWebAuthController startWithRequest:_requestParams promptBehavior:_promptBehavior context:_context completion:completionBlock];
+    [ADWebAuthController startWithRequest:_requestParams promptBehavior:_promptBehavior context:_context completion:^(MSIDWebviewResponse *response, NSError *error) {
+        
+        if (error)
+        {
+            completionBlock(nil, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error]);
+            return;
+        }
+        
+        completionBlock(response, nil);
+    }];
 }
 
 @end
