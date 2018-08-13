@@ -47,6 +47,8 @@
 
 #import "ADAuthenticationContext+Internal.h"
 
+#import "MSIDNotifications.h"
+
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
 
@@ -93,11 +95,24 @@ static ADAuthenticationResult *s_result = nil;
 
 @implementation ADWebAuthController (Internal)
 
++ (void)registerWebAuthNotifications
+{
+    MSIDNotifications.webAuthDidCompleteNotificationName = ADWebAuthDidCompleteNotification;
+    MSIDNotifications.webAuthDidFailNotificationName = ADWebAuthDidFailNotification;
+    MSIDNotifications.webAuthDidStartLoadNotificationName = ADWebAuthDidStartLoadNotification;
+    MSIDNotifications.webAuthDidFinishLoadNotificationName = ADWebAuthDidFinishLoadNotification;
+}
+
 + (void)startWithRequest:(ADRequestParameters *)requestParams
           promptBehavior:(ADPromptBehavior)promptBehavior
                  context:(ADAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self registerWebAuthNotifications];
+    });
+    
     NSString *authorityWithOAuthSuffix = [NSString stringWithFormat:@"%@%@", context.authority, MSID_OAUTH2_AUTHORIZE_SUFFIX];
     
     MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:authorityWithOAuthSuffix]
