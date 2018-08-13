@@ -22,20 +22,16 @@
 // THE SOFTWARE.
 
 #if TARGET_OS_IPHONE
-#import "UIApplication+ADExtensions.h"
+#import "UIApplication+MSIDExtensions.h"
 #import "ADAppExtensionUtil.h"
 #endif
 
 #import "ADWebAuthController+Internal.h"
 
-#import "ADAuthenticationViewController.h"
 #import "ADAuthenticationSettings.h"
 #import "ADAuthorityValidation.h"
-#import "ADCustomHeaderHandler.h"
 #import "ADHelpers.h"
-#import "ADNTLMHandler.h"
 #import "ADPkeyAuthHelper.h"
-#import "ADURLProtocol.h"
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADUserIdentifier.h"
 #import "ADTelemetry.h"
