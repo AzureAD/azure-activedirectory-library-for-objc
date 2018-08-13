@@ -1060,7 +1060,6 @@
 		9453C3991C5826F2006B9E79 /* ADNTLMHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNTLMHandler.m; sourceTree = "<group>"; };
 		9453C39A1C5826F2006B9E79 /* ADURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADURLProtocol.h; sourceTree = "<group>"; };
 		9453C39B1C5826F2006B9E79 /* ADURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLProtocol.m; sourceTree = "<group>"; };
-		9453C39F1C582720006B9E79 /* ADWebAuthDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthDelegate.h; sourceTree = "<group>"; };
 		9453C3A01C582720006B9E79 /* ADAuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationViewController.h; sourceTree = "<group>"; };
 		9453C3A31C583A9C006B9E79 /* ADAL_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAL_Internal.h; sourceTree = "<group>"; };
 		9453C3B71C583AE6006B9E79 /* ADAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAL.h; sourceTree = "<group>"; };
@@ -1863,7 +1862,6 @@
 		9453C3191C57FB96006B9E79 /* ui */ = {
 			isa = PBXGroup;
 			children = (
-				9453C39F1C582720006B9E79 /* ADWebAuthDelegate.h */,
 				9453C3A01C582720006B9E79 /* ADAuthenticationViewController.h */,
 				9453C4671C587085006B9E79 /* ADNTLMUIPrompt.h */,
 				946818A41C59B7EE00CA0378 /* ADWebAuthController.m */,

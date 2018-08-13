@@ -36,7 +36,6 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADTokenCacheKey.h"
 #import "ADUserIdentifier.h"
-#import "ADWebAuthDelegate.h"
 #import "ADWebFingerRequest.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADKeychainTokenCache+Internal.h"
