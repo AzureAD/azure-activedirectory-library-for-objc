@@ -28,7 +28,6 @@
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
-#import "ADTestAuthenticationViewController.h"
 #import "ADTokenCacheTestUtil.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
@@ -46,6 +45,9 @@
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
+
+#import "ADTestWebAuthController.h"
+#import "MSIDWebOAuth2Response.h"
 
 @interface AADAuthorityValidationTests : ADTestCase
 
@@ -565,17 +567,13 @@
     XCTAssertNotNil(context);
     [context setCorrelationId:TEST_CORRELATION_ID];
 
-    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
-    [ADTestAuthenticationViewController onLoadRequest:^(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate) {
-        XCTAssertNotNil(urlRequest);
-        XCTAssertTrue([urlRequest.URL.absoluteString hasPrefix:preferredAuthority]);
+    NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
+    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:endURL
+                                                                         context:nil
+                                                                           error:nil];
+    [ADTestWebAuthController setResponse:response];
 
-        NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
-        [delegate webAuthDidCompleteWithURL:endURL];
-        [expectation1 fulfill];
-    }];
-
-    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire token"];
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
@@ -583,10 +581,10 @@
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
-         [expectation2 fulfill];
+         [expectation fulfill];
      }];
 
-    [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
+    [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
 static NSString *s_doNotUseRT = @"do not use me";

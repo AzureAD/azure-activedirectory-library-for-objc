@@ -147,11 +147,6 @@
            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
-    // If there is request data, then set the Content-Length header
-    if ( _requestData != nil )
-    {
-        [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
-    }
     
     NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
     requestURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:requestURL context:self];
@@ -163,9 +158,7 @@
     request.HTTPMethod          = _isGetRequest ? @"GET" : @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
-    
-    // JASON:ADD CORRELATION
-    
+
     _task = [_session dataTaskWithRequest:request];
     [_task resume];
 }
@@ -241,10 +234,7 @@
     }
 
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-    
-    // JASON
-//    [ADURLProtocol addContext:self toRequest:mutableRequest];
-    
+   
     completionHandler(mutableRequest);
   
 }

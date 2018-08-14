@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,47 +15,64 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-
-#import "ADTestCase.h"
-#import "ADClientMetrics.h"
-#import "ADAuthorityValidation+TestUtil.h"
 #import "ADTestWebAuthController.h"
+#import "MSIDWebviewAuthorization.h"
 
-#if TARGET_OS_IPHONE
-#import "ADApplicationTestUtil.h"
-#endif
+#pragma mark -
+#pragma mark Overriding ADAuthenticationViewController for the test mock
+@implementation ADWebAuthController (TestWebviewOverride)
 
-@implementation ADTestCase
-
-- (void)setUp
++ (void)startWithRequest:(ADRequestParameters *)requestParams
+          promptBehavior:(ADPromptBehavior)promptBehavior
+                 context:(ADAuthenticationContext *)context
+              completion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    [super setUp];
+    if (ADTestWebAuthController.response)
+    {
+        completionHandler(ADTestWebAuthController.response, nil);
+        return;
+    }
+    
+    completionHandler(nil, ADTestWebAuthController.error);
 }
 
+@end
 
-- (void)tearDown
+@implementation ADTestWebAuthController
+
+static MSIDWebviewResponse *s_response;
+static NSError *s_error;
+
++ (void)setResponse:(MSIDWebviewResponse *)response
 {
-    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-    [ADTestURLSession clearResponses];
-    [[ADClientMetrics getInstance] clearMetrics];
-    [ADAuthorityValidation clearAadCache];
-    
-#if TARGET_OS_IPHONE
-    [ADApplicationTestUtil reset];
-#endif
-    
-    [ADTestWebAuthController reset];
-    [super tearDown];
+    s_response = response;
 }
 
++ (MSIDWebviewResponse *)response
+{
+    return s_response;
+}
 
++ (void)setError:(NSError *)error
+{
+    s_error = error;
+}
+
++ (NSError *)error
+{
+    return s_error;
+}
+
++ (void)reset
+{
+    s_error = nil;
+    s_response = nil;
+}
 
 @end
