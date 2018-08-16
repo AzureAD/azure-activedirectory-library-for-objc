@@ -64,7 +64,6 @@
 		236BF40B205B4E1C006E3897 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
 		23766BB32013D91E00449D47 /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
 		23B7919D20118B9F008D4BD2 /* ADAutoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B7919820118B9E008D4BD2 /* ADAutoWebViewController.m */; };
-		23B7919E20118B9F008D4BD2 /* ADAutoWebViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23B7919920118B9E008D4BD2 /* ADAutoWebViewController.xib */; };
 		23B791A220119030008D4BD2 /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */; };
 		23B791A420119041008D4BD2 /* ADAutoRequestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23B791A320119041008D4BD2 /* ADAutoRequestViewController.xib */; };
 		23B791CA2012B54B008D4BD2 /* ADALBaseUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */; };
@@ -908,7 +907,6 @@
 		237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__uitest__ios.xcconfig; sourceTree = "<group>"; };
 		23B7919720118B9E008D4BD2 /* ADAutoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoWebViewController.h; sourceTree = "<group>"; };
 		23B7919820118B9E008D4BD2 /* ADAutoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoWebViewController.m; sourceTree = "<group>"; };
-		23B7919920118B9E008D4BD2 /* ADAutoWebViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADAutoWebViewController.xib; sourceTree = "<group>"; };
 		23B791A020119030008D4BD2 /* ADAutoRequestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoRequestViewController.h; sourceTree = "<group>"; };
 		23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoRequestViewController.m; sourceTree = "<group>"; };
 		23B791A320119041008D4BD2 /* ADAutoRequestViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ADAutoRequestViewController.xib; sourceTree = "<group>"; };
@@ -1500,7 +1498,6 @@
 			isa = PBXGroup;
 			children = (
 				23B7919820118B9E008D4BD2 /* ADAutoWebViewController.m */,
-				23B7919920118B9E008D4BD2 /* ADAutoWebViewController.xib */,
 			);
 			path = AutoWebViewController;
 			sourceTree = "<group>";
@@ -3136,7 +3133,6 @@
 				D64C1F5A1DB9B05A00850036 /* LaunchScreen.storyboard in Resources */,
 				D64C1F571DB9B05A00850036 /* Assets.xcassets in Resources */,
 				D64C1F551DB9B05900850036 /* Main.storyboard in Resources */,
-				23B7919E20118B9F008D4BD2 /* ADAutoWebViewController.xib in Resources */,
 				23B791A420119041008D4BD2 /* ADAutoRequestViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
