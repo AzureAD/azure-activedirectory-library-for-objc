@@ -458,7 +458,7 @@
             completionBlock(result);
             return;
         }
-        
+#if TARGET_OS_IPHONE
         if ([response isKindOfClass:MSIDWebMSAuthResponse.class])
         {
             [event setAPIStatus:@"try to prompt to install broker"];
@@ -479,6 +479,7 @@
                               completionHandler:completionBlock];
             return;
         }
+#endif
         
         if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {

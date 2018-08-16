@@ -29,7 +29,7 @@
 @interface ADTestAppAcquireTokenWindowController : NSWindowController
 {
     IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
+    IBOutlet WKWebView* _webView;
     
     IBOutlet NSView* _acquireSettingsView;
     IBOutlet NSTextField* _userIdField;

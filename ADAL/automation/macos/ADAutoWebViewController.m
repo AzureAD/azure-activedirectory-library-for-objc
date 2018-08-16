@@ -32,7 +32,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.webView.accessibilityLabel = @"ADAL_SIGN_IN_WEBVIEW";
 }
 
 @end

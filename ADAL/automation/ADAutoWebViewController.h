@@ -25,10 +25,6 @@
 
 @interface ADAutoWebViewController : ADAutoViewController
 
-#if TARGET_OS_IPHONE
-@property (nonatomic, strong) IBOutlet UIWebView *webView;
-#else
-@property (nonatomic, strong) IBOutlet WebView *webView;
-#endif
+@property (nonatomic, strong) IBOutlet WKWebView *webView;
 
 @end

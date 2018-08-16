@@ -258,7 +258,7 @@
     
     if ([self embeddedWebView])
     {
-        [_webView.mainFrame loadHTMLString:@"<html><head></head><body>Loading...</body></html>" baseURL:nil];
+        [_webView loadHTMLString:@"<html><head></head><body>Loading...</body></html>" baseURL:nil];
         [context setWebView:_webView];
         [_authView setFrame:self.window.contentView.frame];
         
@@ -289,7 +289,7 @@
              
              if ([_acquireSettingsView isHidden])
              {
-                 [_webView.mainFrame loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
+                 [_webView loadHTMLString:@"<html><head></head><body>Done</body></html>" baseURL:nil];
                  [_authView setHidden:YES];
                  [_acquireSettingsView setHidden:NO];
              }

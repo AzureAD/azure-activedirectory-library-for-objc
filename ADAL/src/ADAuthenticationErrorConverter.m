@@ -61,7 +61,6 @@ static NSDictionary *s_userInfoKeyMapping;
                                    // Authority Validation
                                    @(MSIDErrorAuthorityValidation) : @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
                                    // Interactive flow
-                                   @(MSIDErrorAuthorizationFailed) : @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
                                    @(MSIDErrorUserCancel) : @(AD_ERROR_UI_USER_CANCEL),
                                    @(MSIDErrorSessionCanceledProgrammatically) : @(AD_ERROR_UI_USER_CANCEL),
                                    @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
@@ -79,7 +78,8 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
-                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
+                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
+                                   @(MSIDErrorAuthorizationFailed) : @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
                                    }
                            };
     

@@ -88,12 +88,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 - (void)assertAuthUIAppear
 {
-#if TARGET_OS_IPHONE
-    XCUIElement *webView = self.testApp.otherElements[@"ADAL_SIGN_IN_WEBVIEW"].firstMatch;
-#else
-    XCUIElement *webView = self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].firstMatch;
-#endif
-    
+    XCUIElement *webView = [self.testApp.webViews elementBoundByIndex:0];
     BOOL result = [webView waitForExistenceWithTimeout:2.0];
     
     XCTAssertTrue(result);
@@ -261,7 +256,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)closeAuthUI
 {
 #if TARGET_OS_IPHONE
-     [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] msidTap];
+    [[self.testApp.navigationBars elementBoundByIndex:0].buttons[@"Cancel"] msidTap];
 #else
     [self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
 #endif
