@@ -53,9 +53,6 @@
     
     ADPromptBehavior _promptBehavior;
     
-    NSString* _queryParams;
-    NSString* _claims;
-    
     NSString* _refreshTokenCredential;
     
     NSString* _samlAssertion;

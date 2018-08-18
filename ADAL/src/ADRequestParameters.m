@@ -29,16 +29,6 @@
 
 @implementation ADRequestParameters
 
-@synthesize authority = _authority;
-@synthesize resource = _resource;
-@synthesize clientId = _clientId;
-@synthesize redirectUri = _redirectUri;
-@synthesize identifier = _identifier;
-@synthesize extendedLifetime = _extendedLifetime;
-@synthesize forceRefresh = _forceRefresh;
-@synthesize correlationId = _correlationId;
-@synthesize telemetryRequestId = _telemetryRequestId;
-
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
                clientId:(NSString *)clientId
@@ -69,16 +59,20 @@
 
 - (id)copyWithZone:(NSZone*)zone
 {
-    ADRequestParameters* parameters = [[ADRequestParameters allocWithZone:zone] init];
+    ADRequestParameters *parameters = [[ADRequestParameters allocWithZone:zone] init];
     
     parameters->_authority = [_authority copyWithZone:zone];
+    parameters->_cloudAuthority = [_cloudAuthority copyWithZone:zone];
     parameters->_resource = [_resource copyWithZone:zone];
     parameters->_clientId = [_clientId copyWithZone:zone];
     parameters->_redirectUri = [_redirectUri copyWithZone:zone];
+    parameters->_scopesString = [_scopesString copyWithZone:zone];
     parameters->_identifier = [_identifier copyWithZone:zone];
-    parameters->_correlationId = [_correlationId copyWithZone:zone];
+    parameters->_claims = [_claims copyWithZone:zone];
+    parameters->_extraQueryParameters = [_extraQueryParameters copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_forceRefresh = _forceRefresh;
+    parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
     parameters->_account = [_account copyWithZone:zone];

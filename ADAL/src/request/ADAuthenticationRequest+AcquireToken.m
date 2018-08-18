@@ -191,12 +191,12 @@
 
 - (BOOL)checkExtraQueryParameters
 {
-    if ([NSString msidIsStringNilOrBlank:_queryParams])
+    if ([NSString msidIsStringNilOrBlank:_requestParams.extraQueryParameters])
     {
         return YES;
     }
     
-    NSString* queryParams = _queryParams.msidTrimmedString;
+    NSString* queryParams = _requestParams.extraQueryParameters.msidTrimmedString;
     if ([queryParams hasPrefix:@"&"])
     {
         queryParams = [queryParams substringFromIndex:1];
@@ -208,13 +208,13 @@
 
 - (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
 {
-    if ([NSString msidIsStringNilOrBlank:_claims])
+    if ([NSString msidIsStringNilOrBlank:_requestParams.claims])
     {
         return YES;
     }
     
     // Make sure claims is not in EQP
-    NSDictionary *queryParamsDict = [NSDictionary msidURLFormDecode:_queryParams];
+    NSDictionary *queryParamsDict = [NSDictionary msidURLFormDecode:_requestParams.extraQueryParameters];
     if (queryParamsDict[@"claims"])
     {
         if (error)
@@ -228,7 +228,7 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _claims.msidTrimmedString;
+    NSString* claimsParams = _requestParams.claims.msidTrimmedString;
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {

@@ -118,11 +118,14 @@ static ADAuthenticationResult *s_result = nil;
                                                                                                      clientId:requestParams.clientId
                                                                                                      resource:requestParams.resource
                                                                                                        scopes:nil
-                                                                                                correlationId:context.correlationId
+                                                                                                correlationId:requestParams.correlationId
                                                                                                    enablePkce:NO];
     webviewConfig.loginHint = requestParams.identifier.userId;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
-    
+
+    webviewConfig.extraQueryParameters = [self dictFromQueryString:requestParams.extraQueryParameters];
+    webviewConfig.claims = [requestParams.claims msidUrlFormDecode];
+
 #if TARGET_OS_IPHONE
     webviewConfig.parentController = context.parentController;
 #endif
@@ -133,6 +136,27 @@ static ADAuthenticationResult *s_result = nil;
                                                                 context:requestParams
                                                       completionHandler:completionHandler];
 }
+
++ (NSDictionary *)dictFromQueryString:(NSString *)query
+{
+    NSArray *queries = [query componentsSeparatedByString:@"&"];
+    NSMutableDictionary *queryDict = [NSMutableDictionary new];
+    
+    for (NSString *query in queries)
+    {
+        NSArray *queryElements = [query componentsSeparatedByString:@"="];
+        if (queryElements.count != 2)
+        {
+            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value");
+            continue;
+        }
+        
+        [queryDict setValue:queryElements[1] forKey:queryElements[0]];
+    }
+    
+    return queryDict;
+}
+
 
 - (void)cancelCurrentWebAuthSession
 {

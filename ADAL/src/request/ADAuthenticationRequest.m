@@ -121,21 +121,21 @@ static dispatch_semaphore_t s_interactionLock = nil;
 - (void)setExtraQueryParameters:(NSString *)queryParams
 {
     CHECK_REQUEST_STARTED;
-    if (_queryParams == queryParams)
+    if (_requestParams.extraQueryParameters == queryParams)
     {
         return;
     }
-    _queryParams = [queryParams copy];
+    _requestParams.extraQueryParameters = [queryParams copy];
 }
 
 - (void)setClaims:(NSString *)claims
 {
     CHECK_REQUEST_STARTED;
-    if (_claims == claims)
+    if (_requestParams.claims == claims)
     {
         return;
     }
-    _claims = [claims copy];
+    _requestParams.claims = [claims copy];
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier

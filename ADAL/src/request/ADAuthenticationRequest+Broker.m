@@ -380,8 +380,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 #endif // TARGET_OS_IPHONE Broker Message Encryption
       @"client_version" : adalVersion,
       ADAL_BROKER_MAX_PROTOCOL_VERSION : @"2",
-      @"extra_qp"       : _queryParams ? _queryParams : @"",
-      @"claims"         : _claims ? _claims : @"",
+      @"extra_qp"       : _requestParams.extraQueryParameters? _requestParams.extraQueryParameters : @"",
+      @"claims"         : _requestParams.claims ? _requestParams.claims : @"",
       @"intune_enrollment_ids" : enrollmentIds ? enrollmentIds : @"",
       @"intune_mam_resource" : mamResource,
       };
