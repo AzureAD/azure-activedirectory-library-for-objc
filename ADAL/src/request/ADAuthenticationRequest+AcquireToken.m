@@ -557,10 +557,20 @@
                     [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                     
                     completionBlock(result);
-
                 }];
             }
+            else
+            {
+                ADAuthenticationResult *result = [ADAuthenticationResult resultFromMSIDError:oauthResponse.oauthError];
+                
+                [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+                [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+                
+                completionBlock(result);
+                return;
+            }
         }
+        
     }];
 }
 
