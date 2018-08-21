@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAutoWebViewController.h"
+#import <WebKit/WebKit.h>
 
 @interface ADAutoWebViewController ()
 
@@ -32,6 +33,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    self.webView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    
+    [self.view addSubview:self.webView];
 }
 
 @end

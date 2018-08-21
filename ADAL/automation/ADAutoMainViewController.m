@@ -29,6 +29,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import <ADAL/ADTelemetry.h>
+#import <WebKit/WebKit.h>
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
@@ -72,6 +73,10 @@
     if (webViewType && [webViewType isEqualToString:@"passed_in"])
     {
         [self showPassedInWebViewControllerWithContext:context];
+    }
+    else
+    {
+        context.webView = nil;
     }
 
     if (parameters[@"use_broker"])
@@ -176,8 +181,17 @@
                           completionBlock:^(ADAuthenticationResult *result)
          {
              dispatch_async(dispatch_get_main_queue(), ^{
-                 [weakSelf dismissPassedInWebViewController];
-                 [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
+                 if (weakSelf.presentedViewController)
+                 {
+                     [weakSelf dismissViewControllerAnimated:YES completion:^{
+                         [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
+                     }];
+                 }
+                 else
+                 {
+                     [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
+                 }
+                 
              });
          }];
 
@@ -255,6 +269,14 @@
         count++;
     }
 
+    // Clear WKWebView cookies
+    NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
+                                               modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+                                           completionHandler:^{
+                                               NSLog(@"Completed!");
+                                           }];
+    
     [self showResultViewWithResult:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)count] logs:_resultLogs];
 }
 

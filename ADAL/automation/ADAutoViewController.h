@@ -30,7 +30,7 @@
 #import "ADALAutomation.h"
 
 @class ADAutoRequestViewController;
-@class ADAutoWebViewController;
+@class ADAutoPassedInWebViewController;
 @class ADAuthenticationContext;
 @protocol ADTokenCacheDataSource;
 
@@ -41,13 +41,11 @@
 #endif
 
 @property (nonatomic) ADAutoRequestViewController *requestViewController;
-@property (nonatomic) ADAutoWebViewController *webViewController;
+@property (nonatomic) WKWebView *webView;
 
-- (void)showActionSelectionView;
 - (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
 - (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
 - (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
-- (void)dismissPassedInWebViewController;
 - (id<ADTokenCacheDataSource>)cacheDatasource;
 - (void)clearCache;
 - (void)clearKeychain;

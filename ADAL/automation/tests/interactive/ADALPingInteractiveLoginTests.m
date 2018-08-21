@@ -69,6 +69,8 @@
     [self assertAuthUIAppear];
 }
 
+
+
 // #290995 iteration 10
 - (void)testInteractivePingLogin_withPromptAlways_withLoginHint_ADALWebView
 {
@@ -90,16 +92,15 @@
     
     // Acquire token again.
     [self acquireToken:config];
-    
-    // Wait for result, no user action required.
-    [self assertAccessTokenNotNil];
+    [self assertAuthUIAppear];
 }
 
 #pragma mark - Private
 
 - (void)pingEnterUsername
 {
-    XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
+    XCUIElement *usernameTextField = self.testApp.textFields.element;
+    
     [self waitForElement:usernameTextField];
     [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
     [usernameTextField activateTextField];
@@ -108,7 +109,7 @@
 
 - (void)pingEnterPassword
 {
-    XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
+    XCUIElement *passwordTextField = self.testApp.secureTextFields.element;
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField activateTextField];

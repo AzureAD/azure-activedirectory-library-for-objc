@@ -124,7 +124,11 @@ static ADAuthenticationResult *s_result = nil;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
 
     webviewConfig.extraQueryParameters = [self dictFromQueryString:requestParams.extraQueryParameters];
-    webviewConfig.claims = [requestParams.claims msidUrlFormDecode];
+    
+    if (requestParams.claims)
+    {
+        webviewConfig.claims = [requestParams.claims msidUrlFormDecode];
+    }
 
 #if TARGET_OS_IPHONE
     webviewConfig.parentController = context.parentController;

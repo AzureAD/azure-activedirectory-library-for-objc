@@ -21,10 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoViewController.h"
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
+#import <Cocoa/Cocoa.h>
+#endif
+#import <WebKit/WebKit.h>
 
-@interface ADAutoWebViewController : ADAutoViewController
+@interface ADAutoPassedInWebViewController : UIViewController
 
-@property (nonatomic, strong) IBOutlet WKWebView *webView;
+@property (nonatomic, weak) WKWebView *passedInWebview;
 
 @end
