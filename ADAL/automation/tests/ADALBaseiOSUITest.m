@@ -144,6 +144,17 @@
     return [self installAppWithIdWithSafariOpen:appId];
 }
 
+- (void)acceptAuthSessionDialog
+{
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 11.0f)
+    {
+        XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+        __auto_type allowButton = springBoardApp.alerts.buttons[@"Continue"];
+        [self waitForElement:allowButton];
+        [allowButton tap];
+    }
+}
+
 - (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId
 {
     XCUIApplication *safariApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
