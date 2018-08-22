@@ -936,7 +936,7 @@
         <!--WebView-->
         <scene sceneID="3rp-x1-Apl">
             <objects>
-                <viewController title="WebView" id="GW6-7B-92m" customClass="ADAutoWebViewController" sceneMemberID="viewController">
+                <viewController title="WebView" id="GW6-7B-92m" customClass="ADAutoPassedInWebViewController" sceneMemberID="viewController">
                     <view key="view" id="3oh-oA-yZe">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>

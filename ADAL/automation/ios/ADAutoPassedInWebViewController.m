@@ -23,6 +23,7 @@
 
 #import "ADAutoPassedInWebViewController.h"
 #import "ADWebAuthController.h"
+#import <WebKit/WebKit.h>
 
 @interface ADAutoPassedInWebViewController ()
 @property (weak, nonatomic) IBOutlet UIView *contentView;

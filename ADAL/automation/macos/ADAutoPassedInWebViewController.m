@@ -21,34 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#else
-#import <Cocoa/Cocoa.h>
+#import "ADAutoPassedInWebViewController.h"
 #import <WebKit/WebKit.h>
-#endif
-#import "ADALAutomation.h"
 
-@class ADAutoRequestViewController;
-@class ADAutoPassedInWebViewController;
-@class ADAuthenticationContext;
-@protocol ADTokenCacheDataSource;
+@interface ADAutoPassedInWebViewController ()
+{
+    WKWebView *_webview;
+}
+@end
 
-#if TARGET_OS_IPHONE
-@interface ADAutoViewController : UIViewController
-#else
-@interface ADAutoViewController : NSViewController
-#endif
+@implementation ADAutoPassedInWebViewController
 
-@property (nonatomic) ADAutoRequestViewController *requestViewController;
-@property (nonatomic) WKWebView *webView;
-
-- (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
-- (id<ADTokenCacheDataSource>)cacheDatasource;
-- (void)clearCache;
-- (void)clearKeychain;
-- (void)openURL:(NSURL *)url;
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    _webview = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+     [self.view addSubview:_webview];
+    
+    self.passedInWebview = _webview;
+}
 
 @end

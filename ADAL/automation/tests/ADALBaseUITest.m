@@ -258,7 +258,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 #if TARGET_OS_IPHONE
     [[self.testApp.navigationBars elementBoundByIndex:0].buttons[@"Cancel"] msidTap];
 #else
-    [self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
+    [self.testApp.windows[@"MSID_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
 #endif
 }
 

@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoViewController.h"
+#import "ADAutoBaseViewController.h"
 #import "ADAutoRequestViewController.h"
 #import "ADAutoResultViewController.h"
 #import "ADAutoPassedInWebViewController.h"
@@ -31,11 +31,11 @@
 #import "MSIDKeychainTokenCache.h"
 #import <WebKit/WebKit.h>
 
-@interface ADAutoViewController ()
+@interface ADAutoBaseViewController ()
 
 @end
 
-@implementation ADAutoViewController
+@implementation ADAutoBaseViewController
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
@@ -70,10 +70,23 @@
 
 - (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs
 {
+    if (self.presentedViewController)
+    {
+        [self.presentedViewController dismissViewControllerAnimated:NO completion:^{
+            [self presentResults:resultJson logs:resultLogs];
+        }];
+    }
+    else
+    {
+        [self presentResults:resultJson logs:resultLogs];
+    }
+}
+
+- (void)presentResults:(NSString *)resultJson logs:(NSString *)resultLogs
+{
     [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson ? resultJson : @"",
                                                             @"resultLogs":resultLogs ? resultLogs : @""}];
 }
-
 
 - (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context
 {

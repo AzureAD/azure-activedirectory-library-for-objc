@@ -21,13 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#else
-#import <Cocoa/Cocoa.h>
-#endif
+#import "ADALAutomation.h"
 
-@interface ADAutoResultViewController : UIViewController
+@interface ADAutoResultViewController : ADAutoViewController
 
 @property (nonatomic) NSString *resultInfoString;
 @property (nonatomic) NSString *resultLogsString;

@@ -358,11 +358,11 @@
 		B2E9684E20E96B7A00906F3D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9684D20E96B7A00906F3D /* main.m */; };
 		B2E9685B20E970E600906F3D /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9685A20E970E600906F3D /* ADAutoResultViewController.m */; };
 		B2EE687B20E9DEE900AA78A9 /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE687A20E9DEE900AA78A9 /* ADAutoRequestViewController.m */; };
-		B2EE688220E9E01E00AA78A9 /* ADAutoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688120E9E01E00AA78A9 /* ADAutoViewController.m */; };
-		B2EE688520EA8C8800AA78A9 /* ADAutoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688420EA8C8800AA78A9 /* ADAutoViewController.m */; };
+		B2EE688220E9E01E00AA78A9 /* ADAutoBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688120E9E01E00AA78A9 /* ADAutoBaseViewController.m */; };
+		B2EE688520EA8C8800AA78A9 /* ADAutoBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688420EA8C8800AA78A9 /* ADAutoBaseViewController.m */; };
 		B2EE688820EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */; };
 		B2EE688920EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */; };
-		B2EE688D20EA8ECC00AA78A9 /* ADAutoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688B20EA8ECC00AA78A9 /* ADAutoWebViewController.m */; };
+		B2EE688D20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688B20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m */; };
 		B2FBFD8120D37E4E001EB7AA /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2FBFD8220D47528001EB7AA /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
 		D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */; };
@@ -1134,12 +1134,12 @@
 		B2E9684F20E96B7A00906F3D /* ADALAutomationForMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ADALAutomationForMac.entitlements; sourceTree = "<group>"; };
 		B2E9685A20E970E600906F3D /* ADAutoResultViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
 		B2EE687A20E9DEE900AA78A9 /* ADAutoRequestViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoRequestViewController.m; sourceTree = "<group>"; };
-		B2EE688120E9E01E00AA78A9 /* ADAutoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoViewController.m; sourceTree = "<group>"; };
-		B2EE688320EA8C8800AA78A9 /* ADAutoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoViewController.h; sourceTree = "<group>"; };
-		B2EE688420EA8C8800AA78A9 /* ADAutoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoViewController.m; sourceTree = "<group>"; };
+		B2EE688120E9E01E00AA78A9 /* ADAutoBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoBaseViewController.m; sourceTree = "<group>"; };
+		B2EE688320EA8C8800AA78A9 /* ADAutoBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoBaseViewController.h; sourceTree = "<group>"; };
+		B2EE688420EA8C8800AA78A9 /* ADAutoBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoBaseViewController.m; sourceTree = "<group>"; };
 		B2EE688620EA8E5700AA78A9 /* ADAutoMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoMainViewController.h; sourceTree = "<group>"; };
 		B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoMainViewController.m; sourceTree = "<group>"; };
-		B2EE688B20EA8ECC00AA78A9 /* ADAutoWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoWebViewController.m; sourceTree = "<group>"; };
+		B2EE688B20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoPassedInWebViewController.m; sourceTree = "<group>"; };
 		D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
 		D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALConstants.h; sourceTree = "<group>"; };
@@ -1907,10 +1907,9 @@
 			isa = PBXGroup;
 			children = (
 				975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */,
-				D64C1F691DBADAF900850036 /* ADALAutomation.h */,
 				D64C1F4D1DB9B05900850036 /* ADAutoAppDelegate.h */,
 				D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */,
-				B2EE688420EA8C8800AA78A9 /* ADAutoViewController.m */,
+				B2EE688420EA8C8800AA78A9 /* ADAutoBaseViewController.m */,
 				23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */,
 				96AC69381E70E184008183A7 /* ADAutoResultViewController.m */,
 				23B7919820118B9E008D4BD2 /* ADAutoPassedInWebViewController.m */,
@@ -1928,10 +1927,10 @@
 			children = (
 				B2E9684120E96B7800906F3D /* AppDelegate.h */,
 				B2E9684220E96B7800906F3D /* AppDelegate.m */,
+				B2EE688120E9E01E00AA78A9 /* ADAutoBaseViewController.m */,
 				B2E9685A20E970E600906F3D /* ADAutoResultViewController.m */,
 				B2EE687A20E9DEE900AA78A9 /* ADAutoRequestViewController.m */,
-				B2EE688120E9E01E00AA78A9 /* ADAutoViewController.m */,
-				B2EE688B20EA8ECC00AA78A9 /* ADAutoWebViewController.m */,
+				B2EE688B20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m */,
 				B2E9684720E96B7A00906F3D /* Assets.xcassets */,
 				B2E9684920E96B7A00906F3D /* Main.storyboard */,
 				B2E9684C20E96B7A00906F3D /* Info.plist */,
@@ -2163,7 +2162,8 @@
 				B2000C0C20EBF0880092790A /* tests */,
 				B2000C0720EB038C0092790A /* macos */,
 				B2000C0620EB03830092790A /* ios */,
-				B2EE688320EA8C8800AA78A9 /* ADAutoViewController.h */,
+				D64C1F691DBADAF900850036 /* ADALAutomation.h */,
+				B2EE688320EA8C8800AA78A9 /* ADAutoBaseViewController.h */,
 				23B791A020119030008D4BD2 /* ADAutoRequestViewController.h */,
 				96AC69371E70E184008183A7 /* ADAutoResultViewController.h */,
 				23B7919720118B9E008D4BD2 /* ADAutoPassedInWebViewController.h */,
@@ -3575,14 +3575,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2EE688220E9E01E00AA78A9 /* ADAutoViewController.m in Sources */,
+				B2EE688220E9E01E00AA78A9 /* ADAutoBaseViewController.m in Sources */,
 				B2EE687B20E9DEE900AA78A9 /* ADAutoRequestViewController.m in Sources */,
 				B2E9684E20E96B7A00906F3D /* main.m in Sources */,
 				B2EE688920EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */,
 				B2E9684320E96B7800906F3D /* AppDelegate.m in Sources */,
 				B2A02CE720F598B20048792D /* ADTestAppCache.m in Sources */,
 				B2E9685B20E970E600906F3D /* ADAutoResultViewController.m in Sources */,
-				B2EE688D20EA8ECC00AA78A9 /* ADAutoWebViewController.m in Sources */,
+				B2EE688D20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3592,7 +3592,7 @@
 			files = (
 				96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */,
 				23B7919D20118B9F008D4BD2 /* ADAutoPassedInWebViewController.m in Sources */,
-				B2EE688520EA8C8800AA78A9 /* ADAutoViewController.m in Sources */,
+				B2EE688520EA8C8800AA78A9 /* ADAutoBaseViewController.m in Sources */,
 				D64C1F4F1DB9B05900850036 /* ADAutoAppDelegate.m in Sources */,
 				23B791A220119030008D4BD2 /* ADAutoRequestViewController.m in Sources */,
 				B2EE688820EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */,
@@ -4699,7 +4699,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/automation/macos/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALAutomationForMac;
@@ -4762,7 +4762,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/automation/macos/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALAutomationForMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";

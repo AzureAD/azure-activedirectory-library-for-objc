@@ -36,8 +36,6 @@
     [super viewWillAppear:animated];
     
     self.requestInfo.text = nil;
-    //@"{\"scopes\":\"https:\\/\\/contoso.com\\/WebApp\\/.default\",\"authority\":\"https:\\/\\/fs.msidlab4.com\\/adfs\",\"resource\":\"https:\\/\\/contoso.com\\/WebApp\",\"user_identifier\":\"opIDLAB@msidlab4.com\",\"prompt_behavior\":\"always\",\"redirect_uri\":\"urn:ietf:wg:oauth:2.0:oob\",\"validate_authority\":false,\"client_id\":\"v1client\"}";
-    //nil;//@"{\"web_view\":\"passed_in\",\"scopes\":\"00000003-0000-0ff1-ce00-000000000000\\/.default\",\"authority\":\"https:\\/\\/login.microsoftonline.com\\/common\",\"resource\":\"00000003-0000-0ff1-ce00-000000000000\",\"user_identifier\":\"idlab@msidlab5.onmicrosoft.com\",\"user_identifier_type\":\"optional_displayable\",\"validate_authority\":true,\"redirect_uri\":\"x-msauth-automationapp:\\/\\/com.microsoft.adal.automationapp\",\"client_id\":\"68a10fc3-ead9-41b8-ac5e-5b78af044736\"}";
 }
 
 - (IBAction)go:(id)sender

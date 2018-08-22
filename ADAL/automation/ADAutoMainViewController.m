@@ -181,17 +181,7 @@
                           completionBlock:^(ADAuthenticationResult *result)
          {
              dispatch_async(dispatch_get_main_queue(), ^{
-                 if (weakSelf.presentedViewController)
-                 {
-                     [weakSelf dismissViewControllerAnimated:YES completion:^{
-                         [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
-                     }];
-                 }
-                 else
-                 {
-                     [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
-                 }
-                 
+                 [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
              });
          }];
 
@@ -270,13 +260,14 @@
     }
 
     // Clear WKWebView cookies
+
     NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
     [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
                                                modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
                                            completionHandler:^{
                                                NSLog(@"Completed!");
                                            }];
-    
+
     [self showResultViewWithResult:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)count] logs:_resultLogs];
 }
 

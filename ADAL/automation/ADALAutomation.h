@@ -21,6 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
-
 typedef void (^ADAutoParamBlock)(NSDictionary<NSString *, NSString *> * parameters);
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+@compatibility_alias ADAutoViewController UIViewController;
+#else
+#import <Cocoa/Cocoa.h>
+#import <WebKit/WebKit.h>
+@compatibility_alias ADAutoViewController NSViewController;
+#endif

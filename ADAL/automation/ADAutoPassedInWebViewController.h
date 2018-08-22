@@ -21,14 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#else
-#import <Cocoa/Cocoa.h>
-#endif
-#import <WebKit/WebKit.h>
+#import "ADALAutomation.h"
 
-@interface ADAutoPassedInWebViewController : UIViewController
+@interface ADAutoPassedInWebViewController : ADAutoViewController
 
 @property (nonatomic, weak) WKWebView *passedInWebview;
 
