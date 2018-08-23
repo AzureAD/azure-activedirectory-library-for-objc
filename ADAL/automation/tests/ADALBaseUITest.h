@@ -37,7 +37,10 @@
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
 - (void)assertAuthUIAppear;
-- (void)assertError:(NSString *)error;
+- (void)assertErrorCode:(NSString *)expectedErrorCode;
+- (void)assertErrorDescription:(NSString *)errorDescription;
+- (void)assertErrorSubcode:(NSString *)errorSubcode;
+- (void)assertErrorContent:(NSString *)expectedContent key:(NSString *)key;
 - (void)assertAccessTokenNotNil;
 - (NSDictionary *)resultIDTokenClaims;
 - (void)assertRefreshTokenNotNil;

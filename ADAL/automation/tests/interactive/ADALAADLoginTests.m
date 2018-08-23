@@ -159,7 +159,7 @@
     [self acquireToken:config];
     [self aadEnterEmail];
     [self closeAuthUI];
-    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
 }
 
 // #290995 iteration 2
@@ -459,7 +459,7 @@
     [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", firstAccount.password]];
 
     // Should fail
-    [self assertError:@"AD_ERROR_SERVER_WRONG_USER"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_WRONG_USER"];
     [self closeResultView];
     
     // RequiredDisplayableId and not changing the user
@@ -535,7 +535,7 @@
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
-    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
 }
 
 - (void)testSilentAADLogin_withNoUserProvided_multipleUsersInCache
@@ -586,7 +586,7 @@
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireTokenSilent:config];
-    [self assertError:@"AD_ERROR_CACHE_MULTIPLE_USERS"];
+    [self assertErrorCode:@"AD_ERROR_CACHE_MULTIPLE_USERS"];
 }
 
 - (void)DISABLED_testAADLogin_withPromptAlways_LoginHint_LoginTakesMoreThanFiveMinutes

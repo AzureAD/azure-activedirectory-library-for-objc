@@ -91,10 +91,10 @@
 
     // Acquire token again.
     [self acquireToken:config];
-    [self ntlmWaitForAlert];
-    [self ntlmCancel];
-    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
+
 
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView_andCancelAuth
 {
@@ -108,7 +108,15 @@
 
     [self ntlmWaitForAlert];
     [self ntlmCancel];
-    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+    [self closeAuthUI];
+    
+    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
+    
+    [self closeResultView];
+    
+    [self acquireToken:config];
+    
+    [self ntlmWaitForAlert];
 }
 
 #pragma mark - Helpers
@@ -120,7 +128,7 @@
 
 - (void)ntlmEnterUsername
 {
-    XCUIElement *usernameField = [self.testApp.textFields firstMatch];
+    XCUIElement *usernameField = [self.testApp.textFields element];
     [self tapElementAndWaitForKeyboardToAppear:usernameField];
     [usernameField activateTextField];
     [usernameField typeText:self.primaryAccount.account];
@@ -128,7 +136,7 @@
 
 - (void)ntlmEnterPassword
 {
-    XCUIElement *passwordField = [self.testApp.secureTextFields firstMatch];
+    XCUIElement *passwordField = [self.testApp.secureTextFields element];
     [self tapElementAndWaitForKeyboardToAppear:passwordField];
     [passwordField activateTextField];
     [passwordField typeText:self.primaryAccount.password];
