@@ -24,6 +24,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADWebAuthResponse.h"
+#import "ADWebAuthRequest.h"
 
 @interface ADWebAuthResponseTests : ADTestCase
 
@@ -74,4 +75,36 @@
     NSString* noComma = @"key1=\"value1\"key2=\"value2\"";
     XCTAssertNil([ADWebAuthResponse parseAuthHeader:noComma]);
 }
+
+- (void)testProcessError_whenErrorContainsFailedUrlKey_shouldRemoveParametersFromUrl
+{
+    __auto_type url = [[NSURL alloc] initWithString:@"https://example.com"];
+    __auto_type request = [[ADWebAuthRequest alloc] initWithURL:url context:nil];
+    __auto_type failedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/?code=some_code_value&session_state=12345678&x-client-Ver=2.6.4"];
+    __auto_type userInfo = @{
+                             NSLocalizedDescriptionKey: @"unsupported URL",
+                             NSURLErrorFailingURLErrorKey: failedUrl,
+                             NSURLErrorFailingURLStringErrorKey: failedUrl.absoluteString,
+                             };
+    __auto_type error = [[NSError alloc] initWithDomain:@"test.com" code:1 userInfo:userInfo];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"process error"];
+    [ADWebAuthResponse processError:error
+                            request:request
+                         completion:^(ADAuthenticationError *adError, NSMutableDictionary *dictionary)
+     {
+         __auto_type expectedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/"];
+         __auto_type expectedUserInfo = @{
+                                          NSLocalizedDescriptionKey: @"unsupported URL",
+                                          NSURLErrorFailingURLErrorKey: expectedUrl,
+                                          NSURLErrorFailingURLStringErrorKey: expectedUrl.absoluteString,
+                                          };
+         
+         XCTAssertEqualObjects(expectedUserInfo, adError.userInfo);
+         [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 @end

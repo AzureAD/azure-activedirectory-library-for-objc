@@ -414,6 +414,25 @@
     }
     
     MSID_LOG_WARN(_request, @"System error while making request");
+    
+    // Don't put raw url in NSError because it can contain sensitive data.
+    NSMutableDictionary *errorUserInfo = [error.userInfo mutableCopy];
+    NSURL *failedUrl = errorUserInfo[NSURLErrorFailingURLErrorKey];
+    [errorUserInfo removeObjectForKey:NSURLErrorFailingURLErrorKey];
+    [errorUserInfo removeObjectForKey:NSURLErrorFailingURLStringErrorKey];
+    
+    if (failedUrl)
+    {
+        // Remove parameters from failed url.
+        NSURLComponents *components = [NSURLComponents componentsWithURL:failedUrl resolvingAgainstBaseURL:YES];
+        components.queryItems = nil;
+        failedUrl = components.URL;
+        
+        errorUserInfo[NSURLErrorFailingURLErrorKey] = failedUrl;
+        errorUserInfo[NSURLErrorFailingURLStringErrorKey] = failedUrl.absoluteString;
+        error = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:errorUserInfo];
+    }
+    
     MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
 
     // System error
