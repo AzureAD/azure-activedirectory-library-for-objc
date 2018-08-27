@@ -107,11 +107,6 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     XCTAssertTrue([actualContent containsString:errorDescription]);
 }
 
-- (void)assertErrorSubcode:(NSString *)errorSubcode
-{
-    [self assertErrorContent:errorSubcode key:@"subcode"];
-}
-
 - (void)assertErrorContent:(NSString *)expectedContent key:(NSString *)key
 {
     NSDictionary *result = [self resultDictionary];

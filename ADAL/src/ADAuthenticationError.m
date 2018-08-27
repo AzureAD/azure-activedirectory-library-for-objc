@@ -342,7 +342,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 #endif
 
 - (NSString*)getStringForErrorCode:(NSInteger)code
-                              domain:(NSString *)domain
+                            domain:(NSString *)domain
 {
     //code is ADErrorCode enum if domain is one of following
     if ([domain isEqualToString:ADAuthenticationErrorDomain] ||

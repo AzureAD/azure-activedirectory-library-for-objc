@@ -119,8 +119,8 @@ static ADAuthenticationResult *s_result = nil;
                                                                                                      resource:requestParams.resource
                                                                                                        scopes:nil
                                                                                                 correlationId:requestParams.correlationId
-                                                                                                   enablePkce:NO
-                                                                                  stopAtStateVerificationFail:NO];
+                                                                                                   enablePkce:NO];
+    webviewConfig.ignoreInvalidState = YES;
 
     webviewConfig.loginHint = requestParams.identifier.userId;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
