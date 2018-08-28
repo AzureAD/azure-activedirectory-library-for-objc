@@ -21,6 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import "ADAutoPassedInWebViewController.h"
+#import <WebKit/WebKit.h>
 
-typedef void (^ADAutoParamBlock)(NSDictionary<NSString *, NSString *> * parameters);
+@interface ADAutoPassedInWebViewController ()
+{
+    WKWebView *_webview;
+}
+@end
+
+@implementation ADAutoPassedInWebViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    _webview = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+     [self.view addSubview:_webview];
+    
+    self.passedInWebview = _webview;
+}
+
+@end

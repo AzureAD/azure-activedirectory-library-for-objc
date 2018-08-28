@@ -119,13 +119,18 @@ static ADAuthenticationResult *s_result = nil;
                                                                                                      resource:requestParams.resource
                                                                                                        scopes:nil
                                                                                                 correlationId:requestParams.correlationId
-                                                                                                   enablePkce:NO
-                                                                                  stopAtStateVerificationFail:NO];
+                                                                                                   enablePkce:NO];
+    webviewConfig.ignoreInvalidState = YES;
+
     webviewConfig.loginHint = requestParams.identifier.userId;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
 
     webviewConfig.extraQueryParameters = [self dictFromQueryString:requestParams.extraQueryParameters];
-    webviewConfig.claims = [requestParams.claims msidUrlFormDecode];
+    
+    if (requestParams.claims)
+    {
+        webviewConfig.claims = [requestParams.claims msidUrlFormDecode];
+    }
 
 #if TARGET_OS_IPHONE
     webviewConfig.parentController = context.parentController;

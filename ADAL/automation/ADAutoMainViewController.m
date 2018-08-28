@@ -73,6 +73,10 @@
     {
         [self showPassedInWebViewControllerWithContext:context];
     }
+    else
+    {
+        context.webView = nil;
+    }
 
     if (parameters[@"use_broker"])
     {
@@ -176,7 +180,6 @@
                           completionBlock:^(ADAuthenticationResult *result)
          {
              dispatch_async(dispatch_get_main_queue(), ^{
-                 [weakSelf dismissPassedInWebViewController];
                  [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
              });
          }];
@@ -254,6 +257,15 @@
         [cookieStore deleteCookie:cookie];
         count++;
     }
+
+    // Clear WKWebView cookies
+
+    NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
+                                               modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+                                           completionHandler:^{
+                                               NSLog(@"Completed!");
+                                           }];
 
     [self showResultViewWithResult:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)count] logs:_resultLogs];
 }
@@ -585,6 +597,7 @@
     if(result.error){
         [resultDict setValue:result.error.errorDetails forKey:@"error"];
         [resultDict setValue:result.error.description forKey:@"error_description"];
+        [resultDict setValue:[ADAuthenticationError stringForADErrorCode:result.error.code] forKey:@"error_code"];
     }
     else {
         NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";

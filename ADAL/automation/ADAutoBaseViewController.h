@@ -21,20 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoWebViewController.h"
-#import <WebKit/WebKit.h>
+#import "ADALAutomation.h"
 
-@interface ADAutoWebViewController ()
+@class ADAutoRequestViewController;
+@class ADAutoPassedInWebViewController;
+@class ADAuthenticationContext;
+@protocol ADTokenCacheDataSource;
 
-@end
+@interface ADAutoBaseViewController: ADAutoViewController
 
-@implementation ADAutoWebViewController
+@property (nonatomic) ADAutoRequestViewController *requestViewController;
+@property (nonatomic) WKWebView *webView;
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    self.webView = [[WKWebView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    [self.view addSubview:self.webView];
-}
+- (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
+- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
+- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
+- (id<ADTokenCacheDataSource>)cacheDatasource;
+- (void)clearCache;
+- (void)clearKeychain;
+- (void)openURL:(NSURL *)url;
 
 @end

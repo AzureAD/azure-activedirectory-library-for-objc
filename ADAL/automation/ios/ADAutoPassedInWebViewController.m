@@ -21,39 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoRequestViewController.h"
+#import "ADAutoPassedInWebViewController.h"
+#import "ADWebAuthController.h"
+#import <WebKit/WebKit.h>
 
-@interface ADAutoRequestViewController ()
-
-@property (strong, nonatomic) IBOutlet UIButton *requestGo;
-
+@interface ADAutoPassedInWebViewController ()
+@property (weak, nonatomic) IBOutlet UIView *contentView;
 @end
 
-@implementation ADAutoRequestViewController
+@implementation ADAutoPassedInWebViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+}
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self.contentView addSubview:self.passedInWebview];
+    self.passedInWebview.frame = CGRectMake(0, 0, self.contentView.frame.size.width, self.contentView.frame.size.height);
 }
 
-- (IBAction)go:(id)sender
-{
-    (void)sender;
+- (IBAction)cancelTapped:(id)sender {
     
-    self.requestInfo.editable = NO;
-    self.requestGo.enabled = NO;
-    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
-
-    NSError* error = nil;
-    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
-    if (!params)
-    {
-        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, (long)error.code, error.localizedDescription];
-        
-        params = @{ @"error" : errorString };
-    }
-    
-    self.completionBlock(params);
+    [self dismissViewControllerAnimated:YES completion:^{
+        [ADWebAuthController cancelCurrentWebAuthSession];
+    }];
 }
 
 @end

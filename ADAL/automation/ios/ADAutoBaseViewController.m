@@ -21,57 +21,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoViewController.h"
+#import "ADAutoBaseViewController.h"
 #import "ADAutoRequestViewController.h"
 #import "ADAutoResultViewController.h"
-#import "ADAutoWebViewController.h"
+#import "ADAutoPassedInWebViewController.h"
 #import "ADAL.h"
 #import "ADTokenCacheDataSource.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "MSIDKeychainTokenCache.h"
+#import <WebKit/WebKit.h>
 
-@interface ADAutoViewController ()
+@interface ADAutoBaseViewController ()
 
 @end
 
-@implementation ADAutoViewController
+@implementation ADAutoBaseViewController
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    (void)sender;
-
     if ([segue.identifier isEqualToString:@"showResult"])
     {
         ADAutoResultViewController *resultVC = segue.destinationViewController;
         resultVC.resultInfoString = sender[@"resultInfo"];
         resultVC.resultLogsString = sender[@"resultLogs"];
     }
-}
-
-- (void)showActionSelectionView
-{
-    if (self.presentedViewController)
+    
+    if ([segue.identifier isEqualToString:@"showRequest"])
     {
-        [self.presentedViewController dismissViewControllerAnimated:NO completion:nil];
+        ADAutoRequestViewController *requestVC = segue.destinationViewController;
+        requestVC.requestInfo.text = nil;
+        requestVC.completionBlock = sender[@"completionHandler"];
+    }
+    
+    if ([segue.identifier isEqualToString:@"showPassedInWebview"])
+    {
+        ADAutoPassedInWebViewController *requestVC = segue.destinationViewController;
+        requestVC.passedInWebview = sender[@"webview"];
     }
 }
 
+
 - (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler
 {
-    self.requestViewController = [ADAutoRequestViewController new];
-    self.requestViewController.completionBlock = completionHandler;
-    self.requestViewController.requestInfo.text = nil;
-    [self presentViewController:self.requestViewController animated:NO completion:nil];
+    [self performSegueWithIdentifier:@"showRequest"
+                              sender:@{@"completionHandler":completionHandler}];
 }
+
 
 - (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs
 {
     if (self.presentedViewController)
     {
         [self.presentedViewController dismissViewControllerAnimated:NO completion:^{
-
             [self presentResults:resultJson logs:resultLogs];
-
         }];
     }
     else
@@ -80,26 +82,29 @@
     }
 }
 
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context
-{
-    self.webViewController = [ADAutoWebViewController new];
-    __unused id view = self.webViewController.view;
-    [context setWebView:self.webViewController.webView];
-    [self.requestViewController presentViewController:self.webViewController
-                                             animated:NO
-                                           completion:nil];
-}
-
-- (void)dismissPassedInWebViewController
-{
-    [self.webViewController dismissViewControllerAnimated:NO completion:nil];
-    self.webViewController = nil;
-}
-
 - (void)presentResults:(NSString *)resultJson logs:(NSString *)resultLogs
 {
     [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson ? resultJson : @"",
                                                             @"resultLogs":resultLogs ? resultLogs : @""}];
+}
+
+- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context
+{
+    context.webView = self.webView;
+    
+    [self.webView loadHTMLString:@"<html><head></head><body>Loading...</body></html>" baseURL:nil];
+    [self performSegueWithIdentifier:@"showPassedInWebview" sender:@{@"context" : context,
+                                                                     @"webview" : self.webView
+                                                                     }];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    self.webView = [[WKWebView alloc] init];
+    self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
 }
 
 - (id<ADTokenCacheDataSource>)cacheDatasource

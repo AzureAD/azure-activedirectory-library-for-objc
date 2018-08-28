@@ -21,36 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#else
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#endif
-#import "ADALAutomation.h"
+#import "ADAutoRequestViewController.h"
 
-@class ADAutoRequestViewController;
-@class ADAutoWebViewController;
-@class ADAuthenticationContext;
-@protocol ADTokenCacheDataSource;
+@interface ADAutoRequestViewController ()
 
-#if TARGET_OS_IPHONE
-@interface ADAutoViewController : UIViewController
-#else
-@interface ADAutoViewController : NSViewController
-#endif
+@property (strong, nonatomic) IBOutlet UIButton *requestGo;
 
-@property (nonatomic) ADAutoRequestViewController *requestViewController;
-@property (nonatomic) ADAutoWebViewController *webViewController;
+@end
 
-- (void)showActionSelectionView;
-- (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
-- (void)dismissPassedInWebViewController;
-- (id<ADTokenCacheDataSource>)cacheDatasource;
-- (void)clearCache;
-- (void)clearKeychain;
-- (void)openURL:(NSURL *)url;
+@implementation ADAutoRequestViewController
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    self.requestInfo.text = nil;
+}
+
+- (IBAction)go:(id)sender
+{
+    self.requestInfo.editable = NO;
+    self.requestGo.enabled = NO;
+    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
+
+    NSError* error = nil;
+    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (!params)
+    {
+        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, (long)error.code, error.localizedDescription];
+        
+        params = @{ @"error" : errorString };
+    }
+    
+    [self dismissViewControllerAnimated:NO completion:^{
+        self.completionBlock(params);
+    }];
+}
 
 @end

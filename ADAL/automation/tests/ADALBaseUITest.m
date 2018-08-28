@@ -94,13 +94,25 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     XCTAssertTrue(result);
 }
 
-- (void)assertError:(NSString *)error
+- (void)assertErrorCode:(NSString *)expectedErrorCode
+{
+    [self assertErrorContent:expectedErrorCode key:@"error_code"];
+}
+
+- (void)assertErrorDescription:(NSString *)errorDescription
 {
     NSDictionary *result = [self resultDictionary];
-    
-    XCTAssertNotEqual([result[@"error"] length], 0);
-    NSString *errorDescription = result[@"error_description"];
-    XCTAssertTrue([errorDescription containsString:error]);
+    NSString *actualContent = result[@"error_description"];
+    XCTAssertNotEqual([actualContent length], 0);
+    XCTAssertTrue([actualContent containsString:errorDescription]);
+}
+
+- (void)assertErrorContent:(NSString *)expectedContent key:(NSString *)key
+{
+    NSDictionary *result = [self resultDictionary];
+    NSString *actualContent = result[key];
+    XCTAssertNotEqual([actualContent length], 0);
+    XCTAssertEqualObjects(actualContent, expectedContent);
 }
 
 - (void)assertAccessTokenNotNil
@@ -258,7 +270,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 #if TARGET_OS_IPHONE
     [[self.testApp.navigationBars elementBoundByIndex:0].buttons[@"Cancel"] msidTap];
 #else
-    [self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
+    [self.testApp.windows[@"MSID_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
 #endif
 }
 
