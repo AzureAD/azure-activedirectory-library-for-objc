@@ -23,11 +23,12 @@
 
 typedef void (^ADAutoParamBlock)(NSDictionary<NSString *, NSString *> * parameters);
 
+#import <WebKit/WebKit.h>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 @compatibility_alias ADAutoViewController UIViewController;
 #else
 #import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
 @compatibility_alias ADAutoViewController NSViewController;
 #endif

@@ -29,7 +29,6 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import <ADAL/ADTelemetry.h>
-#import <WebKit/WebKit.h>
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
