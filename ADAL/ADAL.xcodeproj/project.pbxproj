@@ -3987,6 +3987,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				GCC_OPTIMIZATION_LEVEL = 3;
 				PRODUCT_NAME = ADALiOS;
 			};
@@ -3996,6 +3997,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				PRODUCT_NAME = ADALiOS;
 			};
 			name = Release;
@@ -4021,6 +4023,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 			};
@@ -4030,6 +4033,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 			};
 			name = Release;
@@ -4824,7 +4828,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 			};
@@ -4834,7 +4839,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 			};
 			name = Release;

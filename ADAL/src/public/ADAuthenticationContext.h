@@ -335,7 +335,7 @@ typedef enum
  @param redirectUri The redirect URI according to OAuth2 protocol
  @param userId The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
  it may not be used if it belongs to different token. This parameter can be nil.
- @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil. It should be URL-encoded.
  @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -353,7 +353,7 @@ typedef enum
  @param promptBehavior Controls if any credentials UI will be shown
  @param userId The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
  it may not be used if it belongs to different token. This parameter can be nil.
- @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil. It should be URL-encoded.
  @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -371,7 +371,7 @@ typedef enum
  @param redirectUri The redirect URI according to OAuth2 protocol
  @param promptBehavior Controls if any credentials UI will be shown.
  @param userId An ADUserIdentifier object describing the user being authenticated
- @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil. It should be URL-encoded.
  @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -388,7 +388,7 @@ typedef enum
  @param redirectUri The redirect URI according to OAuth2 protocol
  @param promptBehavior Controls if any credentials UI will be shown.
  @param userId An ADUserIdentifier object describing the user being authenticated
- @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil. It should be URL-encoded.
  @param claims The claims parameter that needs to be sent to authorization endpoint. It should be URL-encoded.
  @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */

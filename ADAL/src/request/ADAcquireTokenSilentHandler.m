@@ -130,7 +130,7 @@
 
     if (useOpenidConnect)
     {
-        request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.openIdScopesString;
     }
     else
     {

@@ -1666,16 +1666,14 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireToken"];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:nil
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
-
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.resource = TEST_RESOURCE;
+    params.clientId = TEST_CLIENT_ID;
+    params.redirectUri = TEST_REDIRECT_URL.absoluteString;
+    params.identifier = [ADUserIdentifier identifierWithId:TEST_USER_ID];
+    params.extendedLifetime = NO;
+    
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
@@ -1705,15 +1703,14 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireToken"];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:nil
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
+    
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.resource = TEST_RESOURCE;
+    params.clientId = TEST_CLIENT_ID;
+    params.redirectUri = TEST_REDIRECT_URL.absoluteString;
+    params.identifier = [ADUserIdentifier identifierWithId:TEST_USER_ID];
+    params.extendedLifetime = NO;
 
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];

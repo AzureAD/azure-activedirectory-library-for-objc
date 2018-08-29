@@ -43,18 +43,9 @@
 @property (retain, nonatomic) NSUUID *correlationId;
 @property (retain, nonatomic) NSString *telemetryRequestId;
 @property (retain, nonatomic) NSString *logComponent;
-@property (retain, nonatomic, readonly) NSString *openidScopesString;
 @property (retain, nonatomic) MSIDAccountIdentifier *account;
-@property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 
-- (id)initWithAuthority:(NSString *)authority
-               resource:(NSString *)resource
-               clientId:(NSString *)clientId
-            redirectUri:(NSString *)redirectUri
-             identifier:(ADUserIdentifier *)identifier
-       extendedLifetime:(BOOL)extendedLifetime
-          correlationId:(NSUUID *)correlationId
-     telemetryRequestId:(NSString *)telemetryRequestId
-           logComponent:(NSString *)logComponent;
+- (NSString *)openIdScopesString;
+- (MSIDConfiguration *)msidConfig;
 
 @end

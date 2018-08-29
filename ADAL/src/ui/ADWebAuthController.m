@@ -21,30 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if TARGET_OS_IPHONE
-#import "UIApplication+MSIDExtensions.h"
-#import "ADAppExtensionUtil.h"
-#endif
-
 #import "ADWebAuthController+Internal.h"
-
-#import "ADAuthenticationSettings.h"
-#import "ADAuthorityValidation.h"
-#import "ADHelpers.h"
 #import "ADUserIdentifier.h"
-#import "ADTelemetry.h"
-#import "MSIDTelemetry+Internal.h"
-#import "MSIDTelemetryUIEvent.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "ADAuthorityUtils.h"
-#import "MSIDAadAuthorityCache.h"
-
-#import "MSIDWebviewAuthorization.h"
-#import "ADMSIDContext.h"
-#import "MSIDAADV1WebviewFactory.h"
-
 #import "ADAuthenticationContext+Internal.h"
-
 #import "MSIDNotifications.h"
 
 /*! Fired at the start of a resource load in the webview. */
@@ -111,6 +90,7 @@ static ADAuthenticationResult *s_result = nil;
         [self registerWebAuthNotifications];
     });
     
+    //TODO: Replace with MSIDAADEndpointProvider method once available
     NSString *authorityWithOAuthSuffix = [NSString stringWithFormat:@"%@%@", context.authority, MSID_OAUTH2_AUTHORIZE_SUFFIX];
     
     MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:authorityWithOAuthSuffix]
@@ -161,12 +141,6 @@ static ADAuthenticationResult *s_result = nil;
     }
     
     return queryDict;
-}
-
-
-- (void)cancelCurrentWebAuthSession
-{
-    [MSIDWebviewAuthorization cancelCurrentSession];
 }
 
 

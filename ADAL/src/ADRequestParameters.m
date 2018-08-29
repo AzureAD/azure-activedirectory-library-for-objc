@@ -29,34 +29,6 @@
 
 @implementation ADRequestParameters
 
-- (id)initWithAuthority:(NSString *)authority
-               resource:(NSString *)resource
-               clientId:(NSString *)clientId
-            redirectUri:(NSString *)redirectUri
-             identifier:(ADUserIdentifier *)identifier
-       extendedLifetime:(BOOL)extendedLifetime
-          correlationId:(NSUUID *)correlationId
-     telemetryRequestId:(NSString *)telemetryRequestId
-           logComponent:(NSString *)logComponent
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    [self setAuthority:authority];
-    [self setResource:resource];
-    [self setClientId:clientId];
-    [self setRedirectUri:redirectUri];
-    [self setIdentifier:identifier];
-    [self setExtendedLifetime:extendedLifetime];
-    [self setCorrelationId:correlationId];
-    [self setTelemetryRequestId:telemetryRequestId];
-    [self setLogComponent:logComponent];
-    
-    return self;
-}
-
 - (id)copyWithZone:(NSZone*)zone
 {
     ADRequestParameters *parameters = [[ADRequestParameters allocWithZone:zone] init];
@@ -100,7 +72,7 @@
     _scopesString = scopesString;
 }
 
-- (NSString *)openidScopesString
+- (NSString *)openIdScopesString
 {
     if (!self.scopesString)
     {

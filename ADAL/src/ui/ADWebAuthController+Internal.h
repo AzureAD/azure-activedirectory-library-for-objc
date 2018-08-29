@@ -38,10 +38,6 @@
                  context:(ADAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
-//Cancel the web authentication session which might be happening right now
-//Note that it only works if there's an active web authentication session going on
-- (void)cancelCurrentWebAuthSession;
-
 #if TARGET_OS_IPHONE
 + (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result;
 #endif // TARGET_OS_IPHONE
