@@ -192,6 +192,7 @@
 		9603F94F2122CE4E0045CE62 /* ADTestWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9603F94C2122CE4E0045CE62 /* ADTestWebAuthController.m */; };
 		9603F9502122CE4E0045CE62 /* ADTestWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9603F94C2122CE4E0045CE62 /* ADTestWebAuthController.m */; };
 		9615DB2A20F6A9730002A75D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
+		963B4E2B2138AAB300394CB6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDA1FC37A6200CD70C5 /* WebKit.framework */; };
 		967E351720E1C69500A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		967E351820E1C77100A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		969502222123B051007DD27D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
@@ -1456,6 +1457,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				963B4E2B2138AAB300394CB6 /* WebKit.framework in Frameworks */,
 				B2000C5B20EC37510092790A /* ADAL.framework in Frameworks */,
 				D6D9A56B1FBFBF8900EFA430 /* Security.framework in Frameworks */,
 				B2000C8420EC5E990092790A /* ADAL.framework in Frameworks */,
