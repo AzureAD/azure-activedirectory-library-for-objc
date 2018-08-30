@@ -634,7 +634,7 @@
                telemetryEvent:(ADTelemetryAPIEvent *)event
             completionHandler:(ADAuthenticationCallback)completionHandler
 {
-    if (![response isKindOfClass:MSIDWebOpenBrowserResponse.class])
+    if (![response isKindOfClass:MSIDWebOAuth2Response.class])
     {
         return NO;
     }
