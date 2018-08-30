@@ -2312,14 +2312,14 @@
 		D6D9A53C1FBFB58100EFA430 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				D6D9A53D1FBFB58100EFA430 /* ADTestAppCacheWindowController.m */,
+				D6D9A5411FBFB58100EFA430 /* main.m */,
 				D6D9A53E1FBFB58100EFA430 /* ADTestAppCache.h */,
 				D6D9A53F1FBFB58100EFA430 /* ADTestAppDelegate.m */,
-				D6D9A5401FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.m */,
-				D6D9A5411FBFB58100EFA430 /* main.m */,
-				D6D9A5421FBFB58100EFA430 /* ADTestAppCacheWindowController.h */,
-				D6D9A5431FBFB58100EFA430 /* ADTestAppCache.m */,
 				D6D9A5441FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.h */,
+				D6D9A5401FBFB58100EFA430 /* ADTestAppAcquireTokenWindowController.m */,
+				D6D9A5421FBFB58100EFA430 /* ADTestAppCacheWindowController.h */,
+				D6D9A53D1FBFB58100EFA430 /* ADTestAppCacheWindowController.m */,
+				D6D9A5431FBFB58100EFA430 /* ADTestAppCache.m */,
 				D6D9A5451FBFB58100EFA430 /* ADTestAppDelegate.h */,
 			);
 			path = mac;

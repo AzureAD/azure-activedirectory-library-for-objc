@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "MSIDNotifications.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -105,7 +106,7 @@ static ADAuthenticationResult *s_result = nil;
     webviewConfig.loginHint = requestParams.identifier.userId;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
 
-    webviewConfig.extraQueryParameters = [self dictFromQueryString:requestParams.extraQueryParameters];
+    webviewConfig.extraQueryParameters = [NSDictionary msidDictionaryFromString:requestParams.extraQueryParameters];
     
     if (requestParams.claims)
     {
@@ -122,27 +123,6 @@ static ADAuthenticationResult *s_result = nil;
                                                                 context:requestParams
                                                       completionHandler:completionHandler];
 }
-
-+ (NSDictionary *)dictFromQueryString:(NSString *)query
-{
-    NSArray *queries = [query componentsSeparatedByString:@"&"];
-    NSMutableDictionary *queryDict = [NSMutableDictionary new];
-    
-    for (NSString *query in queries)
-    {
-        NSArray *queryElements = [query componentsSeparatedByString:@"="];
-        if (queryElements.count != 2)
-        {
-            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value");
-            continue;
-        }
-        
-        [queryDict setValue:queryElements[1] forKey:queryElements[0]];
-    }
-    
-    return queryDict;
-}
-
 
 #if TARGET_OS_IPHONE
 + (void)setInterruptedBrokerResult:(ADAuthenticationResult *)result

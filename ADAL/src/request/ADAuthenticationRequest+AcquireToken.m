@@ -547,6 +547,7 @@
      }];
 }
 
+#if TARGET_OS_IPHONE
 - (BOOL)processMSAuthResponse:(MSIDWebviewResponse *)response
                telemetryEvent:(ADTelemetryAPIEvent *)event
             completionHandler:(ADAuthenticationCallback)completionHandler
@@ -576,6 +577,7 @@
                       completionHandler:completionHandler];
     return YES;
 }
+#endif
 
 - (BOOL)processOpenBrowserResponse:(MSIDWebviewResponse *)response
                     telemetryEvent:(ADTelemetryAPIEvent *)event
