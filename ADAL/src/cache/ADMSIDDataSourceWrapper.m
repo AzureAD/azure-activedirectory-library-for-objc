@@ -38,6 +38,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAccountIdentifier.h"
+#import "ADAuthenticationError+Internal.h"
 
 @interface ADMSIDDataSourceWrapper()
 
@@ -79,7 +80,7 @@
  @param item The item to remove from the array.
  */
 - (BOOL)removeItem:(ADTokenCacheItem *)item
-             error:(ADAuthenticationError **)error
+             error:(NSError **)error
 {
     NSError *cacheError = nil;
     
@@ -87,7 +88,7 @@
     
     if (cacheError && error)
     {
-        *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        *error = [ADAuthenticationError errorWithNSError:cacheError];
     }
     
     return result;
@@ -96,7 +97,7 @@
 /*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+- (NSArray<ADTokenCacheItem *> *)allItems:(NSError * __autoreleasing *)error
 {
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     
@@ -109,7 +110,7 @@
     
     if (cacheError)
     {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        if (error) *error = [ADAuthenticationError errorWithNSError:cacheError];
         return nil;
     }
     
@@ -135,7 +136,7 @@
 
 - (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
           correlationId:(NSUUID *)correlationId
-                  error:(ADAuthenticationError **)error
+                  error:(NSError **)error
 {
     MSIDLegacyTokenCacheKey *key = [item tokenCacheKey];
     MSIDLegacyTokenCacheItem *tokenCacheItem = [item tokenCacheItem];
@@ -152,7 +153,7 @@
     
     if (cacheError)
     {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        if (error) *error = [ADAuthenticationError errorWithNSError:cacheError];
         return NO;
     }
     
@@ -169,7 +170,7 @@
 - (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheKey *)key
                               userId:(NSString *)userId
                        correlationId:(NSUUID *)correlationId
-                               error:(ADAuthenticationError **)error
+                               error:(NSError **)error
 {
     MSIDLegacyTokenCacheKey *msidKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:key.authority]
                                                                                  clientId:key.clientId
@@ -187,7 +188,7 @@
     
     if (cacheError)
     {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        if (error) *error = [ADAuthenticationError errorWithNSError:cacheError];
         return nil;
     }
     
@@ -197,7 +198,7 @@
 - (NSArray <ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                            userId:(NSString *)userId
                                     correlationId:(NSUUID * )correlationId
-                                            error:(ADAuthenticationError **)error
+                                            error:(NSError **)error
 {
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     query.authority = [NSURL URLWithString:key.authority];
@@ -216,7 +217,7 @@
     
     if (cacheError)
     {
-        if (error) *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        if (error) *error = [ADAuthenticationError errorWithNSError:cacheError];
         return nil;
     }
     
@@ -236,7 +237,7 @@
 }
 
 - (BOOL)removeAllForClientId:(NSString *)clientId
-                       error:(ADAuthenticationError **)error
+                       error:(NSError **)error
 {
     MSID_LOG_WARN(nil, @"Removing all items for client");
     MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
@@ -247,7 +248,7 @@
 
 - (BOOL)removeAllForUserId:(NSString *)userId
                   clientId:(NSString *)clientId
-                     error:(ADAuthenticationError **)error
+                     error:(NSError **)error
 {
     MSID_LOG_WARN(nil, @"Removing all items for user");
     MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
@@ -256,7 +257,7 @@
 }
 
 - (BOOL)wipeAllItemsForUserId:(NSString *)userId
-                        error:(ADAuthenticationError **)error
+                        error:(NSError **)error
 {
     MSID_LOG_WARN(nil, @"Removing all items for user.");
     MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
@@ -266,7 +267,7 @@
 
 - (BOOL)removeAllForUserIdImpl:(NSString *)userId
                       clientId:(NSString *)clientId
-                         error:(ADAuthenticationError **)error
+                         error:(NSError **)error
 {
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:userId homeAccountId:nil];
 
@@ -278,7 +279,7 @@
 
     if (!result && error)
     {
-        *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+        *error = [ADAuthenticationError errorWithNSError:msidError];
     }
 
     return result;

@@ -24,13 +24,10 @@
 #import "ADAuthenticationError.h"
 #import "ADErrorCodes.h"
 #import "ADTokenCacheItem.h"
+#import "MSIDError.h"
 
 #define AUTH_ERROR(_CODE, _DETAILS, _CORRELATION) \
-    ADAuthenticationError* adError = \
-    [ADAuthenticationError errorFromAuthenticationError:_CODE \
-                                           protocolCode:nil \
-                                           errorDetails:_DETAILS \
-                                          correlationId:_CORRELATION]; \
+    NSError *adError = MSIDCreateError(ADAuthenticationErrorDomain, _CODE, _DETAILS, nil, nil, nil, _CORRELATION, nil); \
     if (error) { *error = adError; }
 
 
@@ -47,103 +44,22 @@
         return nil; \
     }
 
-
-
-#define AUTH_ERROR_UNDERLYING(_CODE, _DETAILS, _UNDERLYING, _CORRELATION) \
-    ADAuthenticationError* adError = \
-    [ADAuthenticationError errorFromAuthenticationError:_CODE \
-                                           protocolCode:nil \
-                                           errorDetails:_DETAILS \
-                                               userInfo:@{ NSUnderlyingErrorKey : _UNDERLYING } \
-                                          correlationId:_CORRELATION]; \
-    if (error) { *error = adError; }
-
 @interface ADAuthenticationError (Internal)
 
-/*! Generates an error for invalid method argument. */
-+ (ADAuthenticationError*)errorFromArgument:(id)argument
-                               argumentName:(NSString *)argumentName
-                              correlationId:(NSUUID *)correlationId;
-/*! Generates an error object from an internally encountered error condition. Preserves the error
- code and domain of the original error and adds the custom details in the "errorDetails" property. */
-+ (ADAuthenticationError*)errorFromNSError:(NSError *)error
-                              errorDetails:(NSString *)errorDetails
-                             correlationId:(NSUUID *)correlationId;
+//////////////////
+
++ (ADAuthenticationError *)errorWithNSError:(NSError *)error;
 
 + (ADAuthenticationError *)errorWithDomain:(NSString *)domain
                                       code:(NSInteger)code
-                         protocolErrorCode:(NSString *)protocolCode
-                              errorDetails:(NSString *)errorDetails
-                             correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
-                                      code:(NSInteger)code
-                         protocolErrorCode:(NSString *)protocolCode
-                              errorDetails:(NSString *)errorDetails
+                          errorDescription:(NSString *)errorDescription
+                                oauthError:(NSString *)oauthError
+                                  subError:(NSString *)subError
+                           underlyingError:(NSError *)underlyingError
                              correlationId:(NSUUID *)correlationId
                                   userInfo:(NSDictionary *)userInfo;
 
-/*! Genearates an error from the code and details of an authentication error */
-+ (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString *)protocolCode
-                                          errorDetails:(NSString *)errorDetails
-                                         correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString *)protocolCode
-                                          errorDetails:(NSString *)errorDetails
-                                              userInfo:(NSDictionary *)userInfo
-                                         correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError*)errorQuietWithAuthenticationError:(NSInteger)code
-                                               protocolCode:(NSString*)protocolCode
-                                               errorDetails:(NSString*)errorDetails;
-
-/*! Generates an error when an unexpected internal library conditions occurs. */
-+ (ADAuthenticationError*)unexpectedInternalError:(NSString *)errorDetails
-                                    correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
-                                 correlationId:(NSUUID *)correlationId;
-
-/*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
- on the authorization UI page. */
-+ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId;
-
-/*! Generates an error for the case that server redirects authentication process to a non-https url */
-+ (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
-                                               status:(OSStatus)status
-                                        correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)errorFromHTTPErrorCode:(NSInteger)code
-                                             body:(NSString *)body
-                                          headers:(NSDictionary *)headers
-                                    correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
-                                description:(NSString *)description
-                                       code:(NSInteger)code
-                              correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
-                                description:(NSString *)description
-                                       code:(NSInteger)code
-                              correlationId:(NSUUID *)correlationId
-                                   userInfo:(NSDictionary *)userInfo;
-
-+ (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
-                                    correlationID:(NSUUID *)correlationId
-                               additionalUserInfo:(NSDictionary *)userInfo;
-
-#if AD_BROKER
-/*! Adds a alternate token to an existing ADAuthentication error's userInfo dictionary */
-+ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *)error
-                                                            correlationID:(NSUUID *)correlationId
-                                                                    token:(ADTokenCacheItem*)token;
-#endif
-
+//////////////////
 /*
     Returns string representation of ADErrorCode or error code number as string, if mapping for that error is missing
  */

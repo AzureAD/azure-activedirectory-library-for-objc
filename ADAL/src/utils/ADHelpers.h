@@ -52,8 +52,8 @@
  will return nil. */
 + (NSString *)canonicalizeAuthority:(NSString *)authority;
 
-+ (ADAuthenticationError *)checkAuthority:(NSString *)authority
-                            correlationId:(NSUUID *)correlationId;
++ (NSError *)checkAuthority:(NSString *)authority
+              correlationId:(NSUUID *)correlationId;
 
 + (NSString *)stringFromDate:(NSDate *)date;
 

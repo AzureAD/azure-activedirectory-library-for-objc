@@ -24,16 +24,8 @@
 #import "ADUserInformation+Internal.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDIdTokenClaims.h"
-
-#define RETURN_ID_TOKEN_ERROR \
-{ \
-ADAuthenticationError* idTokenError = [ADUserInformation invalidIdTokenError]; \
-if (error) \
-{ \
-*error = idTokenError; \
-} \
-return nil; \
-}
+#import "MSIDError.h"
+#import "ADAuthenticationError.h"
 
 NSString *const ID_TOKEN_SUBJECT = @"sub";
 NSString *const ID_TOKEN_TENANTID = @"tid";
@@ -52,7 +44,7 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
 
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
                                     homeAccountId:(NSString *)homeAccountId
-                                           error:(ADAuthenticationError * __autoreleasing *)error
+                                            error:(NSError * __autoreleasing *)error
 {
     ADUserInformation *userInfo = [[ADUserInformation alloc] initWithIdToken:idToken
                                                                homeAccountId:homeAccountId
@@ -62,7 +54,7 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
 
 - (id)initWithIdToken:(NSString *)idToken
         homeAccountId:(NSString *)homeAccountId
-                error:(ADAuthenticationError * __autoreleasing *)error
+                error:(NSError * __autoreleasing *)error
 {
     if (!(self = [super init]))
     {
@@ -73,7 +65,12 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
     
     if ([NSString msidIsStringNilOrBlank:idToken])
     {
-        RETURN_ID_TOKEN_ERROR;
+        if (error)
+        {
+            *error = [self invalidIdTokenError];
+        }
+
+        return nil;
     }
     
     _rawIdToken = idToken;
@@ -84,13 +81,14 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
 
     if (!idTokenClaims)
     {
+
         if (idTokenError && error)
         {
-            *error = [ADAuthenticationError errorFromNSError:idTokenError errorDetails:@"The id_token contents cannot be parsed" correlationId:nil];
+            *error = idTokenError;
         }
         else if (error)
         {
-            *error = [ADUserInformation invalidIdTokenError];
+            *error = [self invalidIdTokenError];
         }
 
         return nil;
@@ -107,7 +105,7 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
 
         if (error)
         {
-            *error = [ADUserInformation invalidIdTokenError];
+            *error = [self invalidIdTokenError];
         }
 
         return nil;
@@ -116,12 +114,9 @@ NSString *const ID_TOKEN_GUEST_ID = @"altsecid";
     return self;
 }
 
-+ (ADAuthenticationError *)invalidIdTokenError
+- (NSError *)invalidIdTokenError
 {
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_INVALID_ID_TOKEN
-                                                  protocolCode:nil
-                                                  errorDetails:@"The id_token contents cannot be parsed."
-                                                 correlationId:nil];
+    return MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_INVALID_ID_TOKEN, @"The id_token contents cannot be parsed.", nil, nil, nil, nil, nil);
 }
 
 @end

@@ -35,20 +35,20 @@
 
 - (id)init;
 
-- (BOOL)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
-- (BOOL)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error;
-- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
+- (BOOL)createBrokerKey:(NSError * __autoreleasing*)error;
+- (BOOL)deleteSymmetricKey: (NSError * __autoreleasing*) error;
+- (NSData*)getBrokerKey:(NSError * __autoreleasing*)error;
 - (NSData*)decryptBrokerResponse:(NSData*)response
                          version:(NSInteger)version
-                           error:(ADAuthenticationError* __autoreleasing*)error;
+                           error:(NSError * __autoreleasing*)error;
 - (NSData*)decryptBrokerResponse:(NSData *)response
                              key:(const void*)key
                             size:(size_t)size
-                           error:(ADAuthenticationError *__autoreleasing *)error;
+                           error:(NSError *__autoreleasing *)error;
 
 + (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response
                            correlationId:(NSUUID *)correlationId
-                                   error:(ADAuthenticationError * __autoreleasing *)error;
+                                   error:(NSError * __autoreleasing *)error;
 
 // NOTE: Used for testing purposes only. Does not change keychain entries.
 + (void)setSymmetricKey:(NSString *)base64Key;

@@ -34,14 +34,14 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 + (void)requestMetadataWithAuthority:(NSString *)authority
                          trustedHost:(NSString *)trustedHost
                              context:(id<MSIDRequestContext>)context
-                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock
+                     completionBlock:(void (^)(NSDictionary *response, NSError *error))completionBlock
 {
     NSURL *endpoint = [self urlForAuthorityValidation:authority trustedHost:trustedHost];
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:endpoint
                                                                  context:context];
     
     [webRequest setIsGetRequest:YES];
-    [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
+    [webRequest sendRequest:^(NSError *error, NSMutableDictionary *response)
     {
         if (error)
         {

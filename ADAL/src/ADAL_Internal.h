@@ -62,8 +62,8 @@
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADAuthenticationError *error);
+typedef void(^ADAuthorizationCodeCallback)(NSString*, NSError*);
+typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, NSError *error);
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -110,8 +110,9 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
 #define FILL_PARAMETER_ERROR(ARG) \
 if (error) \
 { \
-*error = [ADAuthenticationError errorFromArgument:ARG \
-argumentName:@#ARG correlationId:nil]; \
+    NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", @#ARG, ARG]; \
+    NSError *msidError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, nil, nil); \
+    *error = [ADAuthenticationError errorWithNSError:msidError];\
 }
 
 #define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString msidIsStringNilOrBlank:ARG]

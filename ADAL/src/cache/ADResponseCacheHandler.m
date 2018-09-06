@@ -65,7 +65,7 @@
     
     if (!result)
     {
-        return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
+        return [ADAuthenticationResult resultFromError:msidError correlationId:requestParams.correlationId];
     }
     
     MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:requestParams.msidConfig];
@@ -99,7 +99,7 @@
             MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
         }
     }
-    else if ([msidError.domain isEqualToString:MSIDOAuthErrorDomain] && msidError.code == MSIDErrorServerProtectionPoliciesRequired)
+    else if ([msidError.domain isEqualToString:ADOAuthServerErrorDomain] && msidError.code == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
         NSString *legacyAccountId = [self legacyAccountIdWithRefreshToken:refreshToken
                                                                     cache:cache
@@ -107,15 +107,30 @@
 
         if (legacyAccountId)
         {
-            ADAuthenticationError *adError = [ADAuthenticationError errorFromExistingError:[ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]
-                                                                             correlationID:requestParams.correlationId
-                                                                        additionalUserInfo:@{ADUserIdKey : legacyAccountId}];
+            NSMutableDictionary *userInfoDict = msidError.userInfo ? [msidError.userInfo mutableCopy] : [NSMutableDictionary new];
+            userInfoDict[ADUserIdKey] = legacyAccountId;
+
+            NSError *adError = MSIDCreateError(ADOAuthServerErrorDomain, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED, nil, nil, nil, nil, requestParams.correlationId, userInfoDict);
+            
             return [ADAuthenticationResult resultFromError:adError];
         }
     }
 
-    return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
+    return [ADAuthenticationResult resultFromError:msidError correlationId:requestParams.correlationId];
 }
+
+/*
+
+ NSMutableDictionary* newUserInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:[userInfo count]];
+ [newUserInfo addEntriesFromDictionary:userInfo];
+ return [self errorWithDomainInternal:error.domain
+ code:error.code
+ protocolErrorCode:error.userInfo[ADOauthErrorCodeKey]
+ errorDetails:error.userInfo[ADErrorDescriptionKey]
+ correlationId:correlationId
+ userInfo:newUserInfo];
+
+ */
 
 + (NSString *)legacyAccountIdWithRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                                         cache:(MSIDLegacyTokenCacheAccessor *)cache

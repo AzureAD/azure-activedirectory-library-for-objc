@@ -48,10 +48,19 @@
         for (NSNumber *code in codes)
         {
             MSIDErrorCode errorCode = [code integerValue];
-            NSError *msidError = MSIDCreateError(domain, errorCode, @"test", nil, nil, nil, nil, nil);
-            ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
-            
+
+            ADAuthenticationErrorConverter *converter = [ADAuthenticationErrorConverter new];
+
+            NSError *error = [converter errorWithDomain:domain
+                                                   code:errorCode
+                                       errorDescription:@"test"
+                                             oauthError:nil
+                                               subError:nil
+                                        underlyingError:nil
+                                          correlationId:nil
+                                               userInfo:nil];
             XCTAssertNotEqual(error.code, errorCode);
+            XCTAssertNotEqualObjects(error.domain, domain);
             
         }
     }

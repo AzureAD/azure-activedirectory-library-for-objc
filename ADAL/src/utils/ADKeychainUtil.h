@@ -25,6 +25,6 @@
 
 @interface ADKeychainUtil : NSObject
 
-+ (NSString*)keychainTeamId:(ADAuthenticationError* __autoreleasing *)error;
++ (NSString*)keychainTeamId:(NSError* __autoreleasing *)error;
 
 @end

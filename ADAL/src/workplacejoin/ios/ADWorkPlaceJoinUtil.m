@@ -40,10 +40,8 @@
     { \
         if (!(status == errSecItemNotFound || status == -25243)) \
         { \
-            ADAuthenticationError* adError = \
-            [ADAuthenticationError keychainErrorFromOperation:_operation \
-                                                       status:status \
-                                                correlationId:context.correlationId];\
+            NSString *details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", _operation]; \
+            NSError *adError = MSIDCreateError(ADKeychainErrorDomain, status, details, nil, nil, nil, context.correlationId, nil); \
             if (error) { *error = adError; } \
         } \
         goto _error; \
@@ -52,7 +50,7 @@
 
 
 + (ADRegistrationInformation*)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                   error:(ADAuthenticationError * __autoreleasing *)error
+                                                   error:(NSError * __autoreleasing *)error
 {
     NSString* teamId = [ADKeychainUtil keychainTeamId:error];
 
@@ -115,14 +113,7 @@
     if (CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
         CFRelease(identity);
-        ADAuthenticationError* adError =
-        [ADAuthenticationError unexpectedInternalError:@"Wrong object type returned from identity query"
-                                         correlationId:context.correlationId];
-        
-        if (error)
-        {
-            *error = adError;
-        }
+        AUTH_ERROR(AD_ERROR_UNEXPECTED, @"Wrong object type returned from identity query", context.correlationId);
         return nil;
     }
     //Get the certificate and data
@@ -138,13 +129,7 @@
     if(!(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
         // We never should hit this error anyways, as any of this stuff being missing will cause failures farther up.
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:context.correlationId];
-        
-        if (error)
-        {
-            *error = adError;
-        }
-        
+        AUTH_ERROR(AD_ERROR_UNEXPECTED, @"Missing some piece of WPJ data", context.correlationId);
         return nil;
     }
     

@@ -43,8 +43,7 @@
  */
 + (ADTokenCacheKey *)keyWithAuthority:(NSString *)authority
                              resource:(NSString *)resource
-                             clientId:(NSString *)clientId
-                                error:(ADAuthenticationError * __autoreleasing *)error;
+                             clientId:(NSString *)clientId;
 
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;

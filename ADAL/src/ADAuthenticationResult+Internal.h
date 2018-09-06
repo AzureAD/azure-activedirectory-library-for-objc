@@ -30,30 +30,25 @@
 @interface ADAuthenticationResult (Internal)
 
 /*! Creates a result from a user or request cancellation condition, with/without correlation id. */
-+ (ADAuthenticationResult*)resultFromCancellation;
-+ (ADAuthenticationResult*)resultFromCancellation:(NSUUID*)correlationId;
++ (ADAuthenticationResult *)resultFromCancellation;
++ (ADAuthenticationResult *)resultFromCancellation:(NSUUID*)correlationId;
 
 /*! Creates an authentication result from an error condition, with/without correlation id. */
-+ (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error;
-+ (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error
-                             correlationId:(NSUUID*)correlationId;
++ (ADAuthenticationResult *)resultFromError:(NSError *)error;
++ (ADAuthenticationResult *)resultFromError:(NSError *)error
+                              correlationId:(NSUUID *)correlationId;
 
-/*! Creates an authentication result from an error condition, with/without correlation id. */
-+ (ADAuthenticationResult*)resultFromMSIDError:(NSError *)error;
-+ (ADAuthenticationResult*)resultFromMSIDError:(NSError *)error
-                                 correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationResult*)resultFromParameterError:(NSString*)details;
-+ (ADAuthenticationResult*)resultFromParameterError:(NSString*)details
-                                      correlationId:(NSUUID*)correlationId;
++ (ADAuthenticationResult *)resultFromParameterError:(NSString*)details;
++ (ADAuthenticationResult *)resultFromParameterError:(NSString*)details
+                                       correlationId:(NSUUID*)correlationId;
 
 /*! Creates an instance of the result from a pre-setup token cache store item */
-+ (ADAuthenticationResult*)resultFromTokenCacheItem:(ADTokenCacheItem*)item
++ (ADAuthenticationResult *)resultFromTokenCacheItem:(ADTokenCacheItem*)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID*)correlationId;
 
 /*! Creates an authentication result from broker response, which can be with/without correlation id. */
-+ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDBrokerResponse *)response;
++ (ADAuthenticationResult *)resultFromBrokerResponse:(MSIDBrokerResponse *)response;
 
 /*! Internal method to set the extendedLifetimeToken flag. */
 - (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;

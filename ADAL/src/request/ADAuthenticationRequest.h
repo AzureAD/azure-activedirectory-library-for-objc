@@ -88,7 +88,7 @@
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
                                     tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
-                                         error:(ADAuthenticationError* __autoreleasing *)error;
+                                         error:(NSError* __autoreleasing *)error;
 
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the
 // correlation ID from the logger

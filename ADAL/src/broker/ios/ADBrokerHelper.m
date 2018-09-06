@@ -27,6 +27,7 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADWebAuthController+Internal.h"
 #import "ADAppExtensionUtil.h"
+#import "MSIDError.h"
 
 typedef BOOL (*applicationHandleOpenURLPtr)(id, SEL, UIApplication*, NSURL*);
 IMP __original_ApplicationHandleOpenURL = NULL;
@@ -213,10 +214,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     if ([ADAppExtensionUtil isExecutingInAppExtension])
     {
         // Ignore invocation in application extension hosts
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_NOT_SUPPORTED_IN_EXTENSION
-                                                                              protocolCode:nil
-                                                                              errorDetails:@"Calling to broker is not supported in app extensions"
-                                                                             correlationId:nil];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_NOT_SUPPORTED_IN_EXTENSION, @"Calling to broker is not supported in app extensions", nil, nil, nil, nil, nil);
         completion([ADAuthenticationResult resultFromError:error]);
         return;
     }

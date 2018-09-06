@@ -39,6 +39,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADAuthenticationErrorConverter.h"
+#import "MSIDError.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
 
@@ -50,7 +51,7 @@
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
-    [req sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
+    [req sendRequest:^(NSError *error, NSDictionary *response)
      {
          if (error)
          {
@@ -66,8 +67,7 @@
 
          if (!tokenResponse)
          {
-             ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
-             completionBlock(nil, adError);
+             completionBlock(nil, msidError);
          }
          else
          {
@@ -160,7 +160,7 @@
 }
 
 - (void)launchWebView:(NSString*)startUrl
-      completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
+      completionBlock:(void (^)(NSError*, NSURL*))completionBlock
 {
     [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
                                             end:[NSURL URLWithString:[_requestParams redirectUri]]
@@ -185,7 +185,7 @@
     
     NSString* startUrl = [self generateQueryStringForRequestType:MSID_OAUTH2_CODE];
     
-    void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
+    void(^requestCompletion)(NSError *error, NSURL *end) = ^void(NSError *error, NSURL *end)
     {
         [ADAuthenticationRequest releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
@@ -213,11 +213,8 @@
                      {
                          [userInfoDictionary setObject:userName forKey:AUTH_USERNAME_KEY];
                      }
-                     
-                     NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                        code:AD_ERROR_SERVER_WPJ_REQUIRED
-                                                    userInfo:userInfoDictionary];
-                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required" correlationId:_requestParams.correlationId];
+
+                     error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_WPJ_REQUIRED, @"work place join is required", nil, nil, nil, _requestParams.correlationId, userInfoDictionary);
                  }
 #else
                  code = end.absoluteString;
@@ -241,10 +238,7 @@
                      code = [parameters objectForKey:MSID_OAUTH2_CODE];
                      if ([NSString msidIsStringNilOrBlank:code])
                      {
-                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORIZATION_CODE
-                                                                        protocolCode:nil
-                                                                        errorDetails:@"The authorization server did not return a valid authorization code."
-                                                                       correlationId:[_requestParams correlationId]];
+                         error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_AUTHORIZATION_CODE, @"The authorization server did not return a valid authorization code.", nil, nil, nil, _requestParams.correlationId, nil);
                      }
                      
                      [self setCloudInstanceHostname:[parameters objectForKey:ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME]];
@@ -289,7 +283,7 @@
                                                               context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
-        [req sendRequest:^(ADAuthenticationError *error, NSDictionary * parameters)
+        [req sendRequest:^(NSError *error, NSDictionary * parameters)
          {
              if (error && ![parameters objectForKey:@"url"]) // auth code and OAuth2 error could be in endURL
              {

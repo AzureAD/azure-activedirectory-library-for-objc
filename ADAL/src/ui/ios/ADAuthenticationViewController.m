@@ -49,7 +49,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     [self loadView:nil];
 }
 
-- (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error
+- (BOOL)loadView:(NSError * __autoreleasing *)error
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
@@ -73,16 +73,9 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
     if (!_parentController)
     {
-        // Must have a parent view controller to start the authentication view
-        ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER
-                                               protocolCode:nil
-                                               errorDetails:AD_FAILED_NO_CONTROLLER
-                                              correlationId:nil];
-
         if (error)
         {
-            *error = adError;
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER, AD_FAILED_NO_CONTROLLER, nil, nil, nil, nil, nil);;
         }
         return NO;
     }

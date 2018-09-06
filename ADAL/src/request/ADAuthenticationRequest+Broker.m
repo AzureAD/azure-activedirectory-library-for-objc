@@ -159,7 +159,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     @return The result contained in the broker response, nil if the URL could not be processed
  */
 + (ADAuthenticationResult *)processBrokerResponse:(NSURL *)response
-                                            error:(ADAuthenticationError * __autoreleasing *)error
+                                            error:(NSError * __autoreleasing *)error
 {
 #if TARGET_OS_IPHONE
 
@@ -204,7 +204,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         NSMutableDictionary *brokerResponse = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
         if (queryParamsMap[ADAL_BROKER_INTUNE_HASH_KEY] && queryParamsMap[ADAL_BROKER_INTUNE_RESPONSE_KEY])
         {
-            ADAuthenticationError *intuneTokenError = nil;
+            NSError *intuneTokenError = nil;
             NSDictionary *responseDictionary = @{ADAL_BROKER_RESPONSE_KEY:queryParamsMap[ADAL_BROKER_INTUNE_RESPONSE_KEY],
                                                  ADAL_BROKER_HASH_KEY:queryParamsMap[ADAL_BROKER_INTUNE_HASH_KEY],
                                                  ADAL_BROKER_MESSAGE_VERSION:queryParamsMap[ADAL_BROKER_MESSAGE_VERSION] ? queryParamsMap[ADAL_BROKER_MESSAGE_VERSION] : @1};
@@ -262,7 +262,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
         if (msidError)
         {
-            return [ADAuthenticationResult resultFromMSIDError:msidError];
+            return [ADAuthenticationResult resultFromError:msidError];
         }
         else
         {
@@ -274,7 +274,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     // accidentally going to the wrong app
     s_brokerProtocolVersion = [queryParamsMap valueForKey:ADAL_BROKER_MESSAGE_VERSION];
 
-    ADAuthenticationError *decryptionError = nil;
+    NSError *decryptionError = nil;
     queryParamsMap = [ADBrokerKeyHelper decryptBrokerResponse:queryParamsMap correlationId:correlationId error:&decryptionError];
 
     if(decryptionError)
@@ -282,7 +282,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);
         if (error)
         {
-            (*error) = decryptionError;
+            *error = decryptionError;
         }
         return nil;
     }
@@ -292,7 +292,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     
     if (msidError)
     {
-        return [ADAuthenticationResult resultFromMSIDError:msidError];
+        return [ADAuthenticationResult resultFromError:msidError];
     }
     
     s_brokerAppVersion = brokerResponse.brokerAppVer;
@@ -313,7 +313,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         
         if (!saveResult)
         {
-            return [ADAuthenticationResult resultFromMSIDError:msidError];
+            return [ADAuthenticationResult resultFromError:msidError];
         }
         
         NSString *userId = [[[result tokenCacheItem] userInformation] userId];
@@ -334,7 +334,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker] && ![MSIDAuthority isADFSInstance:_requestParams.authority];
 }
 
-- (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error
+- (NSURL *)composeBrokerRequest:(NSError* __autoreleasing *)error
 {
     ARG_RETURN_IF_NIL(_requestParams.authority, _requestParams.correlationId);
     ARG_RETURN_IF_NIL(_requestParams.resource, _requestParams.correlationId);

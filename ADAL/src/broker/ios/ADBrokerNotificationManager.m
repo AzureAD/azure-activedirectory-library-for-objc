@@ -23,6 +23,7 @@
 
 #import "ADBrokerNotificationManager.h"
 #import "ADAL_Internal.h"
+#import "MSIDError.h"
 #import "ADAuthenticationResult+Internal.h"
 @interface ADBrokerNotificationManager ()
 {
@@ -129,10 +130,7 @@
     // in the broker and we should let whoever is waiting on an ADAL response know it's not coming.
     if(callback)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED
-                                                                                protocolCode:nil
-                                                                                errorDetails:@"application did not receive response from broker."
-                                                                               correlationId:nil];
+        NSError *adError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED, @"application did not receive response from broker.", nil, nil, nil, nil, nil);
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
         callback(result);
     }

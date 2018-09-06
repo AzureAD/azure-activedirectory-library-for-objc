@@ -40,15 +40,30 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString msidIsStringNilOrBlank:(NSString*)argumentValue]))
     {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:nil];
+        NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", argumentName, argumentValue];
+        NSError *argumentError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, nil, nil);
         *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
         return NO;
     }
     
     return YES;
 }
+
+/*
+
+ //Constructs the applicable message and return the error:
+ NSString* errorMessage = [NSString stringWithFormat:ADInvalidArgumentMessage, argumentName, argumentValue];
+ return [self errorWithDomainInternal:ADAuthenticationErrorDomain
+ code:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+ protocolErrorCode:nil
+ errorDetails:errorMessage
+ correlationId:correlationId
+ userInfo:nil];
+
+ */
+
 //Obtains a protocol error from the response:
-+ (ADAuthenticationError*)errorFromDictionary:(NSDictionary*)dictionary
++ (NSError *)errorFromDictionary:(NSDictionary*)dictionary
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
@@ -67,12 +82,8 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
         }
-        
-        return [ADAuthenticationError OAuthServerError:serverOAuth2Error
-                                           description:errorDetails
-                                                  code:code
-                                         correlationId:correlationId
-                                              userInfo:suberror ? @{ADSuberrorKey:suberror} : nil];
+
+        return MSIDCreateError(ADOAuthServerErrorDomain, code, errorDetails, serverOAuth2Error, suberror, nil, correlationId, nil);
     }
     
     return nil;
@@ -96,7 +107,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     // Protocol Code is used for OAuth errors (and should only be used for OAuth errors...). If we
     // received an OAuth error that means that the server is up and responsive, just that something
     // about the token was bad.
-    if (result.error && !result.error.protocolCode)
+    if (result.error && !result.error.userInfo[ADOauthErrorCodeKey])
     {
         return YES;
     }
@@ -133,11 +144,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 {
     if (!result)
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                               protocolCode:nil
-                                               errorDetails:@"ADAuthenticationResult is nil"
-                                              correlationId:nil];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @"ADAuthenticationResult is nil", nil, nil, nil, nil, nil);
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
@@ -157,11 +164,8 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     
     if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER
-                                               protocolCode:nil
-                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls."
-                                              correlationId:nil];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_WRONG_USER, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, nil, nil);
+
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     

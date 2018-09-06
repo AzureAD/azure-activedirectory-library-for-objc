@@ -125,7 +125,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 #pragma mark - Private Methods
 
-- (void)dispatchCompletionBlock:(ADAuthenticationError *)error URL:(NSURL *)url
+- (void)dispatchCompletionBlock:(NSError *)error URL:(NSURL *)url
 {
     // NOTE: It is possible that competition between a successful completion
     //       and the user cancelling the authentication dialog can
@@ -142,7 +142,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     if ( _completionBlock )
     {
-        void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
+        void (^completionBlock)( NSError *, NSURL *) = _completionBlock;
         _completionBlock = nil;
         
         dispatch_async( dispatch_get_main_queue(), ^{
@@ -184,7 +184,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [_authenticationViewController loadRequest:responseUrl];
 }
 
-- (BOOL)endWebAuthenticationWithError:(ADAuthenticationError*) error
+- (BOOL)endWebAuthenticationWithError:(NSError*) error
                                 orURL:(NSURL*)endURL
 {
     if (!_authenticationViewController)
@@ -342,7 +342,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         MSID_LOG_ERROR(nil, @"Server is redirecting to a non-https url");
         _complete = YES;
-        ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_requestParams.correlationId];
+
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_NON_HTTPS_REDIRECT, @"The server has redirected to a non-https url.", nil, nil, nil, _requestParams.correlationId, nil);
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
         
         return NO;
@@ -362,8 +363,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     MSID_LOG_INFO(_requestParams, @"-webAuthDidCancel");
     
     // Dispatch the completion block
-    
-    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:_requestParams.correlationId];
+    NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UI_USER_CANCEL, @"The user has cancelled the authorization.", nil, nil, nil, _requestParams.correlationId, nil);
     [self endWebAuthenticationWithError:error orURL:nil];
 }
 
@@ -449,9 +449,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     // Dispatch the completion block
-    __block ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription correlationId:_requestParams.correlationId];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:adError orURL:nil]; });
+    dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:error orURL:nil]; });
 }
 
 #if TARGET_OS_IPHONE
@@ -554,7 +552,7 @@ static ADAuthenticationResult* s_result = nil;
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
-    ADAuthenticationError* error = nil;
+    NSError* error = nil;
     
     [ADURLProtocol registerProtocol:[endURL absoluteString] telemetryEvent:_telemetryEvent];
     

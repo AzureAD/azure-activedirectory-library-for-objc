@@ -161,7 +161,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                           userId:(NSString *)userId
                                    correlationId:(NSUUID *)correlationId
-                                           error:(ADAuthenticationError * __autoreleasing* )error
+                                           error:(NSError * __autoreleasing* )error
 {
     return [self.msidDataSourceWrapper getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     
@@ -170,14 +170,14 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 - (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheKey *)key
                              userId:(NSString *)userId
                       correlationId:(NSUUID *)correlationId
-                              error:(ADAuthenticationError * __autoreleasing *)error
+                              error:(NSError * __autoreleasing *)error
 {
     return [self.msidDataSourceWrapper getItemWithKey:key userId:userId correlationId:correlationId error:error];
 }
 
 - (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
           correlationId:(nullable NSUUID *)correlationId
-                  error:(ADAuthenticationError * __autoreleasing*)error
+                  error:(NSError * __autoreleasing*)error
 {
     return [self.msidDataSourceWrapper addOrUpdateItem:item correlationId:correlationId error:error];
 }
@@ -187,14 +187,14 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     return [self.msidDataSourceWrapper getWipeTokenData];
 }
 
-- (void)testRemoveAll:(ADAuthenticationError **)error
+- (void)testRemoveAll:(NSError **)error
 {
     NSError *cacheError = nil;
     [self.keychainTokenCache clearWithContext:nil error:&cacheError];
     
     if (cacheError && error)
     {
-        *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        *error = [ADAuthenticationError errorWithNSError:cacheError];
     }
 }
 

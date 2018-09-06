@@ -38,9 +38,8 @@
 
 - (id)initWithCancellation:(NSUUID*)correlationId
 {
-    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:correlationId];
-    
-    return [self initWithError:error status:AD_USER_CANCELLED correlationId:correlationId];
+    NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UI_USER_CANCEL, @"The user has cancelled the authorization.", nil, nil, nil, correlationId, nil);
+    return [self initWithError:[ADAuthenticationError errorWithNSError:error] status:AD_USER_CANCELLED correlationId:correlationId];
 }
 
 -(id) initWithItem: (ADTokenCacheItem*) item
@@ -84,8 +83,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     if (!item)
     {
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult was created with nil token item."
-                                                                        correlationId:correlationId];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UNEXPECTED, @"ADAuthenticationResult was created with nil token item.", nil, nil, nil, correlationId, nil);
         return [ADAuthenticationResult resultFromError:error];
     }
     
@@ -96,32 +94,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return result;
 }
 
-+(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
++ (ADAuthenticationResult *)resultFromError:(NSError *)error
 {
-    return [self resultFromError:error correlationId:nil];
+    return [self resultFromError:error correlationId:error.userInfo[ADCorrelationIdKey]];
 }
 
-+(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
-                             correlationId: (NSUUID*) correlationId
++ (ADAuthenticationResult *)resultFromError:(NSError *)error
+                              correlationId:(NSUUID *)correlationId
 {
-    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:error
-                                                                            status:AD_FAILED
-                                                                     correlationId:correlationId];
-    
-    return result;
-}
+    ADAuthenticationError *adError = [ADAuthenticationError errorWithNSError:error];
 
-+ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
-{
-    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
-    return [self resultFromError:adError];
-}
-
-+ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
-                                  correlationId:(NSUUID *)correlationId
-{
-    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
-    return [self resultFromError:adError correlationId:correlationId];
+    return [[ADAuthenticationResult alloc] initWithError:adError
+                                                  status:AD_FAILED
+                                           correlationId:correlationId];
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
@@ -132,12 +117,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
                                       correlationId:(NSUUID*)correlationId
 {
-    ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:details correlationId:correlationId];
-    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:adError
-                                                                            status:AD_FAILED
-                                                                     correlationId:correlationId];
-    
-    return result;
+    NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, details, nil, nil, nil, correlationId, nil);
+    return [self resultFromError:error correlationId:correlationId];
 }
 
 + (ADAuthenticationResult*)resultFromCancellation
@@ -153,12 +134,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 + (ADAuthenticationResult*)resultForNoBrokerResponse
 {
-    NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
-                                           code:AD_ERROR_TOKENBROKER_UNKNOWN
-                                       userInfo:nil];
-    ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:nsError
-                                                              errorDetails: @"No broker response received."
-                                                             correlationId:nil];
+    NSError *error = MSIDCreateError(ADBrokerResponseErrorDomain, AD_ERROR_TOKENBROKER_UNKNOWN, @"No broker response received.", nil, nil, nil, nil, nil);
     return [ADAuthenticationResult resultFromError:error correlationId:nil];
 }
 
@@ -172,7 +148,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     }
     
     // Otherwise parse out the error condition
-    ADAuthenticationError *error = nil;
+    NSError *error = nil;
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
     
     NSString *errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
@@ -224,16 +200,12 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
     {
         NSDictionary *httpHeaders = [NSDictionary msidURLFormDecode:[response valueForKey:@"http_headers"]];
-        error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
+        NSDictionary *userInfo = httpHeaders ? @{ADHTTPHeadersKey : httpHeaders} : nil;
+        error = MSIDCreateError(ADHTTPErrorCodeDomain, errorCode, errorDetails, nil, nil, nil, correlationId, userInfo);
     }
     else
     {
-        error = [ADAuthenticationError errorWithDomain:errorDomain
-                                                  code:errorCode
-                                     protocolErrorCode:protocolCode
-                                          errorDetails:errorDetails
-                                         correlationId:correlationId
-                                              userInfo:userInfo];
+        error = MSIDCreateError(errorDomain, errorCode, errorDetails, protocolCode, nil, nil, correlationId, userInfo);
     }
 
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
@@ -270,7 +242,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     if (!processResult)
     {
-        return [ADAuthenticationResult resultFromMSIDError:msidError];
+        return [ADAuthenticationResult resultFromError:msidError];
     }
     
     BOOL isMRRT = response.tokenResponse.isMultiResource;

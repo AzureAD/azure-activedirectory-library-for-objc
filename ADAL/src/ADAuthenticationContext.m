@@ -44,7 +44,7 @@
 #import "ADTokenCache.h"
 #import "MSIDAADV1Oauth2Factory.h"
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^ADAuthorizationCodeCallback)(NSString*, NSError*);
 
 // This variable is purposefully a global so that way we can more easily pull it out of the
 // symbols in a binary to detect what version of ADAL is being used without needing to
@@ -300,7 +300,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
 #define CHECK_STRING_ARG_BLOCK(_arg) \
     if ([NSString msidIsStringNilOrBlank:_arg]) { \
-        ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@#_arg " cannot be nil" correlationId:_correlationId]; \
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @#_arg " cannot be nil", nil, nil, nil, _correlationId, nil); \
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]); \
         return; \
     }

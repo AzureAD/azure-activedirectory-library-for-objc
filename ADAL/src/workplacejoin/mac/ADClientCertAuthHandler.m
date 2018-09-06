@@ -71,7 +71,7 @@
                   protocol:(ADURLProtocol *)protocol
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    ADAuthenticationError *adError = nil;
+    NSError *adError = nil;
     ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context error:&adError];
     if (!info || ![info isWorkPlaceJoined])
     {

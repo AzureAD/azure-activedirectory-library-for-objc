@@ -41,8 +41,17 @@
     [super tearDown];
 }
 
-- (void)testErrorConversion_whenPassInNil_shouldReturnNil {
-    NSError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:nil];
+- (void)testErrorConversion_whenPassInNilDomain_shouldReturnNil {
+    ADAuthenticationErrorConverter *converter = [ADAuthenticationErrorConverter new];
+    NSString *msidDomain = nil;
+    NSError *adalError = [converter errorWithDomain:msidDomain
+                                               code:0
+                                   errorDescription:nil
+                                         oauthError:nil
+                                           subError:nil
+                                    underlyingError:nil
+                                      correlationId:nil
+                                           userInfo:nil];
     XCTAssertNil(adalError);
 }
 
@@ -53,16 +62,16 @@
     NSError *underlyingError = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecItemNotFound userInfo:nil];
     NSUUID *correlationId = [NSUUID UUID];
     NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
-    
-    NSError *msidError = MSIDCreateError(MSIDErrorDomain,
-                                         errorCode,
-                                         errorDescription,
-                                         oauthError,
-                                         nil,
-                                         underlyingError,
-                                         correlationId,
-                                         @{MSIDHTTPHeadersKey : httpHeaders});
-    ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+
+    ADAuthenticationErrorConverter *converter = [ADAuthenticationErrorConverter new];
+    ADAuthenticationError *adalError = (ADAuthenticationError *) [converter errorWithDomain:MSIDErrorDomain
+                                                                                       code:errorCode
+                                                                           errorDescription:errorDescription
+                                                                                 oauthError:oauthError
+                                                                                   subError:nil
+                                                                            underlyingError:underlyingError
+                                                                              correlationId:correlationId
+                                                                                   userInfo:@{MSIDHTTPHeadersKey : httpHeaders}];
     
     XCTAssertNotNil(adalError);
     XCTAssertEqualObjects(adalError.domain, ADAuthenticationErrorDomain);
@@ -84,16 +93,16 @@
     NSError *underlyingError = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecItemNotFound userInfo:nil];
     NSUUID *correlationId = [NSUUID UUID];
     NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
-    
-    NSError *msidError = MSIDCreateError(domain,
-                                         errorCode,
-                                         errorDescription,
-                                         oauthError,
-                                         nil,
-                                         underlyingError,
-                                         correlationId,
-                                         @{MSIDHTTPHeadersKey : httpHeaders});
-    ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+
+    ADAuthenticationErrorConverter *converter = [ADAuthenticationErrorConverter new];
+    ADAuthenticationError *adalError = (ADAuthenticationError *) [converter errorWithDomain:domain
+                                                                                       code:errorCode
+                                                                           errorDescription:errorDescription
+                                                                                 oauthError:oauthError
+                                                                                   subError:nil
+                                                                            underlyingError:underlyingError
+                                                                              correlationId:correlationId
+                                                                                   userInfo:@{MSIDHTTPHeadersKey : httpHeaders}];
     
     XCTAssertNotNil(adalError);
     XCTAssertEqualObjects(adalError.domain, expectedDomain);

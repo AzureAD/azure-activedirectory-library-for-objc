@@ -25,7 +25,7 @@
 
 @implementation ADKeychainUtil
 
-+ (NSString*)keychainTeamId:(ADAuthenticationError* __autoreleasing *)error
++ (NSString*)keychainTeamId:(NSError* __autoreleasing *)error
 {
     static dispatch_once_t s_once;
     static NSString* s_keychainTeamId = nil;
@@ -47,7 +47,7 @@
     return s_keychainTeamId;
 }
 
-+ (NSString*)retrieveTeamIDFromKeychain:(ADAuthenticationError * __autoreleasing *)error
++ (NSString*)retrieveTeamIDFromKeychain:(NSError * __autoreleasing *)error
 {
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
                              (id)kSecAttrAccount : @"teamIDHint",
@@ -66,7 +66,8 @@
     
     if (status != errSecSuccess)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID" status:status correlationId:nil];
+        NSString *details = @"Keychain failed during \"%@\" team ID";
+        NSError *adError = MSIDCreateError(ADKeychainErrorDomain, status, details, nil, nil, nil, nil, nil);
         if (error)
         {
             *error = adError;

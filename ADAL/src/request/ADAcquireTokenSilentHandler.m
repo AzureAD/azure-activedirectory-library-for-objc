@@ -143,7 +143,7 @@
     {
         NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
         NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
-        ADAuthenticationError *error = nil;
+        NSError *error = nil;
         NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
                                                                           userID:userId
                                                                            error:&error];
@@ -161,7 +161,7 @@
     MSID_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
     MSID_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
     
-    [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
+    [webReq sendRequest:^(NSError *error, NSDictionary *response)
      {
          if (error)
          {
@@ -178,7 +178,8 @@
          
          if (msidError)
          {
-             completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:_requestParams.correlationId]);
+             completionBlock([ADAuthenticationResult resultFromError:msidError
+                                                       correlationId:_requestParams.correlationId]);
              return;
          }
          
@@ -246,9 +247,9 @@
          
          if (result.status == AD_FAILED)
          {
-             if (result.error.protocolCode)
+             if (result.error.userInfo[ADOauthErrorCodeKey])
              {
-                 resultStatus = [NSString stringWithFormat:@"Failed (%@)", result.error.protocolCode];
+                 resultStatus = [NSString stringWithFormat:@"Failed (%@)", result.error.userInfo[ADOauthErrorCodeKey]];
              }
              else
              {
@@ -301,7 +302,8 @@
     // If some error ocurred during the cache lookup then we need to fail out right away.
     if (msidError)
     {
-        completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:correlationId]);
+        completionBlock([ADAuthenticationResult resultFromError:msidError
+                                                  correlationId:correlationId]);
         return;
     }
 
@@ -318,7 +320,8 @@
         
         if (msidError)
         {
-            completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:correlationId]);
+            completionBlock([ADAuthenticationResult resultFromError:msidError
+                                                      correlationId:correlationId]);
             return;
         }
 
@@ -374,7 +377,8 @@
             if (!result)
             {
                 // If we failed to remove the item with an error, then return that error right away
-                completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
+                completionBlock([ADAuthenticationResult resultFromError:msidError
+                                                          correlationId:[_requestParams correlationId]]);
                 return;
             }
         }
@@ -423,7 +427,8 @@
         
         if (!_mrrtItem && msidError)
         {
-            completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
+            completionBlock([ADAuthenticationResult resultFromError:msidError
+                                                      correlationId:[_requestParams correlationId]]);
             return;
         }
     }
@@ -491,7 +496,8 @@
     
     if (!refreshToken && msidError)
     {
-        completionBlock([ADAuthenticationResult resultFromMSIDError:msidError correlationId:[_requestParams correlationId]]);
+        completionBlock([ADAuthenticationResult resultFromError:msidError
+                                                  correlationId:[_requestParams correlationId]]);
         return;
     }
     

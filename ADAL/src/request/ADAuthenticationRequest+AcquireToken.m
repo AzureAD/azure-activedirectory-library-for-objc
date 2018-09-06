@@ -82,8 +82,8 @@
         else
         {
             ADAuthenticationError* error = result.error;
-            MSID_LOG_INFO(_requestParams, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
-            MSID_LOG_INFO_PII(_requestParams, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
+            MSID_LOG_INFO(_requestParams, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.userInfo[ADOauthErrorCodeKey], logMessage);
+            MSID_LOG_INFO_PII(_requestParams, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.userInfo[ADOauthErrorCodeKey], error.userInfo[ADErrorDescriptionKey], logMessage, logMessagePII);
         }
 
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT
@@ -107,7 +107,7 @@
         [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? MSID_TELEMETRY_VALUE_YES:MSID_TELEMETRY_VALUE_NO];
         [event setErrorCode:[result.error code]];
         [event setErrorDomain:[result.error domain]];
-        [event setProtocolCode:[[result error] protocolCode]];
+        [event setProtocolCode:result.error.userInfo[ADOauthErrorCodeKey]];
         
         [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:event];
         //flush all events in the end of the acquireToken call
@@ -118,11 +118,7 @@
     
     if (_samlAssertion == nil && !_silent && ![NSThread isMainThread])
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_ON_MAIN_THREAD
-                                               protocolCode:nil
-                                               errorDetails:@"Interactive authentication requests must originate from the main thread"
-                                              correlationId:_requestParams.correlationId];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UI_NOT_ON_MAIN_THREAD, @"Interactive authentication requests must originate from the main thread", nil, nil, nil, _requestParams.correlationId, nil);
         
         wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
@@ -130,16 +126,12 @@
     
     if (![self checkExtraQueryParameters])
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                               protocolCode:nil
-                                               errorDetails:@"extraQueryParameters is not properly encoded. Please make sure it is URL encoded."
-                                              correlationId:_requestParams.correlationId];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @"extraQueryParameters is not properly encoded. Please make sure it is URL encoded.", nil, nil, nil, _requestParams.correlationId, nil);
         wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
     }
     
-    ADAuthenticationError *error = nil;
+    NSError *error = nil;
     if (![self checkClaims:&error])
     {
         wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
@@ -148,11 +140,7 @@
     
     if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
-                                               protocolCode:nil
-                                               errorDetails:ADRedirectUriInvalidError
-                                              correlationId:_requestParams.correlationId];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI, ADRedirectUriInvalidError, nil, nil, nil, _requestParams.correlationId, nil);
         wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
     }
@@ -162,7 +150,7 @@
     ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
     [authorityValidation checkAuthority:_requestParams
                       validateAuthority:_context.validateAuthority
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, NSError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION
                                                                         context:_requestParams];
@@ -198,7 +186,7 @@
     return url!=nil;
 }
 
-- (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
+- (BOOL)checkClaims:(NSError *__autoreleasing *)error
 {
     if ([NSString msidIsStringNilOrBlank:_claims])
     {
@@ -211,10 +199,7 @@
     {
         if (error)
         {
-            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                            protocolCode:nil
-                                                            errorDetails:@"Duplicate claims parameter is found in extraQueryParameters. Please remove it."
-                                                           correlationId:_requestParams.correlationId];
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil, nil, nil, _requestParams.correlationId, nil);
         }
         return NO;
     }
@@ -226,10 +211,7 @@
     {
         if (error)
         {
-            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                            protocolCode:nil
-                                                            errorDetails:@"claims is not properly encoded. Please make sure it is URL encoded."
-                                                           correlationId:_requestParams.correlationId];
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @"claims is not properly encoded. Please make sure it is URL encoded.", nil, nil, nil, _requestParams.correlationId, nil);
         }
         return NO;
     }
@@ -290,7 +272,7 @@
 
     if (_samlAssertion)
     {
-        [self requestTokenByAssertion:^(MSIDTokenResponse *response, ADAuthenticationError *error)
+        [self requestTokenByAssertion:^(MSIDTokenResponse *response, NSError *error)
         {
             ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
                                                                             fromRefreshToken:nil
@@ -317,12 +299,7 @@
         else
         {
             NSDictionary *underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-            ADAuthenticationError *error =
-            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
-                                                   protocolCode:nil
-                                                   errorDetails:ADCredentialsNeeded
-                                                       userInfo:underlyingError
-                                                  correlationId:correlationId];
+            NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_USER_INPUT_NEEDED, ADCredentialsNeeded, nil, nil, nil, _requestParams.correlationId, underlyingError);
             result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
         
@@ -338,11 +315,7 @@
         BOOL isEmbeddedWebView = (nil != _context.webView) && (AD_CREDENTIALS_EMBEDDED == _context.credentialsType);
         if (!isEmbeddedWebView)
         {
-            ADAuthenticationError* error =
-            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
-                                                   protocolCode:nil
-                                                   errorDetails:ADInteractionNotSupportedInExtension
-                                                  correlationId:correlationId];
+            NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION, ADInteractionNotSupportedInExtension, nil, nil, nil, _requestParams.correlationId, nil);
             ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
             completionBlock(result);
             return;
@@ -437,7 +410,7 @@
     
     // Get the code first:
     [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORIZATION_CODE];
-    [self requestCode:^(NSString * code, ADAuthenticationError *error)
+    [self requestCode:^(NSString * code, NSError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORIZATION_CODE
                                                                         context:_requestParams];
@@ -489,7 +462,7 @@
                  
                  [[MSIDTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
                  [self requestTokenByCode:code
-                          completionBlock:^(MSIDTokenResponse *response, ADAuthenticationError *error)
+                          completionBlock:^(MSIDTokenResponse *response, NSError *error)
                   {
                       ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
                                                                                       fromRefreshToken:nil
@@ -517,8 +490,9 @@
 {
     if (![code isKindOfClass:NSString.class] || [NSString msidIsStringNilOrBlank:code])
     {
-        ADAuthenticationError *error = [ADAuthenticationError errorFromArgument:code argumentName:@"code" correlationId:_requestParams.correlationId];
-        completionBlock(nil, error);
+        NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", @"code", code];
+        NSError *argumentError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, _requestParams.correlationId, nil);
+        completionBlock(nil, argumentError);
         return;
     }
     
@@ -542,7 +516,7 @@
 
     if (![MSIDAuthority isADFSInstance:_requestParams.authority])
     {
-        ADAuthenticationError *error = nil;
+        NSError *error = nil;
         NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
                                                                           userID:_requestParams.identifier.userId
                                                                            error:&error];

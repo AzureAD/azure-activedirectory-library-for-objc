@@ -39,7 +39,7 @@ NSWindowController
 @property (nonatomic) WebView * webView;
 #endif
 
-- (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error;
+- (BOOL)loadView:(NSError * __autoreleasing *)error;
 
 - (void)startRequest:(NSURLRequest *)request;
 - (void)loadRequest:(NSURLRequest *)request;

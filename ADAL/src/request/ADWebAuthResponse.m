@@ -271,11 +271,10 @@
     
     MSID_LOG_WARN(_request, @"HTTP Error %ld", (long)webResponse.statusCode);
     MSID_LOG_WARN_PII(_request, @"%@", errorData);
-    
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromHTTPErrorCode:webResponse.statusCode
-                                                                              body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
-                                                                           headers:webResponse.headers
-                                                                     correlationId:_request.correlationId];
+
+    NSDictionary *userInfo = webResponse.headers ? @{ADHTTPHeadersKey : webResponse.headers} : nil;
+    NSString *description = [NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length];
+    NSError *adError = MSIDCreateError(ADHTTPErrorCodeDomain, webResponse.statusCode, description, nil, nil, nil, _request.correlationId, userInfo);
     
     //Now add the information to the dictionary, so that the parser can extract it:
     [self handleADError:adError completionBlock:completionBlock];
@@ -295,9 +294,8 @@
     
     if (![jsonObject isKindOfClass:[NSDictionary class]])
     {
-        ADAuthenticationError* adError =
-        [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]
-                                         correlationId:_request.correlationId];
+        NSString *description = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
+        NSError *adError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UNEXPECTED, description, nil, nil, nil, _request.correlationId, nil);
         [self handleADError:adError completionBlock:completionBlock];
         return;
     }
@@ -417,20 +415,16 @@
     MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
 
     // System error
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error
-                                                                errorDetails:error.localizedDescription
-                                                               correlationId:_request.correlationId];
-    
-    [self handleADError:adError completionBlock:completionBlock];
+    [self handleADError:error completionBlock:completionBlock];
 }
 
-- (void)handleADError:(ADAuthenticationError*)adError
+- (void)handleADError:(NSError*)adError
       completionBlock:(ADWebResponseCallback)completionBlock
 {
     [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
                                                 startTime:[_request startTime]
                                             correlationId:_request.correlationId
-                                             errorDetails:[adError errorDetails]];
+                                             errorDetails:adError.userInfo[ADErrorDescriptionKey]];
     
     completionBlock(adError, _responseDictionary);
 }

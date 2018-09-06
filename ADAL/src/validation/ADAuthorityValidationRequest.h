@@ -43,7 +43,7 @@
 + (void)requestMetadataWithAuthority:(NSString *)authority
                          trustedHost:(NSString *)trustedHost
                              context:(id<MSIDRequestContext>)context
-                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
+                     completionBlock:(void (^)(NSDictionary *response, NSError *error))completionBlock;
 
 // Fetches the corresponding URL for the request
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost;

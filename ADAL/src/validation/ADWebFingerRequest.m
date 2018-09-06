@@ -30,7 +30,7 @@
 + (void)requestWebFinger:(NSString *)authenticationEndpoint
                authority:(NSString *)authority
                  context:(id<MSIDRequestContext>)context
-         completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
+         completionBlock:(void (^)(id result, NSError *error))completionBlock
 {
     NSURL *url = [self urlForWebFinger:authenticationEndpoint authority:authority];
     
@@ -38,7 +38,7 @@
     [webRequest setIsGetRequest:YES];
     [webRequest setAcceptOnlyOKResponse:YES];
     
-    [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
+    [webRequest sendRequest:^(NSError *error, NSMutableDictionary *response)
     {
         if (error)
         {

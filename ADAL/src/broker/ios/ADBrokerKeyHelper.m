@@ -31,6 +31,7 @@
 #import "ADPkeyAuthHelper.h"
 #import "MSIDOAuth2Constants.h"
 #import "ADHelpers.h"
+#import "MSIDError.h"
 
 static NSData* s_symmetricKeyOverride = nil;
 
@@ -43,12 +44,6 @@ enum {
 };
 
 static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
-
-#define UNEXPECTED_KEY_ERROR { \
-    if (error) { \
-        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"ADAL" code:AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY userInfo:nil] errorDetails:@"Could not create broker key." correlationId:nil]; \
-    } \
-}
 
 - (id)init
 {
@@ -64,7 +59,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     return self;
 }
 
-- (BOOL)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error
+- (BOOL)createBrokerKey:(NSError* __autoreleasing*)error
 {
     uint8_t * symmetricKey = NULL;
     OSStatus err = errSecSuccess;
@@ -72,7 +67,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     symmetricKey = calloc( 1, kChosenCipherKeySize * sizeof(uint8_t));
     if (!symmetricKey)
     {
-        UNEXPECTED_KEY_ERROR;
+        if (error)
+        {
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY, @"Could not create broker key.", nil, nil, nil, nil, nil);
+        }
         return NO;
     }
     
@@ -81,7 +79,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     {
         MSID_LOG_ERROR(nil, @"Failed to copy random bytes for broker key. Error code: %d", (int)err);
         
-        UNEXPECTED_KEY_ERROR;
+        if (error)
+        {
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY, @"Could not create broker key.", nil, nil, nil, nil, nil);
+        }
         free(symmetricKey);
         return NO;
     }
@@ -112,7 +113,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     if(err != errSecSuccess)
     {
-        UNEXPECTED_KEY_ERROR;
+        if (error)
+        {
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY, @"Could not create broker key.", nil, nil, nil, nil, nil);
+        }
         return NO;
     }
     
@@ -121,7 +125,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     return YES;
 }
 
-- (BOOL)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error
+- (BOOL)deleteSymmetricKey: (NSError* __autoreleasing*) error
 {
     OSStatus err = noErr;
     
@@ -139,12 +143,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     if(err != errSecSuccess && err != errSecItemNotFound)
     {
         NSString* details = [NSString stringWithFormat:@"Failed to delete broker key with error: %d", (int)err];
-        NSError* nserror = [NSError errorWithDomain:@"Could not delete broker key."
-                                               code:AD_ERROR_UNEXPECTED
-                                           userInfo:nil];
-        *error = [ADAuthenticationError errorFromNSError:nserror
-                                            errorDetails:details
-                                           correlationId:nil];
+        AUTH_ERROR(AD_ERROR_UNEXPECTED, details, nil);
         return NO;
     }
     
@@ -152,13 +151,13 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     return YES;
 }
 
-- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
+- (NSData*)getBrokerKey:(NSError* __autoreleasing*)error
 {
     return [self getBrokerKey:error
                        create:YES];
 }
 
-- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
+- (NSData*)getBrokerKey:(NSError* __autoreleasing*)error
                  create:(BOOL)createKeyIfDoesNotExist
 {
     OSStatus err = noErr;
@@ -202,7 +201,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 - (NSData*)decryptBrokerResponse:(NSData*)response
                          version:(NSInteger)version
-                          error:(ADAuthenticationError* __autoreleasing*)error
+                           error:(NSError* __autoreleasing*)error
 {
     NSData* keyData = [self getBrokerKey:error];
     const void* keyBytes = nil;
@@ -232,7 +231,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 - (NSData*)decryptBrokerResponse:(NSData *)response
                              key:(const void*)key
                             size:(size_t)size
-                           error:(ADAuthenticationError *__autoreleasing *)error
+                           error:(NSError *__autoreleasing *)error
 {
     NSUInteger dataLength = [response length];
     
@@ -262,14 +261,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
     
     free(buffer);
-    
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_DECRYPTION_FAILED
-                                                                            protocolCode:nil
-                                                                            errorDetails:@"Failed to decrypt the broker response"
-                                                                           correlationId:nil];
+
     if (error)
     {
-        *error = adError;
+        *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt the broker response", nil, nil, nil, nil, nil);
     }
     return nil;
 }
@@ -289,7 +284,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     s_symmetricKeyOverride = base64Key ? [NSString msidBase64UrlDecodeData:base64Key] : nil;
 }
 
-+ (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(ADAuthenticationError * __autoreleasing *)error
++ (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(NSError * __autoreleasing *)error
 {
     NSString *hash = [response valueForKey:ADAL_BROKER_HASH_KEY];
     if (!hash)
@@ -308,7 +303,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
     //decrypt response first
     ADBrokerKeyHelper *brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    ADAuthenticationError *decryptionError = nil;
+    NSError *decryptionError = nil;
     NSData *encryptedResponse = [NSString msidBase64UrlDecodeData:encryptedBase64Response ];
     NSData *decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
                                                     version:protocolVersion
@@ -316,7 +311,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
     if (!decrypted)
     {
-        AUTH_ERROR_UNDERLYING(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt broker message", decryptionError, correlationId)
+        if (error)
+        {
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt broker message", nil, nil, decryptionError, correlationId, nil);
+        }
         return nil;
     }
 

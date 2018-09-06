@@ -31,10 +31,11 @@
 { \
   if (status != noErr) \
   { \
-    ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:OPERATION status:status correlationId:context.correlationId];\
-    if (error) { *error = adError; } \
-    goto _error; \
-  } \
+        NSString *details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", OPERATION]; \
+        NSError *adError = MSIDCreateError(ADKeychainErrorDomain, status, details, nil, nil, nil, context.correlationId, nil); \
+        if (error) { *error = adError; } \
+        goto _error; \
+    } \
 }
 
 static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
@@ -42,7 +43,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
 @implementation ADWorkPlaceJoinUtil
 
 + (ADRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                    error:(ADAuthenticationError * __autoreleasing *)error
+                                                    error:(NSError * __autoreleasing *)error
 {
     ADRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
@@ -51,7 +52,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSString *certificateIssuer  = nil;
-    ADAuthenticationError *adError = nil;
+    NSError *adError = nil;
     
     if (error)
     {
@@ -97,12 +98,9 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     
     if (!identity || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
+        NSError *error = AUTH_ERR
         // The code above will catch missing security items, but not missing item attributes. These are caught here.
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:context.correlationId];
-        if (error)
-        {
-            *error = adError;
-        }
+        AUTH_ERROR(AD_ERROR_UNEXPECTED, @"Missing some piece of WPJ data", context.correlationId);
         goto _error;
     }
     
@@ -139,10 +137,10 @@ _error:
                identity:(SecIdentityRef __nullable * __nonnull)identity
                  issuer:(NSString * __nullable * __nonnull)issuer
                 context:(id<MSIDRequestContext>)context
-                error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                error:(NSError * __nullable __autoreleasing * __nullable)error
 {
     OSStatus status = noErr;
-    ADAuthenticationError *adError = nil;
+    NSError *adError = nil;
     NSData *issuerData = nil;
     NSDictionary *identityQuery = nil;
     CFDictionaryRef result = NULL;
@@ -220,7 +218,7 @@ _error:
 
 
 + (SecCertificateRef)copyWPJCertificateRef:(id<MSIDRequestContext>)context
-                                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                                     error:(NSError * __nullable __autoreleasing * __nullable)error
 {
     OSStatus status= noErr;
     SecCertificateRef certRef = NULL;

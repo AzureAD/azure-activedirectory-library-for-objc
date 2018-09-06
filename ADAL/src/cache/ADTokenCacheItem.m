@@ -92,14 +92,12 @@
     {
         return [ADTokenCacheKey keyWithAuthority:_storageAuthority
                                         resource:_resource
-                                        clientId:_clientId
-                                           error:error];
+                                        clientId:_clientId];
     }
     
     return [ADTokenCacheKey keyWithAuthority:_authority
                                     resource:_resource
-                                    clientId:_clientId
-                                       error:error];
+                                    clientId:_clientId];
 }
 
 - (BOOL)isExpired

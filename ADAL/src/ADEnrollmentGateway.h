@@ -23,22 +23,22 @@
 
 @interface ADEnrollmentGateway : NSObject
 
-+ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(ADAuthenticationError * __autoreleasing *)error;
-+ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(ADAuthenticationError * __autoreleasing *)error;
-+ (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString *)enrollmentIdForUserId:(NSString *)userId error:(NSError * __autoreleasing *)error;
++ (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId tenantId:(NSString *)tenantId error:(NSError * __autoreleasing *)error;
++ (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId error:(NSError * __autoreleasing *)error;
 
 /*! Returns all known Intune MAM Enrollments IDs as JSON*/
 + (NSString *)allEnrollmentIdsJSON;
 
 /*! Returns the first available enrollmentID if one is available */
-+ (NSString *)enrollmentIdIfAvailable:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString *)enrollmentIdIfAvailable:(NSError * __autoreleasing *)error;
 
 /*! Tries to find an enrollmentID for a homeAccountId first, then checks userID,
     then returns any enrollmentID available */
-+ (NSString*)enrollmentIDForHomeAccountId:(NSString*) homeAccountId userID:(NSString*) userID error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString*)enrollmentIDForHomeAccountId:(NSString*) homeAccountId userID:(NSString*) userID error:(NSError * __autoreleasing *)error;
 
 /*! Returns the Intune MAM resource for the associated authority*/
-+ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString *)intuneMAMResource:(NSURL *)authority error:(NSError * __autoreleasing *)error;
 
 /*! Returns all known Intune MAM authority:resource pairings as a JSON dictionary*/
 + (NSString *)allIntuneMAMResourcesJSON;

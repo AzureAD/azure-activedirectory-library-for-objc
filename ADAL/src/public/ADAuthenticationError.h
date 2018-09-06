@@ -35,6 +35,21 @@ extern NSString* const ADHTTPErrorCodeDomain;
 extern NSString* const ADOAuthServerErrorDomain;
 
 /*!
+    Following list of keys are part of the ADAuthenticationError userInfo.
+    They represent additional info about the error and can be useful in showing guidance to the user or investigating issues.
+
+    An example of usage:
+
+    if ([result.error.domain isEqualToString:ADAuthenticationErrorDomain]
+                && result.error.code == AD_ERROR_SERVER_USER_INPUT_NEEDED)
+    {
+        NSString *subError = result.error.userInfo[ADSuberrorKey];
+        NSString *oauthError = result.error.userInfo[ADOauthErrorCodeKey];
+        NSString *userId = result.error.userInfo[ADUserIdKey];
+    }
+ */
+
+/*!
  Contains all http headers returned from the http error response
  */
 extern NSString* const ADHTTPHeadersKey;
@@ -50,6 +65,18 @@ extern NSString* const ADBrokerVersionKey;
  Contains the UserID for which the error was generated
  */
 extern NSString* const ADUserIdKey;
+/*!
+ Contains the Oauth error code returned by the server.
+ */
+extern NSString* const ADOauthErrorCodeKey;
+/*!
+ The full details of the error. Can contain details from an inner error.
+ */
+extern NSString* const ADErrorDescriptionKey;
+/*!
+ The correlation id for the request.
+ */
+extern NSString* const ADCorrelationIdKey;
 
 @interface ADAuthenticationError : NSError
 {
@@ -58,9 +85,9 @@ extern NSString* const ADUserIdKey;
 }
 
 /*! The error code, returned by the server. Can be null. */
-@property (readonly) NSString* protocolCode;
+@property (readonly) NSString* protocolCode __attribute((deprecated("Use the ADOauthErrorCodeKey from error userInfo instead.")));
 
 /*! The full details of the error. Can contain details from an inner error. */
-@property (readonly) NSString* errorDetails;
+@property (readonly) NSString* errorDetails __attribute((deprecated("Use the ADErrorDescriptionKey from error userInfo instead.")));
 
 @end

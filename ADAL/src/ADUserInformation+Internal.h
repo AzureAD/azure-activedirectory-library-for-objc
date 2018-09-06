@@ -45,12 +45,10 @@ extern NSString *const ID_TOKEN_GUEST_ID;
  */
 + (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
                                     homeAccountId:(NSString *)homeAccountId
-                                            error:(ADAuthenticationError * __autoreleasing *)error;
+                                            error:(NSError * __autoreleasing *)error;
 
 - (id)initWithIdToken:(NSString *)idToken
         homeAccountId:(NSString *)homeAccountId
-                error:(ADAuthenticationError * __autoreleasing *)error;
-
-+ (ADAuthenticationError *)invalidIdTokenError;
+                error:(NSError * __autoreleasing *)error;
 
 @end

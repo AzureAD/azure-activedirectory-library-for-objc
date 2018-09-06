@@ -43,11 +43,11 @@ extern NSString* const UnauthorizedHTTStatusExpected;
 /*! Internal initializer, should be called only from within the class definitions
  or derived classes. */
 -(id) initInternalWithParameters: (NSDictionary*) extractedParameters
-                           error: (ADAuthenticationError* __autoreleasing*) error;
+                           error: (NSError* __autoreleasing*) error;
 
 /*! Internal method. Extracts the challenge parameters from the Bearer contents in the authorize header. 
  Returns nil in case of error and if "error" parameter is not nil, adds the error details to this parameter. */
 + (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
-                                       error: (ADAuthenticationError* __autoreleasing*) error;
+                                       error: (NSError* __autoreleasing*) error;
 
 @end

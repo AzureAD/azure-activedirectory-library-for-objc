@@ -60,7 +60,6 @@
 + (id)keyWithAuthority:(NSString *)authority
               resource:(NSString *)resource
               clientId:(NSString *)clientId
-                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     API_ENTRY;
     // Trim first for faster nil or empty checks. Also lowercase and trimming is

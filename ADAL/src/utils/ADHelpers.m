@@ -348,25 +348,23 @@
 /*! Check if it is a valid authority URL.
  Returns nil if it is valid. 
  Otherwise, returns an error if the protocol is not https or the authority is not a valid URL.*/
-+ (ADAuthenticationError *)checkAuthority:(NSString *)authority
-                            correlationId:(NSUUID *)correlationId
++ (NSError *)checkAuthority:(NSString *)authority
+              correlationId:(NSUUID *)correlationId
 {
     NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
     
-    ADAuthenticationError* adError = nil;
+    NSError* adError = nil;
     if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
     {
-        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority" correlationId:correlationId];
+        NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", @"authority", authority];
+        adError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, correlationId, nil);
     }
     else
     {
         NSArray* paths = fullUrl.pathComponents;
         if (paths.count < 2)
         {
-            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                             protocolCode:nil
-                                                             errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
-                                                            correlationId:correlationId];
+            adError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com.", nil, nil, nil, correlationId, nil);
         }
     }
     return adError;

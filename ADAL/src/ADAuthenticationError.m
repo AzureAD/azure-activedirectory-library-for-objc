@@ -34,6 +34,9 @@ NSString* const ADHTTPHeadersKey = @"ADHTTPHeadersKey";
 NSString* const ADSuberrorKey = @"ADSuberrorKey";
 NSString* const ADBrokerVersionKey = @"ADBrokerVersionKey";
 NSString* const ADUserIdKey = @"ADUserIdKey";
+NSString* const ADOauthErrorCodeKey = @"ADOauthErrorCodeKey";
+NSString* const ADErrorDescriptionKey = @"ADErrorDescriptionKey";
+NSString* const ADCorrelationIdKey = @"ADCorrelationIdKey";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
@@ -72,8 +75,29 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     NSString* codeStr = [self getStringForErrorCode:self.code domain:self.domain];
     
     return [NSString stringWithFormat:@"Error with code: %@ Domain: %@ ProtocolCode:%@ Details:%@. Inner error details: %@",
-            codeStr, self.domain, self.protocolCode, self.errorDetails, superDescription];
+            codeStr, self.domain, self.userInfo[ADOauthErrorCodeKey], self.userInfo[ADErrorDescriptionKey], superDescription];
 }
+
+//////////////////
+
++ (ADAuthenticationError *)errorWithNSError:(NSError *)error
+{
+    return nil;
+}
+
++ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
+                                      code:(NSInteger)code
+                          errorDescription:(NSString *)errorDescription
+                                oauthError:(NSString *)oauthError
+                                  subError:(NSString *)subError
+                           underlyingError:(NSError *)underlyingError
+                             correlationId:(NSUUID *)correlationId
+                                  userInfo:(NSDictionary *)userInfo
+{
+    return nil;
+}
+
+//////////////////
 
 - (id)initInternalWithDomain:(NSString *)domain
                         code:(NSInteger)code
@@ -123,223 +147,6 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                             quiet:NO];
     return obj;
 }
-
-+ (ADAuthenticationError*)errorFromArgument:(id)argumentValue
-                               argumentName:(NSString *)argumentName
-                              correlationId:(NSUUID *)correlationId
-{
-    THROW_ON_NIL_EMPTY_ARGUMENT(argumentName);
-    
-    //Constructs the applicable message and return the error:
-    NSString* errorMessage = [NSString stringWithFormat:ADInvalidArgumentMessage, argumentName, argumentValue];
-    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
-                                    code:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                       protocolErrorCode:nil
-                            errorDetails:errorMessage
-                           correlationId:correlationId
-                                userInfo:nil];
-}
-
-+ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
-                                 correlationId:(nullable NSUUID *)correlationId
-{
-    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
-                                    code:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                       protocolErrorCode:nil
-                            errorDetails:details
-                           correlationId:correlationId
-                                userInfo:nil];
-}
-
-+ (ADAuthenticationError*)errorFromNSError:(NSError *)error
-                              errorDetails:(NSString *)errorDetails
-                             correlationId:(NSUUID *)correlationId
-{
-    return [self errorWithDomainInternal:error.domain
-                                    code:error.code
-                       protocolErrorCode:nil
-                            errorDetails:errorDetails
-                           correlationId:correlationId
-                                userInfo:error.userInfo];
-}
-
-+ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
-                                      code:(NSInteger)code
-                         protocolErrorCode:(NSString *)protocolCode
-                              errorDetails:(NSString *)errorDetails
-                             correlationId:(NSUUID *)correlationId
-{
-    return [self errorWithDomainInternal:domain
-                                    code:code
-                       protocolErrorCode:protocolCode
-                            errorDetails:errorDetails
-                           correlationId:correlationId
-                                userInfo:nil];
-}
-
-+ (ADAuthenticationError *)errorWithDomain:(NSString *)domain
-                                      code:(NSInteger)code
-                         protocolErrorCode:(NSString *)protocolCode
-                              errorDetails:(NSString *)errorDetails
-                             correlationId:(NSUUID *)correlationId
-                                  userInfo:(NSDictionary *)userInfo
-{
-    return [self errorWithDomainInternal:domain
-                                    code:code
-                       protocolErrorCode:protocolCode
-                            errorDetails:errorDetails
-                           correlationId:correlationId
-                                userInfo:userInfo];
-}
-
-+ (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString *)protocolCode
-                                          errorDetails:(NSString *)errorDetails
-                                              userInfo:(NSDictionary *)userInfo
-                                         correlationId:(NSUUID *)correlationId
-{
-    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
-                                    code:code
-                       protocolErrorCode:protocolCode
-                            errorDetails:errorDetails
-                           correlationId:correlationId
-                                userInfo:userInfo];
-}
-
-+ (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString *)protocolCode
-                                          errorDetails:(NSString *)errorDetails
-                                         correlationId:(NSUUID *)correlationId
-{
-    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
-                                    code:code
-                       protocolErrorCode:protocolCode
-                            errorDetails:errorDetails
-                           correlationId:correlationId
-                                userInfo:nil];
-}
-
-+ (ADAuthenticationError*)errorQuietWithAuthenticationError:(NSInteger)code
-                                               protocolCode:(NSString*)protocolCode
-                                               errorDetails:(NSString*)errorDetails
-{
-    ADAuthenticationError* error =
-    [[ADAuthenticationError alloc] initInternalWithDomain:ADAuthenticationErrorDomain
-                                                     code:code
-                                             protocolCode:protocolCode
-                                             errorDetails:errorDetails
-                                            correlationId:nil
-                                                 userInfo:nil
-                                                    quiet:YES];
-    return error;
-}
-
-+ (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails
-                                    correlationId:(NSUUID *)correlationId
-{
-    return [self errorFromAuthenticationError:AD_ERROR_UNEXPECTED
-                                 protocolCode:nil
-                                 errorDetails:errorDetails
-                                correlationId:correlationId];
-}
-
-+ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId
-{
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_USER_CANCEL
-                                                  protocolCode:nil
-                                                  errorDetails:ADCancelError
-                                                 correlationId:correlationId];
-}
-
-+ (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId
-{
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_NON_HTTPS_REDIRECT
-                                                  protocolCode:nil
-                                                  errorDetails:ADNonHttpsRedirectError
-                                                 correlationId:correlationId];
-}
-
-+ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
-                                               status:(OSStatus)status
-                                        correlationId:(NSUUID *)correlationId
-{
-    NSString* details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", operation];
-    
-    return [self errorWithDomainInternal:ADKeychainErrorDomain
-                                    code:status
-                       protocolErrorCode:nil
-                            errorDetails:details
-                           correlationId:correlationId
-                                userInfo:nil];
-}
-
-+ (ADAuthenticationError *)errorFromHTTPErrorCode:(NSInteger)code
-                                             body:(NSString *)body
-                                          headers:(NSDictionary *)headers
-                                    correlationId:(NSUUID *)correlationId
-{
-    NSDictionary *userInfo = headers ? @{ADHTTPHeadersKey : headers} : nil;
-    
-    return [self errorWithDomainInternal:ADHTTPErrorCodeDomain
-                                    code:code
-                       protocolErrorCode:nil
-                            errorDetails:body
-                           correlationId:correlationId
-                                userInfo:userInfo];
-}
-
-+ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
-                                description:(NSString *)description
-                                       code:(NSInteger)code
-                              correlationId:(NSUUID *)correlationId
-{
-    return [self errorWithDomainInternal:ADOAuthServerErrorDomain
-                                    code:code
-                       protocolErrorCode:protocolCode
-                            errorDetails:description
-                           correlationId:correlationId
-                                userInfo:nil];
-}
-
-+ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
-                                description:(NSString *)description
-                                       code:(NSInteger)code
-                              correlationId:(NSUUID *)correlationId
-                                   userInfo:(NSDictionary *)userInfo
-{
-    return [self errorWithDomainInternal:ADOAuthServerErrorDomain
-                                    code:code
-                       protocolErrorCode:protocolCode
-                            errorDetails:description
-                           correlationId:correlationId
-                                userInfo:userInfo];
-}
-
-+ (ADAuthenticationError *)errorFromExistingError:(ADAuthenticationError *)error
-                                    correlationID:(NSUUID *) correlationId
-                               additionalUserInfo:(NSDictionary *)userInfo
-{
-    NSMutableDictionary* newUserInfo = [error userInfo] ? [[error userInfo] mutableCopy] : [[NSMutableDictionary alloc] initWithCapacity:[userInfo count]];
-    [newUserInfo addEntriesFromDictionary:userInfo];
-    return [self errorWithDomainInternal:error.domain
-                                    code:error.code
-                       protocolErrorCode:error.protocolCode
-                            errorDetails:error.errorDetails
-                           correlationId:correlationId
-                                userInfo:newUserInfo];
-}
-
-#if AD_BROKER
-+ (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
-                                                            correlationID:(NSUUID *) correlationId
-                                                                    token:(ADTokenCacheItem*) token
-{
-    NSDictionary *tokenDictionary = token ? @{@"ADMAMToken":token} : @{};
-    return [ADAuthenticationError errorFromExistingError:error
-                                           correlationID:correlationId
-                                      additionalUserInfo:tokenDictionary];
-}
-#endif
 
 - (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain

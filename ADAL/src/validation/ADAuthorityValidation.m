@@ -36,6 +36,7 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAuthority.h"
 #import "NSURL+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -133,7 +134,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSString *upn = requestParams.identifier.userId;
     NSString *authority = requestParams.authority;
     
-    ADAuthenticationError *error = [ADHelpers checkAuthority:authority correlationId:requestParams.correlationId];
+    NSError *error = [ADHelpers checkAuthority:authority correlationId:requestParams.correlationId];
     if (error)
     {
         completionBlock(NO, error);
@@ -143,9 +144,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     NSURL *authorityURL = [NSURL URLWithString:authority.lowercaseString];
     if (!authorityURL)
     {
-        error = [ADAuthenticationError errorFromArgument:authority
-                                            argumentName:@"authority"
-                                           correlationId:requestParams.correlationId];
+        NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", @"authority", authority];
+        error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, requestParams.correlationId, nil);
+
         completionBlock(NO, error);
         return;
     }
@@ -163,9 +164,8 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
         if ([NSString msidIsStringNilOrBlank:upnSuffix])
         {
-            error = [ADAuthenticationError errorFromArgument:upnSuffix
-                                                argumentName:@"user principal name"
-                                               correlationId:requestParams.correlationId];
+            NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", @"user principal name", upnSuffix];
+            error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, requestParams.correlationId, nil);
             completionBlock(NO, error);
             return;
         }
@@ -181,9 +181,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         // Validate AAD authority
         [self validateAADAuthority:authorityURL
                      requestParams:requestParams
-                   completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                   completionBlock:^(BOOL validated, NSError *error)
          {
-             if (!validateAuthority && error && [error.protocolCode isEqualToString:@"invalid_instance"])
+             if (!validateAuthority && error && [error.userInfo[ADOauthErrorCodeKey] isEqualToString:@"invalid_instance"])
              {
                  error = nil;
              }
@@ -206,7 +206,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
-        completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
+        completionBlock(record.validated, record.error);
         return;
     }
     
@@ -220,7 +220,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         [self requestAADValidation:authority
                      requestParams:requestParams
-                   completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                   completionBlock:^(BOOL validated, NSError *error)
          {
              
              // Because we're on a serialized queue here to ensure that we don't have more then one
@@ -257,7 +257,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority.msidHostWithPortIfNecessary];
     if (record)
     {
-        completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:record.error]);
+        completionBlock(record.validated, record.error);
         return;
     }
     
@@ -271,7 +271,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
                                                    trustedHost:trustedHost
                                                        context:requestParams
-                                               completionBlock:^(NSDictionary *response, ADAuthenticationError *error)
+                                               completionBlock:^(NSDictionary *response, NSError *error)
      {
          if (error)
          {
@@ -282,28 +282,34 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          NSString *oauthError = response[@"error"];
          if (![NSString msidIsStringNilOrBlank:oauthError])
          {
-             NSError *msidError =
-             MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
+             NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION, response[@"error_description"], oauthError, nil, nil, requestParams.correlationId, nil);
              
              // If the error is something other than invalid_instance then something wrong is happening
              // on the server.
              if ([oauthError isEqualToString:@"invalid_instance"])
              {
-                 [_aadCache addInvalidRecord:authority oauthError:msidError context:requestParams];
+                 [_aadCache addInvalidRecord:authority oauthError:error context:requestParams];
              }
              
-             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
+             completionBlock(NO, error);
              return;
          }
-         
+
+         NSString *openidConfigEndpoint = nil;
+
+         if (![NSString msidIsStringNilOrBlank:response[@"tenant_discovery_endpoint"]])
+         {
+             openidConfigEndpoint = response[@"tenant_discovery_endpoint"];
+         }
          
          NSError *msidError = nil;
          if (![_aadCache processMetadata:response[@"metadata"]
+                    openIdConfigEndpoint:[NSURL URLWithString:openidConfigEndpoint]
                                authority:authority
                                  context:requestParams
                                    error:&msidError])
          {
-             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
+             completionBlock(NO, msidError);
              return;
          }
          
@@ -332,7 +338,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     // DRS discovery
     [self requestDrsDiscovery:domain
                       context:requestParams
-              completionBlock:^(id result, ADAuthenticationError *error)
+              completionBlock:^(id result, NSError *error)
     {
         NSString *passiveAuthEndpoint = [self passiveEndpointFromDRSMetaData:result];
 
@@ -340,10 +346,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         {
             if (!error)
             {
-                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                               protocolCode:nil
-                                                               errorDetails:s_kDrsDiscoveryError
-                                                              correlationId:requestParams.correlationId];
+                error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION, s_kDrsDiscoveryError, nil, nil, nil, requestParams.correlationId, nil);
             }
             completionBlock(NO, error);
             return;
@@ -352,7 +355,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         [self requestWebFingerValidation:passiveAuthEndpoint
                                authority:authority
                                  context:requestParams
-                         completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                         completionBlock:^(BOOL validated, NSError *error)
         {
             if (validated)
             {
@@ -365,12 +368,12 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 - (void)requestDrsDiscovery:(NSString *)domain
                     context:(id<MSIDRequestContext>)context
-            completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
+            completionBlock:(void (^)(id result, NSError *error))completionBlock
 {
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                adfsType:AD_ADFS_ON_PREMS
                                                 context:context
-                                        completionBlock:^(id result, ADAuthenticationError *error)
+                                        completionBlock:^(id result, NSError *error)
      {
          if (result)
          {
@@ -381,7 +384,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                     adfsType:AD_ADFS_CLOUD
                                                      context:context
-                                             completionBlock:^(id result, ADAuthenticationError *error)
+                                             completionBlock:^(id result, NSError *error)
           {
               completionBlock(result, error);
           }];
@@ -393,12 +396,12 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 - (void)requestWebFingerValidation:(NSString *)passiveAuthEndpoint
                          authority:(NSURL *)authority
                            context:(id<MSIDRequestContext>)context
-                   completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
+                   completionBlock:(void (^)(BOOL validated, NSError *error))completionBlock
 {
     [ADWebFingerRequest requestWebFinger:passiveAuthEndpoint
                                authority:authority.absoluteString
                                  context:context
-                         completionBlock:^(id result, ADAuthenticationError *error)
+                         completionBlock:^(id result, NSError *error)
     {
                              
         BOOL validated = NO;
@@ -410,10 +413,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         if (!validated && !error)
         {
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                           protocolCode:nil
-                                                           errorDetails:s_kWebFingerError
-                                                          correlationId:[context correlationId]];
+            error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION, s_kWebFingerError, nil, nil, nil, [context correlationId], nil);
         }
         completionBlock(validated, error);
     }];

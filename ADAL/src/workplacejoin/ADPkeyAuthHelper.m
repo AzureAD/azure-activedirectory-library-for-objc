@@ -67,7 +67,7 @@
 + (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
                                 challengeData:(nullable NSDictionary*)challengeData
                                       context:(nullable id<MSIDRequestContext>)context
-                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                                        error:(NSError * __nullable __autoreleasing * __nullable)error
 {
     ADAuthenticationError* adError = nil;
     ADRegistrationInformation *info =

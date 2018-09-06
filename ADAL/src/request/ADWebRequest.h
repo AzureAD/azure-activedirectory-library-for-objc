@@ -26,7 +26,7 @@
 @class ADWebRequest;
 @class ADWebResponse;
 
-typedef void (^ADWebResponseCallback)(ADAuthenticationError *, NSMutableDictionary *);
+typedef void (^ADWebResponseCallback)(NSError *, NSMutableDictionary *);
 
 @interface ADWebRequest : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate, MSIDRequestContext>
 {

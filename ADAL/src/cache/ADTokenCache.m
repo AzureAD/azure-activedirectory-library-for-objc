@@ -144,7 +144,7 @@
     
     if (cacheError && error)
     {
-        *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:cacheError];
+        *error = [ADAuthenticationError errorWithNSError:cacheError];
     }
     
     return result;
@@ -164,7 +164,15 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    return [self.msidDataSourceWrapper allItems:error];
+    NSError *msidError = nil;
+    NSArray *results = [self.msidDataSourceWrapper allItems:&msidError];
+
+    if (error && msidError)
+    {
+        *error = [ADAuthenticationError errorWithNSError:msidError];
+    }
+
+    return results;
 }
 
 - (BOOL)removeAllForClientId:(NSString *)clientId

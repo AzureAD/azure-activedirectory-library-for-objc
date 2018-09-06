@@ -21,9 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#define CHECK_FOR_NIL(_val) \
-    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:[_requestParams correlationId]]]); return; }
-
 #import "ADAL_Internal.h"
 
 @class ADUserIdentifier;
@@ -46,8 +43,8 @@ extern NSString* const ADRedirectUriInvalidError;
                     argumentName:(NSString *)argumentName
             authenticationResult:(ADAuthenticationResult **)authenticationResult;
 
-+ (ADAuthenticationError*)errorFromDictionary:(NSDictionary *)dictionary
-                                    errorCode:(ADErrorCode)errorCode;
++ (NSError *)errorFromDictionary:(NSDictionary *)dictionary
+                       errorCode:(ADErrorCode)errorCode;
 
 + (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 

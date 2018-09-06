@@ -37,7 +37,7 @@
 + (void)requestWebFinger:(NSString *)authenticationEndpoint
                authority:(NSString *)authority
                  context:(id<MSIDRequestContext>)context
-         completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
+         completionBlock:(void (^)(id result, NSError *error))completionBlock;
 
 // Fetches the corresponding URL for the request
 + (NSURL *)urlForWebFinger:(NSString *)authenticationEndpoint authority:(NSString *)authority;

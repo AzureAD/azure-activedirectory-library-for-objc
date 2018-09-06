@@ -58,7 +58,7 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     [self loadView:nil];
 }
 
-- (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error
+- (BOOL)loadView:(NSError * __autoreleasing *)error
 {
     (void)error;
     

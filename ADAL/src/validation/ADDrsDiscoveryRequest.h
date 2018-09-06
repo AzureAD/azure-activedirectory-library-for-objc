@@ -51,7 +51,7 @@ typedef enum
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
                             adfsType:(AdfsType)type
                              context:(id<MSIDRequestContext>)context
-                     completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
+                     completionBlock:(void (^)(id result, NSError *error))completionBlock;
 
 // Fetches the corresponding URL for the request
 + (NSURL *)urlForDrsDiscoveryForDomain:(NSString *)domain adfsType:(AdfsType)type;

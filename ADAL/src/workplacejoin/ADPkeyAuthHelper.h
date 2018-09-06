@@ -35,7 +35,7 @@ typedef enum
 + (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
                                  challengeData:(nullable NSDictionary*)challengeData
                                        context:(nullable id<MSIDRequestContext>)context
-                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                                         error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 + (nonnull NSString*)computeThumbprint:(nonnull NSData*)data
                                 isSha2:(BOOL)isSha2;

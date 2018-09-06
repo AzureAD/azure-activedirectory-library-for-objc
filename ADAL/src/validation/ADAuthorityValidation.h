@@ -28,7 +28,7 @@
 @class MSIDAadAuthorityCache;
 
 /*! The completion block declaration. */
-typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
+typedef void(^ADAuthorityValidationCallback)(BOOL validated, NSError *error);
 
 /*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
  The class is thread-safe. */

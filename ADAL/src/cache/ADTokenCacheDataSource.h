@@ -38,7 +38,7 @@
 - (nullable ADTokenCacheItem *)getItemWithKey:(nonnull ADTokenCacheKey *)key
                                        userId:(nullable NSString *)userId
                                 correlationId:(nullable NSUUID *)correlationId
-                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                                        error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /*!
  @param key      The key of the item. May be nil, in which case all items that match
@@ -52,7 +52,7 @@
 - (nullable NSArray <ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
                                                     userId:(nullable NSString *)userId
                                              correlationId:(nullable NSUUID * )correlationId
-                                                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                                                     error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /*!
  Ensures the cache contains an item matching the passed in item, adding or updating the
@@ -65,7 +65,7 @@
  */
 - (BOOL)addOrUpdateItem:(nonnull ADTokenCacheItem *)item
           correlationId:(nullable NSUUID *)correlationId
-                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                  error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /*!
  @param  item    The item to remove from the cache
@@ -76,20 +76,20 @@
  look
  */
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+             error:(NSError * __nullable __autoreleasing * __nullable)error;
 
-- (nullable NSArray*)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (nullable NSArray*)allItems:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /* Removes all token cache items for a specific client from the keychain.
  */
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
-                       error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                       error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /* Removes all token cache items for a specific user and a specific clientId from the keychain
  */
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                   clientId:(NSString * __nonnull)clientId
-                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                     error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /*
  Removes all token cache items for a specific user from the keychain with
@@ -100,7 +100,7 @@
  It's not indended to be used as a way to reset or fix token cache.
  */
 - (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId
-                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                        error:(NSError * __nullable __autoreleasing * __nullable)error;
 
 /*!
  Returns any information present about last application, who wiped tokens, if present.

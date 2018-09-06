@@ -44,7 +44,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
 
 
 - (id)initInternalWithParameters:(NSDictionary *)extractedParameters
-                           error:(ADAuthenticationError * __autoreleasing *)error;
+                           error:(NSError * __autoreleasing *)error;
 
 {
     if (!(self = [super init]))
@@ -61,15 +61,12 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
     NSURL* testUrl = [NSURL URLWithString:authority];//Nil argument returns nil
     if (!testUrl)
     {
-        NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
-                                  OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                                                protocolCode:nil
-                                                                                errorDetails:errorDetails
-                                                                               correlationId:nil];
         if (error)
         {
-            *error = adError;
+            NSString *errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
+                                      OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
+
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT, errorDetails, nil, nil, nil, nil, nil);
         }
         return nil;
     }
@@ -81,18 +78,15 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
 }
 
 //Generates and returns an error
-+ (ADAuthenticationError *)invalidHeader:(NSString *)headerContents
++ (NSError *)invalidHeader:(NSString *)headerContents
 {
     NSString* errorDetails = [NSString stringWithFormat:InvalidHeader,
      OAuth2_Authenticate_Header, headerContents];
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                  protocolCode:nil
-                                                   errorDetails:errorDetails
-                                                  correlationId:nil];
+    return MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT, errorDetails, nil, nil, nil, nil, nil);
 }
 
 + (NSDictionary *)extractChallengeParameters:(NSString *)headerContents
-                                       error:(ADAuthenticationError * __autoreleasing *)error;
+                                       error:(NSError * __autoreleasing *)error;
 {
     NSMutableArray<NSString *> *items = [self extractItems:headerContents];
     

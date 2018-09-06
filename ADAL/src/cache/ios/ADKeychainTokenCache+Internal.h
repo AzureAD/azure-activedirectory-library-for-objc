@@ -30,6 +30,6 @@
 
 /*! This method should *only* be called in test code, it should never be called
     in production code */
-- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
+- (void)testRemoveAll:(NSError * __autoreleasing *)error;
 
 @end

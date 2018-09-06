@@ -57,7 +57,8 @@ static dispatch_semaphore_t s_interactionLock = nil;
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
-            *error = [ADAuthenticationError errorFromArgument:_X argumentName:@#_X correlationId:context.correlationId]; \
+            NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@",@#_X, _X]; \
+            *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, context.correlationId, nil);\
         } \
         return nil; \
     } \
@@ -71,7 +72,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
                                     tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
-                                         error:(ADAuthenticationError* __autoreleasing *)error
+                                         error:(NSError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL([requestParams clientId]);
@@ -317,10 +318,8 @@ static dispatch_semaphore_t s_interactionLock = nil;
     if (dispatch_semaphore_wait(s_interactionLock, DISPATCH_TIME_NOW) != 0)
     {
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
-                                                                              protocolCode:nil
-                                                                              errorDetails:message
-                                                                             correlationId:_requestParams.correlationId];
+
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS, message, nil, nil, nil, _requestParams.correlationId, nil);
         completionBlock([ADAuthenticationResult resultFromError:error]);
         return NO;
     }

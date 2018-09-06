@@ -26,6 +26,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
+#import "ADAuthenticationError+Internal.h"
 
 @implementation ADAuthenticationParameters
 
@@ -42,13 +43,10 @@
 
 + (void)raiseErrorWithCode:(ADErrorCode)code
                    details:(NSString *)details
-                     error:(ADAuthenticationError * __autoreleasing *)error
+                     error:(NSError * __autoreleasing *)error
 {
     //The error object should always be created to ensure propper logging, even if "error" is nil.
-    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromAuthenticationError:code
-                                                                                protocolCode:nil
-                                                                                errorDetails:details
-                                                                               correlationId:nil];
+    NSError* raisedError = MSIDCreateError(ADAuthenticationErrorDomain, code, details, nil, nil, nil, nil, nil);
     if (error)
     {
         *error = raisedError;
@@ -69,10 +67,10 @@
     if (!resourceUrl)
     {
         //Nil passed, just call the callback on the same thread with the error:
-        ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:resourceUrl
-                                                                   argumentName:@"resourceUrl"
-                                                                  correlationId:nil];
-        completion(nil, error);
+        NSString *errorMessage = [NSString stringWithFormat:@"The argument '%@' is invalid. Value:%@", @"resourceUrl", resourceUrl];
+        NSError *argumentError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, errorMessage, nil, nil, nil, nil, nil);
+
+        completion(nil, [ADAuthenticationError errorWithNSError:argumentError]);
         return;
     }
 
@@ -82,28 +80,24 @@
     MSID_LOG_VERBOSE_PII(nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {
-        ADAuthenticationError* adError = nil;
+        NSError* adError = nil;
         ADAuthenticationParameters* parameters = nil;
         if (error)
         {
-            adError = [ADAuthenticationError errorFromNSError:error
-                                                 errorDetails:[NSString stringWithFormat:ConnectionError, error.description]
-                                                correlationId:nil];
+            NSString *description = [NSString stringWithFormat:@"Connection error: %@", error.description];
+            adError = MSIDCreateError(error.domain, error.code, description, nil, nil, nil, nil, nil);
         }
         else if (HTTP_UNAUTHORIZED != response.statusCode)
         {
-            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED
-                                                             protocolCode:nil
-                                                             errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
-                                                                           response.statusCode]
-                                                            correlationId:nil];
+            NSString *errorDescription = [NSString stringWithFormat:UnauthorizedHTTStatusExpected, response.statusCode];
+            adError = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED, errorDescription, nil, nil, nil, nil, nil);
         }
         else
         {
             //Request coming, attempt to process it:
             parameters = [self parametersFromResponseHeaders:response.headers error:&adError];
         }
-        completion(parameters, adError);
+        completion(parameters, [ADAuthenticationError errorWithNSError:adError]);
         [request invalidate];
     }];
 }

@@ -57,8 +57,7 @@
     NSString* assertionType = [self assertionTypeString];
     if (!assertionType)
     {
-        ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@"Unrecognized assertion type."
-                                                                     correlationId:correlationId];
+        NSError *error = MSIDCreateError(ADAuthenticationErrorDomain, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @"Unrecognized assertion type.", nil, nil, nil, correlationId, nil);
         completionBlock(nil, error);
         return;
     }

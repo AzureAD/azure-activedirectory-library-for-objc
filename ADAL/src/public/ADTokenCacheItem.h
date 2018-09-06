@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
  so that the cached token can be tried first.*/
 - (BOOL)isExpired;
 
-/*! Returns YES if the user is not not set. */
+/*! Returns YES if the user is not set. */
 - (BOOL)isEmptyUser;
 
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be

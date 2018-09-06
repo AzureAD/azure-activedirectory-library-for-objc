@@ -24,32 +24,30 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "ADAuthenticationError.h"
 #import "MSIDError.h"
+#import "MSIDErrorConverter.h"
 
 static NSDictionary *s_errorDomainMapping;
 static NSDictionary *s_errorCodeMapping;
 static NSDictionary *s_userInfoKeyMapping;
 
-@interface ADAuthenticationError (ErrorConverterUtil)
-+ (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
-                                              code:(NSInteger)code
-                                 protocolErrorCode:(NSString *)protocolCode
-                                      errorDetails:(NSString *)details
-                                     correlationId:(NSUUID *)correlationId
-                                          userInfo:(NSDictionary *)userInfo;
-@end
-
 @implementation ADAuthenticationErrorConverter
+
++ (void)load
+{
+    MSIDErrorConverter.errorConverter = [ADAuthenticationErrorConverter new];
+}
 
 + (void)initialize
 {
     s_errorDomainMapping = @{
                              MSIDErrorDomain : ADAuthenticationErrorDomain,
                              MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
-                             MSIDKeychainErrorDomain : ADKeychainErrorDomain
+                             MSIDKeychainErrorDomain : ADKeychainErrorDomain,
+                             MSIDHttpErrorCodeDomain : ADAuthenticationErrorDomain
                              };
     
     s_errorCodeMapping = @{
-                           MSIDErrorDomain:@{
+                           ADAuthenticationErrorDomain:@{
                                    // General
                                    @(MSIDErrorInternal) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInvalidInternalParameter) : @(AD_ERROR_UNEXPECTED),
@@ -67,8 +65,9 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
                                    @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
+                                   @(MSIDErrorServerUnhandledResponse) : @(AD_ERROR_UNEXPECTED)
                                    },
-                           MSIDOAuthErrorDomain:@{
+                           ADOAuthServerErrorDomain:@{
                                    @(MSIDErrorInteractionRequired) : @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
                                    @(MSIDErrorServerOauth) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
@@ -79,7 +78,8 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
-                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
+                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
+                                   @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE)
                                    }
                            };
     
@@ -89,50 +89,60 @@ static NSDictionary *s_userInfoKeyMapping;
                              };
 }
 
-+ (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
+- (NSError *)errorWithDomain:(NSString *)domain
+                        code:(NSInteger)code
+            errorDescription:(NSString *)errorDescription
+                  oauthError:(NSString *)oauthError
+                    subError:(NSString *)subError
+             underlyingError:(NSError *)underlyingError
+               correlationId:(NSUUID *)correlationId
+                    userInfo:(NSDictionary *)userInfo
 {
-    if (!msidError)
+    if ([NSString msidIsStringNilOrBlank:domain])
     {
         return nil;
     }
-    
+
+    NSString *adalDomain = domain;
+
     // Map domain
-    NSString *domain = msidError.domain;
-    if (domain && s_errorDomainMapping[domain])
+    if (s_errorDomainMapping[domain])
     {
-        domain = s_errorDomainMapping[domain];
+        adalDomain = s_errorDomainMapping[domain];
     }
-    
+
     // Map errorCode
     // errorCode mapping is needed only if domain is in s_errorCodeMapping
-    NSInteger errorCode = msidError.code;
-    if (msidError.domain && msidError.code && s_errorCodeMapping[msidError.domain])
+    NSInteger errorCode = code;
+    if (errorCode && s_errorCodeMapping[adalDomain])
     {
-        NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
+        NSNumber *mappedErrorCode = s_errorCodeMapping[adalDomain][@(errorCode)];
         if (mappedErrorCode != nil)
         {
             errorCode = [mappedErrorCode integerValue];
         }
         else
         {
-            MSID_LOG_ERROR(nil, @"ADAuthenticationErrorConverter could not find the error code mapping entry for domain (%@) + error code (%ld).", msidError.domain, (long)msidError.code);
+            MSID_LOG_ERROR(nil, @"ADAuthenticationErrorConverter could not find the error code mapping entry for domain (%@) + error code (%ld).", domain, (long)code);
         }
     }
-    
-    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-    
-    for (NSString *key in [msidError.userInfo allKeys])
+
+    NSMutableDictionary *adalUserInfo = [NSMutableDictionary new];
+    adalUserInfo[NSUnderlyingErrorKey] = underlyingError;
+
+    for (NSString *key in [userInfo allKeys])
     {
         NSString *mappedKey = s_userInfoKeyMapping[key] ? s_userInfoKeyMapping[key] : key;
-        userInfo[mappedKey] = msidError.userInfo[key];
+        adalUserInfo[mappedKey] = userInfo[key];
     }
-    
-    return [ADAuthenticationError errorWithDomainInternal:domain
-                                                     code:errorCode
-                                        protocolErrorCode:msidError.userInfo[MSIDOAuthErrorKey]
-                                             errorDetails:msidError.userInfo[MSIDErrorDescriptionKey]
-                                            correlationId:msidError.userInfo[MSIDCorrelationIdKey]
-                                                 userInfo:userInfo];
+
+    if (errorDescription) adalUserInfo[ADErrorDescriptionKey] = errorDescription;
+    if (oauthError) adalUserInfo[ADOauthErrorCodeKey] = oauthError;
+    if (correlationId) adalUserInfo[ADCorrelationIdKey] = correlationId;
+
+    return [NSError errorWithDomain:adalDomain
+                               code:errorCode
+                           userInfo:adalUserInfo];
 }
 
 @end

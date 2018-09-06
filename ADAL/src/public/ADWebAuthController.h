@@ -63,7 +63,7 @@ extern NSString* ADWebAuthDidReceieveResponseFromBroker;
     ADRequestParameters* _requestParams;
     MSIDTelemetryUIEvent* _telemetryEvent;
     
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
+    void (^_completionBlock)( NSError *, NSURL *);
 }
 
 //Cancel the web authentication session which might be happening right now

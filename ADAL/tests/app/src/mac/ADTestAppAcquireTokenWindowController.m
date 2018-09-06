@@ -355,6 +355,15 @@
     
     [context acquireTokenSilentWithResource:resource clientId:clientId redirectUri:redirectUri userId:identifier.userId completionBlock:^(ADAuthenticationResult *result)
      {
+
+         if ([result.error.domain isEqualToString:ADAuthenticationErrorDomain]
+             && result.error.code == AD_ERROR_SERVER_USER_INPUT_NEEDED)
+         {
+             NSString *subError = result.error.userInfo[ADSuberrorKey];
+             NSString *oauthError = result.error.userInfo[ADOauthErrorCodeKey];
+             NSString *userId = result.error.userInfo[ADUserIdKey];
+         }
+
          if (fBlockHit)
          {
              [self showMultipleHitAlert];
