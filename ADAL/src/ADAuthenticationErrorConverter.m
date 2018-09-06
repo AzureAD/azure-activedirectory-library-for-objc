@@ -45,11 +45,12 @@ static NSDictionary *s_userInfoKeyMapping;
     s_errorDomainMapping = @{
                              MSIDErrorDomain : ADAuthenticationErrorDomain,
                              MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
-                             MSIDKeychainErrorDomain : ADKeychainErrorDomain
+                             MSIDKeychainErrorDomain : ADKeychainErrorDomain,
+                             MSIDHttpErrorCodeDomain : ADHTTPErrorCodeDomain
                              };
     
     s_errorCodeMapping = @{
-                           MSIDErrorDomain:@{
+                           ADAuthenticationErrorDomain:@{
                                    // General
                                    @(MSIDErrorInternal) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInvalidInternalParameter) : @(AD_ERROR_UNEXPECTED),
@@ -66,9 +67,9 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorSessionCanceledProgrammatically) : @(AD_ERROR_UI_USER_CANCEL),
                                    @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
-                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
+                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER)
                                    },
-                           MSIDOAuthErrorDomain:@{
+                           ADOAuthServerErrorDomain:@{
                                    @(MSIDErrorInteractionRequired) : @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
                                    @(MSIDErrorServerOauth) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
@@ -79,7 +80,11 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
-                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
+                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
+                                   @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE)
+                                   },
+                           ADHTTPErrorCodeDomain: @{
+                                   @(MSIDErrorServerUnhandledResponse) : @(AD_ERROR_UNEXPECTED)
                                    }
                            };
     
@@ -106,9 +111,9 @@ static NSDictionary *s_userInfoKeyMapping;
     // Map errorCode
     // errorCode mapping is needed only if domain is in s_errorCodeMapping
     NSInteger errorCode = msidError.code;
-    if (msidError.domain && msidError.code && s_errorCodeMapping[msidError.domain])
+    if (domain && msidError.code && s_errorCodeMapping[domain])
     {
-        NSNumber *mappedErrorCode = s_errorCodeMapping[msidError.domain][@(msidError.code)];
+        NSNumber *mappedErrorCode = s_errorCodeMapping[domain][@(msidError.code)];
         if (mappedErrorCode != nil)
         {
             errorCode = [mappedErrorCode integerValue];
@@ -126,12 +131,14 @@ static NSDictionary *s_userInfoKeyMapping;
         NSString *mappedKey = s_userInfoKeyMapping[key] ? s_userInfoKeyMapping[key] : key;
         userInfo[mappedKey] = msidError.userInfo[key];
     }
+
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:msidError.userInfo[MSIDCorrelationIdKey]];
     
     return [ADAuthenticationError errorWithDomainInternal:domain
                                                      code:errorCode
                                         protocolErrorCode:msidError.userInfo[MSIDOAuthErrorKey]
                                              errorDetails:msidError.userInfo[MSIDErrorDescriptionKey]
-                                            correlationId:msidError.userInfo[MSIDCorrelationIdKey]
+                                            correlationId:correlationId
                                                  userInfo:userInfo];
 }
 

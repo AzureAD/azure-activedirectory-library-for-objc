@@ -52,6 +52,7 @@
             ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
             
             XCTAssertNotEqual(error.code, errorCode);
+            XCTAssertNotEqualObjects(error.domain, msidError.domain);
             
         }
     }
