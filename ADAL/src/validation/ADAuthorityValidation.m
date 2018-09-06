@@ -36,6 +36,7 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAuthority.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -203,7 +204,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority.msidHostWithPortIfNecessary];
+    MSIDAuthorityCacheRecord *record = [_aadCache objectForKey:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
@@ -254,7 +255,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache objectForKey:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:record.error]);
@@ -302,19 +303,22 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
-         
-         NSError *msidError = nil;
-         if (![_aadCache processMetadata:response[@"metadata"]
-                    openIdConfigEndpoint:[NSURL URLWithString:response[@"tenant_discovery_endpoint"]]
-                               authority:authority
-                                 context:requestParams
-                                   error:&msidError])
-         {
-             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
-             return;
-         }
-         
-         completionBlock(YES, nil);
+
+         [_aadCache processMetadata:response[@"metadata"]
+               openIdConfigEndpoint:[NSURL URLWithString:response[@"tenant_discovery_endpoint"]]
+                          authority:authority
+                            context:requestParams
+                         completion:^(BOOL result, NSError *error)
+          {
+
+              if (!result)
+              {
+                  completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error]);
+                  return;
+              }
+
+              completionBlock(YES, nil);
+         }];
      }];
 }
 

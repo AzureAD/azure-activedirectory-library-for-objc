@@ -46,7 +46,7 @@ static NSDictionary *s_userInfoKeyMapping;
                              MSIDErrorDomain : ADAuthenticationErrorDomain,
                              MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
                              MSIDKeychainErrorDomain : ADKeychainErrorDomain,
-                             MSIDHttpErrorCodeDomain : ADAuthenticationErrorDomain
+                             MSIDHttpErrorCodeDomain : ADHTTPErrorCodeDomain
                              };
     
     s_errorCodeMapping = @{
@@ -67,8 +67,7 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorSessionCanceledProgrammatically) : @(AD_ERROR_UI_USER_CANCEL),
                                    @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
-                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
-                                   @(MSIDErrorServerUnhandledResponse) : @(AD_ERROR_UNEXPECTED)
+                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER)
                                    },
                            ADOAuthServerErrorDomain:@{
                                    @(MSIDErrorInteractionRequired) : @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
@@ -83,6 +82,9 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
                                    @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
                                    @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE)
+                                   },
+                           ADHTTPErrorCodeDomain: @{
+                                   @(MSIDErrorServerUnhandledResponse) : @(AD_ERROR_UNEXPECTED)
                                    }
                            };
     
