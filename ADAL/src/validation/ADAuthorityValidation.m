@@ -295,10 +295,17 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
-         
+
+         if ([NSString msidIsStringNilOrBlank:response[@"tenant_discovery_endpoint"]])
+         {
+             NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"Unexpected discovery response", nil, nil, nil, requestParams.correlationId, nil);
+             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
+             return;
+         }
          
          NSError *msidError = nil;
          if (![_aadCache processMetadata:response[@"metadata"]
+                    openIdConfigEndpoint:[NSURL URLWithString:response[@"tenant_discovery_endpoint"]]
                                authority:authority
                                  context:requestParams
                                    error:&msidError])
