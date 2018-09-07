@@ -596,10 +596,7 @@
     {
         MSID_LOG_INFO(nil, @"Opening a browser");
         MSID_LOG_INFO_PII(nil, @"Opening a browser - %@", browserURL);
-        dispatch_async( dispatch_get_main_queue(), ^{
-            [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
-        });
-        
+
         [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
     }
     else
