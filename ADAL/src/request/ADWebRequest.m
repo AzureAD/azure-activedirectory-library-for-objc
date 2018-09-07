@@ -147,7 +147,6 @@
            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
-    
     NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
     requestURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:requestURL context:self];
     

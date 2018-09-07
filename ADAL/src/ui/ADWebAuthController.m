@@ -105,8 +105,8 @@ static ADAuthenticationResult *s_result = nil;
 
     webviewConfig.loginHint = requestParams.identifier.userId;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
-
-    webviewConfig.extraQueryParameters = [NSDictionary msidDictionaryFromString:requestParams.extraQueryParameters];
+    
+    webviewConfig.extraQueryParameters = [self.class dictionaryFromQueryString:requestParams.extraQueryParameters];
     
     if (requestParams.claims)
     {
@@ -123,6 +123,46 @@ static ADAuthenticationResult *s_result = nil;
                                                                 context:requestParams
                                                       completionHandler:completionHandler];
 }
+
+//TODO: Replace with MSID utility
++ (NSDictionary *)dictionaryFromQueryString:(NSString *)string
+{
+    if ([NSString msidIsStringNilOrBlank:string])
+    {
+        return nil;
+    }
+    
+    NSArray *queries = [string componentsSeparatedByString:@"&"];
+    NSMutableDictionary *queryDict = [NSMutableDictionary new];
+    
+    for (NSString *query in queries)
+    {
+        NSArray *queryElements = [query componentsSeparatedByString:@"="];
+        if (queryElements.count > 2)
+        {
+            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value: %@", query);
+            continue;
+        }
+        
+        NSString *key = [queryElements[0] msidTrimmedString];
+        if ([NSString msidIsStringNilOrBlank:key])
+        {
+            MSID_LOG_WARN(nil, @"Query parameter must have a key");
+            continue;
+        }
+        
+        NSString *value = @"";
+        if (queryElements.count == 2)
+        {
+            value = [queryElements[1] msidTrimmedString];
+        }
+        
+        [queryDict setValue:value forKey:key];
+    }
+    
+    return queryDict;
+}
+
 
 #if TARGET_OS_IPHONE
 + (void)setInterruptedBrokerResult:(ADAuthenticationResult *)result
