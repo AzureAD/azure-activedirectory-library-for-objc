@@ -34,7 +34,6 @@
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
     _resultInfo.string = _resultInfoString ?: @"";
     _resultLogs.string = _resultLogsString ?: @"";
 }

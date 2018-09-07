@@ -99,7 +99,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _promptBehavior = AD_PROMPT_AUTO;
     
     // This line is here to suppress a analyzer warning, has no effect
-    _allowSilent = NO;
     _skipCache = NO;
     
     return self;
@@ -122,21 +121,21 @@ static dispatch_semaphore_t s_interactionLock = nil;
 - (void)setExtraQueryParameters:(NSString *)queryParams
 {
     CHECK_REQUEST_STARTED;
-    if (_queryParams == queryParams)
+    if (_requestParams.extraQueryParameters == queryParams)
     {
         return;
     }
-    _queryParams = [queryParams copy];
+    _requestParams.extraQueryParameters = [queryParams copy];
 }
 
 - (void)setClaims:(NSString *)claims
 {
     CHECK_REQUEST_STARTED;
-    if (_claims == claims)
+    if (_requestParams.claims == claims)
     {
         return;
     }
-    _claims = [claims copy];
+    _requestParams.claims = [claims copy];
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier
@@ -215,12 +214,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     // We knowingly do this mid-request when we have to change auth types
     // Thus no CHECK_REQUEST_STARTED
     [_requestParams setRedirectUri:redirectUri];
-}
-
-- (void)setAllowSilentRequests:(BOOL)allowSilent
-{
-    CHECK_REQUEST_STARTED;
-    _allowSilent = allowSilent;
 }
 
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential

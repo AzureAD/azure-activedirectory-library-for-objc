@@ -21,11 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADAutoPassedInWebViewController.h"
+#import <WebKit/WebKit.h>
 
-@interface ADCustomHeaderHandler : NSObject
+@interface ADAutoPassedInWebViewController ()
+{
+    WKWebView *_webview;
+}
+@end
 
-+(void) addCustomHeaderValue:(NSString*)value forHeaderKey:(NSString*)key forSingleUse:(BOOL)singleUse;
+@implementation ADAutoPassedInWebViewController
 
-+(void) applyCustomHeadersTo:(NSMutableURLRequest*) request;
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    _webview = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+     [self.view addSubview:_webview];
+    
+    self.passedInWebview = _webview;
+}
+
 @end

@@ -58,6 +58,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost
 {
+    //TODO: Replace with MSIDAADEndpointProvider method once available
     NSString *authorizationEndpoint = [authority.lowercaseString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX];
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};

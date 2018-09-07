@@ -28,6 +28,7 @@
 
 @class ADUserIdentifier;
 @protocol ADTokenCacheDataSource;
+@class MSIDOauth2Factory;
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -57,6 +58,8 @@ extern NSString* const ADRedirectUriInvalidError;
 
 + (ADAuthenticationResult*)updateResult:(ADAuthenticationResult *)result
                                  toUser:(ADUserIdentifier *)userId;
+
+@property (readonly) MSIDOauth2Factory *oauthFactory;
 
 @end
 

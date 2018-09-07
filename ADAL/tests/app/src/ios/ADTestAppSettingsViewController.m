@@ -25,10 +25,10 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppSettings.h"
 
+#import "MSIDWorkPlaceJoinUtil.h"
+
 // Internal ADAL headers
-#import "ADWorkPlaceJoinUtil.h"
 #import "ADKeychainUtil.h"
-#import "ADRegistrationInformation.h"
 
 static NSArray* s_profileRows = nil;
 static NSArray* s_deviceRows = nil;
@@ -135,8 +135,8 @@ static NSArray* s_deviceRows = nil;
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    ADRegistrationInformation* regInfo =
-    [ADWorkPlaceJoinUtil getRegistrationInformation:nil error:nil];
+    MSIDRegistrationInformation *regInfo =
+    [MSIDWorkPlaceJoinUtil getRegistrationInformation:nil error:nil];
     
     NSString* wpjLabel = @"No WPJ Registration Found";
     

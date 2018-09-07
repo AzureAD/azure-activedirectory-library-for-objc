@@ -30,7 +30,6 @@
 #import "ADWebAuthController.h"
 #import "ADTestAppCache.h"
 
-
 @interface ADTestAppAcquireTokenWindowController ()
 
 @end
@@ -109,6 +108,11 @@
     
     [self populateProfiles];
     [self populateCurrentProfile];
+    
+    
+    _webview = [[WKWebView alloc] initWithFrame:_contentWebView.bounds];
+    _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    [_contentWebView addSubview:_webview];
 }
 
 - (IBAction)setIdentifierType:(id)sender
@@ -258,8 +262,8 @@
     
     if ([self embeddedWebView])
     {
-        [_webView.mainFrame loadHTMLString:@"<html><head></head><body>Loading...</body></html>" baseURL:nil];
-        [context setWebView:_webView];
+        [_webview loadHTMLString:@"<html><head></head><body>Loading...</body></html>" baseURL:nil];
+        [context setWebView:_webview];
         [_authView setFrame:self.window.contentView.frame];
         
         [_acquireSettingsView setHidden:YES];
@@ -289,7 +293,7 @@
              
              if ([_acquireSettingsView isHidden])
              {
-                 [_webView.mainFrame loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
+                 [_webview loadHTMLString:@"<html><head></head><body>Done</body></html>" baseURL:nil];
                  [_authView setHidden:YES];
                  [_acquireSettingsView setHidden:NO];
              }

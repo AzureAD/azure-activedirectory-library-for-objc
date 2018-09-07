@@ -27,8 +27,7 @@
             completion:(MSIDTokenResponseCallback)completionBlock;
 
 //Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;
+- (void)requestCode:(MSIDAuthorizationCodeCallback)completionBlock;
 
-- (NSString*)generateQueryStringForRequestType:(NSString*)requestType;
 
 @end

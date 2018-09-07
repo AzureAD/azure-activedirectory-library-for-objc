@@ -47,11 +47,35 @@
         self.requestTimeOut = 300;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
 #if TARGET_OS_IPHONE
+        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.enableFullScreen = YES;
+#pragma clang diagnostic pop
+        self.webviewPresentationStyle = UIModalPresentationFullScreen;
 #endif
     }
     return self;
 }
+
+#if TARGET_OS_IPHONE
+- (BOOL)enableFullScreen
+{
+    return _webviewPresentationStyle == UIModalPresentationFullScreen;
+}
+
+- (void)setEnableFullScreen:(BOOL)enableFullScreen
+{
+    if (enableFullScreen)
+    {
+        _webviewPresentationStyle = UIModalPresentationFullScreen;
+    }
+    else
+    {
+        _webviewPresentationStyle = UIModalPresentationFormSheet;
+    }
+}
+#endif
 
 +(ADAuthenticationSettings*)sharedInstance
 {
@@ -77,6 +101,7 @@
 {
     [ADKeychainTokenCache setDefaultKeychainGroup:keychainGroup];
 }
+
 #elif !TARGET_OS_IPHONE
 - (id<ADTokenCacheDelegate>)defaultStorageDelegate
 {

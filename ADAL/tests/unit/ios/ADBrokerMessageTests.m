@@ -28,7 +28,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "ADBrokerNotificationManager.h"
 #import "ADBrokerKeyHelper.h"
-#import "ADPkeyAuthHelper.h"
+#import "MSIDPkeyAuthHelper.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheItem.h"

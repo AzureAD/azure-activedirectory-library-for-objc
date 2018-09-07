@@ -21,19 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADURLProtocol.h"
+#import "ADALAutomation.h"
 
-@interface ADNegotiateHandler : NSObject <ADAuthMethodHandler>
+@class ADAutoRequestViewController;
+@class ADAutoPassedInWebViewController;
+@class ADAuthenticationContext;
+@protocol ADTokenCacheDataSource;
 
-// Handles a client authentication challenge by either using default handling or rejecting it, which clearly tells OS that it's not supported.
-// Always returns YES, OS will then try another auth method if that's available.
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                session:(NSURLSession *)session
-                   task:(NSURLSessionTask *)task
-               protocol:(ADURLProtocol *)protocol
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+@interface ADAutoBaseViewController: ADAutoViewController
 
-+ (void)resetHandler;
+@property (nonatomic) ADAutoRequestViewController *requestViewController;
+@property (nonatomic) WKWebView *webView;
+
+- (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
+- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
+- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
+- (id<ADTokenCacheDataSource>)cacheDatasource;
+- (void)clearCache;
+- (void)clearKeychain;
+- (void)openURL:(NSURL *)url;
 
 @end

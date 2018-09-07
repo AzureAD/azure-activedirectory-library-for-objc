@@ -34,7 +34,7 @@
     [super setUp];
 }
 
-- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMAMCAClaims_ADALWebView
+- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMAMCAClaims_withPassedInWebview
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
@@ -45,6 +45,7 @@
                              @"validate_authority" : @YES,
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
+                             @"web_view" : @"passed_in",
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -57,6 +58,7 @@
     params = @{
                @"user_identifier" : self.primaryAccount.account,
                @"claims": @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D",
+               @"web_view" : @"passed_in",
                };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -64,6 +66,41 @@
     // Acquire token again.
     [self acquireToken:config];
 
+    XCUIElement *getAppButton = self.testApp.buttons[@"Get the app"];
+    [self waitForElement:getAppButton];
+}
+
+- (void)testInteractiveAADLogin_withPromptAuto_withLoginHint_withMAMCAClaims_withADALWebview
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+    
+    NSDictionary *params = @{
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             };
+    
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+    
+    [self aadEnterPassword];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+    
+    params = @{
+               @"user_identifier" : self.primaryAccount.account,
+               @"claims": @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D",
+               };
+    
+    config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    
+    // Acquire token again.
+    [self acquireToken:config];
+    [self aadEnterPassword];
+    
     XCUIElement *getAppButton = self.testApp.buttons[@"Get the app"];
     [self waitForElement:getAppButton];
 }

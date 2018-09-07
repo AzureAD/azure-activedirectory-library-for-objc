@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
-        <plugIn identifier="com.apple.WebKitIBPlugin" version="14113"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -937,29 +936,11 @@
         <!--WebView-->
         <scene sceneID="3rp-x1-Apl">
             <objects>
-                <viewController title="WebView" id="GW6-7B-92m" customClass="ADAutoWebViewController" sceneMemberID="viewController">
+                <viewController title="WebView" id="GW6-7B-92m" customClass="ADAutoPassedInWebViewController" sceneMemberID="viewController">
                     <view key="view" id="3oh-oA-yZe">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <subviews>
-                            <webView translatesAutoresizingMaskIntoConstraints="NO" id="0l8-DV-vGS">
-                                <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
-                                <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO" javaScriptCanOpenWindowsAutomatically="NO">
-                                    <nil key="identifier"/>
-                                </webPreferences>
-                                <accessibility identifier="ADAL_SIGN_IN_WEBVIEW"/>
-                            </webView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstAttribute="trailing" secondItem="0l8-DV-vGS" secondAttribute="trailing" id="Aro-hF-le3"/>
-                            <constraint firstItem="0l8-DV-vGS" firstAttribute="top" secondItem="3oh-oA-yZe" secondAttribute="top" id="KWm-6j-Llh"/>
-                            <constraint firstItem="0l8-DV-vGS" firstAttribute="leading" secondItem="3oh-oA-yZe" secondAttribute="leading" id="t6H-ID-xKx"/>
-                            <constraint firstAttribute="bottom" secondItem="0l8-DV-vGS" secondAttribute="bottom" id="w5e-So-4KI"/>
-                        </constraints>
                     </view>
-                    <connections>
-                        <outlet property="webView" destination="0l8-DV-vGS" id="5Pl-UJ-zrS"/>
-                    </connections>
                 </viewController>
                 <customObject id="Xpv-qb-Cm7" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -1002,14 +983,14 @@
                             <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gDA-hi-P6X">
                                 <rect key="frame" x="10" y="347" width="430" height="300"/>
                                 <clipView key="contentView" id="jic-2h-J7Y">
-                                    <rect key="frame" x="1" y="1" width="428" height="298"/>
+                                    <rect key="frame" x="1" y="1" width="413" height="298"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="hDD-62-igb">
-                                            <rect key="frame" x="0.0" y="0.0" width="428" height="298"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="413" height="298"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="428" height="298"/>
+                                            <size key="minSize" width="413" height="298"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                             <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <accessibility identifier="resultInfo"/>
@@ -1025,21 +1006,21 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="xsn-4K-czT">
-                                    <rect key="frame" x="413" y="1" width="16" height="298"/>
+                                    <rect key="frame" x="414" y="1" width="15" height="298"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
                             <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LZC-y0-Ro7">
                                 <rect key="frame" x="10" y="10" width="430" height="300"/>
                                 <clipView key="contentView" id="IGH-9J-QrY">
-                                    <rect key="frame" x="1" y="1" width="428" height="298"/>
+                                    <rect key="frame" x="1" y="1" width="413" height="298"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="dZX-ws-hED">
-                                            <rect key="frame" x="0.0" y="0.0" width="428" height="298"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="413" height="298"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="428" height="298"/>
+                                            <size key="minSize" width="413" height="298"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                             <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <accessibility identifier="resultLogs"/>
@@ -1055,7 +1036,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="uj6-fn-Hyz">
-                                    <rect key="frame" x="413" y="1" width="16" height="298"/>
+                                    <rect key="frame" x="414" y="1" width="15" height="298"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
@@ -1117,14 +1098,14 @@
                             <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EB2-31-qlJ">
                                 <rect key="frame" x="10" y="10" width="430" height="300"/>
                                 <clipView key="contentView" id="wlC-Jw-BKw">
-                                    <rect key="frame" x="1" y="1" width="428" height="298"/>
+                                    <rect key="frame" x="1" y="1" width="413" height="298"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="cI4-MF-AhX">
-                                            <rect key="frame" x="0.0" y="0.0" width="428" height="298"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="413" height="298"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="428" height="298"/>
+                                            <size key="minSize" width="413" height="298"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                             <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <accessibility identifier="requestInfo"/>
@@ -1140,7 +1121,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="CmA-KZ-6BC">
-                                    <rect key="frame" x="413" y="1" width="16" height="298"/>
+                                    <rect key="frame" x="414" y="1" width="15" height="298"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>

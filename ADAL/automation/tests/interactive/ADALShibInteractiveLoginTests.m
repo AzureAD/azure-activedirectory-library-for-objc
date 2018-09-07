@@ -101,7 +101,7 @@
 
 - (void)shibEnterUsername
 {
-    XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
+    XCUIElement *usernameTextField = [self.testApp.textFields element];
     [self waitForElement:usernameTextField];
     [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
     [usernameTextField activateTextField];
@@ -110,7 +110,7 @@
 
 - (void)shibEnterPassword
 {
-    XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
+    XCUIElement *passwordTextField = [self.testApp.secureTextFields element];
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField activateTextField];

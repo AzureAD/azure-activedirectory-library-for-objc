@@ -48,23 +48,6 @@ extern NSString* ADWebAuthWillSwitchToBrokerApp;
 extern NSString* ADWebAuthDidReceieveResponseFromBroker;
 
 @interface ADWebAuthController : NSObject
-{
-    ADAuthenticationViewController * _authenticationViewController;
-    
-    NSLock * _completionLock;
-    NSString * _endURL;
-    
-    BOOL _loading;
-    // Used for managing the activity spinner
-    NSTimer* _spinnerTimer;
-    
-    BOOL _complete;
-    
-    ADRequestParameters* _requestParams;
-    MSIDTelemetryUIEvent* _telemetryEvent;
-    
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
-}
 
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on

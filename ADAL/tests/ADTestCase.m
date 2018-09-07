@@ -29,6 +29,7 @@
 #import "ADTestCase.h"
 #import "ADClientMetrics.h"
 #import "ADAuthorityValidation+TestUtil.h"
+#import "ADTestWebAuthController.h"
 
 #if TARGET_OS_IPHONE
 #import "ADApplicationTestUtil.h"
@@ -53,6 +54,7 @@
     [ADApplicationTestUtil reset];
 #endif
     
+    [ADTestWebAuthController reset];
     [super tearDown];
 }
 

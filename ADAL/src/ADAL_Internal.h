@@ -59,22 +59,12 @@
 
 @class ADAuthenticationResult;
 @class MSIDTokenResponse;
+@class MSIDWebviewResponse;
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^MSIDAuthorizationCodeCallback)(MSIDWebviewResponse *response, ADAuthenticationError *error);
 typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADAuthenticationError *error);
-
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
-
 
 #import "ADAuthenticationRequest.h"
 

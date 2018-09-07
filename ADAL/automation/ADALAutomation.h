@@ -21,13 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+typedef void (^ADAutoParamBlock)(NSDictionary<NSString *, NSString *> * parameters);
 
-@class ADRegistrationInformation;
+#import <WebKit/WebKit.h>
 
-@interface ADWorkPlaceJoinUtil : NSObject
-
-+ (ADRegistrationInformation*)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                   error:(ADAuthenticationError * __autoreleasing *)error;
-
-@end
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+@compatibility_alias ADAutoViewController UIViewController;
+#else
+#import <Cocoa/Cocoa.h>
+@compatibility_alias ADAutoViewController NSViewController;
+#endif

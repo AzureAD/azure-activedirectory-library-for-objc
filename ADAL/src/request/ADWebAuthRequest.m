@@ -23,10 +23,9 @@
 
 #import "ADWebAuthRequest.h"
 #import "ADWebAuthResponse.h"
-#import "ADWorkplaceJoinConstants.h"
 #import "ADClientMetrics.h"
 #import "ADWebResponse.h"
-#import "ADPkeyAuthHelper.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation ADWebAuthRequest
 
@@ -49,7 +48,7 @@
     
     // Mac OS does not use PKeyAuth.
 #if TARGET_OS_IPHONE
-    [_requestHeaders setObject:kADALPKeyAuthHeaderVersion forKey:kADALPKeyAuthHeader];
+    [_requestHeaders setObject:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
 #endif
     
     _retryIfServerError = YES;

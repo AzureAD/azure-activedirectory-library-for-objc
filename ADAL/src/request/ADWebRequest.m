@@ -31,7 +31,6 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryHttpEvent.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "ADURLProtocol.h"
 #import "ADWebResponse.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
@@ -148,7 +147,6 @@
            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
-    // If there is request data, then set the Content-Length header
     NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
     requestURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:requestURL context:self];
     
@@ -159,9 +157,7 @@
     request.HTTPMethod          = _isGetRequest ? @"GET" : @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
-    
-    [ADURLProtocol addContext:self toRequest:request];
-    
+
     _task = [_session dataTaskWithRequest:request];
     [_task resume];
 }
@@ -237,8 +233,7 @@
     }
 
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-    [ADURLProtocol addContext:self toRequest:mutableRequest];
-    
+   
     completionHandler(mutableRequest);
   
 }

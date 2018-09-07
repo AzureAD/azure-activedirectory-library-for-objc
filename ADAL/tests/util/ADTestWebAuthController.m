@@ -21,18 +21,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoWebViewController.h"
+#import "ADTestWebAuthController.h"
+#import "MSIDWebviewAuthorization.h"
 
-@interface ADAutoWebViewController ()
+#pragma mark -
+#pragma mark Overriding ADAuthenticationViewController for the test mock
+@implementation ADWebAuthController (TestWebviewOverride)
+
++ (void)startWithRequest:(ADRequestParameters *)requestParams
+          promptBehavior:(ADPromptBehavior)promptBehavior
+                 context:(ADAuthenticationContext *)context
+              completion:(MSIDWebviewAuthCompletionHandler)completionHandler
+{
+    if (ADTestWebAuthController.response)
+    {
+        completionHandler(ADTestWebAuthController.response, nil);
+        return;
+    }
+    
+    completionHandler(nil, ADTestWebAuthController.error);
+}
 
 @end
 
-@implementation ADAutoWebViewController
+@implementation ADTestWebAuthController
 
-- (void)viewDidLoad
+static MSIDWebviewResponse *s_response;
+static NSError *s_error;
+
++ (void)setResponse:(MSIDWebviewResponse *)response
 {
-    [super viewDidLoad];
-    self.webView.accessibilityLabel = @"ADAL_SIGN_IN_WEBVIEW";
+    s_response = response;
+}
+
++ (MSIDWebviewResponse *)response
+{
+    return s_response;
+}
+
++ (void)setError:(NSError *)error
+{
+    s_error = error;
+}
+
++ (NSError *)error
+{
+    return s_error;
+}
+
++ (void)reset
+{
+    s_error = nil;
+    s_response = nil;
 }
 
 @end

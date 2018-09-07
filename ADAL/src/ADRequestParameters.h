@@ -28,43 +28,24 @@
 @class MSIDAccountIdentifier;
 
 @interface ADRequestParameters : NSObject <MSIDRequestContext>
-{
-    NSString *_authority;
-    NSString *_resource;
-    NSString *_clientId;
-    NSString *_redirectUri;
-    NSString *_scopesString;
-    ADUserIdentifier *_identifier;
-    BOOL _extendedLifetime;
-    BOOL _forceRefresh;
-    NSUUID *_correlationId;
-    NSString *_telemetryRequestId;
-}
 
-@property (retain, nonatomic) NSString* authority;
-@property (retain, nonatomic) NSString* cloudAuthority;
-@property (retain, nonatomic) NSString* resource;
-@property (retain, nonatomic) NSString* clientId;
-@property (retain, nonatomic) NSString* redirectUri;
-@property (retain, nonatomic) NSString* scopesString;
-@property (retain, nonatomic) ADUserIdentifier* identifier;
+@property (retain, nonatomic) NSString *authority;
+@property (retain, nonatomic) NSString *cloudAuthority;
+@property (retain, nonatomic) NSString *resource;
+@property (retain, nonatomic) NSString *clientId;
+@property (retain, nonatomic) NSString *redirectUri;
+@property (retain, nonatomic) NSString *scopesString;
+@property (retain, nonatomic) ADUserIdentifier *identifier;
+@property (retain, nonatomic) NSString *claims;
+@property (retain, nonatomic) NSString *extraQueryParameters;
 @property BOOL extendedLifetime;
 @property BOOL forceRefresh;
-@property (retain, nonatomic) NSUUID* correlationId;
-@property (retain, nonatomic) NSString* telemetryRequestId;
-@property (retain, nonatomic) NSString* logComponent;
-@property (retain, nonatomic, readonly) NSString* openidScopesString;
+@property (retain, nonatomic) NSUUID *correlationId;
+@property (retain, nonatomic) NSString *telemetryRequestId;
+@property (retain, nonatomic) NSString *logComponent;
 @property (retain, nonatomic) MSIDAccountIdentifier *account;
-@property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 
-- (id)initWithAuthority:(NSString *)authority
-               resource:(NSString *)resource
-               clientId:(NSString *)clientId
-            redirectUri:(NSString *)redirectUri
-             identifier:(ADUserIdentifier *)identifier
-       extendedLifetime:(BOOL)extendedLifetime
-          correlationId:(NSUUID *)correlationId
-     telemetryRequestId:(NSString *)telemetryRequestId
-           logComponent:(NSString *)logComponent;
+- (NSString *)openIdScopesString;
+- (MSIDConfiguration *)msidConfig;
 
 @end

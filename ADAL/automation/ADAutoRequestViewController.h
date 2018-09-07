@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoViewController.h"
 #import "ADALAutomation.h"
 
 @interface ADAutoRequestViewController : ADAutoViewController
 
 #if TARGET_OS_IPHONE
-@property (strong, nonatomic) IBOutlet UITextView *requestInfo;
+@property (weak, nonatomic) IBOutlet UITextView *requestInfo;
+
 #else
 @property (strong, nonatomic) IBOutlet NSTextView *requestInfo;
 #endif

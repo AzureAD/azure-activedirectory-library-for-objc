@@ -191,11 +191,71 @@
                     </view>
                     <connections>
                         <segue destination="jTF-of-fQB" kind="show" identifier="showResult" animates="NO" id="T0l-uo-jyb"/>
+                        <segue destination="Yz8-X8-GVJ" kind="show" identifier="showRequest" animates="NO" id="i9Q-HG-KfV"/>
+                        <segue destination="yJg-6I-Sx3" kind="show" identifier="showPassedInWebview" id="NN9-6a-W5W"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="433" y="126"/>
+        </scene>
+        <!--Auto Request View Controller-->
+        <scene sceneID="aX6-qd-8Uf">
+            <objects>
+                <viewController id="Yz8-X8-GVJ" customClass="ADAutoRequestViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="5PQ-s2-JHl"/>
+                        <viewControllerLayoutGuide type="bottom" id="t5D-gW-jvf"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="U3b-LD-0ep">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hI1-4c-w5h">
+                                <rect key="frame" x="0.0" y="28" width="375" height="25"/>
+                                <color key="backgroundColor" red="0.1019607843" green="0.73725490199999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="PlE-PC-ILd"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="25" id="t6w-60-vxq"/>
+                                </constraints>
+                                <state key="normal" title="Go">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="requestGo"/>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="go:" destination="Yz8-X8-GVJ" eventType="touchUpInside" id="hBx-le-ai1"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="exH-zA-Xla">
+                                <rect key="frame" x="0.0" y="53" width="375" height="614"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="requestInfo"/>
+                                </userDefinedRuntimeAttributes>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="exH-zA-Xla" secondAttribute="bottom" id="7ui-2j-Q7D"/>
+                            <constraint firstItem="hI1-4c-w5h" firstAttribute="leading" secondItem="U3b-LD-0ep" secondAttribute="leading" id="Fcr-4J-eZH"/>
+                            <constraint firstItem="exH-zA-Xla" firstAttribute="leading" secondItem="U3b-LD-0ep" secondAttribute="leading" id="Weg-71-ObA"/>
+                            <constraint firstAttribute="trailing" secondItem="exH-zA-Xla" secondAttribute="trailing" id="WlJ-xs-fFT"/>
+                            <constraint firstItem="hI1-4c-w5h" firstAttribute="top" secondItem="5PQ-s2-JHl" secondAttribute="bottom" constant="8" id="Xi8-ju-Ips"/>
+                            <constraint firstItem="exH-zA-Xla" firstAttribute="top" secondItem="hI1-4c-w5h" secondAttribute="bottom" id="dc1-2e-paF"/>
+                            <constraint firstAttribute="trailing" secondItem="hI1-4c-w5h" secondAttribute="trailing" id="pFt-ge-jBE"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="requestInfo" destination="exH-zA-Xla" id="ebd-3r-qXL"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="GrS-SV-yd6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1657" y="-156"/>
         </scene>
         <!--Auto Result View Controller-->
         <scene sceneID="LB1-og-VO5">
@@ -281,7 +341,57 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Jw4-w8-pgo" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1465" y="125"/>
+            <point key="canvasLocation" x="1662" y="498"/>
+        </scene>
+        <!--Auto Passed In Web View Controller-->
+        <scene sceneID="X4L-AN-1gn">
+            <objects>
+                <viewController storyboardIdentifier="passed_in_controller" id="yJg-6I-Sx3" customClass="ADAutoPassedInWebViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="XfD-6y-pWs"/>
+                        <viewControllerLayoutGuide type="bottom" id="7qc-Ff-ngI"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Zbx-BK-Ku8">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YZi-ha-k8L">
+                                <rect key="frame" x="16" y="70" width="343" height="597"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PassedIN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JEQ-GT-2EV">
+                                <rect key="frame" x="283" y="40" width="72" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hUH-k4-48V">
+                                <rect key="frame" x="16" y="40" width="48" height="30"/>
+                                <state key="normal" title="Cancel"/>
+                                <connections>
+                                    <action selector="cancelTapped:" destination="yJg-6I-Sx3" eventType="touchUpInside" id="i8t-e3-6JD"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="JEQ-GT-2EV" firstAttribute="top" secondItem="XfD-6y-pWs" secondAttribute="bottom" constant="20" id="0eK-nZ-NSF"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="YZi-ha-k8L" secondAttribute="trailing" id="4EX-Do-jh2"/>
+                            <constraint firstItem="hUH-k4-48V" firstAttribute="leading" secondItem="Zbx-BK-Ku8" secondAttribute="leadingMargin" id="DsY-qj-t77"/>
+                            <constraint firstItem="hUH-k4-48V" firstAttribute="top" secondItem="XfD-6y-pWs" secondAttribute="bottom" constant="20" id="GaY-Is-HYA"/>
+                            <constraint firstItem="7qc-Ff-ngI" firstAttribute="top" secondItem="YZi-ha-k8L" secondAttribute="bottom" id="IjZ-U3-GCg"/>
+                            <constraint firstItem="YZi-ha-k8L" firstAttribute="top" secondItem="hUH-k4-48V" secondAttribute="bottom" id="OdS-fF-AFN"/>
+                            <constraint firstAttribute="trailing" secondItem="JEQ-GT-2EV" secondAttribute="trailing" constant="20" id="bJ1-9M-X0O"/>
+                            <constraint firstItem="YZi-ha-k8L" firstAttribute="leading" secondItem="Zbx-BK-Ku8" secondAttribute="leadingMargin" id="c5H-WS-zQi"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="contentView" destination="YZi-ha-k8L" id="iQU-mF-VTP"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="sJT-fn-CXT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1662" y="-860"/>
         </scene>
     </scenes>
 </document>
