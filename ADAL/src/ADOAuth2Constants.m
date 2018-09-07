@@ -44,6 +44,7 @@ NSString *const OAUTH2_REFRESH_TOKEN      = @"refresh_token";
 NSString *const OAUTH2_RESOURCE           = @"resource";
 NSString *const OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const OAUTH2_SCOPE              = @"scope";
+NSString *const OAUTH2_CLAIMS             = @"claims";
 NSString *const OAUTH2_STATE              = @"state";
 NSString *const OAUTH2_TOKEN              = @"token";
 NSString *const OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";

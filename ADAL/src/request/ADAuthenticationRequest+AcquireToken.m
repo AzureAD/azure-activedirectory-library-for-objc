@@ -194,7 +194,7 @@
 
 - (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
 {
-    if ([NSString adIsStringNilOrBlank:_claims])
+    if ([NSString adIsStringNilOrBlank:_requestParams.claims])
     {
         return YES;
     }
@@ -214,7 +214,7 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _claims.adTrimmedString;
+    NSString* claimsParams = _requestParams.claims;
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
@@ -228,9 +228,8 @@
         return NO;
     }
     
-    // Always skip cache if claims parameter is not nil/empty
-    _skipCache = YES;
-    
+    // Always skip access token cache if claims parameter is not nil/empty
+    [_requestParams setForceRefresh:YES];
     return YES;
 }
 

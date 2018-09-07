@@ -126,6 +126,11 @@
     {
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
     }
+
+    if (![NSString adIsStringNilOrBlank:_requestParams.claims])
+    {
+        request_data[OAUTH2_CLAIMS] = _requestParams.claims.adUrlFormDecode;
+    }
     
     if (![ADHelpers isADFSInstance:_requestParams.authority])
     {

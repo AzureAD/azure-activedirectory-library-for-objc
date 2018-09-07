@@ -44,6 +44,7 @@ extern NSString *const OAUTH2_REFRESH_TOKEN;
 extern NSString *const OAUTH2_RESOURCE;
 extern NSString *const OAUTH2_RESPONSE_TYPE;
 extern NSString *const OAUTH2_SCOPE;
+extern NSString *const OAUTH2_CLAIMS;
 extern NSString *const OAUTH2_STATE;
 extern NSString *const OAUTH2_TOKEN;
 extern NSString *const OAUTH2_TOKEN_SUFFIX;
