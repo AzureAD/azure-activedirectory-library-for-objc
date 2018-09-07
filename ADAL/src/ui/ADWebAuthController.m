@@ -26,6 +26,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "MSIDNotifications.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "ADAuthenticationSettings.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -115,6 +116,7 @@ static ADAuthenticationResult *s_result = nil;
 
 #if TARGET_OS_IPHONE
     webviewConfig.parentController = context.parentController;
+    webviewConfig.presentationType = ADAuthenticationSettings.sharedInstance.webviewPresentationStyle;
 #endif
 
     [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:webviewConfig

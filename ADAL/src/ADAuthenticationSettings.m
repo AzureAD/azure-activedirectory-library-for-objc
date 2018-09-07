@@ -77,6 +77,23 @@
 {
     [ADKeychainTokenCache setDefaultKeychainGroup:keychainGroup];
 }
+
+- (BOOL)enableFullScreen
+{
+    return _webviewPresentationStyle == UIModalPresentationFullScreen;
+}
+- (void)setEnableFullScreen:(BOOL)enableFullScreen
+{
+    if (enableFullScreen)
+    {
+        _webviewPresentationStyle = UIModalPresentationFullScreen;
+    }
+    else
+    {
+        _webviewPresentationStyle = UIModalPresentationFormSheet;
+    }
+}
+
 #elif !TARGET_OS_IPHONE
 - (id<ADTokenCacheDelegate>)defaultStorageDelegate
 {

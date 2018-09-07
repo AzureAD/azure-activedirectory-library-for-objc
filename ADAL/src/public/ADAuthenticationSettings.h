@@ -51,8 +51,15 @@
 @property uint expirationBuffer;
 
 #if TARGET_OS_IPHONE
-/*! Used for the webView. Default is YES.*/
+/*! deprecated: This is replaced by webviewPresentationStyle.
+ Default value is YES, which sets webviewPresentationStyle to be UIModalPresentationFullScreen.
+ If set to NO, will set webviewPresensationStyle to be UIModalPresentationFormSheet.
+ */
 @property BOOL enableFullScreen;
+
+/*! Used for webView presentation. Default is UIModalPresentationFullScreen */
+@property UIModalPresentationStyle webviewPresentationStyle;
+
 #endif //TARGET_OS_IPHONE
 
 #if !TARGET_OS_IPHONE
