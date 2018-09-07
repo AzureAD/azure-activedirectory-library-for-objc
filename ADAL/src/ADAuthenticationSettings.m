@@ -47,7 +47,7 @@
         self.requestTimeOut = 300;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
 #if TARGET_OS_IPHONE
-        self.enableFullScreen = YES;
+        self.webviewPresentationStyle = UIModalPresentationFullScreen;
 #endif
     }
     return self;
@@ -76,22 +76,6 @@
 - (void)setDefaultKeychainGroup:(NSString*)keychainGroup
 {
     [ADKeychainTokenCache setDefaultKeychainGroup:keychainGroup];
-}
-
-- (BOOL)enableFullScreen
-{
-    return _webviewPresentationStyle == UIModalPresentationFullScreen;
-}
-- (void)setEnableFullScreen:(BOOL)enableFullScreen
-{
-    if (enableFullScreen)
-    {
-        _webviewPresentationStyle = UIModalPresentationFullScreen;
-    }
-    else
-    {
-        _webviewPresentationStyle = UIModalPresentationFormSheet;
-    }
 }
 
 #elif !TARGET_OS_IPHONE
