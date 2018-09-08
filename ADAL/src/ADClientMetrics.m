@@ -27,6 +27,7 @@
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
 #import "MSIDAuthority.h"
+#import "MSIDADFSAuthority.h"
 
 @implementation ADClientMetrics
 
@@ -60,10 +61,10 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 - (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
                 endpoint:(NSString *)endPoint
 {
-    if ([MSIDAuthority isADFSInstance:endPoint])
-    {
-        return;
-    }
+    
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[endPoint msidUrl] context:nil error:nil];
+    BOOL isADFSInstance = adfsAuthority != nil;
+    if (isADFSInstance) return;
     
     @synchronized(self)
     {
@@ -98,10 +99,9 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
                  correlationId:(NSUUID *)correlationId
                   errorDetails:(NSString *)errorDetails
 {
-    if ([MSIDAuthority isADFSInstance:endpoint])
-    {
-        return;
-    }
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[endpoint msidUrl] context:nil error:nil];
+    BOOL isADFSInstance = adfsAuthority != nil;
+    if (isADFSInstance) return;
     
     @synchronized(self)
     {

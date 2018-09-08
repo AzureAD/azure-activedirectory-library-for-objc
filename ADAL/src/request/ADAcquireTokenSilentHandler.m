@@ -45,6 +45,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "ADAuthenticationSettings.h"
 #import "MSIDAuthority.h"
+#import "MSIDADFSAuthority.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -138,8 +139,10 @@
     }
 
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[authority msidUrl] context:nil error:nil];
+    BOOL isADFSInstance = adfsAuthority != nil;
     
-    if (![MSIDAuthority isADFSInstance:authority])
+    if (!isADFSInstance)
     {
         NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
         NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);

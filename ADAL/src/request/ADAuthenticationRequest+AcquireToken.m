@@ -48,6 +48,8 @@
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDADFSAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -509,8 +511,11 @@
     {
         [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
+    
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[_requestParams.authority msidUrl] context:nil error:nil];
+    BOOL isADFSInstance = adfsAuthority != nil;
 
-    if (![MSIDAuthority isADFSInstance:_requestParams.authority])
+    if (!isADFSInstance)
     {
         ADAuthenticationError *error = nil;
         NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
@@ -535,7 +540,9 @@
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
     refreshTokenItem.refreshToken = _refreshToken;
     refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
-    refreshTokenItem.authority = [NSURL URLWithString:_requestParams.authority];
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:[_requestParams.authority msidUrl] context:nil error:nil];
+    refreshTokenItem.authority = authority;
     refreshTokenItem.clientId  = _requestParams.clientId;
     
     [request acquireTokenByRefreshToken:_refreshToken
