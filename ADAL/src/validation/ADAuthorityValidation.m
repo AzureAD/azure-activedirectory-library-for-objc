@@ -256,7 +256,14 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSError *localError;
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&localError];
+    
+    if (localError)
+    {
+        completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:localError]);
+        return;
+    }
     
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
