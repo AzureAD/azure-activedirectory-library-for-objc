@@ -386,7 +386,7 @@ typedef enum
             extraQueryParameters:(NSString*)queryParams
                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to authorization endpoint. If claims parameter is not nil/empty, tokens in cache will be skipped and webview credentials UI will be shown.
+/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to authorization endpoint. If claims parameter is not nil/empty and prompt behavior is AD_PROMPT_AUTO, cached access token will be skipped and the refresh token will be used. ADAL will show the credentials UI if necessary.
  @param resource The resource for whom token is needed.
  @param clientId The client identifier
  @param redirectUri The redirect URI according to OAuth2 protocol
