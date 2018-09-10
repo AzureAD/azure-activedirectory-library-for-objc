@@ -35,7 +35,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAuthorityFactory.h"
-#import "MSIDAADAuthority.h"
+#import "MSIDAuthority.h"
 
 @interface ADWebRequest ()
 
@@ -150,8 +150,9 @@
     }
     NSURL *requestURL = [ADHelpers addClientVersionToURL:_requestURL];
     
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:requestURL context:self error:nil];
-    __auto_type authorityUrl = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:authority context:self];
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:requestURL context:self error:nil];
+    __auto_type authorityUrl = [authority networkUrlWithContext:self];
     if (authorityUrl)
     {
         // Replace request's url with authority's network host.
