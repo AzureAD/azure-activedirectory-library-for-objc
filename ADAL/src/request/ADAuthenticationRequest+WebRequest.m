@@ -146,10 +146,9 @@
         }
     }
     
-    if (![NSString adIsStringNilOrBlank:_claims])
+    if (![NSString adIsStringNilOrBlank:_requestParams.claims])
     {
-        NSString *claimsParam = _claims.adTrimmedString;
-        [startUrl appendFormat:@"&claims=%@", claimsParam];
+        [startUrl appendFormat:@"&%@=%@", OAUTH2_CLAIMS, _requestParams.claims];
     }
     
     return startUrl;

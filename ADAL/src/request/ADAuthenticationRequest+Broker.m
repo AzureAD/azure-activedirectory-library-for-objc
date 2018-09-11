@@ -327,7 +327,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_version" : adalVersion,
       BROKER_MAX_PROTOCOL_VERSION : @"2",
       @"extra_qp"       : _queryParams ? _queryParams : @"",
-      @"claims"         : _claims ? _claims : @"",
+      @"claims"         : _requestParams.claims ? _requestParams.claims : @"",
       @"intune_enrollment_ids" : enrollmentIds ? enrollmentIds : @"",
       @"intune_mam_resource" : mamResource,
       };

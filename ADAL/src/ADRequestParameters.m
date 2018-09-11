@@ -83,6 +83,7 @@
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_forceRefresh = _forceRefresh;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
+    parameters->_claims = [_claims copyWithZone:zone];
     
     return parameters;
 }

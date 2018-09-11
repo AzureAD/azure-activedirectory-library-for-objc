@@ -386,7 +386,7 @@ typedef enum
             extraQueryParameters:(NSString*)queryParams
                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to authorization endpoint. If claims parameter is not nil/empty, tokens in cache will be skipped and webview credentials UI will be shown.
+/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to authorization endpoint. If claims parameter is not nil/empty and prompt behavior is AD_PROMPT_AUTO, cached access token will be skipped and the refresh token will be used. ADAL will show the credentials UI if necessary.
  @param resource The resource for whom token is needed.
  @param clientId The client identifier
  @param redirectUri The redirect URI according to OAuth2 protocol
@@ -454,6 +454,24 @@ typedef enum
                                 userId:(NSString *)userId
                           forceRefresh:(BOOL)forceRefresh
                        completionBlock:(ADAuthenticationCallback)completionBlock;
+
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to token endpoint. If claims parameter is not nil/empty, access tokens in cache will be skipped and refresh token will be tried.
+ If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+ @param resource The resource whose token is needed.
+ @param clientId The client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param userId The user to be used to look up the access token and refresh token in cache
+ @param claims The claims parameter that needs to be sent to the token endpoint. It should be URL-encoded.
+ @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
+                                claims:(NSString *)claims
+                       completionBlock:(ADAuthenticationCallback)completionBlock;
+
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will use the refresh token provided to get access token.
  This method will not show UI for the user to reauthorize resource usage.
