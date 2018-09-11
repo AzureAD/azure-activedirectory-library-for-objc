@@ -28,6 +28,7 @@
 #import "ADHelpers.h"
 #import "ADAL_Internal.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation ADTelemetryAPIEvent
 
@@ -73,18 +74,16 @@
     [self setProperty:MSID_TELEMETRY_KEY_PROTOCOL_CODE value:protocolCode];
 }
 
-- (void)setAuthority:(NSString *)authority
+- (void)setAuthority:(NSString *)authorityString
 {
-    [super setAuthority:authority];
+    [super setAuthority:authorityString];
+    
+    __auto_type factory = [MSIDAuthorityFactory new];
+     __auto_type authority = [factory authorityFromUrl:[authorityString msidUrl] context:nil error:nil];
     
     // set authority type
-    NSString* authorityType = MSID_TELEMETRY_VALUE_AUTHORITY_AAD;
-    
-    if ([MSIDAuthority isADFSInstance:authority])
-    {
-        authorityType = MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
-    }
-
+    NSString* authorityType = [authority telemetryAuthorityType];
+   
     [self setAuthorityType:authorityType];
 }
 
