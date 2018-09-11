@@ -138,7 +138,12 @@
     }
 
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
-    
+
+    if (![NSString msidIsStringNilOrBlank:_requestParams.claims])
+    {
+        request_data[MSID_OAUTH2_CLAIMS] = _requestParams.claims.msidUrlFormDecode;
+    }
+
     if (![MSIDAuthority isADFSInstance:authority])
     {
         NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;

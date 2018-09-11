@@ -732,7 +732,12 @@
     
     __block BOOL fBlockHit = NO;
     
-    [context acquireTokenSilentWithResource:resource clientId:clientId redirectUri:redirectUri userId:identifier.userId completionBlock:^(ADAuthenticationResult *result)
+    [context acquireTokenSilentWithResource:resource
+                                   clientId:clientId
+                                redirectUri:redirectUri
+                                     userId:identifier.userId
+                                     claims:_claimsField.text
+                            completionBlock:^(ADAuthenticationResult *result)
     {
         if (fBlockHit)
         {

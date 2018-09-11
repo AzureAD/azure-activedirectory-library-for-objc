@@ -1,3 +1,8 @@
+Version 2.6.6 (09.10.2018)
+------------
+* Added support to send claims to the token endpoint (#1272)
+
+
 Version 2.6.5 (08.01.2018)
 ------------
 * Skip tombstones in macOS token cache (#1258)

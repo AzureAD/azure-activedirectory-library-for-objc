@@ -131,11 +131,13 @@ static dispatch_semaphore_t s_interactionLock = nil;
 - (void)setClaims:(NSString *)claims
 {
     CHECK_REQUEST_STARTED;
-    if (_requestParams.claims == claims)
+
+    if ([_requestParams claims] == claims)
     {
         return;
     }
-    _requestParams.claims = [claims copy];
+
+    _requestParams.claims = [claims.msidTrimmedString copy];
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier

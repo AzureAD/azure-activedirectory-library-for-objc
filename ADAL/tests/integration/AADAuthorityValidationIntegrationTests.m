@@ -751,8 +751,9 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
      // invalid_grant should result in ADAL tombstoning the token
                          oauthError:@"invalid_grant"
                       oauthSubError:nil
-                      correlationId:TEST_CORRELATION_ID];
-
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+    
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 
