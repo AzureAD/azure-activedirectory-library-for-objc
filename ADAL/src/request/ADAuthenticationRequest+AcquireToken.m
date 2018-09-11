@@ -71,8 +71,11 @@
     
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
-    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority msidUrl]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority msidUrl].host];
+    
+    NSURL *authorityUrl = [NSURL URLWithString:_requestParams.authority];
+    
+    if ([ADAuthorityUtils isKnownHost:authorityUrl]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, authorityUrl.host];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
@@ -214,7 +217,7 @@
     }
     
     // Make sure claims is not in EQP
-    NSDictionary *queryParamsDict = [NSDictionary msidURLFormDecode:_requestParams.extraQueryParameters];
+    NSDictionary *queryParamsDict = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:_requestParams.extraQueryParameters];
     if (queryParamsDict[@"claims"])
     {
         if (error)

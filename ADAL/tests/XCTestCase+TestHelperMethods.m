@@ -253,8 +253,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@.",
-                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken
                                                                   homeAccountId:homeAccountId
@@ -739,7 +739,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 - (NSString *)base64UrlFromJson:(NSDictionary *)json
 {
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
-    return [NSString msidBase64UrlEncodeData:jsonData];
+    return [NSString msidBase64UrlEncodedStringFromData:jsonData];
 }
 
 @end

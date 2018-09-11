@@ -193,9 +193,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     // NSURLComponents resolves some URLs which can't get resolved by NSURL
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
-    NSString *qp = [components percentEncodedQuery];
+    NSString *qpString = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
-    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
+    NSDictionary* queryParamsMap =  [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
     
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
@@ -352,9 +352,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSData *key = [brokerHelper getBrokerKey:error];
     AUTH_ERROR_RETURN_IF_NIL(key, AD_ERROR_UNEXPECTED, @"Unable to retrieve broker key.", _requestParams.correlationId);
     
-    NSString* base64Key = [NSString msidBase64UrlEncodeData:key];
+    NSString *base64Key = [NSString msidBase64UrlEncodedStringFromData:key];
     AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _requestParams.correlationId);
-    NSString* base64UrlKey = [base64Key msidUrlFormEncode];
+    NSString *base64UrlKey = [base64Key msidWWWFormURLEncode];
     AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _requestParams.correlationId);
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
@@ -412,7 +412,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    NSString* query = [queryDictionary msidURLFormEncode];
+    NSString* query = [NSString msidWWWFormURLEncodedStringFromDictionary:queryDictionary];
     
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
     AUTH_ERROR_RETURN_IF_NIL(brokerRequestURL, AD_ERROR_UNEXPECTED, @"Unable to encode broker request URL", _requestParams.correlationId);

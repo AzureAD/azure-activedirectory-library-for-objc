@@ -45,6 +45,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "ADAuthenticationSettings.h"
 #import "MSIDAuthority.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -197,7 +198,7 @@
 {
     NSString* grantType = @"refresh_token";
     
-    NSString* ctx = [[[NSUUID UUID] UUIDString] msidComputeSHA256];
+    NSString* ctx = [NSString msidHexStringFromData:[[[[NSUUID UUID] UUIDString] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256]]; 
     NSDictionary *header = @{
                              @"alg" : @"HS256",
                              @"typ" : @"JWT",

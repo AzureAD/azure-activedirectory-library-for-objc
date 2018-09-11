@@ -76,9 +76,9 @@
 - (void)testUserInformationWithIdToken_whenUpnContainsSpaces_shouldReturnTrimmedUserId
 {
     NSDictionary *part1Claims = @{ @"typ" : @"JWT", @"alg" : @"none" };
-    NSString *p1 = [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1Claims options:0 error:nil]];
+    NSString *p1 = [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:part1Claims options:0 error:nil]];
     NSDictionary *idtokenClaims = @{@"upn" : @"     eric_cartman@contoso.com           ", @"ver": @"1.0"};
-    NSString *p2 = [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtokenClaims options:0 error:nil]];
+    NSString *p2 = [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:idtokenClaims options:0 error:nil]];
     NSString *idtoken = [NSString stringWithFormat:@"%@.%@.", p1, p2];
     
     ADUserInformation *userInfo = [ADUserInformation userInformationWithIdToken:idtoken
