@@ -211,13 +211,14 @@
                                        clientId:parameters[@"client_id"]
                                     redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                                          userId:parameters[@"user_identifier"]
+                                         claims:parameters[@"claims"]
                                 completionBlock:^(ADAuthenticationResult *result) {
 
                                     dispatch_async(dispatch_get_main_queue(), ^{
                                         [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
                                     });
-        }];
 
+        }];
     };
 
     [self showRequestDataViewWithCompletionHandler:completionBlock];
