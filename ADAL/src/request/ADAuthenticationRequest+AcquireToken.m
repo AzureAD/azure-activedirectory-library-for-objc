@@ -228,9 +228,9 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _requestParams.claims;
+    NSString *claimsParams = _requestParams.claims;
     
-    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
+    NSURL *url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
         if (error)
