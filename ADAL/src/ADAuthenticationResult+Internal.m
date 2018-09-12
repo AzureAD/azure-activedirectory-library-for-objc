@@ -224,7 +224,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     // Extract headers if it is http error
     if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
     {
-        NSDictionary *httpHeaders = [NSDictionary msidURLFormDecode:[response valueForKey:@"http_headers"]];
+        NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:[response valueForKey:@"http_headers"]];
         error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
     }
     else

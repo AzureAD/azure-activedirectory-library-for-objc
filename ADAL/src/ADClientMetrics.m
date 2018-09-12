@@ -62,7 +62,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
                 endpoint:(NSString *)endPoint
 {
     
-    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[endPoint msidUrl] context:nil error:nil];
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:endPoint] context:nil error:nil];
     BOOL isADFSInstance = adfsAuthority != nil;
     if (isADFSInstance) return;
     
@@ -99,7 +99,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
                  correlationId:(NSUUID *)correlationId
                   errorDetails:(NSString *)errorDetails
 {
-    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[endpoint msidUrl] context:nil error:nil];
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:endpoint] context:nil error:nil];
     BOOL isADFSInstance = adfsAuthority != nil;
     if (isADFSInstance) return;
     

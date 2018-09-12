@@ -79,7 +79,7 @@
     [super setAuthority:authorityString];
     
     __auto_type factory = [MSIDAuthorityFactory new];
-     __auto_type authority = [factory authorityFromUrl:[authorityString msidUrl] context:nil error:nil];
+     __auto_type authority = [factory authorityFromUrl:[NSURL URLWithString:authorityString] context:nil error:nil];
     
     // set authority type
     NSString* authorityType = [authority telemetryAuthorityType];

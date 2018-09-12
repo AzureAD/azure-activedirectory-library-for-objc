@@ -336,7 +336,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 - (void)addInvalidAuthority:(NSString *)authorityString
 {
-    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[authorityString msidUrl] context:nil error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:authorityString] context:nil error:nil];
     
     [_aadCache addInvalidRecord:authority oauthError:nil context:nil];
 }

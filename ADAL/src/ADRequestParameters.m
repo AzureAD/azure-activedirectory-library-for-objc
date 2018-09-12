@@ -80,7 +80,7 @@
         return @"openid";
     }
 
-    NSOrderedSet<NSString *> *scopes = [self.scopesString scopeSet];
+    NSOrderedSet<NSString *> *scopes = [self.scopesString msidScopeSet];
     if (![scopes containsObject:@"openid"])
     {
         return [NSString stringWithFormat:@"openid %@", self.scopesString];

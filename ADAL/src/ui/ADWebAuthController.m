@@ -111,7 +111,7 @@ static ADAuthenticationResult *s_result = nil;
     
     if (requestParams.claims)
     {
-        webviewConfig.claims = [requestParams.claims msidUrlFormDecode];
+        webviewConfig.claims = [requestParams.claims msidWWWFormURLDecode];
     }
 
 #if TARGET_OS_IPHONE
