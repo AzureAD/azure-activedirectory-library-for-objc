@@ -37,6 +37,7 @@
 @implementation ADTokenCacheTests
 
 - (void)setUp
+
 {
     [super setUp];
     
@@ -305,6 +306,128 @@
         }
     }
     XCTAssertEqualObjects(read, item);
+}
+
+- (void)testADTokenCacheGetItemWithKey_whenTombstonesInCacheAndNoOtherItemsInCache_shouldNotReturnTombstones
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *item = [wrapper getItemWithKey:[testItem extractKey:nil] userId:testItem.userInformation.userId correlationId:nil error:&error];
+    XCTAssertNil(item);
+    XCTAssertNil(error);
+}
+
+- (void)testADTokenCacheGetItemWithKey_whenTombstonesInCacheAndOtherItemsInCache_shouldNotReturnTombstones_AndReturnCorrectItem
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *secondItem = [self adCreateCacheItem:@"eric2@contoso.com"];
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *item = [wrapper getItemWithKey:[secondItem extractKey:nil] userId:nil correlationId:nil error:&error];
+    XCTAssertNotNil(item);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(item, secondItem);
+}
+
+- (void)testADTokenCacheGetItemsWithKey_whenTombstonesInCacheAndNoOtherItemsInCache_shouldNotReturnTombstones
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper getItemsWithKey:[testItem extractKey:nil] userId:testItem.userInformation.userId correlationId:nil error:&error];
+    XCTAssertEqual([items count], 0);
+    XCTAssertNil(error);
+}
+
+- (void)testADTokenCacheGetItemsWithKey_whenTombstonesInCacheAndOtherItemsInCache_shouldNotReturnTombstones_AndReturnCorrectItem
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *secondItem = [self adCreateCacheItem:@"eric2@contoso.com"];
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper getItemsWithKey:[secondItem extractKey:nil] userId:nil correlationId:nil error:&error];
+    XCTAssertEqual([items count], 1);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(items[0], secondItem);
+}
+
+
+- (void)testADTokenCacheGetAllItems_whenTomsbtonesInCache_shouldNotReturnTombstones
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    ADTokenCacheItem *secondItem = [self adCreateCacheItem:@"eric2@contoso.com"];
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper allItems:&error];
+    XCTAssertEqual([items count], 1);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(items[0], secondItem);
+}
+
+- (void)testADTokenCacheSetItem_whenTombstoneInCache_shouldReplaceTombstoneWithNewItem
+{
+    ADTokenCache *wrapper = [[ADTokenCache alloc] init];
+
+    ADAuthenticationError *error = nil;
+    ADTokenCacheItem *testItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    testItem.refreshToken = @"<tombstone>";
+    BOOL result = [wrapper addOrUpdateItem:testItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    // Save item with the same resource
+    ADTokenCacheItem *secondItem = [self adCreateCacheItem:@"eric@contoso.com"];
+    result = [wrapper addOrUpdateItem:secondItem correlationId:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *items = [wrapper allItems:&error];
+    XCTAssertEqual([items count], 1);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(items[0], secondItem);
 }
 
 @end
