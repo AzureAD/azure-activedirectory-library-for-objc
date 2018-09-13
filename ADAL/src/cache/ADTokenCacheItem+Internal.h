@@ -29,15 +29,7 @@
 
 @interface ADTokenCacheItem ()
 
-@property (readwrite) NSMutableDictionary * additionalClient;
 @property (readonly) NSDictionary * additionalServer;
-
-/*!
- This indicates whether the request was executed on a ring serving SPE traffic. 
- An empty string indicates this occurred on an outer ring, 
- and the string "I" indicated the request occurred on the inner ring.
- */
-@property (readonly) NSString *speInfo;
 
 @end
 
@@ -49,30 +41,15 @@
 
 @interface ADTokenCacheItem (Internal)
 
-- (void)checkCorrelationId:(NSDictionary*)response
-      requestCorrelationId:(NSUUID*)requestCorrelationId;
-
-- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
-                            requestCorrelationId:(NSUUID*)requestCorrelationId
-                                    fieldToCheck:(NSString*)fieldToCheck;
-
-- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                fromRefreshToken:(ADTokenCacheItem *)refreshToken
-                            requestCorrelationId:(NSUUID*)requestCorrelationId;
-
 /*!
-    Fills out the cache item with the given response dictionary
- 
-    @return Whether the resulting item is a Multi Resource Refresh Token
+ This indicates whether the request was executed on a ring serving SPE traffic.
+ An empty string indicates this occurred on an outer ring,
+ and the string "I" indicated the request occurred on the inner ring.
  */
-- (BOOL)fillItemWithResponse:(NSDictionary*)response;
+@property (readonly) NSString *speInfo;
 
 - (void)logMessage:(NSString *)message
-             level:(ADAL_LOG_LEVEL)level
+             level:(MSIDLogLevel)level
      correlationId:(NSUUID*)correlationId;
-
-/*! Return YES only if the item contains an access token and ext_expires_in in additionalServer has not expired. */
-- (BOOL)isExtendedLifetimeValid;
 
 @end

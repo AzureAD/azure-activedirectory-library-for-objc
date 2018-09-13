@@ -22,19 +22,19 @@
 // THE SOFTWARE.
 
 #import "ADTokenCacheDataSource.h"
-#import "ADRequestContext.h"
+#import "MSIDRequestContext.h"
 
-@class ADTokenCacheAccessor;
+@class MSIDConfiguration;
+@class MSIDAccountIdentifier;
 
-@interface ADRequestParameters : NSObject <ADRequestContext>
+@interface ADRequestParameters : NSObject <MSIDRequestContext>
 {
     NSString *_authority;
     NSString *_resource;
     NSString *_clientId;
     NSString *_redirectUri;
-    NSString *_scope;
+    NSString *_scopesString;
     ADUserIdentifier *_identifier;
-    ADTokenCacheAccessor *_tokenCache;
     BOOL _extendedLifetime;
     BOOL _forceRefresh;
     NSUUID *_correlationId;
@@ -42,25 +42,29 @@
 }
 
 @property (retain, nonatomic) NSString* authority;
+@property (retain, nonatomic) NSString* cloudAuthority;
 @property (retain, nonatomic) NSString* resource;
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
-@property (retain, nonatomic) NSString* scope;
+@property (retain, nonatomic) NSString* scopesString;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
-@property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
 @property BOOL extendedLifetime;
 @property BOOL forceRefresh;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
+@property (retain, nonatomic) NSString* logComponent;
+@property (retain, nonatomic, readonly) NSString* openidScopesString;
+@property (retain, nonatomic) MSIDAccountIdentifier *account;
+@property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
                clientId:(NSString *)clientId
             redirectUri:(NSString *)redirectUri
              identifier:(ADUserIdentifier *)identifier
-             tokenCache:(ADTokenCacheAccessor *)tokenCache
        extendedLifetime:(BOOL)extendedLifetime
           correlationId:(NSUUID *)correlationId
-     telemetryRequestId:(NSString *)telemetryRequestId;
+     telemetryRequestId:(NSString *)telemetryRequestId
+           logComponent:(NSString *)logComponent;
 
 @end

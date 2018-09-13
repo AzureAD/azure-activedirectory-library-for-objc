@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "ADLogger.h"
 
 @interface ADLoggerTests : ADTestCase
 
@@ -72,16 +73,6 @@
 
 #pragma mark - log:context:message:errorCode:info:correlationId:userInfo
 
-- (void)testLog_whenLogLevelNoMessageValidInfoValid_shouldNotThrow
-{
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG context:nil correlationId:nil isPii:NO format:@"Message"];
-}
-
-- (void)testLog_whenLogLevelErrorMessageNilInfoValid_shouldNotThrow
-{
-    XCTAssertNoThrow([ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:nil]);
-}
-
 - (void)testLog_whenPiiNotEnabled_andLogMessage_shouldReturnMessageInCallback
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
@@ -95,7 +86,7 @@
          [expectation fulfill];
      }];
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -115,7 +106,7 @@
          [expectation fulfill];
      }];
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -130,7 +121,7 @@
          [expectation fulfill];
      }];
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -153,7 +144,7 @@
     
 #pragma clang diagnostic pop
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -181,7 +172,7 @@
     
 #pragma clang diagnostic pop
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -201,7 +192,7 @@
     
 #pragma clang diagnostic pop
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:YES format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -233,7 +224,7 @@
      }];
     
     
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil correlationId:nil isPii:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }

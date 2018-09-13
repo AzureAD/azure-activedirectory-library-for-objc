@@ -24,7 +24,6 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
-#import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 
 @implementation ADAuthenticationRequest (AcquireAssertion)
@@ -33,24 +32,24 @@
 {
     if(_assertionType == AD_SAML1_1)
     {
-        return OAUTH2_SAML11_BEARER_VALUE;
+        return MSID_OAUTH2_SAML11_BEARER_VALUE;
     }
     
     if(_assertionType == AD_SAML2)
     {
-        return OAUTH2_SAML2_BEARER_VALUE;
+        return MSID_OAUTH2_SAML2_BEARER_VALUE;
     }
     
     return nil;
 }
 
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
-- (void)requestTokenByAssertion:(ADAuthenticationCallback)completionBlock
+- (void)requestTokenByAssertion:(MSIDTokenResponseCallback)completionBlock
 {
     [self ensureRequest];
     NSUUID* correlationId = [_requestParams correlationId];
-    AD_LOG_INFO(correlationId, @"Requesting token from SAML Assertion.");
-    AD_LOG_INFO_PII(correlationId, @"Requesting token from SAML Assertion. clientId: %@ resource: %@", _requestParams.clientId, _requestParams.resource);
+    MSID_LOG_INFO(_requestParams, @"Requesting token from SAML Assertion.");
+    MSID_LOG_INFO_PII(_requestParams, @"Requesting token from SAML Assertion. clientId: %@ resource: %@", _requestParams.clientId, _requestParams.resource);
     
     NSData *encodeData = [_samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64String = [encodeData base64EncodedStringWithOptions:0];
@@ -60,16 +59,16 @@
     {
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@"Unrecognized assertion type."
                                                                      correlationId:correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+        completionBlock(nil, error);
         return;
     }
     
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                         assertionType, OAUTH2_GRANT_TYPE,
-                                         base64String, OAUTH2_ASSERTION,
-                                         [_requestParams clientId], OAUTH2_CLIENT_ID,
-                                         [_requestParams resource], OAUTH2_RESOURCE,
-                                         OAUTH2_SCOPE_OPENID_VALUE, OAUTH2_SCOPE,
+                                         assertionType, MSID_OAUTH2_GRANT_TYPE,
+                                         base64String, MSID_OAUTH2_ASSERTION,
+                                         [_requestParams clientId], MSID_OAUTH2_CLIENT_ID,
+                                         [_requestParams resource], MSID_OAUTH2_RESOURCE,
+                                         MSID_OAUTH2_SCOPE_OPENID_VALUE, MSID_OAUTH2_SCOPE,
                                          nil];
     [self executeRequest:request_data
               completion:completionBlock];

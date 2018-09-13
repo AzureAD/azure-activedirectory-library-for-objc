@@ -22,31 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTestURLSession.h"
 
 @class ADTestURLResponse;
 
-@interface ADTestURLSession : NSObject 
-
-@property id delegate;
-@property NSOperationQueue* delegateQueue;
-
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
-
-// This adds an expected request, and response to it.
-+ (void)addResponse:(ADTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (ADTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
+@interface ADTestURLSession : MSIDTestURLSession
 
 @end

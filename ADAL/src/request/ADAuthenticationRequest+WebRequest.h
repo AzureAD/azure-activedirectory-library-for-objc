@@ -24,7 +24,7 @@
 @interface ADAuthenticationRequest (WebRequest)
 
 - (void)executeRequest:(NSDictionary *)request_data
-            completion:(ADAuthenticationCallback)completionBlock;
+            completion:(MSIDTokenResponseCallback)completionBlock;
 
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;

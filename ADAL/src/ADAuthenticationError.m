@@ -23,7 +23,6 @@
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationError.h"
-#import "ADOAuth2Constants.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
@@ -101,8 +100,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     if (!quiet)
     {
         NSString* codeStr = [self getStringForErrorCode:code domain:domain];
-        AD_LOG_ERROR(correlationId, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\"", domain, codeStr, protocolCode);
-        AD_LOG_ERROR_PII(correlationId, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\". Error details: %@", domain, codeStr, protocolCode, details);
+        MSID_LOG_ERROR_CORR(correlationId, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\"", domain, codeStr, protocolCode);
+        MSID_LOG_ERROR_CORR_PII(correlationId, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\". Error details: %@", domain, codeStr, protocolCode, details);
     }
     
     return self;
@@ -330,6 +329,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:newUserInfo];
 }
 
+#if AD_BROKER
 + (ADAuthenticationError *)errorFromExistingProtectionPolicyRequiredError:(ADAuthenticationError *) error
                                                             correlationID:(NSUUID *) correlationId
                                                                     token:(ADTokenCacheItem*) token
@@ -339,6 +339,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                            correlationID:correlationId
                                       additionalUserInfo:tokenDictionary];
 }
+#endif
 
 - (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain

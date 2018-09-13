@@ -27,7 +27,7 @@
 #import "ADRequestParameters.h"
 
 @class ADUserIdentifier;
-@class ADTokenCacheAccessor;
+@class MSIDLegacyTokenCacheAccessor;
 
 #define AD_REQUEST_CHECK_ARGUMENT(_arg) { \
     if (!_arg || ([_arg isKindOfClass:[NSString class]] && [(NSString*)_arg isEqualToString:@""])) { \
@@ -45,7 +45,7 @@
     } \
 }
 
-@interface ADAuthenticationRequest : NSObject <ADRequestContext>
+@interface ADAuthenticationRequest : NSObject <MSIDRequestContext>
 {
 @protected
     ADAuthenticationContext* _context;
@@ -79,16 +79,15 @@
     NSString *_refreshToken;
 }
 
-@property (retain) NSString* logComponent;
+@property (nonatomic, readonly) MSIDLegacyTokenCacheAccessor *tokenCache;
+@property (nonatomic) NSString *sharedGroup;
 
-// These constructors exists *solely* to be used when trying to use some of the caching logic.
-// You can't actually send requests with it. They will fail.
-+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority;
-+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context;
+@property (retain) NSString* logComponent;
 
 // The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
+                                    tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the
@@ -96,7 +95,7 @@
 - (void)ensureRequest;
 
 // These can only be set before the request gets sent out.
-- (void)setScope:(NSString*)scope;
+- (void)setScopesString:(NSString*)scopesString;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
 - (void)setClaims:(NSString *)claims;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;

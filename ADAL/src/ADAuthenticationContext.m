@@ -26,15 +26,23 @@
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
+#import "MSIDKeychainTokenCache.h"
 #endif 
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "ADHelpers.h"
+#import "MSIDMacTokenCache.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "ADTokenCache.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -42,6 +50,16 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 // symbols in a binary to detect what version of ADAL is being used without needing to
 // run the application.
 NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
+
+@interface ADAuthenticationContext()
+
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+// It is used only for delegate proxy purposes between legacy mac delegate and msdi mac delegate.
+@property (nonatomic) ADTokenCache *legacyMacCache;
+// iOS keychain group.
+@property (nonatomic) NSString *sharedGroup;
+
+@end
 
 @implementation ADAuthenticationContext
 
@@ -69,66 +87,89 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 
 #if TARGET_OS_IPHONE
-- (id)initWithAuthority:(NSString*) authority
+- (id)initWithAuthority:(NSString *) authority
       validateAuthority:(BOOL)bValidate
-            sharedGroup:(NSString*)sharedGroup
-                  error:(ADAuthenticationError* __autoreleasing *) error
+            sharedGroup:(NSString *)sharedGroup
+                  error:(ADAuthenticationError *__autoreleasing *) error
 {
     API_ENTRY;
-    if (!(self = [self initWithAuthority:authority validateAuthority:bValidate error:error]))
-    {
-        return nil;
-    }
     
-    [self setTokenCacheStore:[ADKeychainTokenCache keychainCacheForGroup:sharedGroup]];
+    self.sharedGroup = sharedGroup;
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    // In case if sharedGroup is nil, keychainTokenCache.keychainGroup will return default group.
+    // Note: it is in the following format: <team id>.<sharedGroup>
+    self.sharedGroup = keychainTokenCache.keychainGroup;
+    MSIDLegacyTokenCacheAccessor *tokenCache = [self createIosCache:keychainTokenCache];
     
-    return self;
+    return [self initWithAuthority:authority
+                 validateAuthority:bValidate
+                        tokenCache:tokenCache
+                             error:error];
 }
-#endif
-
+#else
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
           cacheDelegate:(id<ADTokenCacheDelegate>) delegate
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     API_ENTRY;
-    if (!(self = [self initWithAuthority:authority validateAuthority:validateAuthority error:error]))
-    {
-        return nil;
-    }
     
-    ADTokenCache* cache = [ADTokenCache new];
-    [cache setDelegate:delegate];
+    self.legacyMacCache = [ADTokenCache new];
+    self.legacyMacCache.delegate = delegate;
+
+    MSIDLegacyTokenCacheAccessor *tokenCache = [self createMacCache:self.legacyMacCache.macTokenCache];
     
-    [self setTokenCacheStore:cache];
-    return self;
+    return [self initWithAuthority:authority
+                 validateAuthority:validateAuthority
+                        tokenCache:tokenCache
+                             error:error];
 }
+#endif
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
                   error:(ADAuthenticationError *__autoreleasing *)error
 {
-    id<ADTokenCacheDataSource> tokenCache = nil;
+    MSIDLegacyTokenCacheAccessor *tokenCache = nil;
 
 #if TARGET_OS_IPHONE
-    tokenCache = [ADKeychainTokenCache defaultKeychainCache];
-    if (!tokenCache)
-    {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to get kecyhain token cache" correlationId:nil];
-        if (error)
-        {
-            *error = adError;
-        }
-        return nil;
-    }
+    tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
+    self.sharedGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
 #else
-    tokenCache = [ADTokenCache defaultCache];
+    self.legacyMacCache = [ADTokenCache defaultCache];
+    tokenCache = [self createMacCache:self.legacyMacCache.macTokenCache];
 #endif
     
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
                         tokenCache:tokenCache
                              error:error];
+}
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error
+{
+    API_ENTRY;
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    }
+    
+    _authority = extractedAuthority;
+    _validateAuthority = validateAuthority;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _extendedLifetimeEnabled = NO;
+    _tokenCache = tokenCache;
+    
+    return self;
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -144,12 +185,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setResource:resource];
     [requestParams setClientId:clientId];
     [requestParams setRedirectUri:redirectUri];
-    [requestParams setTokenCache:_tokenCacheStore];
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
+    [requestParams setLogComponent:_logComponent];
 
-    ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
+    ADAuthenticationRequest *request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
+                                                                        tokenCache:self.tokenCache
                                                                              error:&error];
+    request.sharedGroup = self.sharedGroup;
     
     if (!request)
     {
@@ -256,7 +299,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setLogComponent:_logComponent];
 
 #define CHECK_STRING_ARG_BLOCK(_arg) \
-    if ([NSString adIsStringNilOrBlank:_arg]) { \
+    if ([NSString msidIsStringNilOrBlank:_arg]) { \
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@#_arg " cannot be nil" correlationId:_correlationId]; \
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]); \
         return; \
@@ -331,8 +374,8 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    
     [request setSilent:YES];
+    
     [request acquireToken:@"7" completionBlock:completionBlock];
 }
 
@@ -347,13 +390,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setSilent:YES];
+    
     [request acquireToken:@"8" completionBlock:completionBlock];
 }
 
-- (void)acquireTokenSilentWithResource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(NSString*)userId
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
                           forceRefresh:(BOOL)forceRefresh
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
@@ -380,6 +424,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
+    
     [request acquireToken:@"127" completionBlock:completionBlock];
 }
 
@@ -397,6 +442,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
+    
     [request acquireToken:@"130" completionBlock:completionBlock];
 }
 
@@ -416,6 +462,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     [request setClaims:claims];
+    
     [request acquireToken:@"133" completionBlock:completionBlock];
 }
 
@@ -429,30 +476,45 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     CHECK_STRING_ARG_BLOCK(refreshToken);
     [request setRefreshToken:refreshToken];
-    [request setScope:OAUTH2_SCOPE_OPENID_VALUE];
+    [request setScopesString:MSID_OAUTH2_SCOPE_OPENID_VALUE];
     [request setSilent:YES];
     
     [request acquireToken:@"136" completionBlock:completionBlock];
 }
 
-@end
-
-@implementation ADAuthenticationContext (CacheStorage)
-
-- (void)setTokenCacheStore:(id<ADTokenCacheDataSource>)dataSource
+- (void)acquireTokenWithRefreshToken:(NSString *)refreshToken
+                            resource:(NSString *)resource
+                            clientId:(NSString *)clientId
+                         redirectUri:(NSURL *)redirectUri
+                              userId:(NSString *)userId
+                     completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    if (_tokenCacheStore.dataSource == dataSource)
-    {
-        return;
-    }
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    CHECK_STRING_ARG_BLOCK(refreshToken);
+    [request setRefreshToken:refreshToken];
+    [request setUserId:userId];
+    [request setScopesString:MSID_OAUTH2_SCOPE_OPENID_VALUE];
+    [request setSilent:YES];
     
-    _tokenCacheStore = [[ADTokenCacheAccessor alloc] initWithDataSource:dataSource authority:_authority];
+    [request acquireToken:@"137" completionBlock:completionBlock];
 }
 
-- (ADTokenCacheAccessor *)tokenCacheStore
+#pragma mark - Private
+
+#if TARGET_OS_IPHONE
+- (MSIDLegacyTokenCacheAccessor *)createIosCache:(id<MSIDTokenCacheDataSource>)dataSource
 {
-    return _tokenCacheStore;
+    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
+    MSIDLegacyTokenCacheAccessor *legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[defaultAccessor] factory:factory];
+    return legacyAccessor;
 }
+#else
+- (MSIDLegacyTokenCacheAccessor *)createMacCache:(id<MSIDTokenCacheDataSource>)dataSource
+{
+    return [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+}
+#endif
 
 @end
-

@@ -25,12 +25,14 @@
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
-#import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
-#import "NSDictionary+ADExtensions.h"
-#import "ADHelpers.h"
-#import "ADTokenCacheAccessor.h"
-
+#import "NSDictionary+MSIDExtensions.h"
+#import "ADAuthenticationErrorConverter.h"
+#import "MSIDBrokerResponse.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "ADTokenCacheItem+MSIDTokens.h"
+#import "MSIDBrokerResponse+ADAL.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -109,6 +111,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return result;
 }
 
++ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
+{
+    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
+    return [self resultFromError:adError];
+}
+
++ (ADAuthenticationResult *)resultFromMSIDError:(NSError *)error
+                                  correlationId:(NSUUID *)correlationId
+{
+    ADAuthenticationError *adError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error];
+    return [self resultFromError:adError correlationId:correlationId];
+}
+
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
 {
     return [self resultFromParameterError:details correlationId:nil];
@@ -147,31 +162,31 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [ADAuthenticationResult resultFromError:error correlationId:nil];
 }
 
-+ (ADAuthenticationResult*)resultForBrokerErrorResponse:(NSDictionary*)response
++ (ADAuthenticationResult *)resultForBrokerErrorResponse:(NSDictionary *)response
 {
-    NSUUID* correlationId = nil;
-    NSString* uuidString = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID *correlationId = nil;
+    NSString *uuidString = [response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
     if (uuidString)
     {
-        correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+        correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]];
     }
     
     // Otherwise parse out the error condition
-    ADAuthenticationError* error = nil;
-    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
+    ADAuthenticationError *error = nil;
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithCapacity:3];
     
-    NSString* errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
+    NSString *errorDetails = [response valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
     if (!errorDetails)
     {
         errorDetails = @"Broker did not provide any details";
     }
 
-    if ([response valueForKey:BROKER_APP_VERSION])
+    if ([response valueForKey:ADAL_BROKER_APP_VERSION])
     {
-        [userInfo setValue:[response valueForKey:BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
+        [userInfo setValue:[response valueForKey:ADAL_BROKER_APP_VERSION] forKey:ADBrokerVersionKey];
     }
         
-    NSString* strErrorCode = [response valueForKey:@"error_code"];
+    NSString *strErrorCode = [response valueForKey:@"error_code"];
     NSInteger errorCode = AD_ERROR_TOKENBROKER_UNKNOWN;
     if (strErrorCode && ![strErrorCode isEqualToString:@"0"])
     {
@@ -183,9 +198,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
     {
         // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
-        if ([response valueForKey:AUTH_SUBERROR])
+        if ([response valueForKey:ADAL_AUTH_SUBERROR])
         {
-            [userInfo setValue:[response valueForKey:AUTH_SUBERROR] forKey:ADSuberrorKey];
+            [userInfo setValue:[response valueForKey:ADAL_AUTH_SUBERROR] forKey:ADSuberrorKey];
         }
 
         if ([response valueForKey:@"user_id"])
@@ -194,7 +209,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         }
     }
 
-    NSString* protocolCode = [response valueForKey:@"protocol_code"];
+    NSString *protocolCode = [response valueForKey:@"protocol_code"];
     if (!protocolCode)
     {
         // Older brokers used to send the protocol code as "code" and the error code not at all
@@ -208,7 +223,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     // Extract headers if it is http error
     if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
     {
-        NSDictionary *httpHeaders = [NSDictionary adURLFormDecode:[response valueForKey:@"http_headers"]];
+        NSDictionary *httpHeaders = [NSDictionary msidURLFormDecode:[response valueForKey:@"http_headers"]];
         error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
     }
     else
@@ -224,36 +239,50 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
 }
 
-+ (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
++ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDBrokerResponse *)response
 {
     if (!response)
     {
         return [self resultForNoBrokerResponse];
     }
     
-    if ([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    if (response.errorDescription)
     {
-        return [self resultForBrokerErrorResponse:response];
+        return [self resultForBrokerErrorResponse:response.formDictionary];
     }
     
-    NSUUID* correlationId =  nil;
-    NSString* correlationIdStr = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID *correlationId =  nil;
+    NSString *correlationIdStr = response.correlationId;
+    
     if (correlationIdStr)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];
     }
-
-    ADTokenCacheItem* item = [ADTokenCacheItem new];
-    [item setAccessTokenType:@"Bearer"];
-    BOOL isMRRT = [item fillItemWithResponse:response];
     
-    // A bug in previous versions of broker would override the provided authority in some cases with
-    // common. If the intended tenant was something other then common then the access token may
-    // be bad, so clear it out. We will force a token refresh later.
-    NSArray *pathComponents = [[NSURL URLWithString:item.authority] pathComponents];
-    NSString *tenant = (pathComponents.count > 1) ? pathComponents[1] : nil;
-    BOOL fValidTenant = response[@"vt"] != nil || [tenant isEqualToString:@"common"];
-    if (!fValidTenant)
+    NSError *msidError = nil;
+
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    
+    BOOL processResult = [factory verifyResponse:response.tokenResponse
+                                fromRefreshToken:NO
+                                         context:nil
+                                           error:&msidError];
+    
+    if (!processResult)
+    {
+        return [ADAuthenticationResult resultFromMSIDError:msidError];
+    }
+    
+    BOOL isMRRT = response.tokenResponse.isMultiResource;
+    
+    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority] redirectUri:nil clientId:response.clientId target:response.resource];
+    
+    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response.tokenResponse
+                                                                    configuration:config];
+    
+    ADTokenCacheItem *item = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
+    
+    if (response.isAccessTokenInvalid)
     {
         item.accessToken = nil;
     }

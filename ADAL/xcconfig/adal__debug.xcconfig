@@ -1,3 +1,5 @@
 //
 //  adal__debug.xcconfig
 //
+
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__debug.xcconfig"

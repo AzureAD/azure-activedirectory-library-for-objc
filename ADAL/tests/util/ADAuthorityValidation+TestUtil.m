@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAuthorityValidation+TestUtil.h"
-#import "ADAadAuthorityCache+TestUtil.h"
+#import "MSIDAadAuthorityCache+TestUtil.h"
 
 @implementation ADAuthorityValidation (TestUtil)
 

@@ -47,29 +47,36 @@ static NSMutableDictionary* s_customHeadersForSingleUse = nil;
                 forHeaderKey:(NSString*)key
                 forSingleUse:(BOOL)singleUse
 {
-    if(singleUse)
+    @synchronized(self)
     {
-        [s_customHeadersForSingleUse setObject:value forKey:key];
-    }
-    else
-    {
-        [s_customHeaders setObject:value forKey:key];
+        if (singleUse)
+        {
+            [s_customHeadersForSingleUse setObject:value forKey:key];
+        }
+        else
+        {
+            [s_customHeaders setObject:value forKey:key];
+        }
     }
 }
 
 + (void)applyCustomHeadersTo:(NSMutableURLRequest*) request
 {
-    for(NSString* key in s_customHeaders)
+    @synchronized(self)
     {
-        id value = [s_customHeaders objectForKey:key];
-        [request setValue:value forHTTPHeaderField:key];
-    }
-    
-    for(NSString* key in s_customHeadersForSingleUse)
-    {
-        id value = [s_customHeadersForSingleUse objectForKey:key];
-        [request setValue:value forHTTPHeaderField:key];
-        [s_customHeadersForSingleUse removeObjectForKey:key];
+        for(NSString* key in s_customHeaders)
+        {
+            id value = [s_customHeaders objectForKey:key];
+            [request setValue:value forHTTPHeaderField:key];
+        }
+        
+        for(NSString* key in s_customHeadersForSingleUse)
+        {
+            id value = [s_customHeadersForSingleUse objectForKey:key];
+            [request setValue:value forHTTPHeaderField:key];
+        }
+        
+        [s_customHeadersForSingleUse removeAllObjects];
     }
 }
 

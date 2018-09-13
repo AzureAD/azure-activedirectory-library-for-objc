@@ -9,3 +9,4 @@ ADAL/Security.gcno
 .DS_Store
 \.scannerwork/
 bw-output/
+*.pyc

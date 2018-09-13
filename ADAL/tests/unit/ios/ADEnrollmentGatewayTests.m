@@ -391,4 +391,25 @@
     XCTAssertNil(error);
 }
 
+- (void)testEnrollmentIDForHomeAccountIdUserId_whenFoundByEnrollmentId_shouldReturnEnrollmentId
+{
+    ADAuthenticationError *error = nil;
+    XCTAssertNotNil([ADEnrollmentGateway enrollmentIDForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22"  userID:@"user_id_not_exist" error:&error]);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIDForHomeAccountIdUserId_whenNotFoundByEnrollmentId_shouldFallbackToUserId
+{
+    ADAuthenticationError *error = nil;
+    XCTAssertNotNil([ADEnrollmentGateway enrollmentIDForHomeAccountId:@"account_id_not_exist"  userID:@"mike@contoso.com" error:&error]);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIDForHomeAccountIdUserId_whenNotFoundByEitherEnrollmentIdOrUserId_shouldFallbackToWhateverAvailable
+{
+    ADAuthenticationError *error = nil;
+    XCTAssertNotNil([ADEnrollmentGateway enrollmentIDForHomeAccountId:@"account_id_not_exist"  userID:@"user_id_not_exist" error:&error]);
+    XCTAssertNil(error);
+}
+
 @end

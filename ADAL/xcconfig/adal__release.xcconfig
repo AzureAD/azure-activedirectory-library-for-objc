@@ -1,3 +1,5 @@
 //
 //  adal__release.xcconfig
 //
+
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__release.xcconfig"
