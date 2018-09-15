@@ -274,6 +274,11 @@
             [requestData setObject:_requestParams.scope forKey:OAUTH2_SCOPE];
         }
         
+        if (![NSString adIsStringNilOrBlank:_requestParams.claims])
+        {
+            [requestData setObject:_requestParams.claims.adUrlFormDecode forKey:OAUTH2_CLAIMS];
+        }
+        
         if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
         {
             [requestData setObject:_requestParams.identifier.userId forKey:OAUTH2_LOGIN_HINT];
