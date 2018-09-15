@@ -37,6 +37,21 @@
     #import <AppKit/AppKit.h>
 #endif
 
+/*
+ If you're seeing a failure on this line, it's likely that you're consuming ADAL through CocoaPods or as a submodule
+
+ If you're using CocoaPods:
+
+ - Make sure you add the ":submodules => true" to your pod file, e.g.
+
+ pod 'ADAL', '~> 2.7', :submodules => true
+
+ If you're using submodules:
+
+ - When you update submodules, make sure you use "--recursive"
+ */
+
+#import "IdentityCore_Internal.h"
 #import "ADAL_Internal.h"
 
 #ifndef DebugLog

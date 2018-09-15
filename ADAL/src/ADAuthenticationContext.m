@@ -26,6 +26,7 @@
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
+#import "MSIDKeychainTokenCache.h"
 #endif 
 
 #import "ADAuthenticationContext+Internal.h"
@@ -38,7 +39,6 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADHelpers.h"
 #import "MSIDMacTokenCache.h"
-#import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "ADTokenCache.h"

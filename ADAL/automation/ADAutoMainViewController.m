@@ -480,6 +480,7 @@
                                      clientId:parameters[@"client_id"]
                                   redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                               completionBlock:^(ADAuthenticationResult *result) {
+                                  
                                   dispatch_async(dispatch_get_main_queue(), ^{
                                       [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
                                   });

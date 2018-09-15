@@ -41,7 +41,7 @@ static BOOL msalAppInstalled = NO;
     if (!msalAppInstalled)
     {
         msalAppInstalled = YES;
-        [self installAppWithId:@"msal_objc"];
+        [self installAppWithId:@"msal_unified"];
         [self.testApp activate];
         [self closeResultView];
     }
@@ -57,8 +57,7 @@ static BOOL msalAppInstalled = NO;
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive",
+                             @"redirect_uri": @"x-msauth-automationapp://com.microsoft.adal.automationapp",
                              @"resource": @"https://graph.microsoft.com"
                              };
 
@@ -77,9 +76,8 @@ static BOOL msalAppInstalled = NO;
                @"prompt_behavior" : @"always",
                @"validate_authority" : @YES,
                @"scopes": @"https://graph.microsoft.com/.default",
-               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive", // TODO: replace this with lab test app, when redirect uris are added in lab
-               @"user_identifier": self.primaryAccount.homeAccountId,
+               @"redirect_uri": @"x-msauth-msalautomationapp://com.microsoft.msal.automationapp",
+               @"home_account_identifier": self.primaryAccount.homeAccountId,
                // MSAL doesn't have authority migration feature yet, so we need to use login.windows.net authority
                @"authority": [NSString stringWithFormat:@"https://login.windows.net/%@", self.primaryAccount.targetTenantId]
                };
@@ -110,15 +108,15 @@ static BOOL msalAppInstalled = NO;
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"scopes": @"https://graph.microsoft.com/.default",
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive",
+                             @"redirect_uri": @"x-msauth-msalautomationapp://com.microsoft.msal.automationapp",
                              @"resource": @"https://graph.microsoft.com",
-                             @"authority": @"https://login.microsoftonline.com/organizations",
+                             @"authority": @"https://login.windows.net/organizations",
                              @"ui_behavior": @"force",
                              };
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
+    [self acceptAuthSessionDialog];
     [self aadEnterEmail];
     [self aadEnterPassword];
 
@@ -129,7 +127,8 @@ static BOOL msalAppInstalled = NO;
     [self.testApp activate];
 
     NSMutableDictionary *mutableParams = [config mutableCopy];
-    mutableParams[@"authority"] = @"https://login.microsoftonline.com/common";
+    mutableParams[@"authority"] = @"https://login.windows.net/common";
+    mutableParams[@"user_identifier"] = self.primaryAccount.account;
 
     // Acquire token silent
     [self acquireTokenSilent:mutableParams];
@@ -149,7 +148,7 @@ static BOOL msalAppInstalled = NO;
     // Go back to MSAL test app
     self.testApp = [self msalTestApp];
 
-    mutableParams[@"user_identifier"] = self.primaryAccount.homeAccountId;
+    mutableParams[@"home_account_identifier"] = self.primaryAccount.homeAccountId;
 
     // Acquire token silent
     [self acquireTokenSilent:mutableParams];
@@ -178,6 +177,7 @@ static BOOL msalAppInstalled = NO;
 
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     [self acquireToken:config];
+    [self acceptAuthSessionDialog];
     [self aadEnterEmail];
     [self aadEnterPassword];
     [self assertAccessTokenNotNil];
@@ -192,7 +192,8 @@ static BOOL msalAppInstalled = NO;
                @"validate_authority" : @YES,
                @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
                @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-               @"authority": @"https://login.windows.net/common"
+               @"authority": @"https://login.windows.net/common",
+               @"user_identifier": self.primaryAccount.account
                };
 
     NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
@@ -204,7 +205,7 @@ static BOOL msalAppInstalled = NO;
     self.testApp = [self msalTestApp];
 
     NSMutableDictionary *mutableConfig = [config mutableCopy];
-    mutableConfig[@"user_identifier"] = self.primaryAccount.homeAccountId;
+    mutableConfig[@"home_account_identifier"] = self.primaryAccount.homeAccountId;
 
     // Acquire token silent
     [self acquireTokenSilent:mutableConfig];
@@ -246,9 +247,10 @@ static BOOL msalAppInstalled = NO;
     self.testApp = [self msalTestApp];
 
     NSMutableDictionary *mutableConfig = [config mutableCopy];
-    mutableConfig[@"user_identifier"] = nil;
+    mutableConfig[@"home_account_identifier"] = nil;
     mutableConfig[@"user_legacy_identifier"] = self.primaryAccount.username;
     mutableConfig[@"authority"] = [NSString stringWithFormat:@"https://login.windows.net/%@", self.primaryAccount.targetTenantId];
+    mutableConfig[@"redirect_uri"] = @"x-msauth-msalautomationapp://com.microsoft.msal.automationapp";
 
     // Acquire token silent
     [self acquireTokenSilent:mutableConfig];
@@ -258,7 +260,7 @@ static BOOL msalAppInstalled = NO;
 
 - (XCUIApplication *)msalTestApp
 {
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"msal_objc"];
+    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"msal_unified"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *msalApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
