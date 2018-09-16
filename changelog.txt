@@ -1,12 +1,16 @@
+Version 2.7.0 (07.23.2018)
+-------------
+* Add new API to skip access token in cache by passing a forceRefresh parameter (#1234)
+* Intune enrollment id support for MAM scenarios (#1232)
+* Cache co-existence with apps using MSAL Objective-C and MSAL .NET SDKs
+
 Version 2.6.6 (09.10.2018)
 ------------
 * Added support to send claims to the token endpoint (#1272)
 
-
 Version 2.6.5 (08.01.2018)
 ------------
 * Skip tombstones in macOS token cache (#1258)
-
 
 Version 2.6.4 (07.13.2018)
 -------------

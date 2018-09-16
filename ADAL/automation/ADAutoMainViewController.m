@@ -29,6 +29,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
 #import <ADAL/ADTelemetry.h>
+#import "MSIDAADAuthority.h"
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
@@ -296,8 +297,10 @@
         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
+        
+        __auto_type aadAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
 
-        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:parameters[@"authority"]]];
+        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
 
         for (NSURL *alias in aliases)
         {
@@ -367,8 +370,10 @@
         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
+        
+        __auto_type aadAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
 
-        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:[NSURL URLWithString:parameters[@"authority"]]];
+        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
 
         for (NSURL *alias in aliases)
         {
@@ -476,6 +481,7 @@
                                      clientId:parameters[@"client_id"]
                                   redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                               completionBlock:^(ADAuthenticationResult *result) {
+                                  
                                   dispatch_async(dispatch_get_main_queue(), ^{
                                       [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
                                   });

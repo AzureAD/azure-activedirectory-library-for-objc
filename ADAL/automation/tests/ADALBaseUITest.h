@@ -53,6 +53,7 @@
 - (void)clearCache;
 - (void)clearKeychain;
 - (void)clearCookies;
+- (void)blackForestWaitForNextButton:(XCUIApplication *)application;
 - (void)aadEnterEmail:(NSString *)email;
 - (void)aadEnterEmail;
 - (void)aadEnterEmailInApp:(XCUIApplication *)app;

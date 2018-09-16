@@ -189,6 +189,28 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 #pragma mark - Actions
 
+/*
+ There seems to be some flakiness around sovereign user with login hint provided,
+ where ESTS sometimes shows the username page with next button and sometimes redirects to the password page correctly. This portion of code waits for the "Next" button for 10 seconds if it appears.
+ */
+- (void)blackForestWaitForNextButton:(XCUIApplication *)application
+{
+    XCUIElement *emailTextField = application.textFields[@"Enter your email, phone, or Skype."];
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (emailTextField.exists)
+        {
+            [application.buttons[@"Next"] msidTap];
+            break;
+        }
+        else
+        {
+            sleep(1);
+        }
+    }
+}
+
 - (void)aadEnterEmail:(NSString *)email inApp:(XCUIApplication *)app
 {
     XCUIElement *emailTextField = app.textFields[@"Enter your email, phone, or Skype."];

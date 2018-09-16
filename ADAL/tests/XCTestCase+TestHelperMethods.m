@@ -46,6 +46,7 @@
 #import "MSIDConfiguration.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDTestUtil.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -253,8 +254,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@.",
-                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString msidBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken
                                                                   homeAccountId:homeAccountId
@@ -694,7 +695,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (MSIDConfiguration *)adCreateV2DefaultConfiguration
 {
-    return [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:TEST_AUTHORITY]
+    
+    
+    return [[MSIDConfiguration alloc] initWithAuthority:[TEST_AUTHORITY authority]
                                             redirectUri:TEST_REDIRECT_URL_STRING
                                                clientId:TEST_CLIENT_ID
                                                  target:@"https://graph.microsoft.com/mail.read"];
@@ -729,7 +732,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (void)fillBaseToken:(MSIDBaseToken *)baseToken
 {
-    baseToken.authority = [[NSURL alloc] initWithString:TEST_AUTHORITY];
+    baseToken.authority = [TEST_AUTHORITY authority];
     baseToken.clientId = TEST_CLIENT_ID;
     baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"unique User Id"];
     baseToken.clientInfo = [self adCreateClientInfo];
@@ -749,7 +752,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 - (NSString *)base64UrlFromJson:(NSDictionary *)json
 {
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
-    return [NSString msidBase64UrlEncodeData:jsonData];
+    return [NSString msidBase64UrlEncodedStringFromData:jsonData];
 }
 
 @end

@@ -26,6 +26,7 @@
 #import "MSIDConfiguration.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation ADRequestParameters
 
@@ -79,7 +80,7 @@
         return @"openid";
     }
 
-    NSOrderedSet<NSString *> *scopes = [self.scopesString scopeSet];
+    NSOrderedSet<NSString *> *scopes = [self.scopesString msidScopeSet];
     if (![scopes containsObject:@"openid"])
     {
         return [NSString stringWithFormat:@"openid %@", self.scopesString];
@@ -98,7 +99,10 @@
 
 - (MSIDConfiguration *)msidConfig
 {
-    NSURL *authority = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:authorityUrl context:nil error:nil];
+    
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId

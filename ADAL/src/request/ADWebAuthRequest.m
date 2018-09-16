@@ -60,12 +60,12 @@
 {
     if ([self isGetRequest] && [_requestDictionary allKeys].count > 0)
     {
-        NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary msidURLFormEncode]];
+        NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary msidWWWFormURLEncode]];
         _requestURL = [NSURL URLWithString:newURL];
     }
     else
     {
-        [self setBody:[[_requestDictionary msidURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+        [self setBody:[[_requestDictionary msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding]];
     }
     
     _startTime = [NSDate new];

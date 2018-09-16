@@ -111,7 +111,7 @@
            [data length],
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
-    NSString* signedEncodedDataString = [NSString msidBase64UrlEncodeData:signedData];
+    NSString* signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
@@ -303,7 +303,8 @@
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        MSID_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[authority msidUrl]] ? [authority msidUrl].host : @"unknown host");
+        NSURL *authorityUrl = [NSURL URLWithString:authority];
+        MSID_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:authorityUrl] ? authorityUrl.host : @"unknown host");
         MSID_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
 
         return nil;
