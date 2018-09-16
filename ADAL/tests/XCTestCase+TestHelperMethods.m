@@ -273,6 +273,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       oauthError:(NSString *)oauthError
                                    oauthSubError:(NSString *)oauthSubError
                                    correlationId:(NSUUID *)correlationId
+                                   requestParams:(NSDictionary *)requestParams
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
     
@@ -296,17 +297,21 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     {
         jsonDictionary[MSID_OAUTH2_SUB_ERROR] = oauthSubError;
     }
-    
+
+    NSMutableDictionary *requestParamsBody = [@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                                MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
+                                                MSID_OAUTH2_RESOURCE : resource,
+                                                MSID_OAUTH2_CLIENT_INFO: @"1",
+                                                MSID_OAUTH2_CLIENT_ID : clientId,
+                                                MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE
+                                                 } mutableCopy];
+
+    [requestParamsBody addEntriesFromDictionary:requestParams];
+
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:requestHeaders
-                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
-                                           MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
-                                           MSID_OAUTH2_RESOURCE : resource,
-                                           MSID_OAUTH2_CLIENT_INFO: @"1",
-                                           MSID_OAUTH2_CLIENT_ID : clientId,
-                                           MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE
-                                           }
+                      requestParamsBody:requestParamsBody
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
@@ -323,8 +328,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                   clientId:TEST_CLIENT_ID
                                 oauthError:oauthError
                              oauthSubError:nil
-                             correlationId:TEST_CORRELATION_ID];
-
+                             correlationId:TEST_CORRELATION_ID
+                             requestParams:nil];
 }
 
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse
@@ -474,7 +479,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                            responseCode:400
                         responseHeaders:responseHeaders
                            responseJson:jsonBody
-                       useOpenidConnect:newIDToken != nil];
+                       useOpenidConnect:newIDToken != nil
+                          requestParams:nil];
 }
 
 - (ADTestURLResponse *)adDefaultRefreshReponseCode:(NSInteger)responseCode
@@ -490,7 +496,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                            responseCode:responseCode
                         responseHeaders:responseHeaders
                            responseJson:responseJson
-                       useOpenidConnect:YES];
+                       useOpenidConnect:YES
+                          requestParams:nil];
 }
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -503,7 +510,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                               responseHeaders:(NSDictionary *)responseHeaders
                                  responseJson:(NSDictionary *)responseJson
                              useOpenidConnect:(BOOL)useOpenidConnect
-
+                                requestParams:(NSDictionary *)requestParams
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
     
@@ -525,6 +532,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     {
         requestParamsBody[MSID_OAUTH2_SCOPE] = MSID_OAUTH2_SCOPE_OPENID_VALUE;
     }
+
+    [requestParamsBody addEntriesFromDictionary:requestParams];
+
 
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString

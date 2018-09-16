@@ -140,6 +140,12 @@
     }
 
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+
+    if (![NSString msidIsStringNilOrBlank:_requestParams.claims])
+    {
+        request_data[MSID_OAUTH2_CLAIMS] = _requestParams.claims.msidWWWFormURLDecode;
+    }
+
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
     BOOL isADFSInstance = adfsAuthority != nil;
     

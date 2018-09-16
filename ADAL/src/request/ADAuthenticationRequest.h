@@ -52,7 +52,7 @@
     ADRequestParameters* _requestParams;
     
     ADPromptBehavior _promptBehavior;
-    
+
     NSString* _refreshTokenCredential;
     
     NSString* _samlAssertion;

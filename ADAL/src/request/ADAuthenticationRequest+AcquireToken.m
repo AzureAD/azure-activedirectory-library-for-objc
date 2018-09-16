@@ -233,8 +233,9 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _requestParams.claims.msidTrimmedString;
-    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
+    NSString *claimsParams = _requestParams.claims;
+    
+    NSURL *url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
         if (error)
@@ -247,9 +248,8 @@
         return NO;
     }
     
-    // Always skip cache if claims parameter is not nil/empty
-    _skipCache = YES;
-    
+    // Always skip access token cache if claims parameter is not nil/empty
+    [_requestParams setForceRefresh:YES];
     return YES;
 }
 
