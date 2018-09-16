@@ -23,11 +23,11 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_OPTIONS(NSUInteger, MSIDNSErrorFilteringOptions)
+typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
 {
-    MSIDNSErrorFilteringOptionNone                  = 0,
+    MSIDErrorFilteringOptionNone                  = 0,
     // Remove parameters from failed url.
-    MSIDNSErrorFilteringOptionRemoveUrlParameters   = 1 << 0,
+    MSIDErrorFilteringOptionRemoveUrlParameters   = 1 << 0,
 };
 
 
@@ -36,6 +36,6 @@ typedef NS_OPTIONS(NSUInteger, MSIDNSErrorFilteringOptions)
 /*!
  Return filtered error based on provided filtering options.
  */
-- (nonnull NSError *)adalErrorWithFilteringOptions:(MSIDNSErrorFilteringOptions)option;
+- (nonnull NSError *)adalErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option;
 
 @end

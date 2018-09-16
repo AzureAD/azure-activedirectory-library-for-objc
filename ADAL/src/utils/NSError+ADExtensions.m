@@ -25,11 +25,11 @@
 
 @implementation NSError (ADExtensions)
 
-- (NSError *)adalErrorWithFilteringOptions:(MSIDNSErrorFilteringOptions)option
+- (NSError *)adalErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option
 {
     NSMutableDictionary *errorUserInfo = [self.userInfo mutableCopy];
     
-    if (option & MSIDNSErrorFilteringOptionRemoveUrlParameters)
+    if (option & MSIDErrorFilteringOptionRemoveUrlParameters)
     {
         // Don't put raw url in NSError because it can contain sensitive data.
         NSURL *failedUrl = errorUserInfo[NSURLErrorFailingURLErrorKey];

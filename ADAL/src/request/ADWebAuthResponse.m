@@ -417,7 +417,7 @@
     
     AD_LOG_WARN(_request.correlationId, @"System error while making request");
     
-    error = [error adalErrorWithFilteringOptions:MSIDNSErrorFilteringOptionRemoveUrlParameters];
+    error = [error adalErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
     
     AD_LOG_WARN_PII(_request.correlationId, @"System error while making request %@", error.description);
 
