@@ -31,6 +31,7 @@
 #import "ADClientMetrics.h"
 #import "NSString+ADTelemetryExtensions.h"
 #import "ADTelemetryEventStrings.h"
+#import "NSError+ADExtensions.h"
 
 @implementation ADWebAuthResponse
 
@@ -415,6 +416,9 @@
     }
     
     AD_LOG_WARN(_request.correlationId, @"System error while making request");
+    
+    error = [error adalErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
+    
     AD_LOG_WARN_PII(_request.correlationId, @"System error while making request %@", error.description);
 
     // System error
