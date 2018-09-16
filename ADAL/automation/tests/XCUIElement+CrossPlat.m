@@ -57,7 +57,7 @@
     // See here: https://forums.developer.apple.com/thread/86653
     if (![self.placeholderValue isEqualToString:self.value] && self.value)
     {
-        [self pressForDuration:0.5];
+        [self pressForDuration:1.0];
         [app.menuItems[@"Select All"] tap];
     }
 #else
