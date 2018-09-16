@@ -309,8 +309,6 @@
     XCTAssertEqualObjects([self.adTokenCache getFRT:authority], updatedRT);
     XCTAssertEqualObjects([self.adTokenCache getAT:authority], updatedAT);
 
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-
     MSIDAadAuthorityCacheRecord *record = [[ADAuthorityValidation sharedInstance].aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
