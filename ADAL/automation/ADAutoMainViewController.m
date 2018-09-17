@@ -370,10 +370,17 @@
         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
-        
-        __auto_type aadAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
 
-        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+        NSURL *providedAuthority = [NSURL URLWithString:parameters[@"authority"]];
+
+        __auto_type aadAuthority = [[MSIDAADAuthority alloc] initWithURL:providedAuthority  context:nil error:nil];
+
+        NSArray *aliases = @[providedAuthority];
+
+        if (aadAuthority)
+        {
+            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+        }
 
         for (NSURL *alias in aliases)
         {
