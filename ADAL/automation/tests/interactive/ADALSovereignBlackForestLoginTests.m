@@ -63,10 +63,7 @@
     
     [self acquireToken:config];
 
-    XCUIElement *emailTextField = self.testApp.textFields[@"Enter your email, phone, or Skype."];
-    [self waitForElement:emailTextField];
-    [self.testApp.buttons[@"Next"] msidTap];
-
+    [self blackForestWaitForNextButton:self.testApp];
     [self blackforestComEnterPassword];
     
     [self assertAccessTokenNotNil];

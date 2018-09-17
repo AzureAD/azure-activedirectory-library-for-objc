@@ -31,6 +31,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDAuthority.h"
 
 @interface ADTokenCacheItem()
 
@@ -130,8 +131,8 @@
     if (self)
     {
         _clientId = baseToken.clientId;
-        _authority = baseToken.authority.absoluteString;
-        _storageAuthority = baseToken.storageAuthority.absoluteString;
+        _authority = baseToken.authority.url.absoluteString;
+        _storageAuthority = baseToken.storageAuthority.url.absoluteString;
         _additionalServer = baseToken.additionalServerInfo;
     }
     

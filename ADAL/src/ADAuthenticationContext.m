@@ -26,6 +26,7 @@
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
+#import "MSIDKeychainTokenCache.h"
 #endif 
 
 #import "ADAuthenticationContext+Internal.h"
@@ -38,7 +39,6 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADHelpers.h"
 #import "MSIDMacTokenCache.h"
-#import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "ADTokenCache.h"
@@ -406,6 +406,22 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setSilent:YES];
     [request setForceRefresh:forceRefresh];
     [request acquireToken:@"9" completionBlock:completionBlock];
+}
+
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
+                                claims:(NSString *)claims
+                       completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+
+    [request setUserId:userId];
+    [request setSilent:YES];
+    [request setClaims:claims];
+    [request acquireToken:@"10" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource

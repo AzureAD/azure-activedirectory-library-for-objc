@@ -21,20 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADALBaseUITest.h"
+#import <Foundation/Foundation.h>
 
-@interface ADALBaseiOSUITest : ADALBaseUITest
+typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
+{
+    MSIDErrorFilteringOptionNone                  = 0,
+    // Remove parameters from failed url.
+    MSIDErrorFilteringOptionRemoveUrlParameters   = 1 << 0,
+};
 
-- (XCUIApplication *)brokerApp;
-- (void)registerDeviceInAuthenticator;
-- (void)unregisterDeviceInAuthenticator;
-- (XCUIApplication *)openDeviceRegistrationMenuInAuthenticator;
-- (void)openAppInstallURLForAppId:(NSString *)appId;
-- (void)allowNotificationsInSystemAlert;
-- (void)waitForRedirectToTheTestApp;
-- (XCUIApplication *)installAppWithId:(NSString *)appId;
-- (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId;
-- (void)removeAppWithId:(NSString *)appId;
-- (void)acceptAuthSessionDialog;
+
+@interface NSError (ADExtensions)
+
+/*!
+ Return filtered error based on provided filtering options.
+ */
+- (nonnull NSError *)adalErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option;
 
 @end

@@ -31,6 +31,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "MSIDLegacyTokenCacheItem.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface ADTokenCacheItemIntegrationWithMSIDTokensTests : XCTestCase
 
@@ -53,7 +54,7 @@
 - (void)testInitWithAccessToken_shouldInitADTokenCacheItem
 {
     MSIDLegacyAccessToken *accessToken = [self adCreateAccessToken];
-    accessToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
+    accessToken.storageAuthority = [@"https://login.authority2.com/common" authority];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
                                                              homeAccountId:accessToken.clientInfo.accountIdentifier];
 
@@ -84,7 +85,7 @@
 - (void)testInitWithRefreshToken_shouldInitADTokenCacheItem
 {
     MSIDLegacyRefreshToken *refreshToken = [self adCreateRefreshToken];
-    refreshToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
+    refreshToken.storageAuthority = [@"https://login.authority2.com/common" authority];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
                                                              homeAccountId:refreshToken.clientInfo.accountIdentifier];
 
@@ -115,7 +116,7 @@
 - (void)testInitWithLegacySingleResourceToken_shouldInitADTokenCacheItem
 {
     MSIDLegacySingleResourceToken *legacySingleResourceToken = [self adCreateLegacySingleResourceToken];
-    legacySingleResourceToken.storageAuthority = [NSURL URLWithString:@"https://login.authority2.com/common"];
+    legacySingleResourceToken.storageAuthority = [@"https://login.authority2.com/common" authority];
     ADUserInformation *expectedInformation = [self adCreateUserInformation:TEST_USER_ID
                                                              homeAccountId:legacySingleResourceToken.clientInfo.accountIdentifier];
 

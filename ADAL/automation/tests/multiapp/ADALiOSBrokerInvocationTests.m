@@ -83,10 +83,7 @@ static BOOL brokerAppInstalled = NO;
     [self acquireToken:config];
 
     XCUIApplication *brokerApp = [self brokerApp];
-
-    __auto_type nextButton = brokerApp.buttons[@"Next"];
-    [self waitForElement:nextButton];
-    [nextButton tap];
+    [self blackForestWaitForNextButton:brokerApp];
 
     XCUIElement *passwordTextField = brokerApp.secureTextFields[@"Password"];
     [self waitForElement:passwordTextField];
@@ -226,7 +223,6 @@ static BOOL brokerAppInstalled = NO;
     // Load configuration
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    //configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
 
@@ -274,6 +270,49 @@ static BOOL brokerAppInstalled = NO;
     // Now do access token refresh with a resouce requiring device auth
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
+- (void)testSilentClaimsOnTheTokenEndpoint
+{
+    // Load configuration
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
+    [self loadTestConfiguration:configurationRequest];
+
+    // Register device with that account
+    [self registerDeviceInAuthenticator];
+    XCUIApplication *brokerApp = [self brokerApp];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
+    [self.testApp activate];
+
+    // Acquire token for a resource that doesn't require device authentication
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"user_identifier" : self.primaryAccount.account,
+                             @"user_identifier_type" : @"optional_displayable",
+                             @"use_broker": @NO,
+                             @"resource": @"00000002-0000-0000-c000-000000000000"
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    [self acquireToken:config];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
+    [self closeResultView];
+
+    NSMutableDictionary *paramsCopy = [params mutableCopy];
+    paramsCopy[@"claims"] = @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D";
+    config = [self.testConfiguration configWithAdditionalConfiguration:paramsCopy];
+    
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self assertRefreshTokenNotNil];
     [self closeResultView];
 }
 
