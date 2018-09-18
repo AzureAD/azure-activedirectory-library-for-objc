@@ -29,7 +29,7 @@
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDPkeyAuthHelper.h"
-#import "NSError+ADExtensions.h"
+#import "NSError+MSIDExtensions.h"
 
 @implementation ADWebAuthResponse
 
@@ -417,7 +417,7 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
     
     MSID_LOG_WARN(_request, @"System error while making request");
     
-    error = [error adalErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
+    error = [error msidErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
     
     MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
 
