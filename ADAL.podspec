@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "ADAL"
   s.module_name  = "ADAL"
-  s.version      = "2.7.0"
+  s.version      = "4.0.0"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -15,8 +15,8 @@ Pod::Spec.new do |s|
   s.authors      = { "Microsoft" => "nugetaad@microsoft.com" }
   s.social_media_url   = "https://twitter.com/azuread"
   s.platform     = :ios, :osx
-  s.ios.deployment_target = "9.0"
-  s.osx.deployment_target = "10.10"
+  s.ios.deployment_target = "10.0"
+  s.osx.deployment_target = "10.11"
   s.source       = { 
     :git => "https://github.com/AzureAD/azure-activedirectory-library-for-objc.git", 
     :tag => s.version.to_s,
