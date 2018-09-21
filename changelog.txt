@@ -1,3 +1,11 @@
+Version 4.0.0 (09.19.2018)
+-------------
+* Support any version of server telemetry (#1287)
+* Don't use certificate from identity when creating credential in clientTLS handler (#1286)
+* Use WKWebView instead of UIWebView for iOS and WebView for macOS (#1262)
+* Pass claims challenge to the token endpoint (#1274)
+* ADAL now supports iOS 10+ and macOS 10.11+ only
+
 Version 2.7.0 (07.23.2018)
 -------------
 * Add new API to skip access token in cache by passing a forceRefresh parameter (#1234)
