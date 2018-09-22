@@ -25,6 +25,7 @@
 // version in static define until we identify a better place.
 // (Note: All Info.plist files read version numbers from the following three lines
 // through build script. Don't change its format unless changing build script as well.)
+
 #define ADAL_VER_HIGH       4
 #define ADAL_VER_LOW        0
 #define ADAL_VER_PATCH      0
