@@ -5,6 +5,7 @@ Version 4.0.0 (09.19.2018)
 * Use WKWebView instead of UIWebView for iOS and WebView for macOS (#1262)
 * Pass claims challenge to the token endpoint (#1274)
 * ADAL now supports iOS 10+ and macOS 10.11+ only
+* WKWebView drops network connection if device got locked on iOS 12. It is expected behavior and we can't manage it.
 
 Version 2.7.1 
 -------------
