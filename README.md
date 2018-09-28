@@ -11,8 +11,9 @@ We recommend remaining up-to-date with the latest version of ADAL. The best plac
 
 The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
-NOTE: To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
-
+NOTE:
+- To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
+- WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
 =====================================
 
 
