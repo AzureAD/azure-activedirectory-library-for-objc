@@ -211,10 +211,12 @@
 		960E93751E296CC9008036C0 /* ADURLSessionDemux.h in Headers */ = {isa = PBXBuildFile; fileRef = 960E93721E296CC2008036C0 /* ADURLSessionDemux.h */; };
 		960E93761E296CCF008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
 		960E93771E296CD0008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
+		962B7DDF215ED86E00A5B291 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		967E351720E1C69500A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		967E351820E1C77100A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		9699EB972155A80C0049451D /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 60C351B91DA0D588006C8435 /* ADAL.m */; };
 		96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96AC69381E70E184008183A7 /* ADAutoResultViewController.m */; };
+		96B9D6F2215E8F5F00C9898A /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		96B9F03E20DDD411006C806C /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F03D20DDD411006C806C /* GSS.framework */; };
 		96B9F04020DDD43E006C806C /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		96B9F04720DDFC0C006C806C /* adal__additional_settings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 96B9F04620DDFC0C006C806C /* adal__additional_settings.xcconfig */; };
@@ -1366,6 +1368,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				962B7DDF215ED86E00A5B291 /* libIdentityCore.a in Frameworks */,
+				96B9D6F2215E8F5F00C9898A /* libADAL-core.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
