@@ -13,7 +13,7 @@ The only approved way to get the latest version is through a tagged release on G
 
 NOTE:
 - To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
-- WKWebView drops network connection if device got locked on iOS 12. It is expected behavior and we can't manage it.
+- WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
 =====================================
 
 
