@@ -1,3 +1,7 @@
+Version 2.7.2 
+-------------
+* Fix issues with the iOS library compilation output.
+
 Version 2.7.1 
 -------------
 * Fix issues with the framework compilation and add correct bundle version to
