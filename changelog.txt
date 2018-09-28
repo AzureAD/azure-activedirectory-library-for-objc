@@ -1,3 +1,12 @@
+Version 2.7.2 
+-------------
+* Fix issues with the iOS library compilation output.
+
+Version 2.7.1 
+-------------
+* Fix issues with the framework compilation and add correct bundle version to
+the framework
+
 Version 2.7.0 (07.23.2018)
 -------------
 * Add new API to skip access token in cache by passing a forceRefresh parameter (#1234)
