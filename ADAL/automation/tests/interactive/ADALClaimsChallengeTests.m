@@ -99,7 +99,6 @@
     
     // Acquire token again.
     [self acquireToken:config];
-    [self aadEnterPassword];
     
     XCUIElement *getAppButton = self.testApp.buttons[@"Get the app"];
     [self waitForElement:getAppButton];
