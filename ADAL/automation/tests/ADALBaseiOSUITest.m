@@ -210,11 +210,11 @@
     NSString *appName = appConfiguration[@"app_name"];
 
     // specify the whole path to make sure we get icon from home screen but not the multitask dock
-    __auto_type appIcon = springBoardApp.otherElements[@"Home screen icons"].scrollViews.otherElements.icons[appName].firstMatch;
+    __auto_type appIcon = springBoardApp.otherElements[@"Home screen icons"].scrollViews.otherElements.icons[appName];
 
     if (appIcon.exists)
     {
-        [appIcon pressForDuration:1.95f];
+        [appIcon pressForDuration:2.0f];
 
         XCUIElement *deleteButton = nil;
 
