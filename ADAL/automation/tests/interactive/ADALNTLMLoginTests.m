@@ -67,7 +67,8 @@
     // Acquire token again.
     [self acquireToken:config];
 
-    [self assertAuthUIAppear];
+    // Because of cookies, request should be satisfied automatically
+    [self assertAccessTokenNotNil];
 }
 
 - (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
