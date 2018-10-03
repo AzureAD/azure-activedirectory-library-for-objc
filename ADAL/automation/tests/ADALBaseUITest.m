@@ -258,7 +258,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
 {
     // Enter password
-    XCUIElement *passwordTextField = testApp.secureTextFields[@"Enter password"];
+    XCUIElement *passwordTextField = testApp.secureTextFields.firstMatch;
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:testApp];
     [passwordTextField typeText:password];
