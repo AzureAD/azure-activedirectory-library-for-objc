@@ -25,6 +25,7 @@
 #import "ADTelemetryAPIEvent.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface ADTelemetryAPIEventTests : ADTestCase
 
@@ -52,7 +53,7 @@
     
     [event setUserInformation:userInfo];
     
-    ADAssertStringEquals([event propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+    ADAssertStringEquals([event propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [[[@"eric_cartman@contoso.com"  dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);
 }
 
 - (void)testSetUserInformation_whenTenantIdProvided_shouldNotHashTenantIdAsItIsOii
@@ -77,7 +78,7 @@
     
     [event setUserId:@"eric_cartman@contoso.com"];
     
-    ADAssertStringEquals([event propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [@"eric_cartman@contoso.com" msidComputeSHA256]);
+    ADAssertStringEquals([event propertyWithName:MSID_TELEMETRY_KEY_USER_ID], [[[@"eric_cartman@contoso.com"  dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);
 }
 
 @end

@@ -33,6 +33,7 @@
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDBrokerResponse+ADAL.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -223,7 +224,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     // Extract headers if it is http error
     if ([errorDomain isEqualToString:ADHTTPErrorCodeDomain])
     {
-        NSDictionary *httpHeaders = [NSDictionary msidURLFormDecode:[response valueForKey:@"http_headers"]];
+        NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:[response valueForKey:@"http_headers"]];
         error = [ADAuthenticationError errorFromHTTPErrorCode:errorCode body:errorDetails headers:httpHeaders correlationId:correlationId];
     }
     else
@@ -275,7 +276,10 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     BOOL isMRRT = response.tokenResponse.isMultiResource;
     
-    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:[NSURL URLWithString:response.authority] redirectUri:nil clientId:response.clientId target:response.resource];
+    __auto_type authorityFactory = [MSIDAuthorityFactory new];
+    __auto_type authority = [authorityFactory authorityFromUrl:[[NSURL alloc] initWithString:response.authority] context:nil error:nil];
+
+    MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:response.clientId target:response.resource];
     
     MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response.tokenResponse
                                                                     configuration:config];

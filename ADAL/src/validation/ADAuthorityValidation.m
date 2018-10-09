@@ -36,6 +36,9 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAuthority.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDADFSAuthority.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -151,7 +154,9 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     // Check for AAD or ADFS
-    if ([MSIDAuthority isADFSInstanceURL:authorityURL])
+     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:authorityURL context:nil error:nil];
+
+    if (adfsAuthority)
     {
         if (!validateAuthority)
         {
@@ -203,7 +208,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    MSIDAadAuthorityCacheRecord *record = [_aadCache tryCheckCache:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache objectForKey:authority.msidHostWithPortIfNecessary];
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
@@ -248,13 +253,22 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     });
 }
 
-- (void)requestAADValidation:(NSURL *)authority
+- (void)requestAADValidation:(NSURL *)authorityUrl
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
+    NSError *localError;
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&localError];
+
+    if (localError)
+    {
+        completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:localError]);
+        return;
+    }
+
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
-    MSIDAadAuthorityCacheRecord *record = [_aadCache checkCache:authority.msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [_aadCache objectForKey:authority.environment];
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:record.error]);
@@ -263,12 +277,12 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     NSString *trustedHost = ADTrustedAuthorityWorldWide;
     
-    if ([ADAuthorityUtils isKnownHost:authority])
+    if ([ADAuthorityUtils isKnownHost:authority.url])
     {
-        trustedHost = authority.msidHostWithPortIfNecessary;
+        trustedHost = authority.environment;
     }
     
-    [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
+    [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.url.absoluteString
                                                    trustedHost:trustedHost
                                                        context:requestParams
                                                completionBlock:^(NSDictionary *response, ADAuthenticationError *error)
@@ -295,25 +309,28 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
              return;
          }
-         
-         
-         NSError *msidError = nil;
-         if (![_aadCache processMetadata:response[@"metadata"]
-                               authority:authority
-                                 context:requestParams
-                                   error:&msidError])
-         {
-             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
-             return;
-         }
-         
-         completionBlock(YES, nil);
-     }];
+
+         [_aadCache processMetadata:response[@"metadata"]
+               openIdConfigEndpoint:[NSURL URLWithString:response[@"tenant_discovery_endpoint"]]
+                          authority:authority
+                            context:requestParams
+                         completion:^(BOOL result, NSError *error) {
+
+                             if (!result)
+                             {
+                                 completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error]);
+                                 return;
+                             }
+
+                             completionBlock(YES, nil);
+         }];
+    }];
 }
 
-- (void)addInvalidAuthority:(NSString *)authority
+- (void)addInvalidAuthority:(NSString *)authorityString
 {
-    [_aadCache addInvalidRecord:[NSURL URLWithString:authority] oauthError:nil context:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:authorityString] context:nil error:nil];
+    [_aadCache addInvalidRecord:authority oauthError:nil context:nil];
 }
 
 #pragma mark - ADFS authority validation

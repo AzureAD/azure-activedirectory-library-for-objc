@@ -44,6 +44,7 @@
 #import "MSIDKeychainTokenCache.h"
 #import "ADAuthenticationContext+TestUtil.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <XCTest/XCTest.h>
@@ -146,7 +147,9 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    XCTAssertTrue([authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary].validated);
+    MSIDAadAuthorityCacheRecord *record = [authorityValidation.aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+
+    XCTAssertTrue(record.validated);
 }
 
 //Ensures that an invalid authority is not approved
@@ -175,7 +178,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [authorityValidation.aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -206,7 +209,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [authorityValidation.aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [authorityValidation.aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
     XCTAssertNotNil(record.error);
@@ -244,7 +247,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [[ADAuthorityValidation sharedInstance].aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -306,9 +309,7 @@
     XCTAssertEqualObjects([self.adTokenCache getFRT:authority], updatedRT);
     XCTAssertEqualObjects([self.adTokenCache getAT:authority], updatedAT);
 
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [[ADAuthorityValidation sharedInstance].aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);
 }
@@ -350,7 +351,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
     // Failing to connect should not create a validation record
-    __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
+    MSIDAadAuthorityCacheRecord *record = [[ADAuthorityValidation sharedInstance].aadCache objectForKey:[NSURL URLWithString:authority].msidHostWithPortIfNecessary];
     XCTAssertNil(record);
 }
 

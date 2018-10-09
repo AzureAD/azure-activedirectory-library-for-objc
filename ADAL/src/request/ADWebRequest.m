@@ -35,7 +35,8 @@
 #import "ADWebResponse.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
-
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
 
 @interface ADWebRequest ()
 
@@ -148,14 +149,16 @@
            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
-    // If there is request data, then set the Content-Length header
-    if ( _requestData != nil )
+
+    NSURL *requestURL = [ADHelpers addClientVersionToURL:_requestURL];
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:requestURL context:self error:nil];
+    __auto_type authorityUrl = [authority networkUrlWithContext:self];
+    if (authorityUrl)
     {
-        [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
+        // Replace request's url with authority's network host.
+        requestURL = [requestURL msidURLForPreferredHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
     }
-    
-    NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
-    requestURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:requestURL context:self];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData

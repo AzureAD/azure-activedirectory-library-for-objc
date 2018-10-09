@@ -43,7 +43,8 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAADV1Oauth2Factory.h"
-
+#import "MSIDADFSAuthority.h"
+#import "NSData+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -196,7 +197,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
-    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
+    NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
     
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
@@ -331,7 +332,11 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
 - (BOOL)canUseBroker
 {
-    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker] && ![MSIDAuthority isADFSInstance:_requestParams.authority];
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
+    BOOL isADFSInstance = adfsAuthority != nil;
+    if (isADFSInstance) return NO;
+
+    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker];
 }
 
 - (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error
@@ -353,9 +358,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSData *key = [brokerHelper getBrokerKey:error];
     AUTH_ERROR_RETURN_IF_NIL(key, AD_ERROR_UNEXPECTED, @"Unable to retrieve broker key.", _requestParams.correlationId);
     
-    NSString* base64Key = [NSString msidBase64UrlEncodeData:key];
+    NSString* base64Key = [key msidBase64UrlEncodedString];
     AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _requestParams.correlationId);
-    NSString* base64UrlKey = [base64Key msidUrlFormEncode];
+    NSString* base64UrlKey = [base64Key msidWWWFormURLEncode];
     AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _requestParams.correlationId);
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
@@ -413,7 +418,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    NSString* query = [queryDictionary msidURLFormEncode];
+    NSString* query = [queryDictionary msidWWWFormURLEncode];
     
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
     AUTH_ERROR_RETURN_IF_NIL(brokerRequestURL, AD_ERROR_UNEXPECTED, @"Unable to encode broker request URL", _requestParams.correlationId);

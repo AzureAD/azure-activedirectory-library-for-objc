@@ -251,7 +251,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     }
     
     NSString* query = [redirectURL query];
-    NSDictionary* queryParams = [NSDictionary msidURLFormDecode:query];
+    NSDictionary* queryParams = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:query];
     NSString* appURLString = [queryParams objectForKey:@"app_link"];
     __block NSURL* appURL = [NSURL URLWithString:appURLString];
                         

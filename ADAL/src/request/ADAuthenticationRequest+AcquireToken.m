@@ -44,6 +44,8 @@
 #import "MSIDAuthority.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDADFSAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -63,8 +65,8 @@
     
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
-    if ([ADAuthorityUtils isKnownHost:[_requestParams.authority msidUrl]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [_requestParams.authority msidUrl].host];
+    if ([ADAuthorityUtils isKnownHost:[NSURL URLWithString:_requestParams.authority]]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [NSURL URLWithString:_requestParams.authority].host];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
@@ -206,7 +208,7 @@
     }
     
     // Make sure claims is not in EQP
-    NSDictionary *queryParamsDict = [NSDictionary msidURLFormDecode:_queryParams];
+    NSDictionary *queryParamsDict = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:_queryParams];
     if (queryParamsDict[@"claims"])
     {
         if (error)
@@ -540,7 +542,10 @@
         [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
 
-    if (![MSIDAuthority isADFSInstance:_requestParams.authority])
+     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
+     BOOL isADFSInstance = adfsAuthority != nil;
+
+    if (!isADFSInstance)
     {
         ADAuthenticationError *error = nil;
         NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil
@@ -565,7 +570,9 @@
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
     refreshTokenItem.refreshToken = _refreshToken;
     refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
-    refreshTokenItem.authority = [NSURL URLWithString:_requestParams.authority];
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
+    refreshTokenItem.authority = authority;
     refreshTokenItem.clientId  = _requestParams.clientId;
     
     [request acquireTokenByRefreshToken:_refreshToken

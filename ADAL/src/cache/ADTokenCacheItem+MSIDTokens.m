@@ -31,6 +31,8 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDAuthority.h"
 
 @interface ADTokenCacheItem()
 
@@ -46,7 +48,7 @@
     if (self)
     {
         _userInformation = [self createUserInfoWithIdToken:accessToken.idToken
-                                             homeAccountId:accessToken.clientInfo.accountIdentifier];
+                                             homeAccountId:accessToken.accountIdentifier.homeAccountId];
         _accessTokenType = accessToken.accessTokenType;
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
@@ -64,7 +66,7 @@
     if (self)
     {
         _userInformation = [self createUserInfoWithIdToken:refreshToken.idToken
-                                             homeAccountId:refreshToken.clientInfo.accountIdentifier];
+                                             homeAccountId:refreshToken.accountIdentifier.homeAccountId];
 
         _refreshToken = refreshToken.refreshToken;
         _familyId = refreshToken.familyId;
@@ -130,8 +132,8 @@
     if (self)
     {
         _clientId = baseToken.clientId;
-        _authority = baseToken.authority.absoluteString;
-        _storageAuthority = baseToken.storageAuthority.absoluteString;
+        _authority = baseToken.authority.url.absoluteString;
+        _storageAuthority = baseToken.storageAuthority.url.absoluteString;
         _additionalServer = baseToken.additionalServerInfo;
     }
     

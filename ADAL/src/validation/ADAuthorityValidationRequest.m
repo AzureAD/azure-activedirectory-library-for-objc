@@ -62,7 +62,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};
     NSString *endpoint = [NSString stringWithFormat:@"https://%@/%@?%@",
-                          trustedHost, MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data msidURLFormEncode]];
+                          trustedHost, MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data msidWWWFormURLEncode]];
     
     return [NSURL URLWithString:endpoint];
 }

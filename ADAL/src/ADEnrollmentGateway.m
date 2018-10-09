@@ -26,6 +26,7 @@
 #import "ADAuthenticationError+Internal.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAADAuthority.h"
 
 // Keys for Intune Enrollment ID
 #define AD_INTUNE_ENROLLMENT_ID @"intune_app_protection_enrollment_id_V"
@@ -187,7 +188,7 @@ static NSString *s_intuneResourceJSON = nil;
     return enrollmentID;
 }
 
-+ (NSString *)intuneMAMResource:(NSURL *)authority error:(ADAuthenticationError * __autoreleasing *)error
++ (NSString *)intuneMAMResource:(NSURL *)authorityUrl error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString *resourceJSON = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
 
@@ -221,6 +222,20 @@ static NSString *s_intuneResourceJSON = nil;
         }
         return nil;
     }
+
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&internalError];
+
+    if (internalError)
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromNSError:internalError
+                                                errorDetails:[NSString stringWithFormat:@"Provided authority url is not a valid AAD authority: %@", internalError]
+                                               correlationId:nil];
+        }
+        return nil;
+    }
+
 
     NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance].aadCache cacheAliasesForAuthority:authority];
 
