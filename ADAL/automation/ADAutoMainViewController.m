@@ -30,6 +30,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import <ADAL/ADTelemetry.h>
 #import "MSIDAADAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
@@ -287,7 +288,16 @@
 
         MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] context:nil error:nil];
 
-        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+        NSArray *aliases = nil;
+
+        if (authority)
+        {
+            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+        }
+        else
+        {
+            aliases = @[[NSURL URLWithString:parameters[@"authority"]]];
+        }
 
         for (NSURL *alias in aliases)
         {
@@ -360,7 +370,16 @@
 
         MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] context:nil error:nil];
 
-        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+        NSArray *aliases = nil;
+
+        if (authority)
+        {
+            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+        }
+        else
+        {
+            aliases = @[[NSURL URLWithString:parameters[@"authority"]]];
+        }
 
         for (NSURL *alias in aliases)
         {
