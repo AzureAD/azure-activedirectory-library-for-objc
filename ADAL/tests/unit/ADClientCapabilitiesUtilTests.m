@@ -80,73 +80,73 @@
     XCTAssertEqualObjects(result, @[@"llt"]);
 }
 
-#pragma mark - claimsRequestFromCapabilities
+#pragma mark - claimsParameterFromCapabilities
 
-- (void)testClaimsRequestFromCapabilities_whenNilCapabilities_shouldReturnNil
+- (void)testclaimsParameterFromCapabilities_whenNilCapabilities_shouldReturnNil
 {
     NSArray *inputCapabilities = nil;
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNil(result);
 }
 
-- (void)testClaimsRequestFromCapabilities_whenEmptyCapabilities_shouldReturnNil
+- (void)testclaimsParameterFromCapabilities_whenEmptyCapabilities_shouldReturnNil
 {
     NSArray *inputCapabilities = @[];
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNil(result);
 }
 
-- (void)testClaimsRequestFromCapabilities_whenKnownCapabilities_shouldReturnClaimsJSON
+- (void)testclaimsParameterFromCapabilities_whenKnownCapabilities_shouldReturnClaimsJSON
 {
     NSArray *inputCapabilities = @[@"llt"];
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}");
 }
 
-- (void)testClaimsRequestFromCapabilities_whenUnknowCapabilities_shouldReturnNil
+- (void)testclaimsParameterFromCapabilities_whenUnknowCapabilities_shouldReturnNil
 {
     NSArray *inputCapabilities = @[@"unknown"];
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNil(result);
 }
 
-- (void)testClaimsRequestFromCapabilities_whenKnownAndUnknownCapabilities_shouldReturnClaimsJSONWithKnownCapabilities
+- (void)testclaimsParameterFromCapabilities_whenKnownAndUnknownCapabilities_shouldReturnClaimsJSONWithKnownCapabilities
 {
     NSArray *inputCapabilities = @[@"unknown1", @"llt", @"unknown2"];
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}");
 }
 
-#pragma mark - claimsRequestFromCapabilities:developerClaims:
+#pragma mark - claimsParameterFromCapabilities:developerClaims:
 
-- (void)testClaimsRequestFromCapabilitiesAndDeveloperClaims_whenNilCapabilities_andNilDeveloperClaims_shouldReturnNil
+- (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNilCapabilities_andNilDeveloperClaims_shouldReturnNil
 {
     NSArray *inputCapabilities = nil;
     NSDictionary *inputClaims = nil;
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
 
     XCTAssertNil(result);
 }
 
-- (void)testClaimsRequestFromCapabilitiesAndDeveloperClaims_whenNilCapabilities_andNonNilDeveloperClaims_shouldReturnDeveloperClaims
+- (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNilCapabilities_andNonNilDeveloperClaims_shouldReturnDeveloperClaims
 {
     NSArray *inputCapabilities = nil;
     NSDictionary *inputClaims = @{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
 
     XCTAssertNotNil(result);
 
@@ -154,12 +154,12 @@
     XCTAssertEqualObjects(result, expectedResult);
 }
 
-- (void)testClaimsRequestFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNilDeveloperClaims_shouldReturnCapabilitiesClaims
+- (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNilDeveloperClaims_shouldReturnCapabilitiesClaims
 {
     NSArray *inputCapabilities = @[@"llt"];
     NSDictionary *inputClaims = nil;
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
 
     XCTAssertNotNil(result);
 
@@ -167,12 +167,12 @@
     XCTAssertEqualObjects(result, expectedResult);
 }
 
-- (void)testClaimsRequestFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_shouldReturnBoth
+- (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_shouldReturnBoth
 {
     NSArray *inputCapabilities = @[@"llt"];
     NSDictionary *inputClaims = @{@"id_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};;
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
 
     XCTAssertNotNil(result);
 
@@ -180,12 +180,12 @@
     XCTAssertEqualObjects(result, expectedResult);
 }
 
-- (void)testClaimsRequestFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_andAccessTokenClaimsInBoth_shouldMergeClaims
+- (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_andAccessTokenClaimsInBoth_shouldMergeClaims
 {
      NSArray *inputCapabilities = @[@"unknown", @"llt", @"unknown2"];
      NSDictionary *inputClaims = @{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};
 
-    NSString *result = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
 
     XCTAssertNotNil(result);
 

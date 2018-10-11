@@ -31,14 +31,14 @@
     Takes a list of capabilities and returns the JSON claims.
     The result JSON is not URL encoded and caller needs to encode it if necessary
  */
-+ (NSString *)claimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities;
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
 
 /*
     Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
     The result JSON is not URL encoded and caller needs to encode it if necessary
  */
 
-+ (NSString *)claimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
-                            developerClaims:(NSDictionary *)developerClaims;
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
+                              developerClaims:(NSDictionary *)developerClaims;
 
 @end

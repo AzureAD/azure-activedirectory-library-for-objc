@@ -51,7 +51,7 @@ static NSString *kCapabilitiesClaims = @"xms_cc";
     return capabilitiesSet.allObjects;
 }
 
-+ (NSString *)claimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
 {
     if (![capabilities count])
     {
@@ -70,8 +70,8 @@ static NSString *kCapabilitiesClaims = @"xms_cc";
     return [self jsonFromCapabilities:claims];
 }
 
-+ (NSString *)claimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
-                            developerClaims:(NSDictionary *)developerClaims
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
+                              developerClaims:(NSDictionary *)developerClaims
 {
     if (![capabilities count])
     {

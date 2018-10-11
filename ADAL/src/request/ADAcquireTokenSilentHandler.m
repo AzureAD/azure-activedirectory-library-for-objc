@@ -128,8 +128,8 @@
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
     }
 
-    NSString *claims = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:_requestParams.clientCapabilities
-                                                               developerClaims:_requestParams.decodedClaims];
+    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                 developerClaims:_requestParams.decodedClaims];
 
     if (![NSString adIsStringNilOrBlank:claims])
     {

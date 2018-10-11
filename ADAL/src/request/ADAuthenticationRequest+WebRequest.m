@@ -147,8 +147,8 @@
         }
     }
 
-    NSString *claims = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:_requestParams.clientCapabilities
-                                                               developerClaims:_requestParams.decodedClaims];
+    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                 developerClaims:_requestParams.decodedClaims];
     
     if (![NSString adIsStringNilOrBlank:claims])
     {
@@ -278,8 +278,8 @@
             [requestData setObject:_requestParams.scope forKey:OAUTH2_SCOPE];
         }
 
-        NSString *claims = [ADClientCapabilitiesUtil claimsRequestFromCapabilities:_requestParams.clientCapabilities
-                                                                   developerClaims:_requestParams.decodedClaims];
+        NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                     developerClaims:_requestParams.decodedClaims];
         
         if (![NSString adIsStringNilOrBlank:claims])
         {
