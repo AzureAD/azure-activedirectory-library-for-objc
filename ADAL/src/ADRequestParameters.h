@@ -46,7 +46,8 @@
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
 @property (retain, nonatomic) NSString* scope;
-@property (retain, nonatomic) NSString* claims;
+@property (retain, nonatomic) NSDictionary* decodedClaims;
+@property (retain, nonatomic) NSArray<NSString *>* clientCapabilities;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
 @property (retain, nonatomic) ADTokenCacheAccessor* tokenCache;
 @property BOOL extendedLifetime;

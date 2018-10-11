@@ -273,6 +273,9 @@ typedef enum
 /*! Enable to return access token with extended lifetime during server outage. */
 @property BOOL extendedLifetimeEnabled;
 
+/* ! List of additional ESTS features that client handles. */
+@property (strong) NSArray<NSString *> *clientCapabilities;
+
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
  the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use the provided assertion to get an 
