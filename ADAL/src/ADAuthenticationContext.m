@@ -134,7 +134,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
                                              clientId:(NSString*)clientId
                                              resource:(NSString*)resource
-                                   clientCapabilities:(NSArray<NSString *> *)clientCapabilities
                                       completionBlock:(ADAuthenticationCallback)completionBlock
 
 {
@@ -147,7 +146,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setRedirectUri:redirectUri];
     [requestParams setTokenCache:_tokenCacheStore];
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
-    [requestParams setClientCapabilities:clientCapabilities];
+    [requestParams setClientCapabilities:_clientCapabilities];
 
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
@@ -169,7 +168,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     return [self requestWithRedirectString:[redirectUri absoluteString]
                                   clientId:clientId
                                   resource:resource
-                        clientCapabilities:self.clientCapabilities
                            completionBlock:completionBlock];
 }
 
@@ -247,7 +245,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
     THROW_ON_NIL_ARGUMENT(completionBlock) \
     CHECK_STRING_ARG_BLOCK(_clientId) \
-    ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource clientCapabilities:self.clientCapabilities completionBlock:completionBlock]; \
+    ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
     if (!request) { return; } \
     [request setLogComponent:_logComponent];
 
