@@ -27,6 +27,7 @@
 
 static NSString *kAccessTokenClaims = @"access_token";
 static NSString *kCapabilitiesClaims = @"xms_cc";
+static NSString *kValuesClaim = @"values";
 
 @implementation ADClientCapabilitiesUtil
 
@@ -66,7 +67,7 @@ static NSString *kCapabilitiesClaims = @"xms_cc";
         return nil;
     }
 
-    NSDictionary *claims = @{kAccessTokenClaims:@{kCapabilitiesClaims: filteredCapabilities}};
+    NSDictionary *claims = @{kAccessTokenClaims:@{kCapabilitiesClaims: @{kValuesClaim : filteredCapabilities}}};
     return [self jsonFromCapabilities:claims];
 }
 
@@ -86,7 +87,7 @@ static NSString *kCapabilitiesClaims = @"xms_cc";
     }
 
     NSArray *filteredCapabilities = [self knownCapabilities:capabilities];
-    NSDictionary *additionalClaims = @{kCapabilitiesClaims: filteredCapabilities};
+    NSDictionary *additionalClaims = @{kCapabilitiesClaims: @{kValuesClaim : filteredCapabilities}};
 
     NSDictionary *accessTokenClaims = claims[kAccessTokenClaims];
 

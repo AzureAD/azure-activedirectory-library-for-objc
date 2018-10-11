@@ -107,7 +107,7 @@
     NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}");
+    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}");
 }
 
 - (void)testclaimsParameterFromCapabilities_whenUnknowCapabilities_shouldReturnNil
@@ -126,7 +126,7 @@
     NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}");
+    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}");
 }
 
 #pragma mark - claimsParameterFromCapabilities:developerClaims:
@@ -163,7 +163,7 @@
 
     XCTAssertNotNil(result);
 
-    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}";
+    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
     XCTAssertEqualObjects(result, expectedResult);
 }
 
@@ -176,7 +176,7 @@
 
     XCTAssertNotNil(result);
 
-    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":[\"llt\"]},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
+    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
     XCTAssertEqualObjects(result, expectedResult);
 }
 
@@ -189,7 +189,7 @@
 
     XCTAssertNotNil(result);
 
-    NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true},\"xms_cc\":[\"llt\"]}}";
+    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]},\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
     XCTAssertEqualObjects(result, expectedResult);
 }
 
