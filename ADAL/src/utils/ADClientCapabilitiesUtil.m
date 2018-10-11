@@ -23,10 +23,10 @@
 
 #import "ADClientCapabilitiesUtil.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADClientCapabilities.h"
 
 static NSString *kAccessTokenClaims = @"access_token";
 static NSString *kCapabilitiesClaims = @"xms_cc";
-static NSString *kLLTCapabilitiesClaim = @"llt";
 
 @implementation ADClientCapabilitiesUtil
 
@@ -42,7 +42,7 @@ static NSString *kLLTCapabilitiesClaim = @"llt";
     static dispatch_once_t s_capabilities_once;
 
     dispatch_once(&s_capabilities_once, ^{
-        knownCapabilities = [NSSet setWithObjects:kLLTCapabilitiesClaim, nil];
+        knownCapabilities = [NSSet setWithObjects:AD_CLIENT_CAPABILITY_LLT, nil];
     });
 
     NSMutableSet *capabilitiesSet = [NSMutableSet setWithArray:allCapabilities];

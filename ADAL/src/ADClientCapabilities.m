@@ -21,49 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADClientCapabilities.h"
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
-//! Project version number for ADALFramework.
-FOUNDATION_EXPORT double ADALFrameworkVersionNumber;
-
-//! Project version string for ADALFramework.
-FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
-
-#if TARGET_OS_IPHONE
-//iOS:
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
-
-@class ADAuthenticationResult;
-
-/*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-
-#import <ADAL/ADAuthenticationContext.h>
-#import <ADAL/ADAuthenticationError.h>
-#import <ADAL/ADAuthenticationParameters.h>
-#import <ADAL/ADAuthenticationResult.h>
-#import <ADAL/ADAuthenticationSettings.h>
-#import <ADAL/ADErrorCodes.h>
-#import <ADAL/ADLogger.h>
-#import <ADAL/ADTokenCacheItem.h>
-#import <ADAL/ADUserIdentifier.h>
-#import <ADAL/ADUserInformation.h>
-#import <ADAL/ADWebAuthController.h>
-#import <ADAL/ADTelemetry.h>
-#import <ADAL/ADClientCapabilities.h>
-
-#if TARGET_OS_IPHONE
-#import <ADAL/ADKeychainTokenCache.h>
-#else
-#import <ADAL/ADTokenCache.h>
-#endif
-
+NSString *const AD_CLIENT_CAPABILITY_LLT    =   @"llt";

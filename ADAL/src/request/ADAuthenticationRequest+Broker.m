@@ -39,6 +39,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryBrokerEvent.h"
 #import "ADEnrollmentGateway.h"
+#import "ADClientCapabilitiesUtil.h"
 
 #import "ADOAuth2Constants.h"
 
@@ -309,6 +310,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSString *enrollmentIds = [ADEnrollmentGateway allEnrollmentIdsJSON];
     NSString *mamResource = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
     mamResource = mamResource ? mamResource : @"" ;
+
+    NSArray *filteredCapabilities = [ADClientCapabilitiesUtil knownCapabilities:_requestParams.clientCapabilities];
+    NSString *clientCapabilities = [filteredCapabilities count] ? [filteredCapabilities componentsJoinedByString:@","] : @"";
     
     NSDictionary *queryDictionary =
     @{
@@ -330,6 +334,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"claims"         : _claims ? _claims : @"",
       @"intune_enrollment_ids" : enrollmentIds ? enrollmentIds : @"",
       @"intune_mam_resource" : mamResource,
+      @"client_capabilities": clientCapabilities
       };
     
     NSDictionary<NSString *, NSString *>* resumeDictionary = nil;

@@ -273,7 +273,9 @@ typedef enum
 /*! Enable to return access token with extended lifetime during server outage. */
 @property BOOL extendedLifetimeEnabled;
 
-/* ! List of additional ESTS features that client handles. */
+/*!  List of additional ESTS features that client handles.
+     See ADClientCapabilities.h header for the list of all currently supported capabilities.
+ */
 @property (strong) NSArray<NSString *> *clientCapabilities;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
