@@ -2021,7 +2021,7 @@ const int sAsyncContextTimeout = 10;
 
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
@@ -2172,7 +2172,7 @@ const int sAsyncContextTimeout = 10;
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
 
-    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":[\"llt\"]}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
@@ -2229,7 +2229,7 @@ const int sAsyncContextTimeout = 10;
     NSString *testClaims = @"%7B%22access_token%22%3A%7B%22xms_cc%22%3A%5B%22llt%22%5D%7D%2C%22id_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%2C%22essential%22%3Atrue%7D%7D%7D";
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":[\"llt\"]},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
