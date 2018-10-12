@@ -31,6 +31,7 @@
 #import "ADPkeyAuthHelper.h"
 #import "MSIDOAuth2Constants.h"
 #import "ADHelpers.h"
+#import "NSData+MSIDExtensions.h"
 
 static NSData* s_symmetricKeyOverride = nil;
 
@@ -286,7 +287,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 + (void)setSymmetricKey:(NSString *)base64Key
 {
-    s_symmetricKeyOverride = base64Key ? [NSString msidBase64UrlDecodeData:base64Key] : nil;
+    s_symmetricKeyOverride = base64Key ? [NSData msidDataFromBase64UrlEncodedString:base64Key] : nil;
 }
 
 + (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(ADAuthenticationError * __autoreleasing *)error
@@ -309,7 +310,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     //decrypt response first
     ADBrokerKeyHelper *brokerHelper = [[ADBrokerKeyHelper alloc] init];
     ADAuthenticationError *decryptionError = nil;
-    NSData *encryptedResponse = [NSString msidBase64UrlDecodeData:encryptedBase64Response ];
+    NSData *encryptedResponse = [NSData msidDataFromBase64UrlEncodedString:encryptedBase64Response];
     NSData *decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
                                                     version:protocolVersion
                                                       error:&decryptionError];
@@ -336,7 +337,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 
     // create response from the decrypted payload
-    NSDictionary *decryptedResponse = [NSDictionary msidURLFormDecode:decryptedString];
+    NSDictionary *decryptedResponse = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:decryptedString];
     [ADHelpers removeNullStringFrom:decryptedResponse];
 
     return decryptedResponse;

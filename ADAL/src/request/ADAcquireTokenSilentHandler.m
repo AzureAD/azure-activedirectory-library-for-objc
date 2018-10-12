@@ -45,6 +45,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "ADAuthenticationSettings.h"
 #import "MSIDAuthority.h"
+#import "MSIDADFSAuthority.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -138,8 +140,12 @@
     }
 
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
-    
-    if (![MSIDAuthority isADFSInstance:authority])
+
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
+
+    BOOL isADFSInstance = adfsAuthority != nil;
+
+    if (!isADFSInstance)
     {
         NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
         NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
@@ -197,7 +203,7 @@
 {
     NSString* grantType = @"refresh_token";
     
-    NSString* ctx = [[[NSUUID UUID] UUIDString] msidComputeSHA256];
+    NSString* ctx = [[[[[NSUUID UUID] UUIDString] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString];
     NSDictionary *header = @{
                              @"alg" : @"HS256",
                              @"typ" : @"JWT",

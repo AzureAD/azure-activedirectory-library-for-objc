@@ -35,6 +35,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "NSData+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -201,8 +202,8 @@
     XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_VERSION)], [MSIDDeviceId applicationVersion]);//Oii
 #endif
     // expect hashed Pii
-    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [[MSIDDeviceId deviceTelemetryId] msidComputeSHA256]);//Pii
-    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [TEST_USER_ID msidComputeSHA256]);//Pii
+    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [[[[MSIDDeviceId deviceTelemetryId] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
+    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [[[TEST_USER_ID dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
 }
 
 - (void)testAcquireTokenTelemetry_whenPiiDisabledAndAggregrationOn_shouldReturnOneEventWithoutPii
@@ -329,8 +330,8 @@
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_VERSION)], [MSIDDeviceId applicationVersion]);//Oii
 #endif
     // expect hashed Pii
-    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [[MSIDDeviceId deviceTelemetryId] msidComputeSHA256]);//Pii
-    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [TEST_USER_ID msidComputeSHA256]);//Pii
+    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [[[[MSIDDeviceId deviceTelemetryId] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
+    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [[[TEST_USER_ID dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
 }
 
 - (void)testAcquireTokenTelemetry_whenPiiDisabledAndAggregrationOff_shouldReturnEventsWithoutPii

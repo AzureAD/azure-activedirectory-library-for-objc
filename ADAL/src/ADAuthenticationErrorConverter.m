@@ -45,7 +45,8 @@ static NSDictionary *s_userInfoKeyMapping;
     s_errorDomainMapping = @{
                              MSIDErrorDomain : ADAuthenticationErrorDomain,
                              MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
-                             MSIDKeychainErrorDomain : ADKeychainErrorDomain
+                             MSIDKeychainErrorDomain : ADKeychainErrorDomain,
+                             MSIDHttpErrorCodeDomain: ADHTTPErrorCodeDomain
                              };
     
     s_errorCodeMapping = @{
@@ -79,7 +80,11 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
                                    @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
-                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
+                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
+                                   @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE)
+                                   },
+                           MSIDHttpErrorCodeDomain:@{
+                                   @(MSIDErrorServerUnhandledResponse): @(AD_ERROR_UNEXPECTED)
                                    }
                            };
     
@@ -126,12 +131,14 @@ static NSDictionary *s_userInfoKeyMapping;
         NSString *mappedKey = s_userInfoKeyMapping[key] ? s_userInfoKeyMapping[key] : key;
         userInfo[mappedKey] = msidError.userInfo[key];
     }
-    
+
+    NSUUID *correlationID = [[NSUUID alloc] initWithUUIDString:msidError.userInfo[MSIDCorrelationIdKey]];
+
     return [ADAuthenticationError errorWithDomainInternal:domain
                                                      code:errorCode
                                         protocolErrorCode:msidError.userInfo[MSIDOAuthErrorKey]
                                              errorDetails:msidError.userInfo[MSIDErrorDescriptionKey]
-                                            correlationId:msidError.userInfo[MSIDCorrelationIdKey]
+                                            correlationId:correlationID
                                                  userInfo:userInfo];
 }
 

@@ -81,7 +81,7 @@
 // Ensures that the state comes back in the response:
 - (BOOL)verifyStateFromDictionary: (NSDictionary*) dictionary
 {
-    NSDictionary *state = [NSDictionary msidURLFormDecode:[[dictionary objectForKey:MSID_OAUTH2_STATE] msidBase64UrlDecode]];
+    NSDictionary *state = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:[[dictionary objectForKey:MSID_OAUTH2_STATE] msidBase64UrlDecode]];
     if (state.count != 0)
     {
         NSString *authorizationServer = [state objectForKey:@"a"];
@@ -103,7 +103,7 @@
 - (NSString *)encodeProtocolState
 {
     return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _requestParams.scopesString, @"s", nil]
-             msidURLFormEncode] msidBase64UrlEncode];
+             msidWWWFormURLEncode] msidBase64UrlEncode];
 }
 
 //Generates the query string, encoding the state:
@@ -115,16 +115,16 @@
     NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
                                  [_context.authority stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX],
                                  MSID_OAUTH2_RESPONSE_TYPE, requestType,
-                                 MSID_OAUTH2_CLIENT_ID, [[_requestParams clientId] msidUrlFormEncode],
-                                 MSID_OAUTH2_RESOURCE, [[_requestParams resource] msidUrlFormEncode],
-                                 MSID_OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] msidUrlFormEncode],
+                                 MSID_OAUTH2_CLIENT_ID, [[_requestParams clientId] msidWWWFormURLEncode],
+                                 MSID_OAUTH2_RESOURCE, [[_requestParams resource] msidWWWFormURLEncode],
+                                 MSID_OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] msidWWWFormURLEncode],
                                  MSID_OAUTH2_STATE, state];
     
-    [startUrl appendFormat:@"&%@", [[MSIDDeviceId deviceId] msidURLFormEncode]];
+    [startUrl appendFormat:@"&%@", [[MSIDDeviceId deviceId] msidWWWFormURLEncode]];
     
     if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
     {
-        [startUrl appendFormat:@"&%@=%@", MSID_OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId msidUrlFormEncode]];
+        [startUrl appendFormat:@"&%@=%@", MSID_OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId msidWWWFormURLEncode]];
     }
     NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
     if (promptParam)

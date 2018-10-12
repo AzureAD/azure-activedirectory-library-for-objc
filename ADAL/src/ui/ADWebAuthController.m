@@ -45,6 +45,8 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADAuthorityUtils.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -159,7 +161,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
-    NSDictionary* queryParamsMap = [NSDictionary msidURLFormDecode:qp];
+    NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
     NSString* value = [ADHelpers addClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
     
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
@@ -544,8 +546,16 @@ static ADAuthenticationResult* s_result = nil;
     [[MSIDTelemetry sharedInstance] startEvent:requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                                  context:_requestParams];
+
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:startURL context:_requestParams error:nil];
+    __auto_type authorityUrl = [authority networkUrlWithContext:_requestParams];
+    if (authorityUrl)
+    {
+        // Replace request's url with authority's network host.
+        startURL = [startURL msidURLForPreferredHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
+    }
     
-    startURL = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:startURL context:requestParams];
     startURL = [self addToURL:startURL correlationId:requestParams.correlationId];//Append the correlation id
     _endURL = [endURL absoluteString];
     _complete = NO;
