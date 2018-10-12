@@ -291,9 +291,7 @@
     XCTAssertEqualObjects([tokenCache getMRRT:authority], updatedRT);
     XCTAssertEqualObjects([tokenCache getFRT:authority], updatedRT);
     XCTAssertEqualObjects([tokenCache getAT:authority], updatedAT);
-    
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+        
     __auto_type record = [[ADAuthorityValidation sharedInstance].aadCache tryCheckCache:[NSURL URLWithString:authority]];
     XCTAssertNotNil(record);
     XCTAssertFalse(record.validated);

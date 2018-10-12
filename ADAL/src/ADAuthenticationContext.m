@@ -146,6 +146,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setRedirectUri:redirectUri];
     [requestParams setTokenCache:_tokenCacheStore];
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
+    [requestParams setClientCapabilities:_clientCapabilities];
 
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams

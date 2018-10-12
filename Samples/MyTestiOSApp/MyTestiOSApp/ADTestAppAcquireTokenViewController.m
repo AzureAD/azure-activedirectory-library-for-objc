@@ -28,6 +28,7 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 #import "ADEnrollmentGateway.h"
+#import "ADClientCapabilities.h"
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAM/IntuneMAM.h>
@@ -60,6 +61,7 @@
     UISegmentedControl* _webViewType;
     UISegmentedControl* _fullScreen;
     UISegmentedControl* _validateAuthority;
+    UISegmentedControl* _enableClientCapabilities;
     
     UITextView* _resultView;
     
@@ -187,6 +189,10 @@
     
     _validateAuthority = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
     [layout addControl:_validateAuthority title:@"valAuth"];
+
+    _enableClientCapabilities = [[UISegmentedControl alloc] initWithItems:@[@"No", @"Yes"]];
+    _enableClientCapabilities.selectedSegmentIndex = 0;
+    [layout addControl:_enableClientCapabilities title:@"Capabilities"];
     
     _extraQueryParamsField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
     _extraQueryParamsField.borderStyle = UITextBorderStyleRoundedRect;
@@ -214,7 +220,6 @@
     UIButton* wipeUpn = [UIButton buttonWithType:UIButtonTypeSystem];
     [wipeUpn setTitle:@"Wipe cache" forState:UIControlStateNormal];
     [wipeUpn addTarget:self action:@selector(wipeCache:) forControlEvents:UIControlEventTouchUpInside];
-    
     
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
@@ -580,11 +585,20 @@
     ADCredentialsType credType = [self credType];
     
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
+
+    NSArray *capabilities = nil;
+
+    if (_enableClientCapabilities.selectedSegmentIndex == 1)
+    {
+        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+    }
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:validateAuthority
                                                                                     error:&error];
+    context.clientCapabilities = capabilities;
+
     if (!context)
     {
         NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
@@ -666,9 +680,18 @@
     NSURL* redirectUri = [settings redirectUri];
     ADUserIdentifier* identifier = [self identifier];
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
+
+    NSArray *capabilities = nil;
+
+    if (_enableClientCapabilities.selectedSegmentIndex == 1)
+    {
+        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+    }
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
+    context.clientCapabilities = capabilities;
+
     if (!context)
     {
         NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];

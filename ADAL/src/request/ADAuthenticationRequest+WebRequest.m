@@ -38,6 +38,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
 #import "NSString+ADURLExtensions.h"
+#import "ADClientCapabilitiesUtil.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -145,10 +146,13 @@
             [startUrl appendFormat:@"&%@", queryParams];
         }
     }
+
+    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                 developerClaims:_requestParams.decodedClaims];
     
-    if (![NSString adIsStringNilOrBlank:_requestParams.claims])
+    if (![NSString adIsStringNilOrBlank:claims])
     {
-        [startUrl appendFormat:@"&%@=%@", OAUTH2_CLAIMS, _requestParams.claims];
+        [startUrl appendFormat:@"&%@=%@", OAUTH2_CLAIMS, claims.adUrlFormEncode];
     }
     
     return startUrl;
@@ -273,10 +277,13 @@
         {
             [requestData setObject:_requestParams.scope forKey:OAUTH2_SCOPE];
         }
+
+        NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                     developerClaims:_requestParams.decodedClaims];
         
-        if (![NSString adIsStringNilOrBlank:_requestParams.claims])
+        if (![NSString adIsStringNilOrBlank:claims])
         {
-            [requestData setObject:_requestParams.claims.adUrlFormDecode forKey:OAUTH2_CLAIMS];
+            [requestData setObject:claims forKey:OAUTH2_CLAIMS];
         }
         
         if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])

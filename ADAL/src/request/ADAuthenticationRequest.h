@@ -76,6 +76,7 @@
     NSString *_cloudAuthority;
     
     NSString *_refreshToken;
+    NSString *_claims;
 }
 
 @property (retain) NSString* logComponent;

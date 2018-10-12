@@ -37,6 +37,7 @@
 #import "ADTelemetryAPIEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADEnrollmentGateway.h"
+#import "ADClientCapabilitiesUtil.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -127,9 +128,12 @@
         request_data[OAUTH2_SCOPE] = _requestParams.scope;
     }
 
-    if (![NSString adIsStringNilOrBlank:_requestParams.claims])
+    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                 developerClaims:_requestParams.decodedClaims];
+
+    if (![NSString adIsStringNilOrBlank:claims])
     {
-        request_data[OAUTH2_CLAIMS] = _requestParams.claims.adUrlFormDecode;
+        request_data[OAUTH2_CLAIMS] = claims;
     }
     
     if (![ADHelpers isADFSInstance:_requestParams.authority])

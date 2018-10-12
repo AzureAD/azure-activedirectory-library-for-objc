@@ -1969,10 +1969,42 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
-- (void)testAcquireToken_whenClaimsIsPassedViaOverloadedAcquireToken_andPromptAuto_andValidMRRT_shouldSkipAccessTokenCache
+- (void)testAcquireToken_whenCapabilitiesSet_andPromptAuto_andValidMRRT_shouldNotSkipAccessTokenCache
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    context.clientCapabilities = @[@"unrecognized", @"llt"];
+
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithClaims"];
+
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"access token");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireToken_whenCapabilitiesSet_andPromptAuto_andValidMRRT_andExpiredAccessToken_shouldSendCapabilitiesToServer
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    context.clientCapabilities = @[@"unrecognized", @"llt"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
@@ -1987,10 +2019,67 @@ const int sAsyncContextTimeout = 10;
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
 
-    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
+
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                requestHeaders:headers
+                                                 correlationId:TEST_CORRELATION_ID
+                                                  responseCode:200
+                                               responseHeaders:nil
+                                                  responseJson:@{ OAUTH2_REFRESH_TOKEN : @"new refresh token",
+                                                                  OAUTH2_ACCESS_TOKEN : @"new access token",
+                                                                  OAUTH2_RESOURCE : TEST_RESOURCE }
+                                                 requestParams:@{OAUTH2_CLAIMS : decodedClaims}];
+    [ADTestURLSession addResponse:response];
+
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithClaims"];
+
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new refresh token");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireToken_whenClaimsIsPassedViaOverloadedAcquireToken_andPromptAuto_andValidMRRT_shouldSkipAccessTokenCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add token response
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
+
+    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D";
+    // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
+    // The unit tests are comparing the form we sent in ADAL against url decoded form
+    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
@@ -2030,10 +2119,45 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
-- (void)testAcquireTokenSilent_whenClaimsIsPassedViaOverloadedAcquireToken_andValidMRRT_shouldSkipAccessTokenCache
+- (void)testAcquireTokenSilent_whenCapabilitiesSet_andValidMRRT_shouldNotSkipAccessTokenCache
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    context.clientCapabilities = @[@"unrecognized", @"llt"];
+
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithClaims"];
+
+    // "claims" is passed in, cache should be skipped
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result) {
+
+                                    XCTAssertNotNil(result);
+                                    XCTAssertEqual(result.status, AD_SUCCEEDED);
+                                    XCTAssertNil(result.error);
+                                    XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"access token");
+
+                                    [expectation fulfill];
+                            }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenSilent_whenCapabilitiesSet_andValidMRRT_andExpiredAccessToken_shouldSendCapabilitiesToServer
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    context.clientCapabilities = @[@"unrecognized", @"llt"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
@@ -2048,10 +2172,122 @@ const int sAsyncContextTimeout = 10;
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
 
-    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
+
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                requestHeaders:headers
+                                                 correlationId:TEST_CORRELATION_ID
+                                                  responseCode:200
+                                               responseHeaders:nil
+                                                  responseJson:@{ OAUTH2_REFRESH_TOKEN : @"new refresh token",
+                                                                  OAUTH2_ACCESS_TOKEN : @"new access token",
+                                                                  OAUTH2_RESOURCE : TEST_RESOURCE }
+                                                 requestParams:@{OAUTH2_CLAIMS : decodedClaims}];
+    [ADTestURLSession addResponse:response];
+
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithClaims"];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result) {
+
+                                XCTAssertNotNil(result);
+                                XCTAssertEqual(result.status, AD_SUCCEEDED);
+                                XCTAssertNil(result.error);
+                                XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"new access token");
+                                XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new refresh token");
+
+                                [expectation fulfill];
+                            }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenSilent_whenCapabilitiesSet_andValidMRRT_andCustomClaimsPassed_shouldSkipAccessTokenCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    context.clientCapabilities = @[@"unrecognized", @"llt"];
+
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add token response
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
+
+    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22xms_cc%22%3A%5B%22llt%22%5D%7D%2C%22id_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%2C%22essential%22%3Atrue%7D%7D%7D";
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
+
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                requestHeaders:headers
+                                                 correlationId:TEST_CORRELATION_ID
+                                                  responseCode:200
+                                               responseHeaders:nil
+                                                  responseJson:@{ OAUTH2_REFRESH_TOKEN : @"new refresh token",
+                                                                  OAUTH2_ACCESS_TOKEN : @"new access token",
+                                                                  OAUTH2_RESOURCE : TEST_RESOURCE }
+                                                 requestParams:@{OAUTH2_CLAIMS : decodedClaims}];
+    [ADTestURLSession addResponse:response];
+
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithClaims"];
+
+    // "claims" is passed in, cache should be skipped
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                                     claims:testClaims
+                            completionBlock:^(ADAuthenticationResult *result) {
+
+                                XCTAssertNotNil(result);
+                                XCTAssertEqual(result.status, AD_SUCCEEDED);
+                                XCTAssertNil(result.error);
+                                XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"new access token");
+                                XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new refresh token");
+
+                                [expectation fulfill];
+                            }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenSilent_whenClaimsIsPassedViaOverloadedAcquireToken_andValidMRRT_shouldSkipAccessTokenCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    // Add token response
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
+
+    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D";
+    // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
+    // The unit tests are comparing the form we sent in ADAL against url decoded form
+    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
@@ -2095,7 +2331,6 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
-    item.expiresOn = [NSDate date];
     [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
 
@@ -2104,10 +2339,10 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
 
     // Add token response
-    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
+    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D";
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true}}}";
 
     ADTestURLResponse *response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
                                                         authority:TEST_AUTHORITY
@@ -2146,7 +2381,6 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
-    item.expiresOn = [NSDate date];
     [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
 
@@ -2154,10 +2388,10 @@ const int sAsyncContextTimeout = 10;
     [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
 
-    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
+    NSString *testClaims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D";
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true}}}";
 
     // Add token response to return interaction required
     ADTestURLResponse *tokenResponse =
@@ -2208,7 +2442,7 @@ const int sAsyncContextTimeout = 10;
                        promptBehavior:AD_PROMPT_AUTO
                        userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
                  extraQueryParameters:nil
-                               claims:@"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}"
+                               claims:@"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true}}}"
                       completionBlock:^(ADAuthenticationResult *result)
      {
          // Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
@@ -2220,6 +2454,33 @@ const int sAsyncContextTimeout = 10;
          [expectation fulfill];
      }];
     
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireToken_whenClaimsIsNotProperJSON_shouldReturnError
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithResource"];
+
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                               claims:@"%7BI%27m%20not%20JSON%7D"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         // Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         XCTAssertEqualObjects(result.error.errorDetails, @"claims is not proper JSON. Please make sure it is correct JSON claims parameter.");
+
+         [expectation fulfill];
+     }];
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 

@@ -23,47 +23,22 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+@interface ADClientCapabilitiesUtil : NSObject
 
-//! Project version number for ADALFramework.
-FOUNDATION_EXPORT double ADALFrameworkVersionNumber;
++ (NSArray<NSString *> *)knownCapabilities:(NSArray<NSString *> *)allCapabilities;
 
-//! Project version string for ADALFramework.
-FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
+/*
+    Takes a list of capabilities and returns the JSON claims.
+    The result JSON is not URL encoded and caller needs to encode it if necessary
+ */
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
 
-#if TARGET_OS_IPHONE
-//iOS:
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
+/*
+    Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
+    The result JSON is not URL encoded and caller needs to encode it if necessary
+ */
 
-@class ADAuthenticationResult;
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
+                              developerClaims:(NSDictionary *)developerClaims;
 
-/*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-
-#import <ADAL/ADAuthenticationContext.h>
-#import <ADAL/ADAuthenticationError.h>
-#import <ADAL/ADAuthenticationParameters.h>
-#import <ADAL/ADAuthenticationResult.h>
-#import <ADAL/ADAuthenticationSettings.h>
-#import <ADAL/ADErrorCodes.h>
-#import <ADAL/ADLogger.h>
-#import <ADAL/ADTokenCacheItem.h>
-#import <ADAL/ADUserIdentifier.h>
-#import <ADAL/ADUserInformation.h>
-#import <ADAL/ADWebAuthController.h>
-#import <ADAL/ADTelemetry.h>
-#import <ADAL/ADClientCapabilities.h>
-
-#if TARGET_OS_IPHONE
-#import <ADAL/ADKeychainTokenCache.h>
-#else
-#import <ADAL/ADTokenCache.h>
-#endif
-
+@end

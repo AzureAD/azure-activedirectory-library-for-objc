@@ -194,7 +194,7 @@
 
 - (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
 {
-    if ([NSString adIsStringNilOrBlank:_requestParams.claims])
+    if ([NSString adIsStringNilOrBlank:_claims])
     {
         return YES;
     }
@@ -214,7 +214,7 @@
     }
     
     // Make sure claims is properly encoded
-    NSString* claimsParams = _requestParams.claims;
+    NSString* claimsParams = _claims;
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
@@ -227,9 +227,31 @@
         }
         return NO;
     }
-    
+
+    NSData *jsonData = [_claims.adUrlFormDecode dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSError *jsonError = nil;
+
+    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
+
+    if (!decodedDictionary)
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"claims is not proper JSON. Please make sure it is correct JSON claims parameter."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
+    }
+
     // Always skip access token cache if claims parameter is not nil/empty
     [_requestParams setForceRefresh:YES];
+
+    // Set decoded claims
+    _requestParams.decodedClaims = decodedDictionary;
+
     return YES;
 }
 
