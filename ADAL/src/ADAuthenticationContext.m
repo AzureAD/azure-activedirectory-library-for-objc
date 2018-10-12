@@ -380,7 +380,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setSilent:YES];
     ADAuthenticationError *claimsError;
-    if(![request setClaims:claims error:&claimsError])
+    if (![request setClaims:claims error:&claimsError])
     {
         completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
         return;
