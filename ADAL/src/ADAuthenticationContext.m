@@ -438,7 +438,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     ADAuthenticationError *claimsError;
-    if(![request setClaims:claims error:&claimsError])
+    if (![request setClaims:claims error:&claimsError])
     {
         completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
         return;
