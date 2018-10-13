@@ -379,7 +379,12 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
     [request setUserId:userId];
     [request setSilent:YES];
-    [request setClaims:claims];
+    ADAuthenticationError *claimsError;
+    if (![request setClaims:claims error:&claimsError])
+    {
+        completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
+        return;
+    }
     [request acquireToken:@"10" completionBlock:completionBlock];
 }
 
@@ -432,7 +437,13 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    [request setClaims:claims];
+    ADAuthenticationError *claimsError;
+    if (![request setClaims:claims error:&claimsError])
+    {
+        completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
+        return;
+    }
+        
     [request acquireToken:@"133" completionBlock:completionBlock];
 }
 

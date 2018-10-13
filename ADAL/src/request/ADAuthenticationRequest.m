@@ -145,15 +145,62 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _queryParams = [queryParams copy];
 }
 
-- (void)setClaims:(NSString *)claims
+- (BOOL)setClaims:(NSString *)claims error:(ADAuthenticationError **)error
 {
-    CHECK_REQUEST_STARTED;
+    if (_requestStarted) {
+        AD_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__);
+        return YES;
+    }
+    
     if (_claims == claims)
     {
-        return;
+        return YES;
     }
-
+    
     _claims = [claims.adTrimmedString copy];
+    
+    if ([NSString adIsStringNilOrBlank:_claims])
+    {
+        return YES;
+    }
+    
+    // Make sure claims is properly encoded
+    NSString* claimsParams = _claims;
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
+    if (!url)
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"claims is not properly encoded. Please make sure it is URL encoded."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
+    }
+    
+    NSData *jsonData = [_claims.adUrlFormDecode dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSError *jsonError = nil;
+    
+    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
+    
+    if (!decodedDictionary)
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"claims is not proper JSON. Please make sure it is correct JSON claims parameter."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
+    }
+    
+    // Set decoded claims
+    _requestParams.decodedClaims = decodedDictionary;
+    
+    return YES;
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier

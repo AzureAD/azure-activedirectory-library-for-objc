@@ -98,7 +98,7 @@
 // These can only be set before the request gets sent out.
 - (void)setScope:(NSString*)scope;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
-- (void)setClaims:(NSString *)claims;
+- (BOOL)setClaims:(NSString *)claims error:(ADAuthenticationError **)error;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;
 - (void)setUserId:(NSString*)userId;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
