@@ -24,24 +24,13 @@
 #import <XCTest/XCTest.h>
 #import "ADHelpers.h"
 #import "XCTestCase+TestHelperMethods.h"
+#import "NSBundle+ADTestUtils.h"
 
 @interface ADHelpersTests : ADTestCase
 
 @end
 
 @implementation ADHelpersTests
-
-- (void)setUp
-{
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown
-{
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
 
 - (void)testAddClientVersion
 {

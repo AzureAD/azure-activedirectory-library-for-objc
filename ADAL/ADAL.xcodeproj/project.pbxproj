@@ -267,6 +267,7 @@
 		B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */; };
 		B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */; };
 		B20DC6221F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */; };
+		B225F063217559870052334D /* NSBundle+ADTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B225F062217559870052334D /* NSBundle+ADTestUtils.m */; };
 		B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */; };
 		B260CB4B1F4E166500125A70 /* NSString+ADTelemetryExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B260CB491F4E166500125A70 /* NSString+ADTelemetryExtensions.h */; };
 		B260CB4C1F4E166500125A70 /* NSString+ADTelemetryExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B260CB4A1F4E166500125A70 /* NSString+ADTelemetryExtensions.m */; };
@@ -492,6 +493,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
+		};
+		B225F05C217558FE0052334D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04AB6D411D9D619B007E9A83;
+			remoteInfo = UnitTestHostApp;
+		};
+		B225F05E217559010052334D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04AB6D411D9D619B007E9A83;
+			remoteInfo = UnitTestHostApp;
 		};
 		D61000E91D3984C20087AB81 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -783,6 +798,8 @@
 		B20DC61C1F0DA39C00957806 /* ADBrokerKeyHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelperTests.m; sourceTree = "<group>"; };
 		B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthControllerTests.m; sourceTree = "<group>"; };
+		B225F061217559870052334D /* NSBundle+ADTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBundle+ADTestUtils.h"; sourceTree = "<group>"; };
+		B225F062217559870052334D /* NSBundle+ADTestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+ADTestUtils.m"; sourceTree = "<group>"; };
 		B23FC03D1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenPkeyAuthTests.m; sourceTree = "<group>"; };
 		B260CB491F4E166500125A70 /* NSString+ADTelemetryExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ADTelemetryExtensions.h"; sourceTree = "<group>"; };
 		B260CB4A1F4E166500125A70 /* NSString+ADTelemetryExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ADTelemetryExtensions.m"; sourceTree = "<group>"; };
@@ -1138,6 +1155,8 @@
 				D67D3D3A1F38502900660F32 /* ADTestCase.m */,
 				D67D3D3F1F38538100660F32 /* ADTest.pch */,
 				D6BA665320167E15001085EC /* ADTestConstants.h */,
+				B225F061217559870052334D /* NSBundle+ADTestUtils.h */,
+				B225F062217559870052334D /* NSBundle+ADTestUtils.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -1847,6 +1866,7 @@
 			);
 			dependencies = (
 				94DD18E81C5ACFBF00F80C62 /* PBXTargetDependency */,
+				B225F05D217558FE0052334D /* PBXTargetDependency */,
 			);
 			name = ADAL_Mac_UTs;
 			productName = "ADAL Mac Tests";
@@ -1884,6 +1904,7 @@
 			);
 			dependencies = (
 				B20DC5B01F0D96A700957806 /* PBXTargetDependency */,
+				B225F05F217559010052334D /* PBXTargetDependency */,
 			);
 			name = ADAL_Mac_ITs;
 			productName = "ADAL Mac Tests";
@@ -2301,6 +2322,7 @@
 				B20DC6191F0DA2E800957806 /* ADTestNSStringHelperMethods.m in Sources */,
 				601BEE321C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */,
 				234F3CEE1F35182600DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
+				B225F063217559870052334D /* NSBundle+ADTestUtils.m in Sources */,
 				B28F6481216E856100CF526F /* ADClientCapabilitiesUtilTests.m in Sources */,
 				B20DC6041F0D998A00957806 /* ADTokenCacheTests.m in Sources */,
 			);
@@ -2496,6 +2518,16 @@
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = B20DC5B11F0D96A700957806 /* PBXContainerItemProxy */;
+		};
+		B225F05D217558FE0052334D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04AB6D411D9D619B007E9A83 /* UnitTestHostApp */;
+			targetProxy = B225F05C217558FE0052334D /* PBXContainerItemProxy */;
+		};
+		B225F05F217559010052334D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04AB6D411D9D619B007E9A83 /* UnitTestHostApp */;
+			targetProxy = B225F05E217559010052334D /* PBXContainerItemProxy */;
 		};
 		D61000EA1D3984C20087AB81 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
