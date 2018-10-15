@@ -292,7 +292,7 @@ const int sAsyncContextTimeout = 10;
     NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[OAUTH2_CORRELATION_ID_REQUEST_VALUE] = [correlationId UUIDString];
     
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token"
                                                        requestHeaders:headers
                                                     requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_SAML11_BEARER_VALUE,
                                                                          OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE,
@@ -922,7 +922,7 @@ const int sAsyncContextTimeout = 10;
     
     // Set up the mock connection to simulate a no internet connection error
     ADTestURLResponse* response =
-    [ADTestURLResponse request:[NSURL URLWithString:TEST_AUTHORITY "/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING]
+    [ADTestURLResponse request:[NSURL URLWithString:TEST_AUTHORITY "/oauth2/token"]
               respondWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                    code:NSURLErrorNotConnectedToInternet
                                                userInfo:nil]];
@@ -1013,7 +1013,7 @@ const int sAsyncContextTimeout = 10;
     [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token"
                                                     responseURLString:@"https://contoso.com"
                                                          responseCode:500
                                                      httpHeaderFields:@{ } // maybe shoehorn correlation ID here
@@ -1625,7 +1625,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Test resiliency when response code 500 ... 599 happens
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:[NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, TEST_AUTHORITY]
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:[NSString stringWithFormat:@"%@/oauth2/token", TEST_AUTHORITY]
                                                     responseURLString:@"https://contoso.com"
                                                          responseCode:504
                                                      httpHeaderFields:@{ }
@@ -1780,7 +1780,7 @@ const int sAsyncContextTimeout = 10;
     
     // Following we add a mock response and specify the request url we expect (it must include login_hint)
     ADTestURLResponse* response = [ADTestURLResponse new];
-    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&prompt=none&resource=resource&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&nux=1&response_type=code&login_hint=eric_cartman%40contoso.com&x-client-Ver=" ADAL_VERSION_STRING]];
+    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&prompt=none&resource=resource&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&nux=1&response_type=code&login_hint=eric_cartman%40contoso.com"]];
     
     NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     
@@ -1827,7 +1827,7 @@ const int sAsyncContextTimeout = 10;
     
     // Add a mock response returning auth code for the allowSilent request
     ADTestURLResponse* response = [ADTestURLResponse new];
-    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?prompt=none&response_type=code&login_hint=eric_cartman%40contoso.com&resource=resource&nux=1&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&x-client-Ver=" ADAL_VERSION_STRING]];
+    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?prompt=none&response_type=code&login_hint=eric_cartman%40contoso.com&resource=resource&nux=1&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76"]];
     NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
     [response setRequestHeaders:headers];
@@ -2583,7 +2583,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set up the mock connection to simulate a 429 throttled error
-    NSString* requestURLString = TEST_AUTHORITY "/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING;
+    NSString* requestURLString = TEST_AUTHORITY "/oauth2/token";
     
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:requestURLString
                                                     responseURLString:@"https://contoso.com"

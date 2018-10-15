@@ -313,6 +313,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     NSArray *filteredCapabilities = [ADClientCapabilitiesUtil knownCapabilities:_requestParams.clientCapabilities];
     NSString *clientCapabilities = [filteredCapabilities count] ? [filteredCapabilities componentsJoinedByString:@","] : @"";
+
+    NSDictionary *clientMetadata = [ADLogger adalMetadata];
     
     NSDictionary *queryDictionary =
     @{
@@ -334,7 +336,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"claims"         : _claims ? _claims : @"",
       @"intune_enrollment_ids" : enrollmentIds ? enrollmentIds : @"",
       @"intune_mam_resource" : mamResource,
-      @"client_capabilities": clientCapabilities
+      @"client_capabilities": clientCapabilities,
+      @"client_app_name": clientMetadata[ADAL_ID_APP_NAME],
+      @"client_app_version": clientMetadata[ADAL_ID_APP_VERSION]
       };
     
     NSDictionary<NSString *, NSString *>* resumeDictionary = nil;

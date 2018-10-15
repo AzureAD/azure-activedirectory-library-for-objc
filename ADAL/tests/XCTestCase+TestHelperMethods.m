@@ -274,7 +274,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                    correlationId:(NSUUID *)correlationId
                                    requestParams:(NSDictionary *)requestParams
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSDictionary *requestHeaders = nil;
     if (correlationId)
@@ -460,7 +460,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 requestParams:(NSDictionary *)requestParams
 
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [correlationId UUIDString];
@@ -492,7 +492,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [correlationId UUIDString];

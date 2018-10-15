@@ -31,5 +31,6 @@
 - (NSString *)adHostWithPortIfNecessary;
 
 - (NSDictionary *)adQueryParameters;
+- (NSURL *)adURLWithQueryParameters:(NSDictionary *)queryParameters;
 
 @end

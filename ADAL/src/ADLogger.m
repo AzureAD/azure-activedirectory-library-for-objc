@@ -42,7 +42,8 @@ static ADLoggerCallback s_LoggerCallback = nil;
 static BOOL s_NSLogging = YES;
 static NSString* s_OSString = @"UnkOS";
 
-static NSMutableDictionary* s_adalId = nil;
+static NSMutableDictionary* s_adalShortMetadata = nil;
+static NSMutableDictionary* s_adalFullMetadata = nil;
 
 static dispatch_once_t s_logOnce;
 
@@ -239,9 +240,46 @@ correlationId:(NSUUID*)correlationId
     return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
 }
 
-+ (NSDictionary*)adalId
++ (NSDictionary *)adalShortMetadata
+{
+    static dispatch_once_t s_ParametersOnce;
+
+    dispatch_once(&s_ParametersOnce, ^{
+
+        NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
+
+        NSString *appName = metadata[@"CFBundleDisplayName"];
+
+        if (!appName)
+        {
+            appName = metadata[@"CFBundleName"];
+        }
+
+        NSString *appVer = metadata[@"CFBundleShortVersionString"];
+
+        s_adalShortMetadata =  [@{ADAL_ID_VERSION : ADAL_VERSION_NSSTRING,
+                                  ADAL_ID_APP_NAME: appName ? appName : @"",
+                                  ADAL_ID_APP_VERSION: appVer ? appVer : @""} mutableCopy];
+    });
+
+    return s_adalShortMetadata;
+}
+
++ (NSDictionary*)adalMetadata
 {
     dispatch_once(&s_logOnce, ^{
+
+        NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
+
+        NSString *appName = metadata[@"CFBundleDisplayName"];
+
+        if (!appName)
+        {
+            appName = metadata[@"CFBundleName"];
+        }
+
+        NSString *appVer = metadata[@"CFBundleShortVersionString"];
+
 #if TARGET_OS_IPHONE
         //iOS:
         UIDevice* device = [UIDevice currentDevice];
@@ -251,6 +289,8 @@ correlationId:(NSUUID*)correlationId
                                          ADAL_ID_VERSION:[ADLogger getAdalVersion],
                                          ADAL_ID_OS_VER:device.systemVersion,
                                          ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
+                                         ADAL_ID_APP_NAME: appName ? appName : @"",
+                                         ADAL_ID_APP_VERSION: appVer ? appVer : @""
                                          }];
 #else
         NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
@@ -259,6 +299,8 @@ correlationId:(NSUUID*)correlationId
                                          ADAL_ID_PLATFORM:@"OSX",
                                          ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
                                          ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
+                                         ADAL_ID_APP_NAME: appName ? appName : @"",
+                                         ADAL_ID_APP_VERSION: appVer ? appVer : @""
                                          }];
 #endif
         NSString* CPUVer = [self getCPUInfo];
@@ -267,15 +309,16 @@ correlationId:(NSUUID*)correlationId
             [result setObject:CPUVer forKey:ADAL_ID_CPU];
         }
         
-        s_adalId = result;
+        s_adalFullMetadata = result;
     });
     
-    return s_adalId;
+    return s_adalFullMetadata;
 }
 
 + (void)setAdalVersion:(NSString*)version
 {
-    [s_adalId setObject:version forKey:ADAL_ID_VERSION];
+    [s_adalFullMetadata setObject:version forKey:ADAL_ID_VERSION];
+    [s_adalShortMetadata setObject:version forKey:ADAL_ID_VERSION];
 }
 
 + (NSString*)getHash:(NSString*)input
@@ -308,7 +351,6 @@ correlationId:(NSUUID*)correlationId
          context:(NSString *)context
    correlationId:(NSUUID *)correlationId
 {
-    
     NSMutableString* logString = nil;
     
     if (context)
@@ -329,9 +371,14 @@ correlationId:(NSUUID*)correlationId
 + (void)setIdValue:(NSString*)value
             forKey:(NSString*)key
 {
-    [self adalId];
+    [self adalMetadata];
     
-    [s_adalId setObject:value forKey:key];
+    [s_adalFullMetadata setObject:value forKey:key];
+
+    if (s_adalShortMetadata[key])
+    {
+        [s_adalShortMetadata setObject:value forKey:key];
+    }
 }
 
 @end

@@ -161,7 +161,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    NSString* value = [ADHelpers addClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
+    NSString* value = [ADHelpers addClientMetadataToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
     
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
@@ -579,7 +579,7 @@ static ADAuthenticationResult* s_result = nil;
         _completionBlock(error, nil);
     }
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientMetadataToURL:startURL]];
 
     [ADURLProtocol addContext:_requestParams toRequest:request];
 

@@ -117,7 +117,7 @@
                                  OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
-    [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
+    [startUrl appendFormat:@"&%@", [[ADLogger adalMetadata] adURLFormEncode]];
     
     if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
     {

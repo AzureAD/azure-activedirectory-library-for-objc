@@ -87,7 +87,7 @@
 - (void)testParametersFromResourceUrl_whenResourceUrlIsNotExist_shouldReturnErrorAndNilParameters
 {
     NSURL *resource = [[NSURL alloc] initWithString:@"https://noneistingurl12345676789.com"];
-    [ADTestURLSession addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
+    [ADTestURLSession addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com"];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"parametersFromResourceUrl: with non existing resource should return error."];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError __unused *error)
@@ -105,7 +105,7 @@
 - (void)testParametersFromResourceUrl_whenHttpResourceUrlExists_shouldReturnAuthenticationParametersAndNilError
 {
     NSURL *resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
-    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
+    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem"
                                                     responseURLString:@"http://contoso.com"
                                                          responseCode:HTTP_UNAUTHORIZED
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
@@ -129,7 +129,7 @@
 - (void)testParametersFromResourceUrl_whenHttpsResourceUrlExists_shouldReturnAuthenticationParametersAndNilError
 {
     NSURL *resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
-    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"https://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
+    ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"https://testapi007.azurewebsites.net/api/WorkItem"
                                  responseURLString:@"https://contoso.com"
                                       responseCode:HTTP_UNAUTHORIZED
                                   httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }

@@ -79,6 +79,8 @@ NSString *const ADAL_ID_VERSION           = @"x-client-Ver";
 NSString *const ADAL_ID_CPU               = @"x-client-CPU";//E.g. ARM64
 NSString *const ADAL_ID_OS_VER            = @"x-client-OS";//iOS/OSX version
 NSString *const ADAL_ID_DEVICE_MODEL      = @"x-client-DM";//E.g. iPhone
+NSString *const ADAL_ID_APP_NAME          = @"x-app-name"; // Application displayable name
+NSString *const ADAL_ID_APP_VERSION       = @"x-app-ver"; // Application version
 
 //Internal constants:
 NSString *const AUTH_FAILED               = @"Authentication Failed";

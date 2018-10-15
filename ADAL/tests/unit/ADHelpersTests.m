@@ -46,21 +46,21 @@
 - (void)testAddClientVersion
 {
     NSString* testURLString = @"https://test.microsoft.com/athing";
-    NSString* result = [ADHelpers addClientVersionToURLString:testURLString];
-    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?x-client-Ver=" ADAL_VERSION_STRING);
+    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString];
+    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?x-client-Ver=" ADAL_VERSION_STRING "&x-app-ver=1.0&x-app-name=UnitTestHostApp");
 }
 
 - (void)testAddClientVersionPercentEncoded
 {
     NSString* testURLString = @"https://test.microsoft.com/athing?dontunencodeme=this%3Dsome%26bsteststring%3Dtrue";
-    NSString* result = [ADHelpers addClientVersionToURLString:testURLString];
-    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?dontunencodeme=this%3Dsome%26bsteststring%3Dtrue&x-client-Ver=" ADAL_VERSION_STRING);
+    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString];
+    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?dontunencodeme=this%3Dsome%26bsteststring%3Dtrue&x-client-Ver=" ADAL_VERSION_STRING "&x-app-ver=1.0&x-app-name=UnitTestHostApp");
 }
 
 - (void)testAddClientVersionAlreadyThere
 {
-    NSString* testURLString = @"https://test.microsoft.com/athing?x-client-Ver=" ADAL_VERSION_STRING;
-    NSString* result = [ADHelpers addClientVersionToURLString:testURLString];
+    NSString* testURLString = @"https://test.microsoft.com/athing?x-app-name=UnitTestHostApp&x-app-ver=1.0&x-client-Ver=" ADAL_VERSION_STRING;
+    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString];
     XCTAssertEqualObjects(testURLString, result);
 }
 

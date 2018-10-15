@@ -153,7 +153,7 @@
         [s_defaultParameters adSetObjectIfNotNil:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]
                                             forKey:AD_TELEMETRY_KEY_APPLICATION_VERSION];
         
-        NSDictionary* adalId = [ADLogger adalId];
+        NSDictionary* adalId = [ADLogger adalMetadata];
         for (NSString* key in adalId)
         {
             NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@",

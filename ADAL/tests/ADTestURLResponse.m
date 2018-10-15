@@ -36,7 +36,7 @@
     static dispatch_once_t once;
     
     dispatch_once(&once, ^{
-        NSMutableDictionary* headers = [[ADLogger adalId] mutableCopy];
+        NSMutableDictionary* headers = [[ADLogger adalMetadata] mutableCopy];
         
         headers[@"Accept"] = @"application/json";
         headers[@"client-request-id"] = [ADTestRequireValueSentinel sentinel];
@@ -102,7 +102,7 @@
     ADTestURLResponse * response = [ADTestURLResponse new];
     
     [response setRequestURL:request];
-    [response setRequestHeaders:[ADLogger adalId]];
+    [response setRequestHeaders:[ADLogger adalMetadata]];
     response->_error = error;
     
     return response;
@@ -127,7 +127,7 @@
     ADTestURLResponse *response = [ADTestURLResponse new];
     [response setRequestURL:[NSURL URLWithString:requestUrlString]];
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
-    [response setRequestHeaders:[ADLogger adalId]];
+    [response setRequestHeaders:[ADLogger adalMetadata]];
     [response setJSONResponse:data];
     
     return response;

@@ -44,7 +44,7 @@
                           trustedHost:(NSString *)trustedHost
                          withMetadata:(NSArray *)metadata
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, trustedHost, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize", trustedHost, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse new];
     response.requestURL = [NSURL URLWithString:authorityValidationURL];
     [response setResponseURL:@"https://idontmatter.com" code:200 headerFields:@{}];
@@ -69,7 +69,7 @@
 + (ADTestURLResponse*)invalidAuthority:(NSString *)authority
                            trustedHost:(NSString *)trustedHost
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, trustedHost, [authority lowercaseString]];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://%@/common/discovery/instance?api-version=" AAD_AUTHORITY_VALIDATION_API_VERSION "&authorization_endpoint=%@/oauth2/authorize", trustedHost, [authority lowercaseString]];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
@@ -85,7 +85,7 @@
                                onPrems:(BOOL)onPrems
          passiveAuthenticationEndpoint:(NSString *)passiveAuthEndpoint
 {
-    NSString* validationPayloadURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
+    NSString* validationPayloadURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0",
                                       onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
     
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:validationPayloadURL
@@ -112,7 +112,7 @@
 + (ADTestURLResponse *)invalidDrsPayload:(NSString *)domain
                                  onPrems:(BOOL)onPrems
 {
-    NSString* validationPayloadURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
+    NSString* validationPayloadURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0",
                                       onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
     
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:validationPayloadURL
@@ -129,7 +129,7 @@
 + (ADTestURLResponse *)unreachableDrsService:(NSString *)domain
                                      onPrems:(BOOL)onPrems
 {
-    NSString *drsURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
+    NSString *drsURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0",
                         onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
     
     ADTestURLResponse *response = [ADTestURLResponse serverNotFoundResponseForURLString:drsURL];
@@ -143,7 +143,7 @@
                             authority:(NSString *)authority
 {
     NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
-    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", endpointFullUrl.host, authority];
     
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:url
                                                     responseURLString:@"https://idontmatter.com"
@@ -164,7 +164,7 @@
                               authority:(NSString *)authority
 {
     NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
-    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", endpointFullUrl.host, authority];
     
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:url
                                                     responseURLString:@"https://idontmatter.com"
@@ -180,7 +180,7 @@
                                         authority:(NSString *)authority
 {
     NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
-    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", endpointFullUrl.host, authority];
     
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:url
                                                     responseURLString:@"https://idontmatter.com"
@@ -202,7 +202,7 @@
 {
     (void)authority;
     NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
-    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", endpointFullUrl.host, authority];
     
     ADTestURLResponse *response = [ADTestURLResponse serverNotFoundResponseForURLString:url];
     [response setRequestHeaders:[ADTestURLResponse defaultHeaders]];

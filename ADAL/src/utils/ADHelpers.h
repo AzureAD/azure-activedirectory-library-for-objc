@@ -45,8 +45,8 @@
 
 + (void)removeNullStringFrom:(NSDictionary *)dict;
 
-+ (NSURL *)addClientVersionToURL:(NSURL*)url;
-+ (NSString *)addClientVersionToURLString:(NSString*)url;
++ (NSURL *)addClientMetadataToURL:(NSURL*)url;
++ (NSString *)addClientMetadataToURLString:(NSString*)url;
 
 + (NSString *)getUPNSuffix:(NSString *)upn;
 
