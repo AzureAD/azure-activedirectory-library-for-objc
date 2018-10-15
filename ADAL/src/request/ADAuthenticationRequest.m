@@ -179,12 +179,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
         return NO;
     }
     
-    NSData *jsonData = [_claims.adUrlFormDecode dataUsingEncoding:NSUTF8StringEncoding];
-    
-    NSError *jsonError = nil;
-    
-    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
-    
+    NSDictionary *decodedDictionary = _claims.adUrlFormDecodedJson;
     if (!decodedDictionary)
     {
         if (error)
