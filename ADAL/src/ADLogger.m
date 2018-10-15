@@ -269,47 +269,29 @@ correlationId:(NSUUID*)correlationId
 {
     dispatch_once(&s_logOnce, ^{
 
-        NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
-
-        NSString *appName = metadata[@"CFBundleDisplayName"];
-
-        if (!appName)
-        {
-            appName = metadata[@"CFBundleName"];
-        }
-
-        NSString *appVer = metadata[@"CFBundleShortVersionString"];
+        NSMutableDictionary *metadata = [[self adalShortMetadata] mutableCopy];
 
 #if TARGET_OS_IPHONE
         //iOS:
         UIDevice* device = [UIDevice currentDevice];
-        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         ADAL_ID_PLATFORM:@"iOS",
-                                         ADAL_ID_VERSION:[ADLogger getAdalVersion],
-                                         ADAL_ID_OS_VER:device.systemVersion,
-                                         ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
-                                         ADAL_ID_APP_NAME: appName ? appName : @"",
-                                         ADAL_ID_APP_VERSION: appVer ? appVer : @""
-                                         }];
+
+        metadata[ADAL_ID_PLATFORM] = @"iOS";
+        metadata[ADAL_ID_OS_VER] = device.systemVersion;
+        metadata[ADAL_ID_DEVICE_MODEL] = device.model;
 #else
         NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         ADAL_ID_PLATFORM:@"OSX",
-                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
-                                         ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
-                                         ADAL_ID_APP_NAME: appName ? appName : @"",
-                                         ADAL_ID_APP_VERSION: appVer ? appVer : @""
-                                         }];
+
+        metadata[ADAL_ID_PLATFORM] = @"OSX";
+        metadata[ADAL_ID_VERSION] = [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
+        metadata[ADAL_ID_OS_VER] = [NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
 #endif
         NSString* CPUVer = [self getCPUInfo];
         if (![NSString adIsStringNilOrBlank:CPUVer])
         {
-            [result setObject:CPUVer forKey:ADAL_ID_CPU];
+            [metadata setObject:CPUVer forKey:ADAL_ID_CPU];
         }
         
-        s_adalFullMetadata = result;
+        s_adalFullMetadata = metadata;
     });
     
     return s_adalFullMetadata;
