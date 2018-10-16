@@ -23,34 +23,12 @@
 
 #import "ADClientCapabilitiesUtil.h"
 #import "NSDictionary+ADExtensions.h"
-#import "ADClientCapabilities.h"
 
 static NSString *kAccessTokenClaims = @"access_token";
 static NSString *kCapabilitiesClaims = @"xms_cc";
 static NSString *kValuesClaim = @"values";
 
 @implementation ADClientCapabilitiesUtil
-
-+ (NSArray<NSString *> *)knownCapabilities:(NSArray<NSString *> *)allCapabilities
-{
-    if (!allCapabilities)
-    {
-        return nil;
-    }
-
-    static NSSet<NSString *> *knownCapabilities = nil;
-
-    static dispatch_once_t s_capabilities_once;
-
-    dispatch_once(&s_capabilities_once, ^{
-        knownCapabilities = [NSSet setWithObjects:AD_CLIENT_CAPABILITY_LLT, nil];
-    });
-
-    NSMutableSet *capabilitiesSet = [NSMutableSet setWithArray:allCapabilities];
-    [capabilitiesSet intersectSet:knownCapabilities];
-
-    return capabilitiesSet.allObjects;
-}
 
 + (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
 {
@@ -59,15 +37,7 @@ static NSString *kValuesClaim = @"values";
         return nil;
     }
 
-    NSArray *filteredCapabilities = [self knownCapabilities:capabilities];
-
-    if (![filteredCapabilities count])
-    {
-        AD_LOG_VERBOSE(nil, @"Didn't find any known capabilities");
-        return nil;
-    }
-
-    NSDictionary *claims = @{kAccessTokenClaims:@{kCapabilitiesClaims: @{kValuesClaim : filteredCapabilities}}};
+    NSDictionary *claims = @{kAccessTokenClaims:@{kCapabilitiesClaims: @{kValuesClaim : capabilities}}};
     return [self jsonFromCapabilities:claims];
 }
 
@@ -86,9 +56,7 @@ static NSString *kValuesClaim = @"values";
         [claims addEntriesFromDictionary:developerClaims];
     }
 
-    NSArray *filteredCapabilities = [self knownCapabilities:capabilities];
-    NSDictionary *additionalClaims = @{kCapabilitiesClaims: @{kValuesClaim : filteredCapabilities}};
-
+    NSDictionary *additionalClaims = @{kCapabilitiesClaims: @{kValuesClaim : capabilities}};
     NSDictionary *accessTokenClaims = claims[kAccessTokenClaims];
 
     if ([accessTokenClaims count])

@@ -343,4 +343,16 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [[NSURL alloc] initWithString:self];
 }
 
+- (NSDictionary *)adUrlFormDecodedJson
+{
+    NSData *jsonData = [self.adUrlFormDecode dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (!jsonData) return nil;
+    
+    NSError *jsonError = nil;
+    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
+    
+    return decodedDictionary;
+}
+
 @end

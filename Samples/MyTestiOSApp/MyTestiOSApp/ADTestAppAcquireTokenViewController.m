@@ -28,7 +28,6 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 #import "ADEnrollmentGateway.h"
-#import "ADClientCapabilities.h"
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAM/IntuneMAM.h>
@@ -403,9 +402,7 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
-    
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    
+        
     self.claimsPickerController = [ADTestAppClaimsPickerController alertControllerWithTitle:@"" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     self.claimsPickerController.claimsTextField = _claimsField;
     self.claimsPickerController.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D", @"DeviceID" : @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D"};
@@ -590,7 +587,7 @@
 
     if (_enableClientCapabilities.selectedSegmentIndex == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;
@@ -685,7 +682,7 @@
 
     if (_enableClientCapabilities.selectedSegmentIndex == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;

@@ -194,4 +194,25 @@
     XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
 }
 
+- (void)testAdUrlFormDecodedJson_whenNotJson_shouldReturnNil
+{
+    NSString *urlEncodedJson = @"abc";
+    XCTAssertNil(urlEncodedJson.adUrlFormDecodedJson);
+}
+
+- (void)testAdUrlFormDecodedJson_whenEmptyString_shouldReturnNil
+{
+    NSString *urlEncodedJson = @"";
+    XCTAssertNil(urlEncodedJson.adUrlFormDecodedJson);
+}
+
+- (void)testAdUrlFormDecodedJson_whenValidEncodedJson_shouldReturnDictionary
+{
+    NSString *urlEncodedJson = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%2C%22xms_cc%22%3A%7B%22values%22%3A%5B%22llt%22%5D%7D%7D%7D";
+    NSDictionary *expectedDic = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"],@"essential":@true},@"xms_cc":@{@"values":@[@"llt"]}}};
+    NSDictionary *json = urlEncodedJson.adUrlFormDecodedJson;
+    XCTAssertNotNil(json);
+    XCTAssertEqualObjects(json, expectedDic);
+}
+
 @end

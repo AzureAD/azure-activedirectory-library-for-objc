@@ -273,8 +273,8 @@ typedef enum
 /*! Enable to return access token with extended lifetime during server outage. */
 @property BOOL extendedLifetimeEnabled;
 
-/*!  List of additional ESTS features that client handles.
-     See ADClientCapabilities.h header for the list of all currently supported capabilities.
+/*!
+    List of additional ESTS features that client handles.
  */
 @property (strong) NSArray<NSString *> *clientCapabilities;
 

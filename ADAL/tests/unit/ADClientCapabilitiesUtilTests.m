@@ -30,56 +30,6 @@
 
 @implementation ADClientCapabilitiesUtilTests
 
-#pragma mark - knownCapabilities
-
-- (void)testKnownCapabilities_whenNilCapabilitiesPassed_shouldReturnNil
-{
-    NSArray *inputCapabilities = nil;
-
-    NSArray *result = [ADClientCapabilitiesUtil knownCapabilities:inputCapabilities];
-
-    XCTAssertNil(result);
-}
-
-- (void)testKnownCapabilities_whenNonStringCapabilitiesPassed_shouldReturnEmptyResult
-{
-    NSArray *inputCapabilities = @[[NSSet new]];
-
-    NSArray *result = [ADClientCapabilitiesUtil knownCapabilities:inputCapabilities];
-
-    XCTAssertEqualObjects(result, @[]);
-}
-
-- (void)testKnownCapabilities_whenNoKnownCapabilitiesPassed_shouldReturnEmptyResult
-{
-    NSArray *inputCapabilities = @[@"unknown"];
-
-    NSArray *result = [ADClientCapabilitiesUtil knownCapabilities:inputCapabilities];
-
-    XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @[]);
-}
-
-- (void)testKnownCapabilities_whenOnlyKnownCapabilitiesPassed_shouldReturnCapabilities
-{
-    NSArray *inputCapabilities = @[@"llt"];
-
-    NSArray *result = [ADClientCapabilitiesUtil knownCapabilities:inputCapabilities];
-
-    XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @[@"llt"]);
-}
-
-- (void)testKnownCapabilities_whenKnownAndUnknownCapabilitiesPassed_shouldReturnOnlyKnownCapabilities
-{
-    NSArray *inputCapabilities = @[@"unknown1", @"llt", @"unknown2"];
-
-    NSArray *result = [ADClientCapabilitiesUtil knownCapabilities:inputCapabilities];
-
-    XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @[@"llt"]);
-}
-
 #pragma mark - claimsParameterFromCapabilities
 
 - (void)testclaimsParameterFromCapabilities_whenNilCapabilities_shouldReturnNil
@@ -110,23 +60,14 @@
     XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}");
 }
 
-- (void)testclaimsParameterFromCapabilities_whenUnknowCapabilities_shouldReturnNil
-{
-    NSArray *inputCapabilities = @[@"unknown"];
-
-    NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
-
-    XCTAssertNil(result);
-}
-
-- (void)testclaimsParameterFromCapabilities_whenKnownAndUnknownCapabilities_shouldReturnClaimsJSONWithKnownCapabilities
+- (void)testclaimsParameterFromCapabilities_whenMultipleCapabilities_shouldReturnClaimsJSONWithAllCapabilities
 {
     NSArray *inputCapabilities = @[@"unknown1", @"llt", @"unknown2"];
 
     NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities];
 
     XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}");
+    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"unknown1\",\"llt\",\"unknown2\"]}}}");
 }
 
 #pragma mark - claimsParameterFromCapabilities:developerClaims:
@@ -182,14 +123,14 @@
 
 - (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_andAccessTokenClaimsInBoth_shouldMergeClaims
 {
-     NSArray *inputCapabilities = @[@"unknown", @"llt", @"unknown2"];
+     NSArray *inputCapabilities = @[@"cp1", @"llt"];
      NSDictionary *inputClaims = @{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};
 
     NSString *result = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
 
     XCTAssertNotNil(result);
 
-    NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true},\"xms_cc\":{\"values\":[\"llt\"]}}}";
+    NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true},\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}}}";
     XCTAssertEqualObjects(result, expectedResult);
 }
 

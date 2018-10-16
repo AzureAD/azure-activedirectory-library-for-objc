@@ -1973,7 +1973,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    context.clientCapabilities = @[@"unrecognized", @"llt"];
+    context.clientCapabilities = @[@"cp1"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
@@ -2004,7 +2004,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    context.clientCapabilities = @[@"unrecognized", @"llt"];
+    context.clientCapabilities = @[@"cp1", @"llt"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
@@ -2021,7 +2021,7 @@ const int sAsyncContextTimeout = 10;
 
     // Since claims on the token endpoint are sent as part of the body, ADAL doesn't double encode them
     // The unit tests are comparing the form we sent in ADAL against url decoded form
-    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
@@ -2123,7 +2123,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    context.clientCapabilities = @[@"unrecognized", @"llt"];
+    context.clientCapabilities = @[@"cp1", @"llt"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
@@ -2157,7 +2157,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    context.clientCapabilities = @[@"unrecognized", @"llt"];
+    context.clientCapabilities = @[@"cp1", @"llt"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
@@ -2172,7 +2172,7 @@ const int sAsyncContextTimeout = 10;
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
 
-    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
+    NSString *decodedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}}}";
 
     ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                      authority:TEST_AUTHORITY
@@ -2212,7 +2212,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    context.clientCapabilities = @[@"unrecognized", @"llt"];
+    context.clientCapabilities = @[@"llt"];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];

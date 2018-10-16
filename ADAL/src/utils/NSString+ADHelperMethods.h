@@ -53,4 +53,8 @@
 /*! Converts string to url */
 - (NSURL *)adUrl;
 
+/*! Decode the url encoded json to a dictionary.
+    Returns nil if it is not a url encoded json string. */
+- (NSDictionary *)adUrlFormDecodedJson;
+
 @end

@@ -120,34 +120,6 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     _webView = nil;
 }
 
-#pragma mark - UIViewController Methods
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-
-    if ( (NSUInteger)[[[UIDevice currentDevice] systemVersion] doubleValue] < 7)
-    {
-        [self.navigationController.navigationBar setTintColor:[UIColor darkGrayColor]];
-    }
-}
-
-- (void)viewDidUnload
-{
-    DebugLog();
-
-    [super viewDidUnload];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
-        // The device is an iPad running iPhone 3.2 or later.
-        return YES;
-    else
-        return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
 #pragma mark - Event Handlers
 
 // Authentication was cancelled by the user
