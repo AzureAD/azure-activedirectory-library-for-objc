@@ -770,7 +770,7 @@
     [ADTestURLSession addResponses:@[validationResponse]];
 
     ADAuthenticationContext *context = [self getBrokerTestContext:authority];
-    context.clientCapabilities = @[@"unknown", @"llt"];
+    context.clientCapabilities = @[@"llt"];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE

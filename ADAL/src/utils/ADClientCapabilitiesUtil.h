@@ -25,8 +25,6 @@
 
 @interface ADClientCapabilitiesUtil : NSObject
 
-+ (NSArray<NSString *> *)knownCapabilities:(NSArray<NSString *> *)allCapabilities;
-
 /*
     Takes a list of capabilities and returns the JSON claims.
     The result JSON is not URL encoded and caller needs to encode it if necessary
