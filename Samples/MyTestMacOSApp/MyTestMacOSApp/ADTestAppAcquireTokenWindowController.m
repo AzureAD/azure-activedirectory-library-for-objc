@@ -356,7 +356,7 @@
 
     if (_capabilitiesControl.selectedSegment == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;

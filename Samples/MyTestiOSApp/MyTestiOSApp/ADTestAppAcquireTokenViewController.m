@@ -684,7 +684,7 @@
 
     if (_enableClientCapabilities.selectedSegmentIndex == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;
