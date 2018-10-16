@@ -28,7 +28,6 @@
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
 #import "ADEnrollmentGateway.h"
-#import "ADClientCapabilities.h"
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAM/IntuneMAM.h>
@@ -588,7 +587,7 @@
 
     if (_enableClientCapabilities.selectedSegmentIndex == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;
@@ -683,7 +682,7 @@
 
     if (_enableClientCapabilities.selectedSegmentIndex == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;

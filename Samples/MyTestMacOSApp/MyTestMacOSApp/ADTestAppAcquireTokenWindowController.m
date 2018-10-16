@@ -29,7 +29,6 @@
 #import "ADAuthenticationSettings.h"
 #import "ADWebAuthController.h"
 #import "ADTestAppCache.h"
-#import "ADClientCapabilities.h"
 
 @interface ADTestAppAcquireTokenWindowController ()
 
@@ -251,7 +250,7 @@
 
     if (_capabilitiesControl.selectedSegment == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;
@@ -357,7 +356,7 @@
 
     if (_capabilitiesControl.selectedSegment == 1)
     {
-        capabilities = @[AD_CLIENT_CAPABILITY_LLT];
+        capabilities = @[@"cp1"];
     }
     
     ADAuthenticationError* error = nil;
