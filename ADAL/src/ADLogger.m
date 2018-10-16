@@ -259,7 +259,6 @@ correlationId:(NSUUID*)correlationId
         metadata[ADAL_ID_PLATFORM] = @"OSX";
         metadata[ADAL_ID_VERSION] = [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
         metadata[ADAL_ID_OS_VER] = [NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
-        metadata[ADAL_ID_VERSION] = ADAL_VERSION_NSSTRING;
 #endif
         NSString* CPUVer = [self getCPUInfo];
         if (![NSString adIsStringNilOrBlank:CPUVer])
