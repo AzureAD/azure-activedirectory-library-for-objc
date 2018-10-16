@@ -494,20 +494,6 @@
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
 		};
-		B225F05C217558FE0052334D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 04AB6D411D9D619B007E9A83;
-			remoteInfo = UnitTestHostApp;
-		};
-		B225F05E217559010052334D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 04AB6D411D9D619B007E9A83;
-			remoteInfo = UnitTestHostApp;
-		};
 		D61000E91D3984C20087AB81 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -1866,7 +1852,6 @@
 			);
 			dependencies = (
 				94DD18E81C5ACFBF00F80C62 /* PBXTargetDependency */,
-				B225F05D217558FE0052334D /* PBXTargetDependency */,
 			);
 			name = ADAL_Mac_UTs;
 			productName = "ADAL Mac Tests";
@@ -1904,7 +1889,6 @@
 			);
 			dependencies = (
 				B20DC5B01F0D96A700957806 /* PBXTargetDependency */,
-				B225F05F217559010052334D /* PBXTargetDependency */,
 			);
 			name = ADAL_Mac_ITs;
 			productName = "ADAL Mac Tests";
@@ -2518,16 +2502,6 @@
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = B20DC5B11F0D96A700957806 /* PBXContainerItemProxy */;
-		};
-		B225F05D217558FE0052334D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 04AB6D411D9D619B007E9A83 /* UnitTestHostApp */;
-			targetProxy = B225F05C217558FE0052334D /* PBXContainerItemProxy */;
-		};
-		B225F05F217559010052334D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 04AB6D411D9D619B007E9A83 /* UnitTestHostApp */;
-			targetProxy = B225F05E217559010052334D /* PBXContainerItemProxy */;
 		};
 		D61000EA1D3984C20087AB81 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
