@@ -64,8 +64,6 @@
 
 /*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
 + (NSDictionary *)adalMetadata;
-/*! Returns limited set of metadata to be sent in URL. */
-+ (NSDictionary *)adalShortMetadata;
 
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */

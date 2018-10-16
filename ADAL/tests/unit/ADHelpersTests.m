@@ -35,21 +35,33 @@
 - (void)testAddClientVersion
 {
     NSString* testURLString = @"https://test.microsoft.com/athing";
-    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString];
-    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?x-client-Ver=" ADAL_VERSION_STRING "&x-app-ver=1.0&x-app-name=UnitTestHostApp");
+
+    NSDictionary *testMetadata = @{@"x-app-ver": @"1.0",
+                                   @"x-app-name": @"UnitTestHostApp",
+                                   @"x-client-Ver": @"Y"
+                                   };
+
+    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString metadata:testMetadata];
+    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?x-client-Ver=Y&x-app-ver=1.0&x-app-name=UnitTestHostApp");
 }
 
 - (void)testAddClientVersionPercentEncoded
 {
     NSString* testURLString = @"https://test.microsoft.com/athing?dontunencodeme=this%3Dsome%26bsteststring%3Dtrue";
-    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString];
-    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?dontunencodeme=this%3Dsome%26bsteststring%3Dtrue&x-client-Ver=" ADAL_VERSION_STRING "&x-app-ver=1.0&x-app-name=UnitTestHostApp");
+    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString metadata:@{@"x-app-ver": @"1.0",
+                                                                                        @"x-app-name": @"UnitTestHostApp",
+                                                                                        @"x-client-Ver": @"Y"
+                                                                                        }];
+    XCTAssertEqualObjects(result, @"https://test.microsoft.com/athing?dontunencodeme=this%3Dsome%26bsteststring%3Dtrue&x-client-Ver=Y&x-app-ver=1.0&x-app-name=UnitTestHostApp");
 }
 
 - (void)testAddClientVersionAlreadyThere
 {
-    NSString* testURLString = @"https://test.microsoft.com/athing?x-app-name=UnitTestHostApp&x-app-ver=1.0&x-client-Ver=" ADAL_VERSION_STRING;
-    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString];
+    NSString* testURLString = @"https://test.microsoft.com/athing?x-app-name=UnitTestHostApp&x-app-ver=1.0&x-client-Ver=Y";
+    NSString* result = [ADHelpers addClientMetadataToURLString:testURLString metadata:@{@"x-app-ver": @"1.0",
+                                                                                        @"x-app-name": @"UnitTestHostApp",
+                                                                                        @"x-client-Ver": @"Y"
+                                                                                        }];
     XCTAssertEqualObjects(testURLString, result);
 }
 

@@ -313,7 +313,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     NSString *capabilities = [_requestParams.clientCapabilities componentsJoinedByString:@","];
 
-    NSDictionary *clientMetadata = [ADLogger adalMetadata];
+    NSDictionary *clientMetadata = _requestParams.adRequestMetadata;
 
     NSDictionary *queryDictionary =
     @{

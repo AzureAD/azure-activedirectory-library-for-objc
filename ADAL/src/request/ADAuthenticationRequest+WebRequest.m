@@ -52,6 +52,8 @@
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
+    [req setRequestMetadata:_requestParams.adRequestMetadata];
+
     [req sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
          if (error)
@@ -296,6 +298,8 @@
                                                               context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
+        [req setRequestMetadata:_requestParams.adRequestMetadata];
+        
         [req sendRequest:^(ADAuthenticationError *error, NSDictionary * parameters)
          {
              if (error && ![parameters objectForKey:@"url"]) // auth code and OAuth2 error could be in endURL

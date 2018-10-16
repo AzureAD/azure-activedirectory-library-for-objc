@@ -54,6 +54,10 @@
 @property BOOL forceRefresh;
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
+@property (nonatomic) NSString *appName;
+@property (nonatomic) NSString *appVersion;
+
+- (NSDictionary *)adRequestMetadata;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource

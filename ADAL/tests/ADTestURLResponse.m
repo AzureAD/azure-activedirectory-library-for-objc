@@ -41,6 +41,8 @@
         headers[@"Accept"] = @"application/json";
         headers[@"client-request-id"] = [ADTestRequireValueSentinel sentinel];
         headers[@"return-client-request-id"] = @"true";
+        headers[@"x-app-name"] = @"UnitTestHostApp";
+        headers[@"x-app-ver"] = @"1.0";
         
 #if TARGET_OS_IPHONE
         headers[@"x-ms-PkeyAuth"] = @"1.0";
@@ -102,6 +104,7 @@
     ADTestURLResponse * response = [ADTestURLResponse new];
     
     [response setRequestURL:request];
+
     [response setRequestHeaders:[ADLogger adalMetadata]];
     response->_error = error;
     

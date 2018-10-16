@@ -140,6 +140,12 @@
 {
     [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalMetadata]];
+
+    if (self.requestMetadata)
+    {
+        [_requestHeaders addEntriesFromDictionary:self.requestMetadata];
+    }
+
     //Correlation id:
     if (_correlationId)
     {
@@ -233,7 +239,7 @@
     (void)task;
     
     NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL];
+    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.requestMetadata];
     
     if (modifiedURL == requestURL)
     {

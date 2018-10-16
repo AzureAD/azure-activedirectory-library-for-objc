@@ -258,24 +258,29 @@
     return tmpFixedInput;
 }
 
-+ (NSURL*)addClientMetadataToURL:(NSURL*)url
++ (NSURL*)addClientMetadataToURL:(NSURL*)url metadata:(NSDictionary *)metadata
 {
     if (!url)
     {
         return nil;
     }
 
-    return [url adURLWithQueryParameters:[ADLogger adalShortMetadata]];
+    if (!metadata)
+    {
+        return url;
+    }
+
+    return [url adURLWithQueryParameters:metadata];
 }
 
-+ (NSString*)addClientMetadataToURLString:(NSString*)url
++ (NSString*)addClientMetadataToURLString:(NSString*)url metadata:(NSDictionary *)metadata
 {
     if (url == nil)
     {
         return nil;
     }
     
-    return [[self addClientMetadataToURL:[NSURL URLWithString:url]] absoluteString];
+    return [[self addClientMetadataToURL:[NSURL URLWithString:url] metadata:metadata] absoluteString];
 }
 
 + (NSString *)getUPNSuffix:(NSString *)upn

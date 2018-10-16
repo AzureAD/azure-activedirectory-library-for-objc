@@ -288,6 +288,7 @@
 		B299FF1F1F22C565004A2CB9 /* ADURLExtensionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B299FF1D1F22C338004A2CB9 /* ADURLExtensionsTest.m */; };
 		B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
+		B2B4EBF121769AF30016F3D8 /* NSBundle+ADTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B225F062217559870052334D /* NSBundle+ADTestUtils.m */; };
 		B2B785101F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */; };
 		B2B785111F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B7850F1F733C1E00B776BD /* NSStringTelemetryExtensionsTests.m */; };
 		B2CD211620632C09009869D5 /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CD211520632C09009869D5 /* GSS.framework */; };
@@ -2336,6 +2337,7 @@
 				B20DC5BE1F0D96A700957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC5BF1F0D96A700957806 /* ADTestURLSessionDataTask.m in Sources */,
 				D632B5551F50AEDC001173F1 /* ADAadAuthorityCache+TestUtil.m in Sources */,
+				B2B4EBF121769AF30016F3D8 /* NSBundle+ADTestUtils.m in Sources */,
 				D67D3D3E1F38502900660F32 /* ADTestCase.m in Sources */,
 				B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC6131F0D9A5500957806 /* AADAuthorityValidationIntegrationTests.m in Sources */,
