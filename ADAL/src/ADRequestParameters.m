@@ -24,6 +24,7 @@
 #import "ADRequestParameters.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheAccessor.h"
+#import "ADOAuth2Constants.h"
 
 @implementation ADRequestParameters
 
@@ -37,6 +38,18 @@
 @synthesize forceRefresh = _forceRefresh;
 @synthesize correlationId = _correlationId;
 @synthesize telemetryRequestId = _telemetryRequestId;
+
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self)
+    {
+        [self initDefaultAppMetadata];
+    }
+
+    return self;
+}
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
@@ -63,8 +76,33 @@
     [self setExtendedLifetime:extendedLifetime];
     [self setCorrelationId:correlationId];
     [self setTelemetryRequestId:telemetryRequestId];
+    [self initDefaultAppMetadata];
     
     return self;
+}
+
+- (void)initDefaultAppMetadata
+{
+    NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
+
+    NSString *appName = metadata[@"CFBundleDisplayName"];
+
+    if (!appName)
+    {
+        appName = metadata[@"CFBundleName"];
+    }
+
+    NSString *appVer = metadata[@"CFBundleShortVersionString"];
+
+    self.appName = appName;
+    self.appVersion = appVer;
+}
+
+- (NSDictionary *)adRequestMetadata
+{
+    return @{ADAL_ID_VERSION : ADAL_VERSION_NSSTRING,
+             ADAL_ID_APP_NAME: self.appName ? self.appName : @"",
+             ADAL_ID_APP_VERSION: self.appVersion ? self.appVersion : @""};
 }
 
 - (id)copyWithZone:(NSZone*)zone

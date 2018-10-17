@@ -160,7 +160,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
-          @"client_capabilities" : @""
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -245,7 +247,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
-          @"client_capabilities" : @""
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -344,7 +348,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
-          @"client_capabilities" : @""
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -433,7 +439,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
-          @"client_capabilities" : @""
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -541,7 +549,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
-          @"client_capabilities" : @""
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -648,7 +658,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : enrollmentIDs,
           @"intune_mam_resource" : intuneResource,
-          @"client_capabilities" : @""
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
@@ -737,7 +749,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
-          @"client_capabilities": @"llt"
+          @"client_capabilities": @"llt",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];

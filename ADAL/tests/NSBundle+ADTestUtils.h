@@ -21,16 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import <Foundation/Foundation.h>
 
-@interface NSURL ( ADAL )
+@interface NSBundle (ADTestUtils)
 
-@property (readonly, nonatomic) NSDictionary *adFragmentParameters;
-
-- (BOOL)isEquivalentAuthority:(NSURL *)aURL;
-- (NSString *)adHostWithPortIfNecessary;
-
-- (NSDictionary *)adQueryParameters;
-- (NSURL *)adURLWithQueryParameters:(NSDictionary *)queryParameters;
+- (NSDictionary *)infoDictionary;
 
 @end

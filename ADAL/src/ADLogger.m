@@ -42,7 +42,7 @@ static ADLoggerCallback s_LoggerCallback = nil;
 static BOOL s_NSLogging = YES;
 static NSString* s_OSString = @"UnkOS";
 
-static NSMutableDictionary* s_adalId = nil;
+static NSMutableDictionary* s_adalFullMetadata = nil;
 
 static dispatch_once_t s_logOnce;
 
@@ -239,43 +239,42 @@ correlationId:(NSUUID*)correlationId
     return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
 }
 
-+ (NSDictionary*)adalId
++ (NSDictionary*)adalMetadata
 {
     dispatch_once(&s_logOnce, ^{
+
+        NSMutableDictionary *metadata = [NSMutableDictionary new];
+
 #if TARGET_OS_IPHONE
         //iOS:
         UIDevice* device = [UIDevice currentDevice];
-        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         ADAL_ID_PLATFORM:@"iOS",
-                                         ADAL_ID_VERSION:[ADLogger getAdalVersion],
-                                         ADAL_ID_OS_VER:device.systemVersion,
-                                         ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
-                                         }];
+
+        metadata[ADAL_ID_PLATFORM] = @"iOS";
+        metadata[ADAL_ID_OS_VER] = device.systemVersion;
+        metadata[ADAL_ID_DEVICE_MODEL] = device.model;
+        metadata[ADAL_ID_VERSION] = ADAL_VERSION_NSSTRING;
 #else
         NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{
-                                         ADAL_ID_PLATFORM:@"OSX",
-                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
-                                         ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
-                                         }];
+
+        metadata[ADAL_ID_PLATFORM] = @"OSX";
+        metadata[ADAL_ID_VERSION] = [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
+        metadata[ADAL_ID_OS_VER] = [NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
 #endif
         NSString* CPUVer = [self getCPUInfo];
         if (![NSString adIsStringNilOrBlank:CPUVer])
         {
-            [result setObject:CPUVer forKey:ADAL_ID_CPU];
+            [metadata setObject:CPUVer forKey:ADAL_ID_CPU];
         }
         
-        s_adalId = result;
+        s_adalFullMetadata = metadata;
     });
     
-    return s_adalId;
+    return s_adalFullMetadata;
 }
 
 + (void)setAdalVersion:(NSString*)version
 {
-    [s_adalId setObject:version forKey:ADAL_ID_VERSION];
+    [s_adalFullMetadata setObject:version forKey:ADAL_ID_VERSION];
 }
 
 + (NSString*)getHash:(NSString*)input
@@ -308,7 +307,6 @@ correlationId:(NSUUID*)correlationId
          context:(NSString *)context
    correlationId:(NSUUID *)correlationId
 {
-    
     NSMutableString* logString = nil;
     
     if (context)
@@ -329,9 +327,9 @@ correlationId:(NSUUID*)correlationId
 + (void)setIdValue:(NSString*)value
             forKey:(NSString*)key
 {
-    [self adalId];
+    [self adalMetadata];
     
-    [s_adalId setObject:value forKey:key];
+    [s_adalFullMetadata setObject:value forKey:key];
 }
 
 @end

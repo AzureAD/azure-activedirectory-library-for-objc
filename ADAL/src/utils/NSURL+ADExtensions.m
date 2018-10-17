@@ -44,6 +44,51 @@ const unichar queryStringSeparator = '?';
     return [NSDictionary adURLFormDecode:[components percentEncodedQuery]];
 }
 
+- (NSURL *)adURLWithQueryParameters:(NSDictionary *)queryParameters
+{
+    if (![queryParameters count])
+    {
+        return self;
+    }
+
+    // Pull apart the request URL
+    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:self resolvingAgainstBaseURL:NO];
+
+    if (!components)
+    {
+        return nil;
+    }
+
+    NSString *query = [components percentEncodedQuery];
+
+    for (NSString *key in [queryParameters allKeys])
+    {
+        if (query && [query containsString:key])
+        {
+            // Don't bother adding it if it's already there
+            continue;
+        }
+
+        NSString *queryEntry = [NSString stringWithFormat:@"%@=%@", key.adUrlFormEncode, [queryParameters[key] adUrlFormEncode]];
+
+        if (query)
+        {
+            query = [query stringByAppendingFormat:@"&%@", queryEntry];
+        }
+        else
+        {
+            query = queryEntry;
+        }
+    }
+
+    if (query)
+    {
+        [components setPercentEncodedQuery:query];
+    }
+
+    return [components URL];
+}
+
 - (BOOL)isEquivalentAuthority:(NSURL *)aURL
 {
     

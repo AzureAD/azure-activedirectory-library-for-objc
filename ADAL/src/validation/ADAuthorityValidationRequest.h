@@ -43,6 +43,7 @@
 + (void)requestMetadataWithAuthority:(NSString *)authority
                          trustedHost:(NSString *)trustedHost
                              context:(id<ADRequestContext>)context
+                     requestMetadata:(NSDictionary *)metadata
                      completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
 
 // Fetches the corresponding URL for the request

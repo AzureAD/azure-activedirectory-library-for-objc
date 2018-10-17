@@ -139,7 +139,13 @@
 - (void)send
 {
     [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
-    [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
+    [_requestHeaders addEntriesFromDictionary:[ADLogger adalMetadata]];
+
+    if (self.requestMetadata)
+    {
+        [_requestHeaders addEntriesFromDictionary:self.requestMetadata];
+    }
+
     //Correlation id:
     if (_correlationId)
     {
@@ -155,8 +161,7 @@
         [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
     }
     
-    NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
-    requestURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:requestURL context:self];
+    NSURL *requestURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:_requestURL context:self];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData
@@ -234,7 +239,7 @@
     (void)task;
     
     NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.requestMetadata];
     
     if (modifiedURL == requestURL)
     {

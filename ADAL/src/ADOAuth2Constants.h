@@ -78,6 +78,8 @@ extern NSString *const ADAL_ID_VERSION;
 extern NSString *const ADAL_ID_CPU;//E.g. ARM64
 extern NSString *const ADAL_ID_OS_VER;//iOS/OSX version
 extern NSString *const ADAL_ID_DEVICE_MODEL;//E.g. iPhone 5S
+extern NSString *const ADAL_ID_APP_NAME;
+extern NSString *const ADAL_ID_APP_VERSION;
 
 
 extern NSString *const AUTH_FAILED; //Generic error.

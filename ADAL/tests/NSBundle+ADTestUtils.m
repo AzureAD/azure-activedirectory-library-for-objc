@@ -21,16 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import "NSBundle+ADTestUtils.h"
 
-@interface NSURL ( ADAL )
+@implementation NSBundle (ADTestUtils)
 
-@property (readonly, nonatomic) NSDictionary *adFragmentParameters;
-
-- (BOOL)isEquivalentAuthority:(NSURL *)aURL;
-- (NSString *)adHostWithPortIfNecessary;
-
-- (NSDictionary *)adQueryParameters;
-- (NSURL *)adURLWithQueryParameters:(NSDictionary *)queryParameters;
+- (NSDictionary *)infoDictionary
+{
+    return [@{@"CFBundleDisplayName": @"UnitTestHostApp",
+             @"CFBundleShortVersionString": @"1.0"
+             } mutableCopy];
+}
 
 @end

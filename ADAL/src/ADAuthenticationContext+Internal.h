@@ -51,7 +51,6 @@ extern NSString* const ADInteractionNotSupportedInExtension;
 extern NSString* const ADServerError;
 extern NSString* const ADRedirectUriInvalidError;
 
-
 @interface ADAuthenticationContext (Internal)
 
 + (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue

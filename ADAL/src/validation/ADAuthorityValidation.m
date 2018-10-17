@@ -269,6 +269,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.absoluteString
                                                    trustedHost:trustedHost
                                                        context:requestParams
+                                               requestMetadata:requestParams.adRequestMetadata
                                                completionBlock:^(NSDictionary *response, ADAuthenticationError *error)
      {
          if (error)
@@ -382,7 +383,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     // DRS discovery
     [self requestDrsDiscovery:domain
-                      context:requestParams
+                requestParams:requestParams
               completionBlock:^(id result, ADAuthenticationError *error)
     {
         NSString *passiveAuthEndpoint = [self passiveEndpointFromDRSMetaData:result];
@@ -402,7 +403,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         [self requestWebFingerValidation:passiveAuthEndpoint
                                authority:authority
-                                 context:requestParams
+                           requestParams:requestParams
                          completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
             if (validated)
@@ -415,12 +416,13 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 }
 
 - (void)requestDrsDiscovery:(NSString *)domain
-                    context:(id<ADRequestContext>)context
+              requestParams:(ADRequestParameters *)requestParams
             completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                adfsType:AD_ADFS_ON_PREMS
-                                                context:context
+                                                context:requestParams
+                                        requestMetadata:requestParams.adRequestMetadata
                                         completionBlock:^(id result, ADAuthenticationError *error)
      {
          if (result)
@@ -431,7 +433,8 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          
          [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                     adfsType:AD_ADFS_CLOUD
-                                                     context:context
+                                                     context:requestParams
+                                             requestMetadata:requestParams.adRequestMetadata
                                              completionBlock:^(id result, ADAuthenticationError *error)
           {
               completionBlock(result, error);
@@ -443,12 +446,13 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 
 - (void)requestWebFingerValidation:(NSString *)passiveAuthEndpoint
                          authority:(NSURL *)authority
-                           context:(id<ADRequestContext>)context
+                     requestParams:(ADRequestParameters *)requestParams
                    completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
 {
     [ADWebFingerRequest requestWebFinger:passiveAuthEndpoint
                                authority:authority.absoluteString
-                                 context:context
+                                 context:requestParams
+                         requestMetadata:requestParams.adRequestMetadata
                          completionBlock:^(id result, ADAuthenticationError *error)
     {
                              
@@ -464,7 +468,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
                                                            protocolCode:nil
                                                            errorDetails:s_kWebFingerError
-                                                          correlationId:[context correlationId]];
+                                                          correlationId:[requestParams correlationId]];
         }
         completionBlock(validated, error);
     }];

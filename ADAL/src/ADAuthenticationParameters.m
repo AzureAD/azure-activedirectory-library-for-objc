@@ -80,6 +80,7 @@
 
     ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl context:nil];
     [request setIsGetRequest:YES];
+
     AD_LOG_VERBOSE(nil, @"Starting authorization challenge request.");
     AD_LOG_VERBOSE_PII(nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
     

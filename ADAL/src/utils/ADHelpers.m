@@ -32,9 +32,9 @@
 #import "ADOauth2Constants.h"
 #import "ADAL_Internal.h"
 #import "ADAuthorityUtils.h"
+#import "NSURL+ADExtensions.h"
 
 @implementation ADHelpers
-
 
 + (void)removeNullStringFrom:(NSDictionary *)dict
 {
@@ -258,47 +258,29 @@
     return tmpFixedInput;
 }
 
-+ (NSURL*)addClientVersionToURL:(NSURL*)url
++ (NSURL*)addClientMetadataToURL:(NSURL*)url metadata:(NSDictionary *)metadata
 {
     if (!url)
     {
         return nil;
     }
-    
-    // Pull apart the request URL and add the ADAL Client version to the query parameters
-    NSURLComponents* components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    if (!components)
-    {
-        return nil;
-    }
-    
-    NSString* query = [components percentEncodedQuery];
-    // Don't bother adding it if it's already there
-    if (query && [query containsString:ADAL_ID_VERSION])
+
+    if (!metadata)
     {
         return url;
     }
-    
-    if (query)
-    {
-        [components setPercentEncodedQuery:[query stringByAppendingString:[NSString stringWithFormat:@"&%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]]];
-    }
-    else
-    {
-        [components setPercentEncodedQuery:[NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]];
-    }
-    
-    return [components URL];
+
+    return [url adURLWithQueryParameters:metadata];
 }
 
-+ (NSString*)addClientVersionToURLString:(NSString*)url
++ (NSString*)addClientMetadataToURLString:(NSString*)url metadata:(NSDictionary *)metadata
 {
     if (url == nil)
     {
         return nil;
     }
     
-    return [[self addClientVersionToURL:[NSURL URLWithString:url]] absoluteString];
+    return [[self addClientMetadataToURL:[NSURL URLWithString:url] metadata:metadata] absoluteString];
 }
 
 + (NSString *)getUPNSuffix:(NSString *)upn

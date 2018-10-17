@@ -37,6 +37,7 @@
 + (void)requestWebFinger:(NSString *)authenticationEndpoint
                authority:(NSString *)authority
                  context:(id<ADRequestContext>)context
+         requestMetadata:(NSDictionary *)metadata
          completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
 // Fetches the corresponding URL for the request

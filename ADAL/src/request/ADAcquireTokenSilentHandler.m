@@ -152,6 +152,7 @@
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
+    [webReq setRequestMetadata:_requestParams.adRequestMetadata];
     
     AD_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
     AD_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);

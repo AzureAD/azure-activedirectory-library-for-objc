@@ -58,7 +58,7 @@
 
 - (nonnull ADTestURLResponse *)response
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, self.authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", self.authority];
     
     _requestHeaders[@"client-request-id"] = [self.correlationId UUIDString];
     
