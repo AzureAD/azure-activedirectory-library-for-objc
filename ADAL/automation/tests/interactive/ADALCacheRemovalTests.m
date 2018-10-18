@@ -33,6 +33,8 @@
 
 /* TODO: these tests need to be converted into integration tests */
 
+#if TARGET_OS_IPHONE
+// macOS doesn't have those APIs on 2.6.6
 - (void)testRemoveAllForUserIdAndClientId_whenMultipleUsersAndClientsInCache
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
@@ -266,5 +268,7 @@
     [self.testApp.buttons[@"Go"] msidTap];
     [self closeResultView];
 }
+
+#endif
 
 @end

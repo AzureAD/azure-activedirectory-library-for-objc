@@ -167,7 +167,7 @@
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
 }
 
-- (void)testInteractiveAndSilentAADLogin_withPromptAuto_noLoginHint_ADALWebView_andGuestUserInHomeAndGuestTenant
+- (void)DISABLED_testInteractiveAndSilentAADLogin_withPromptAuto_noLoginHint_ADALWebView_andGuestUserInHomeAndGuestTenant
 {
     // Sign in home tenant
     NSDictionary *homeParams = @{

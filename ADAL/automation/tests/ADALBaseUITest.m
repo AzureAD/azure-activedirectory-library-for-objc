@@ -89,7 +89,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)assertAuthUIAppear
 {
 #if TARGET_OS_IPHONE
-    XCUIElement *webView = self.testApp.otherElements[@"ADAL_SIGN_IN_WEBVIEW"].firstMatch;
+    XCUIElement *webView = self.testApp.webViews.firstMatch;
 #else
     XCUIElement *webView = self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].firstMatch;
 #endif
@@ -274,7 +274,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 - (void)adfsEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
 {
-    XCUIElement *passwordTextField = testApp.secureTextFields[@"Password"];
+    XCUIElement *passwordTextField = testApp.secureTextFields.firstMatch;
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:testApp];
     [passwordTextField typeText:password];

@@ -31,6 +31,7 @@
 #import <ADAL/ADTelemetry.h>
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthorityFactory.h"
+#import "ADAuthorityValidation.h"
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
@@ -292,7 +293,7 @@
 
         if (authority)
         {
-            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+            aliases = [[ADAuthorityValidation sharedInstance].aadCache cacheAliasesForAuthority:(MSIDAADAuthority *)authority.url];
         }
         else
         {
@@ -374,7 +375,7 @@
 
         if (authority)
         {
-            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+            aliases = [[ADAuthorityValidation sharedInstance].aadCache cacheAliasesForAuthority:(MSIDAADAuthority *)authority.url];
         }
         else
         {
@@ -389,7 +390,7 @@
                                                                error:nil];
 
             [allItems addObjectsFromArray:[cache getItemsWithKey:key
-                                                          userId:parameters[@"user_identifier"]
+                                                          userId:[parameters[@"user_identifier"] lowercaseString]
                                                    correlationId:nil
                                                            error:nil]];
         }

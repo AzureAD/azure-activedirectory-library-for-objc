@@ -90,13 +90,11 @@
 
 - (void)clearCache
 {
-    [[ADTokenCache defaultCache].macTokenCache clear];
-    [[ADTestAppCache sharedCache] clearCacheWithError:nil];
+    [[ADTokenCache defaultCache] deserialize:nil error:nil];
 }
 
 - (void)clearKeychain
 {
-    [[ADTokenCache defaultCache].macTokenCache clear];
     [[ADTestAppCache sharedCache] clearCacheWithError:nil];
 }
 
