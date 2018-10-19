@@ -134,22 +134,23 @@
         return nil;
     }
     NSDictionary* cacheCopy = [_cache mutableCopy];
-    pthread_rwlock_unlock(&_lock);
-    
     // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
     NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
                              @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
     
+    NSData *result = nil;
     @try
     {
-        return [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+        result = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
     }
     @catch (id exception)
     {
         // This should be exceedingly rare as all of the objects in the cache we placed there.
         AD_LOG_ERROR(nil, @"Failed to serialize the cache!");
-        return nil;
     }
+    
+    pthread_rwlock_unlock(&_lock);
+    return result;
 }
 
 - (id)unarchive:(NSData*)data
