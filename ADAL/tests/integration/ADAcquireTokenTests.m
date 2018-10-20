@@ -40,6 +40,8 @@
 #import "ADUserIdentifier.h"
 #import "ADTestAuthenticationViewController.h"
 #import "ADAuthorityValidation.h"
+#import "ADWebAuthDelegate.h"
+#import "ADUserInformation.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -1856,7 +1858,76 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testAcquireTokenInteractive_whenCapabilitiesAndClaimsPassed_shouldPassClaimsToServer
+{
+    NSString *authority = TEST_AUTHORITY;
+    NSString *authCode = @"i_am_a_auth_code";
 
+    // Setup response
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", TEST_AUTHORITY];
+
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
+
+    NSString *decodedClaims = @"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true},\"xms_cc\":{\"values\":[\"testcap1\"]}}}";
+
+    ADTestURLResponse* response =
+    [ADTestURLResponse requestURLString:requestUrlString
+                         requestHeaders:headers
+                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_AUTHORIZATION_CODE,
+                                           OAUTH2_CODE : authCode,
+                                           OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                           OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING,
+                                           OAUTH2_CLAIMS: decodedClaims
+                                           }
+                      responseURLString:@"https://contoso.com"
+                           responseCode:200
+                       httpHeaderFields:@{}
+                       dictionaryAsJSON:@{ @"refresh_token" : TEST_REFRESH_TOKEN,
+                                           @"access_token" : TEST_ACCESS_TOKEN,
+                                           @"expires_in" : @"3600",
+                                           @"resource" : TEST_RESOURCE,
+                                           @"id_token" : [self adCreateUserInformation:TEST_USER_ID].rawIdToken }];
+
+    [ADTestURLSession addResponse:response];
+
+    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    XCTAssertNotNil(context);
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    [context setTokenCacheStore:tokenCache];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+
+    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
+    [ADTestAuthenticationViewController onLoadRequest:^(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate) {
+        XCTAssertNotNil(urlRequest);
+
+        NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
+        [delegate webAuthDidCompleteWithURL:endURL];
+        [expectation1 fulfill];
+    }];
+
+    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire token"];
+
+    NSString *claims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
+
+    context.clientCapabilities = @[@"testcap1"];
+
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:nil
+                 extraQueryParameters:nil
+                               claims:claims
+                      completionBlock:^(ADAuthenticationResult *result) {
+
+                          XCTAssertNotNil(result);
+                          XCTAssertEqual(result.status, AD_SUCCEEDED);
+                          [expectation2 fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
+}
 
 - (void)testSkipCacheRequestParameters_whenSkipCacheIsNotSet_shouldNotSkipCache
 {
