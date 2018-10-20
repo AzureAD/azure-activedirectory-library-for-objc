@@ -149,6 +149,7 @@
         AD_LOG_ERROR(nil, @"Failed to serialize the cache!");
     }
     
+    // Release the lock here because the dictionary could be modified even it is copied above (shallow copy)
     pthread_rwlock_unlock(&_lock);
     return result;
 }
