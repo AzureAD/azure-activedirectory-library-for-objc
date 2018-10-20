@@ -46,6 +46,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDAuthorityFactory.h"
+#import "ADClientCapabilitiesUtil.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -540,6 +541,14 @@
         {
             [requestData setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
         }
+    }
+
+    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                 developerClaims:_requestParams.decodedClaims];
+
+    if (![NSString msidIsStringNilOrBlank:claims])
+    {
+        [requestData setObject:claims forKey:MSID_OAUTH2_CLAIMS];
     }
 
     [self executeRequest:requestData
