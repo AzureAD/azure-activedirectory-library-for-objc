@@ -30,6 +30,7 @@
 #import "ADClientMetrics.h"
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "NSError+MSIDExtensions.h"
 
 @implementation ADWebAuthResponse
 
@@ -414,6 +415,9 @@
     }
     
     MSID_LOG_WARN(_request, @"System error while making request");
+    
+    error = [error msidErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
+    
     MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
 
     // System error

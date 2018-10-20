@@ -23,31 +23,20 @@
 
 #import <Foundation/Foundation.h>
 
-// TODO: Set this to 1.1 once PROD deployment goes through to allow it.
+@interface ADClientCapabilitiesUtil : NSObject
 
-#define AAD_AUTHORITY_VALIDATION_API_VERSION "1.1"
-
-@class ADAuthorityValidationResponse;
-
-@interface ADAuthorityValidationRequest : NSObject
-
-/*!
- This handles request for authority validation to the trusted authority.
- 
- @param authority                   Authority to be validated.
- @param trustedHost                 Trusted host to ask for validation.
- @param context                     Context to be used for the internal web request
- @param completionBlock             Completion block for this asynchronous request.
- 
+/*
+    Takes a list of capabilities and returns the JSON claims.
+    The result JSON is not URL encoded and caller needs to encode it if necessary
  */
-+ (void)requestMetadataWithAuthority:(NSString *)authority
-                         trustedHost:(NSString *)trustedHost
-                             context:(id<MSIDRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
-                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
 
-// Fetches the corresponding URL for the request
-+ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost;
+/*
+    Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
+    The result JSON is not URL encoded and caller needs to encode it if necessary
+ */
 
++ (NSString *)claimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
+                              developerClaims:(NSDictionary *)developerClaims;
 
 @end

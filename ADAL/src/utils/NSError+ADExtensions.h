@@ -23,31 +23,19 @@
 
 #import <Foundation/Foundation.h>
 
-// TODO: Set this to 1.1 once PROD deployment goes through to allow it.
+typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
+{
+    MSIDErrorFilteringOptionNone                  = 0,
+    // Remove parameters from failed url.
+    MSIDErrorFilteringOptionRemoveUrlParameters   = 1 << 0,
+};
 
-#define AAD_AUTHORITY_VALIDATION_API_VERSION "1.1"
 
-@class ADAuthorityValidationResponse;
-
-@interface ADAuthorityValidationRequest : NSObject
+@interface NSError (ADExtensions)
 
 /*!
- This handles request for authority validation to the trusted authority.
- 
- @param authority                   Authority to be validated.
- @param trustedHost                 Trusted host to ask for validation.
- @param context                     Context to be used for the internal web request
- @param completionBlock             Completion block for this asynchronous request.
- 
+ Return filtered error based on provided filtering options.
  */
-+ (void)requestMetadataWithAuthority:(NSString *)authority
-                         trustedHost:(NSString *)trustedHost
-                             context:(id<MSIDRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
-                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
-
-// Fetches the corresponding URL for the request
-+ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost;
-
+- (nonnull NSError *)adalErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option;
 
 @end

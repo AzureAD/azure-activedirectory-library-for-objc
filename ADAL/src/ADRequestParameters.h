@@ -47,6 +47,8 @@
 @property (retain, nonatomic) NSString* clientId;
 @property (retain, nonatomic) NSString* redirectUri;
 @property (retain, nonatomic) NSString* scopesString;
+@property (retain, nonatomic) NSDictionary* decodedClaims;
+@property (retain, nonatomic) NSArray<NSString *>* clientCapabilities;
 @property (retain, nonatomic) ADUserIdentifier* identifier;
 @property BOOL extendedLifetime;
 @property BOOL forceRefresh;
@@ -56,6 +58,10 @@
 @property (retain, nonatomic, readonly) NSString* openidScopesString;
 @property (retain, nonatomic) MSIDAccountIdentifier *account;
 @property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
+@property (nonatomic) NSString *appName;
+@property (nonatomic) NSString *appVersion;
+
+- (NSDictionary *)adRequestMetadata;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource

@@ -54,7 +54,6 @@
     ADPromptBehavior _promptBehavior;
     
     NSString* _queryParams;
-    NSString* _claims;
     
     NSString* _refreshTokenCredential;
     
@@ -77,6 +76,7 @@
     NSString *_cloudAuthority;
     
     NSString *_refreshToken;
+    NSString *_claims;
 }
 
 @property (nonatomic, readonly) MSIDLegacyTokenCacheAccessor *tokenCache;
@@ -97,7 +97,7 @@
 // These can only be set before the request gets sent out.
 - (void)setScopesString:(NSString*)scopesString;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
-- (void)setClaims:(NSString *)claims;
+- (BOOL)setClaims:(NSString *)claims error:(ADAuthenticationError **)error;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;
 - (void)setUserId:(NSString*)userId;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;

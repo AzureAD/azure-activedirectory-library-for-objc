@@ -102,6 +102,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -195,6 +198,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -300,6 +306,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -408,6 +417,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -523,6 +535,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : enrollmentIDs,
           @"intune_mam_resource" : intuneResource,
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -610,6 +625,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
+          @"client_capabilities": @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -710,6 +728,9 @@
           @"claims" : @"",
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
+          @"client_capabilities": @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -830,6 +851,93 @@
     [context setCredentialsType:AD_CREDENTIALS_AUTO];
     
     return context;
+}
+
+- (void)testBroker_whenClientCapabilitiesPresent_shouldSucceed
+{
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"RequiredDisplayableId",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
+          @"client_capabilities": @"llt",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+        NSDictionary *responseParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"client_id" : TEST_CLIENT_ID,
+          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+          @"access_token" : @"i-am-a-access-token",
+          @"refresh_token" : @"i-am-a-refresh-token",
+          @"foci" : @"1",
+          @"expires_in" : @"3600"
+          };
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    context.clientCapabilities = @[@"llt"];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                       promptBehavior:AD_PROMPT_ALWAYS
+                               userId:nil
+                 extraQueryParameters:nil
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"i-am-a-access-token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"i-am-a-refresh-token");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
 }
 
 @end

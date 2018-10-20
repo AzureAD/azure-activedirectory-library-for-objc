@@ -21,33 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSBundle+ADTestUtils.h"
 
-// TODO: Set this to 1.1 once PROD deployment goes through to allow it.
+@implementation NSBundle (ADTestUtils)
 
-#define AAD_AUTHORITY_VALIDATION_API_VERSION "1.1"
-
-@class ADAuthorityValidationResponse;
-
-@interface ADAuthorityValidationRequest : NSObject
-
-/*!
- This handles request for authority validation to the trusted authority.
- 
- @param authority                   Authority to be validated.
- @param trustedHost                 Trusted host to ask for validation.
- @param context                     Context to be used for the internal web request
- @param completionBlock             Completion block for this asynchronous request.
- 
- */
-+ (void)requestMetadataWithAuthority:(NSString *)authority
-                         trustedHost:(NSString *)trustedHost
-                             context:(id<MSIDRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
-                     completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock;
-
-// Fetches the corresponding URL for the request
-+ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost;
-
+- (NSDictionary *)infoDictionary
+{
+    return [@{@"CFBundleDisplayName": @"UnitTestHostApp",
+             @"CFBundleShortVersionString": @"1.0"
+             } mutableCopy];
+}
 
 @end

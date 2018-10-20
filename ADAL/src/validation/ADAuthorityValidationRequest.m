@@ -34,6 +34,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 + (void)requestMetadataWithAuthority:(NSString *)authority
                          trustedHost:(NSString *)trustedHost
                              context:(id<MSIDRequestContext>)context
+                     requestMetadata:(NSDictionary *)metadata
                      completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock
 {
     NSURL *endpoint = [self urlForAuthorityValidation:authority trustedHost:trustedHost];
@@ -41,6 +42,8 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
                                                                  context:context];
     
     [webRequest setIsGetRequest:YES];
+    [webRequest setRequestMetadata:metadata];
+
     [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {
         if (error)

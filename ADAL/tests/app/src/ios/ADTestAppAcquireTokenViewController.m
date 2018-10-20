@@ -63,6 +63,7 @@
     UISegmentedControl* _webViewType;
     UISegmentedControl* _fullScreen;
     UISegmentedControl* _validateAuthority;
+    UISegmentedControl* _enableClientCapabilities;
     
     UITextView* _resultView;
     
@@ -231,6 +232,10 @@
     
     _validateAuthority = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
     [layout addControl:_validateAuthority title:@"valAuth"];
+
+    _enableClientCapabilities = [[UISegmentedControl alloc] initWithItems:@[@"No", @"Yes"]];
+    _enableClientCapabilities.selectedSegmentIndex = 0;
+    [layout addControl:_enableClientCapabilities title:@"Capabilities"];
     
     _extraQueryParamsField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
     _extraQueryParamsField.borderStyle = UITextBorderStyleRoundedRect;
@@ -258,7 +263,6 @@
     UIButton* wipeUpn = [UIButton buttonWithType:UIButtonTypeSystem];
     [wipeUpn setTitle:@"Wipe cache" forState:UIControlStateNormal];
     [wipeUpn addTarget:self action:@selector(wipeCache:) forControlEvents:UIControlEventTouchUpInside];
-    
     
     UIView* clearButtonsView = [self createThreeItemLayoutView:clearCookies item2:clearCache item3:wipeUpn];
     [layout addCenteredView:clearButtonsView key:@"clearButtons"];
@@ -447,15 +451,10 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
-    
+        
     self.claimsPickerController = [ADTestAppClaimsPickerController alertControllerWithTitle:@"" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     self.claimsPickerController.claimsTextField = _claimsField;
-    self.claimsPickerController.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D", @"Device ID": @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D"};
-}
-
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
-    return UIStatusBarStyleLightContent;
+    self.claimsPickerController.claims = @{@"MFA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D", @"MAM CA" : @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%22d77e91f0-fc60-45e4-97b8-14a1337faa28%22%5D%7D%7D%7D", @"DeviceID" : @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D"};
 }
 
 - (void)keyboardWillShow:(NSNotification *)aNotification
@@ -632,11 +631,20 @@
     ADCredentialsType credType = [self credType];
     
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
+
+    NSArray *capabilities = nil;
+
+    if (_enableClientCapabilities.selectedSegmentIndex == 1)
+    {
+        capabilities = @[@"cp1"];
+    }
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:validateAuthority
                                                                                     error:&error];
+    context.clientCapabilities = capabilities;
+
     if (!context)
     {
         NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
@@ -718,9 +726,18 @@
     NSURL* redirectUri = [settings redirectUri];
     ADUserIdentifier* identifier = [self identifier];
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
+
+    NSArray *capabilities = nil;
+
+    if (_enableClientCapabilities.selectedSegmentIndex == 1)
+    {
+        capabilities = @[@"cp1"];
+    }
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
+    context.clientCapabilities = capabilities;
+
     if (!context)
     {
         NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
@@ -730,7 +747,12 @@
     
     __block BOOL fBlockHit = NO;
     
-    [context acquireTokenSilentWithResource:resource clientId:clientId redirectUri:redirectUri userId:identifier.userId completionBlock:^(ADAuthenticationResult *result)
+    [context acquireTokenSilentWithResource:resource
+                                   clientId:clientId
+                                redirectUri:redirectUri
+                                     userId:identifier.userId
+                                     claims:_claimsField.text
+                            completionBlock:^(ADAuthenticationResult *result)
     {
         if (fBlockHit)
         {

@@ -162,7 +162,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
-    NSString* value = [ADHelpers addClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
+    NSString* value = [ADHelpers addClientMetadataToURLString:[queryParamsMap valueForKey:@"SubmitUrl"] metadata:_requestParams.adRequestMetadata];
     
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
@@ -178,7 +178,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         return;
     }
     
-    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:value]];
     [ADURLProtocol addContext:_requestParams toRequest:responseUrl];
     
     [responseUrl setValue:kADALPKeyAuthHeaderVersion forHTTPHeaderField:kADALPKeyAuthHeader];
@@ -588,7 +588,7 @@ static ADAuthenticationResult* s_result = nil;
         _completionBlock(error, nil);
     }
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientMetadataToURL:startURL metadata:_requestParams.adRequestMetadata]];
 
     [ADURLProtocol addContext:_requestParams toRequest:request];
 

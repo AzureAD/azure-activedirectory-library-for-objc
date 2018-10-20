@@ -59,6 +59,7 @@ typedef void (^ADWebResponseCallback)(ADAuthenticationError *, NSMutableDictiona
 @property (readonly) NSUUID *correlationId;
 @property (readonly) NSString *telemetryRequestId;
 @property (readonly) NSString *logComponent;
+@property (nonatomic) NSDictionary *requestMetadata;
 
 @property (atomic, strong, readonly) NSURLSession *session;
 
