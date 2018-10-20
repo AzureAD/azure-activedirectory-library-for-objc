@@ -47,7 +47,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
-#import "ADClientCapabilitiesUtil.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -140,8 +140,8 @@
         request_data[MSID_OAUTH2_SCOPE] = _requestParams.scopesString;
     }
 
-    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
-                                                                 developerClaims:_requestParams.decodedClaims];
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                       developerClaims:_requestParams.decodedClaims];
 
     if (![NSString msidIsStringNilOrBlank:claims])
     {

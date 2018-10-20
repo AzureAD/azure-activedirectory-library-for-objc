@@ -39,7 +39,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADAuthenticationErrorConverter.h"
-#import "ADClientCapabilitiesUtil.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
 
@@ -153,8 +153,8 @@
         }
     }
 
-    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
-                                                                 developerClaims:_requestParams.decodedClaims];
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                       developerClaims:_requestParams.decodedClaims];
     
     if (![NSString msidIsStringNilOrBlank:claims])
     {
@@ -285,8 +285,8 @@
             [requestData setObject:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
         }
 
-        NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
-                                                                     developerClaims:_requestParams.decodedClaims];
+        NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                           developerClaims:_requestParams.decodedClaims];
         
         if (![NSString msidIsStringNilOrBlank:claims])
         {

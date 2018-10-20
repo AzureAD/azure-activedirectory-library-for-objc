@@ -1799,7 +1799,8 @@ const int sAsyncContextTimeout = 10;
                                            MSID_OAUTH2_CODE : authCode,
                                            MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
                                            MSID_OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING,
-                                           MSID_OAUTH2_CLAIMS: decodedClaims
+                                           MSID_OAUTH2_CLAIMS: decodedClaims,
+                                           MSID_OAUTH2_CLIENT_INFO: @"1"
                                            }
                       responseURLString:@"https://contoso.com"
                            responseCode:200
@@ -1829,6 +1830,7 @@ const int sAsyncContextTimeout = 10;
     NSString *claims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
 
     context.clientCapabilities = @[@"testcap1"];
+    context.correlationId = TEST_CORRELATION_ID;
 
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID

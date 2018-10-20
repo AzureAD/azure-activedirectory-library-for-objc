@@ -46,7 +46,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDAuthorityFactory.h"
-#import "ADClientCapabilitiesUtil.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -543,8 +543,8 @@
         }
     }
 
-    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
-                                                                 developerClaims:_requestParams.decodedClaims];
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                       developerClaims:_requestParams.decodedClaims];
 
     if (![NSString msidIsStringNilOrBlank:claims])
     {

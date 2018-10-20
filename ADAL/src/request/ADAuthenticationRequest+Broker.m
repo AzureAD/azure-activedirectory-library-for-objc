@@ -45,7 +45,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
-#import "ADClientCapabilitiesUtil.h"
+#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDConstants.h"
 
 #if TARGET_OS_IPHONE
