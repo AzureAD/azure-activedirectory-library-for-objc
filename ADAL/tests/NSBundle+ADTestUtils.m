@@ -27,7 +27,7 @@
 
 - (NSDictionary *)infoDictionary
 {
-    return [@{@"CFBundleDisplayName": @"UnitTestHostApp",
+    return [@{@"CFBundleDisplayName": @"UnitTestHost",
              @"CFBundleShortVersionString": @"1.0"
              } mutableCopy];
 }
