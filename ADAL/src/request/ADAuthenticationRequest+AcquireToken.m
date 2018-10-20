@@ -38,6 +38,7 @@
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthorityUtils.h"
 #import "ADEnrollmentGateway.h"
+#import "ADClientCapabilitiesUtil.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -522,6 +523,14 @@
         {
             [request_data setObject:enrollId forKey:AD_MICROSOFT_ENROLLMENT_ID];
         }
+    }
+
+    NSString *claims = [ADClientCapabilitiesUtil claimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                 developerClaims:_requestParams.decodedClaims];
+
+    if (![NSString adIsStringNilOrBlank:claims])
+    {
+        [request_data setObject:claims forKey:OAUTH2_CLAIMS];
     }
 
     [self executeRequest:request_data
