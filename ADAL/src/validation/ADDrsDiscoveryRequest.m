@@ -38,7 +38,7 @@
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
     [webRequest setIsGetRequest:YES];
     [webRequest setAcceptOnlyOKResponse:YES];
-    [webRequest setRequestMetadata:metadata];
+    [webRequest setAppRequestMetadata:metadata];
     
     [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {

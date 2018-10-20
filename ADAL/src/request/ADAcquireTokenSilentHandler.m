@@ -172,7 +172,7 @@
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
-    [webReq setRequestMetadata:_requestParams.adRequestMetadata];
+    [webReq setAppRequestMetadata:_requestParams.appRequestMetadata];
     
     MSID_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
     MSID_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);

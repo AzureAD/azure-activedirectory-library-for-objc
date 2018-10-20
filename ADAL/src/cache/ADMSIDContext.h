@@ -34,6 +34,7 @@
 @property (nonatomic, readonly) NSUUID *correlationId;
 @property (nonatomic, readonly) NSString *logComponent;
 @property (nonatomic, readonly) NSString *telemetryRequestId;
+@property (nonatomic, readonly) NSDictionary *appRequestMetadata;
 
 - (instancetype)initWithCorrelationId:(NSUUID *)correlationId;
 

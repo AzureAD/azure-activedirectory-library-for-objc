@@ -141,9 +141,9 @@
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [_requestHeaders addEntriesFromDictionary:[MSIDDeviceId deviceId]];
 
-    if (self.requestMetadata)
+    if (self.appRequestMetadata)
     {
-        [_requestHeaders addEntriesFromDictionary:self.requestMetadata];
+        [_requestHeaders addEntriesFromDictionary:self.appRequestMetadata];
     }
 
     //Correlation id:
@@ -242,7 +242,7 @@
     (void)task;
     
     NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.requestMetadata];
+    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.appRequestMetadata];
     
     if (modifiedURL == requestURL)
     {

@@ -83,6 +83,7 @@
 @property (nonatomic) NSString *sharedGroup;
 
 @property (retain) NSString* logComponent;
+@property (nonatomic, readonly) NSDictionary *appRequestMetadata;
 
 // The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context

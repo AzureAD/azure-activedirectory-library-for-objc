@@ -285,7 +285,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     [ADAuthorityValidationRequest requestMetadataWithAuthority:authority.url.absoluteString
                                                    trustedHost:trustedHost
                                                        context:requestParams
-                                               requestMetadata:requestParams.adRequestMetadata
                                                completionBlock:^(NSDictionary *response, ADAuthenticationError *error)
      {
          if (error)
@@ -388,7 +387,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                adfsType:AD_ADFS_ON_PREMS
                                                 context:requestParams
-                                        requestMetadata:requestParams.adRequestMetadata
+                                        requestMetadata:requestParams.appRequestMetadata
                                         completionBlock:^(id result, ADAuthenticationError *error)
      {
          if (result)
@@ -400,7 +399,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                     adfsType:AD_ADFS_CLOUD
                                                      context:requestParams
-                                             requestMetadata:requestParams.adRequestMetadata
+                                             requestMetadata:requestParams.appRequestMetadata
                                              completionBlock:^(id result, ADAuthenticationError *error)
           {
               completionBlock(result, error);
@@ -418,7 +417,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     [ADWebFingerRequest requestWebFinger:passiveAuthEndpoint
                                authority:authority.absoluteString
                                  context:requestParams
-                         requestMetadata:requestParams.adRequestMetadata
                          completionBlock:^(id result, ADAuthenticationError *error)
     {
                              

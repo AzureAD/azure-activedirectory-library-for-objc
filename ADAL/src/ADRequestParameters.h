@@ -58,10 +58,7 @@
 @property (retain, nonatomic, readonly) NSString* openidScopesString;
 @property (retain, nonatomic) MSIDAccountIdentifier *account;
 @property (retain, nonatomic, readonly) MSIDConfiguration *msidConfig;
-@property (nonatomic) NSString *appName;
-@property (nonatomic) NSString *appVersion;
-
-- (NSDictionary *)adRequestMetadata;
+@property (retain, nonatomic) NSDictionary *appRequestMetadata;
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource

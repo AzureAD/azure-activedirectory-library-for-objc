@@ -351,6 +351,11 @@ static dispatch_semaphore_t s_interactionLock = nil;
     return _requestParams;
 }
 
+- (NSDictionary *)appRequestMetadata
+{
+    return _requestParams.appRequestMetadata;
+}
+
 /*!
     Takes the UI interaction lock for the current request, will send an error
     to completionBlock if it fails.

@@ -51,7 +51,7 @@
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
-    [req setRequestMetadata:_requestParams.adRequestMetadata];
+    [req setAppRequestMetadata:_requestParams.appRequestMetadata];
 
     [req sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
@@ -303,7 +303,7 @@
                                                               context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
-        [req setRequestMetadata:_requestParams.adRequestMetadata];
+        [req setAppRequestMetadata:_requestParams.appRequestMetadata];
         
         [req sendRequest:^(ADAuthenticationError *error, NSDictionary * parameters)
          {
