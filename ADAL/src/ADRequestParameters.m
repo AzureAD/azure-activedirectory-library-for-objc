@@ -96,8 +96,8 @@
     NSString *appVer = metadata[@"CFBundleShortVersionString"];
 
     _appRequestMetadata = @{MSID_VERSION_KEY: ADAL_VERSION_NSSTRING,
-                            MSID_APP_NAME_KEY: appName,
-                            MSID_APP_VER_KEY: appVer};
+                            MSID_APP_NAME_KEY: appName ? appName : @"",
+                            MSID_APP_VER_KEY: appVer ? appVer : @""};
 }
 
 - (id)copyWithZone:(NSZone*)zone
