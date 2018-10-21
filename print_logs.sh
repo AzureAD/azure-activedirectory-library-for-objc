@@ -8,3 +8,4 @@ for f in ~/Library/Developer/Xcode/DerivedData/*/Logs/Test/*/*/*/*/*/*; do
 	cat $f
 	echo "travis_fold:end:$bname"
 done
+
