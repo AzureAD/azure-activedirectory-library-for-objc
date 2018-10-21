@@ -192,6 +192,10 @@
 
     
     MSID_LOG_INFO(protocol.context, @"Responding to cert auth challenge with certicate");
+    
+    /*
+     The `certificates` parameter accepts an array of /intermediate/ certificates leading from the leaf to the root.  It must not include the leaf certificate because the system gets that from the digital identity.  It should not include a root certificate because, when the server does trust evaluation on the leaf, it already has a copy of the relevant root. Therefore, we are sending "nil" to the certificates array.
+     */
     NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:nil persistence:NSURLCredentialPersistenceNone];
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     CFRelease(identity);
