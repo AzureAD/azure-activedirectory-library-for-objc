@@ -318,7 +318,6 @@
 		B24D25EB2059F67D00025B8B /* ADResponseCacheHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25E82059F67D00025B8B /* ADResponseCacheHandler.m */; };
 		B24D25F9205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25F8205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m */; };
 		B24D25FA205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24D25F8205EFBC200025B8B /* ADAuthenticationErrorConverterIntegrationTests.m */; };
-		B260CB4B1F4E166500125A70 /* (null) in Headers */ = {isa = PBXBuildFile; };
 		B267CA1B1EE0E9FF00C0B5A8 /* ADNegotiateHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */; };
 		B267CA1D1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */; };
 		B27552442082EECF00AA7A38 /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
@@ -2547,7 +2546,6 @@
 				94DD18D21C5AC8DE00F80C62 /* ADAuthenticationParameters.h in Headers */,
 				9453C4081C586456006B9E79 /* ADAuthenticationContext+Internal.h in Headers */,
 				9453C42A1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.h in Headers */,
-				B260CB4B1F4E166500125A70 /* (null) in Headers */,
 				94DD18D51C5AC8DE00F80C62 /* ADErrorCodes.h in Headers */,
 				600401C41D3D58D50020EAAB /* ADAggregatedDispatcher.h in Headers */,
 				D61AFAAD1FD8A06D00DABBE5 /* ADALConstants.h in Headers */,
