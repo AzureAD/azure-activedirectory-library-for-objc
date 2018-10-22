@@ -50,7 +50,7 @@
 + (NSString*)retrieveTeamIDFromKeychain:(ADAuthenticationError * __autoreleasing *)error
 {
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount : @"teamIDHint",
+                             (id)kSecAttrAccount : @"ADAL.ObjC.teamIDHint",
                              (id)kSecAttrService : @"",
                              (id)kSecReturnAttributes : @YES };
     CFDictionaryRef result = nil;
@@ -63,7 +63,7 @@
         [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
         status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
     }
-    
+
     if (status != errSecSuccess)
     {
         ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID" status:status correlationId:nil];
