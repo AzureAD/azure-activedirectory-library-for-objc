@@ -1512,7 +1512,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
 
     // Make sure ext_expires_on is in the AT and set with proper value
-    NSDate* extExpires = [atItem.additionalServer valueForKey:@"ext_expires_on"];
+    NSDate* extExpires = [atItem.additionalServer valueForKey:@"extended_expires_on"];
     NSDate* expectedExpiresTime = [NSDate dateWithTimeIntervalSinceNow:3600];
     XCTAssertNotNil(extExpires);
     XCTAssertTrue([expectedExpiresTime timeIntervalSinceDate:extExpires]<10); // 10 secs as tolerance

@@ -30,7 +30,6 @@
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
                             adfsType:(AdfsType)type
                              context:(id<MSIDRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     NSURL *url = [self urlForDrsDiscoveryForDomain:domain adfsType:type];
@@ -38,7 +37,7 @@
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
     [webRequest setIsGetRequest:YES];
     [webRequest setAcceptOnlyOKResponse:YES];
-    [webRequest setAppRequestMetadata:metadata];
+    [webRequest setAppRequestMetadata:context.appRequestMetadata];
     
     [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {

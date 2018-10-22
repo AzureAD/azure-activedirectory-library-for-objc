@@ -60,11 +60,11 @@
     if (status == errSecInteractionNotAllowed)
     {
         OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
-        AD_LOG_WARN(nil, @"Deleted existing teamID");
+        MSID_LOG_WARN(nil, @"Deleted existing teamID");
 
         if (deleteStatus != errSecSuccess)
         {
-            AD_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
+            MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
 
             ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID deletion" status:deleteStatus correlationId:nil];
             if (error)

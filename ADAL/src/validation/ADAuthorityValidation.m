@@ -387,7 +387,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                adfsType:AD_ADFS_ON_PREMS
                                                 context:requestParams
-                                        requestMetadata:requestParams.appRequestMetadata
                                         completionBlock:^(id result, ADAuthenticationError *error)
      {
          if (result)
@@ -399,7 +398,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
          [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                     adfsType:AD_ADFS_CLOUD
                                                      context:requestParams
-                                             requestMetadata:requestParams.appRequestMetadata
                                              completionBlock:^(id result, ADAuthenticationError *error)
           {
               completionBlock(result, error);
