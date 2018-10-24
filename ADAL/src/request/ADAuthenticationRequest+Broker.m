@@ -315,6 +315,13 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     NSDictionary *clientMetadata = _requestParams.adRequestMetadata;
 
+    NSString *skipCacheValue = @"NO";
+
+    if (_skipCache || ![NSString adIsStringNilOrBlank:_claims])
+    {
+        skipCacheValue = @"YES";
+    }
+
     NSDictionary *queryDictionary =
     @{
       @"authority"      : _requestParams.authority,
@@ -324,7 +331,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"username_type"  : _requestParams.identifier ? [_requestParams.identifier typeAsString] : @"",
       @"username"       : _requestParams.identifier.userId ? _requestParams.identifier.userId : @"",
       @"force"          : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
-      @"skip_cache"     : _skipCache ? @"YES" : @"NO",
+      @"skip_cache"     : skipCacheValue,
       @"correlation_id" : _requestParams.correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
       @"broker_key"     : base64UrlKey,

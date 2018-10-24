@@ -320,6 +320,91 @@
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
 }
 
+- (void)testBroker_whenClaimsChallengePassed_shouldSucceedAndPassSkipCacheYES
+{
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"YES",
+          @"extra_qp" : @"",
+          @"claims" : @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_version": @"1.0"
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+        NSDictionary *responseParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"client_id" : TEST_CLIENT_ID,
+          @"id_token" : [[self adCreateUserInformation:TEST_USER_ID] rawIdToken],
+          @"access_token" : @"result-broker-at",
+          @"refresh_token" : @"result-broker-rt",
+          @"foci" : @"1",
+          @"expires_in" : @"3600"
+          };
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                       promptBehavior:AD_PROMPT_ALWAYS
+                       userIdentifier:nil
+                 extraQueryParameters:nil
+                               claims:@"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"result-broker-at");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"result-broker-rt");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
 - (void)testBroker_whenFailWithProtectionRequiredErrorWithoutToken_shouldReturnErrorWithoutToken
 {
     NSString *authority = @"https://login.windows.net/common";
