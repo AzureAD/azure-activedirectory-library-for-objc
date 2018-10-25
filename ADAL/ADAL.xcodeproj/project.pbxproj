@@ -248,6 +248,9 @@
 		B2000C6F20EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C6B20EC39BA0092790A /* XCUIElement+CrossPlat.m */; };
 		B2000C7020EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C6B20EC39BA0092790A /* XCUIElement+CrossPlat.m */; };
 		B2000C8420EC5E990092790A /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3FD1C586425006B9E79 /* ADAL.framework */; };
+		B209B2C52182521F00A85995 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
+		B209B2C62182524000A85995 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4ED61FC37A3E00CD70C5 /* AppKit.framework */; };
+		B209B2C7218252DF00A85995 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDC1FC37A6900CD70C5 /* IOKit.framework */; };
 		B20D8FF51F60A3490021DA25 /* ADTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234F3D091F43B07000DE4AA4 /* ADTelemetryIntegrationTests.m */; };
 		B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */; };
 		B20DC5961F0D96A100957806 /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
@@ -1484,6 +1487,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B209B2C7218252DF00A85995 /* IOKit.framework in Frameworks */,
+				B209B2C62182524000A85995 /* AppKit.framework in Frameworks */,
+				B209B2C52182521F00A85995 /* Foundation.framework in Frameworks */,
 				B288BEA021783FB900E91800 /* SecurityInterface.framework in Frameworks */,
 				B288BE9F21783FAB00E91800 /* GSS.framework in Frameworks */,
 				B288BE9E21783F9A00E91800 /* libIdentityCore.a in Frameworks */,
@@ -4240,6 +4246,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB11FC370BF00CD70C5 /* adal__framework__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -4250,6 +4257,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB11FC370BF00CD70C5 /* adal__framework__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 			};
@@ -4848,11 +4856,12 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -4917,11 +4926,12 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;

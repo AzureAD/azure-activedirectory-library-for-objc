@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <ADAL/ADAL.h>
 #import "ADAutoViewController.h"
 #import "ADAutoRequestViewController.h"
 #import "ADAutoResultViewController.h"
-#import "ADAL.h"
 #import "ADTokenCacheDataSource.h"
 #import "ADTokenCache.h"
 #import "ADTokenCache+Internal.h"

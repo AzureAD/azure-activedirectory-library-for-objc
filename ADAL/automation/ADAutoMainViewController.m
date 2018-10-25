@@ -23,7 +23,7 @@
 
 #import "ADAutoMainViewController.h"
 #import "ADAL_Internal.h"
-#import "ADAL.h"
+#import <ADAL/ADAL.h>
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "MSIDAadAuthorityCache.h"
@@ -532,6 +532,9 @@
 
             return;
         }
+
+        [ADLogger setNSLogging:NO];
+        [ADLogger setLoggerCallback:nil];
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 
