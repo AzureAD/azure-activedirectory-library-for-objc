@@ -28,7 +28,9 @@
 @class ADTokenCacheItem;
 @class ADUserInformation;
 @class ADUserIdentifier;
+#if TARGET_OS_IPHONE
 @class UIViewController;
+#endif
 @class ADTokenCache;
 @class WKWebView;
 
