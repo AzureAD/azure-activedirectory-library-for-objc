@@ -55,7 +55,8 @@
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
                                    oauthSubError:(NSString *)oauthSubError
-                                   correlationId:(NSUUID *)correlationId;
+                                   correlationId:(NSUUID *)correlationId
+                                   requestParams:(NSDictionary *)requestParams;
 
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
@@ -139,7 +140,8 @@
                                  responseCode:(NSInteger)responseCode
                               responseHeaders:(NSDictionary *)responseHeaders
                                  responseJson:(NSDictionary *)responseJson
-                             useOpenidConnect:(BOOL)useOpenidConnect;
+                             useOpenidConnect:(BOOL)useOpenidConnect
+                                requestParams:(NSDictionary *)requestParams;
 
 - (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
                                 authority:(NSString *)authority

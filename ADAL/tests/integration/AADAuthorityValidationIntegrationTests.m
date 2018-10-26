@@ -324,8 +324,8 @@
     requestParams.correlationId = [NSUUID UUID];
 
     NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:@"login.windows.net"];
-    NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
-
+    NSString* requestURLString = requestURL.absoluteString;
+    
     requestURL = [NSURL URLWithString:requestURLString];
 
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
@@ -753,8 +753,9 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
      // invalid_grant should result in ADAL tombstoning the token
                          oauthError:@"invalid_grant"
                       oauthSubError:nil
-                      correlationId:TEST_CORRELATION_ID];
-
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+    
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
 

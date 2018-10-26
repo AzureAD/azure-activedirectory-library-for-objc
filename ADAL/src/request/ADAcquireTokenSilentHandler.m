@@ -47,6 +47,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -139,6 +140,14 @@
         request_data[MSID_OAUTH2_SCOPE] = _requestParams.scopesString;
     }
 
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                       developerClaims:_requestParams.decodedClaims];
+
+    if (![NSString msidIsStringNilOrBlank:claims])
+    {
+        request_data[MSID_OAUTH2_CLAIMS] = claims;
+    }
+    
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
 
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
@@ -163,6 +172,7 @@
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
                                   context:_requestParams];
     [webReq setRequestDictionary:request_data];
+    [webReq setAppRequestMetadata:_requestParams.appRequestMetadata];
     
     MSID_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
     MSID_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);

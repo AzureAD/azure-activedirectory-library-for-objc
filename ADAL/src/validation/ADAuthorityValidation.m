@@ -178,7 +178,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         // Validate ADFS authority
         [self validateADFSAuthority:authorityURL
                              domain:upnSuffix
-                      requestParams:requestParams
+                            context:requestParams
                     completionBlock:completionBlock];
     }
     else
@@ -336,7 +336,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority
                        domain:(NSString *)domain
-                requestParams:(ADRequestParameters *)requestParams
+                      context:(id<MSIDRequestContext>)context
               completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     // Check cache first
@@ -348,7 +348,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     // DRS discovery
     [self requestDrsDiscovery:domain
-                      context:requestParams
+                      context:context
               completionBlock:^(id result, ADAuthenticationError *error)
     {
         NSString *passiveAuthEndpoint = [self passiveEndpointFromDRSMetaData:result];
@@ -360,7 +360,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                 error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
                                                                protocolCode:nil
                                                                errorDetails:s_kDrsDiscoveryError
-                                                              correlationId:requestParams.correlationId];
+                                                              correlationId:context.correlationId];
             }
             completionBlock(NO, error);
             return;
@@ -368,7 +368,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         [self requestWebFingerValidation:passiveAuthEndpoint
                                authority:authority
-                                 context:requestParams
+                                 context:context
                          completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
             if (validated)

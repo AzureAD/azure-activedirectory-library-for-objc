@@ -39,6 +39,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADAuthenticationErrorConverter.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 @implementation ADAuthenticationRequest (WebRequest)
 
@@ -50,6 +51,8 @@
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
+    [req setAppRequestMetadata:_requestParams.appRequestMetadata];
+
     [req sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
          if (error)
@@ -149,11 +152,14 @@
             [startUrl appendFormat:@"&%@", queryParams];
         }
     }
+
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                       developerClaims:_requestParams.decodedClaims];
     
-    if (![NSString msidIsStringNilOrBlank:_claims])
+    if (![NSString msidIsStringNilOrBlank:claims])
     {
-        NSString *claimsParam = _claims.msidTrimmedString;
-        [startUrl appendFormat:@"&claims=%@", claimsParam];
+        NSString *claimsParam = claims.msidTrimmedString;
+        [startUrl appendFormat:@"&claims=%@", claimsParam.msidWWWFormURLEncode];
     }
     
     return startUrl;
@@ -278,6 +284,14 @@
         {
             [requestData setObject:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
         }
+
+        NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+                                                                           developerClaims:_requestParams.decodedClaims];
+        
+        if (![NSString msidIsStringNilOrBlank:claims])
+        {
+            [requestData setObject:claims forKey:MSID_OAUTH2_CLAIMS];
+        }
         
         if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString msidIsStringNilOrBlank:[_requestParams identifier].userId])
         {
@@ -289,6 +303,8 @@
                                                               context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
+        [req setAppRequestMetadata:_requestParams.appRequestMetadata];
+        
         [req sendRequest:^(ADAuthenticationError *error, NSDictionary * parameters)
          {
              if (error && ![parameters objectForKey:@"url"]) // auth code and OAuth2 error could be in endURL
