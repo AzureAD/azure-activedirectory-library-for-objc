@@ -90,6 +90,11 @@
         context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
     }
 
+    if (parameters[@"client_capabilities"])
+    {
+        context.clientCapabilities = @[parameters[@"client_capabilities"]];
+    }
+
     return context;
 }
 
@@ -166,6 +171,11 @@
         if ([parameters[@"use_broker"] boolValue])
         {
             redirectUri = [NSURL URLWithString:@"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp"];
+        }
+
+        if (parameters[@"client_capabilities"])
+        {
+            context.clientCapabilities = @[parameters[@"client_capabilities"]];
         }
 
         [context acquireTokenWithResource:parameters[@"resource"]

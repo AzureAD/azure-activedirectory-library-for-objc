@@ -22,20 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestContext.h"
 
-/* !
- This is a wrapper class for MSIDRequestContext for cases, when only correlationId is provided
- (some legacy token cache calls)
- */
+@interface NSBundle (ADTestUtils)
 
-@interface ADMSIDContext : NSObject <MSIDRequestContext>
-
-@property (nonatomic, readonly) NSUUID *correlationId;
-@property (nonatomic, readonly) NSString *logComponent;
-@property (nonatomic, readonly) NSString *telemetryRequestId;
-@property (nonatomic, readonly) NSDictionary *appRequestMetadata;
-
-- (instancetype)initWithCorrelationId:(NSUUID *)correlationId;
+- (NSDictionary *)infoDictionary;
 
 @end

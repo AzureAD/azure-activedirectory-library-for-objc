@@ -187,6 +187,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [requestParams setRedirectUri:redirectUri];
     [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
     [requestParams setLogComponent:_logComponent];
+    [requestParams setClientCapabilities:_clientCapabilities];
 
     ADAuthenticationRequest *request = [ADAuthenticationRequest requestWithContext:self
                                                                      requestParams:requestParams
@@ -410,6 +411,27 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:@"9" completionBlock:completionBlock];
 }
 
+- (void)acquireTokenSilentWithResource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                                userId:(NSString *)userId
+                                claims:(NSString *)claims
+                       completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+
+    [request setUserId:userId];
+    [request setSilent:YES];
+    ADAuthenticationError *claimsError;
+    if (![request setClaims:claims error:&claimsError])
+    {
+        completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
+        return;
+    }
+    [request acquireToken:@"10" completionBlock:completionBlock];
+}
+
 - (void)acquireTokenWithResource:(NSString*)resource
                         clientId:(NSString*)clientId
                      redirectUri:(NSURL*)redirectUri
@@ -461,8 +483,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    [request setClaims:claims];
     
+    ADAuthenticationError *claimsError;
+    if (![request setClaims:claims error:&claimsError])
+    {
+        completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
+        return;
+    }
+        
     [request acquireToken:@"133" completionBlock:completionBlock];
 }
 
