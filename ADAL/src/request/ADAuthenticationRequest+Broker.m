@@ -378,7 +378,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     NSString *skipCacheValue = @"NO";
 
-    if (_skipCache || ![NSString adIsStringNilOrBlank:_claims])
+    if (_skipCache || ![NSString msidIsStringNilOrBlank:_claims])
     {
         skipCacheValue = @"YES";
     }

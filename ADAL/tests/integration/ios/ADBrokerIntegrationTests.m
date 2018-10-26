@@ -299,11 +299,11 @@
           @"intune_enrollment_ids" : @"",
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
-          @"client_app_name": @"UnitTestHostApp",
+          @"client_app_name": @"UnitTestHost",
           @"client_app_version": @"1.0"
           };
 
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams adURLFormEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
