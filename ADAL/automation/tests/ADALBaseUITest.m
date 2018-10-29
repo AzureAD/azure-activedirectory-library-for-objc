@@ -365,7 +365,9 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)openURL:(NSDictionary *)config
 {
     NSString *jsonString = [config toJsonString];
+    [self waitForElement:self.testApp.buttons[@"openUrlInSafari"]];
     [self.testApp.buttons[@"openUrlInSafari"] msidTap];
+    [self waitForElement:self.testApp.textViews[@"requestInfo"]];
     [self.testApp.textViews[@"requestInfo"] msidTap];
     [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
     sleep(1);
