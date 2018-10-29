@@ -178,6 +178,7 @@ static BOOL brokerAppInstalled = NO;
     [self guestEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
+    [self.testApp launch];
     [self.testApp activate];
 
     NSDictionary *params = @{

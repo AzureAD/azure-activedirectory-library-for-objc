@@ -196,6 +196,7 @@ static BOOL brokerAppInstalled = NO;
     [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
+    [self.testApp launch];
     [self.testApp activate];
 
     // Acquire token for a resource requiring device authentication
