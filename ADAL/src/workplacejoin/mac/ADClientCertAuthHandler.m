@@ -260,7 +260,6 @@
     }
     
     SecIdentityRef identity = _panel.identity;
-    _panel = nil;
     return identity;
 }
 
