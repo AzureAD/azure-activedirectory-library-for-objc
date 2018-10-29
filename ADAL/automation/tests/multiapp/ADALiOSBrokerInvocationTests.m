@@ -193,8 +193,10 @@ static BOOL brokerAppInstalled = NO;
     // Register device with this account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
+    [self.testApp launch];
     [self.testApp activate];
 
     // Acquire token for a resource requiring device authentication
@@ -230,6 +232,7 @@ static BOOL brokerAppInstalled = NO;
     // Register device with that account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
@@ -285,6 +288,7 @@ static BOOL brokerAppInstalled = NO;
     // Register device with that account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
@@ -313,7 +317,6 @@ static BOOL brokerAppInstalled = NO;
 
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
-    [self assertRefreshTokenNotNil];
     [self closeResultView];
 }
 
