@@ -23,6 +23,7 @@
 
 #import "ADALBaseiOSUITest.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "XCUIElement+CrossPlat.h"
 
 @implementation ADALBaseiOSUITest
 
@@ -56,8 +57,6 @@
 
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     [registerButton tap];
-
-    [self adfsEnterPasswordInApp:brokerApp];
 }
 
 - (void)unregisterDeviceInAuthenticator
@@ -188,7 +187,7 @@
 
     XCUIApplication *installedApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
     // Give app enough time to install
-    result = [installedApp waitForState:XCUIApplicationStateRunningForeground timeout:60];
+    result = [installedApp waitForState:XCUIApplicationStateRunningForeground timeout:120];
     XCTAssertTrue(result);
 
     return installedApp;
@@ -237,6 +236,26 @@
 
         [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
     }
+}
+
+#pragma mark - Guest users
+
+- (void)guestEnterUsernameInApp:(XCUIApplication *)application
+{
+    XCUIElement *usernameTextField = [application.textFields firstMatch];
+    [self waitForElement:usernameTextField];
+    [self tapElementAndWaitForKeyboardToAppear:usernameTextField app:application];
+    [usernameTextField activateTextField];
+    [usernameTextField typeText:self.primaryAccount.username];
+}
+
+- (void)guestEnterPasswordInApp:(XCUIApplication *)application
+{
+    XCUIElement *passwordTextField = [application.secureTextFields firstMatch];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:application];
+    [passwordTextField activateTextField];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

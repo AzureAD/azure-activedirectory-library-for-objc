@@ -23,6 +23,7 @@
 
 #import "ADALBaseiOSUITest.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "XCUIElement+CrossPlat.h"
 
 @interface ADALiOSBrokerAndGuestUserTests : ADALBaseiOSUITest
 
@@ -70,7 +71,9 @@ static BOOL brokerAppInstalled = NO;
 
     XCUIApplication *brokerApp = [self brokerApp];
 
-    [self adfsEnterPasswordInApp:brokerApp];
+    [self guestEnterUsernameInApp:brokerApp];
+    [self guestEnterPasswordInApp:brokerApp];
+
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -106,7 +109,9 @@ static BOOL brokerAppInstalled = NO;
 
     // Expect sign in to be handled in broker
     XCUIApplication *brokerApp = [self brokerApp];
-    [self adfsEnterPasswordInApp:brokerApp];
+
+    [self guestEnterUsernameInApp:brokerApp];
+    [self guestEnterPasswordInApp:brokerApp];
 
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
@@ -123,7 +128,8 @@ static BOOL brokerAppInstalled = NO;
 
     guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
     [self acquireToken:guestParams];
-    [self adfsEnterPasswordInApp:brokerApp];
+    [self guestEnterUsernameInApp:brokerApp];
+    [self guestEnterPasswordInApp:brokerApp];
 
     [self waitForRedirectToTheTestApp];
 
@@ -163,6 +169,13 @@ static BOOL brokerAppInstalled = NO;
 {
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+
+    // We expect auth UI to appear
+    XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
+    XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
+
+    [self guestEnterUsernameInApp:brokerApp];
+    [self guestEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
