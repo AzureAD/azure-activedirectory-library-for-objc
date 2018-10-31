@@ -1,3 +1,9 @@
+Version 2.7.4 (10.30.2018)
+------------
+* Added support to send claims to the token endpoint (#1272)
+* Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
+* Improve co-existence with ADAL.NET
+
 Version 2.7.3
 ------------
 * Fix occasional keychain util crash #1311
