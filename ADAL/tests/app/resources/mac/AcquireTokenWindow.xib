@@ -11,6 +11,7 @@
                 <outlet property="_acquireSettingsView" destination="7lN-21-Lpb" id="E3I-WF-dzp"/>
                 <outlet property="_authView" destination="7Ye-9W-Fiu" id="bfV-rk-Rnq"/>
                 <outlet property="_authority" destination="jAI-0d-jBZ" id="w6s-CB-cLf"/>
+                <outlet property="_capabilitiesControl" destination="s2Q-D7-eui" id="kjf-S8-4OI"/>
                 <outlet property="_claimsField" destination="gFU-nS-uph" id="c0C-Fb-VGj"/>
                 <outlet property="_clientId" destination="prN-pK-BJS" id="hWo-RK-Vz9"/>
                 <outlet property="_contentWebView" destination="2Rv-uc-PIi" id="h6d-KK-3r5"/>
@@ -27,7 +28,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <window title="Acquire Token" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="8ii-eM-O6C">
+        <window title="Acquire Token" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="8ii-eM-O6C">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="442" height="695"/>
@@ -67,7 +68,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="g6A-F0-JDj">
                         <font key="font" metaFont="system"/>
-                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
@@ -95,6 +96,15 @@
                     <rect key="frame" x="76" y="560" width="62" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="webView:" id="hci-Bn-zvX">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QU5-3L-hCn">
+                    <rect key="frame" x="65" y="456" width="73" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="capabilities" id="R0s-kv-BfC">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -255,7 +265,7 @@
                     </textFieldCell>
                 </textField>
                 <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lcT-aB-jCC">
-                    <rect key="frame" x="142" y="326" width="284" height="26"/>
+                    <rect key="frame" x="142" y="296" width="284" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="QoA-oq-cFk" id="ezg-DZ-t71">
                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -270,11 +280,11 @@
                     </popUpButtonCell>
                 </popUpButton>
                 <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="XAZ-28-Q4T">
-                    <rect key="frame" x="1" y="361" width="442" height="5"/>
+                    <rect key="frame" x="1" y="331" width="442" height="5"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                 </box>
                 <scrollView fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xKx-1V-tfb">
-                    <rect key="frame" x="0.0" y="48" width="443" height="173"/>
+                    <rect key="frame" x="0.0" y="48" width="443" height="143"/>
                     <autoresizingMask key="autoresizingMask"/>
                     <clipView key="contentView" ambiguous="YES" id="4U5-fX-m3J">
                         <rect key="frame" x="1" y="1" width="426" height="171"/>
@@ -289,7 +299,6 @@
                                 <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             </textView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </clipView>
                     <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="yRx-VK-bNB">
                         <rect key="frame" x="-100" y="-100" width="87" height="18"/>
@@ -301,7 +310,7 @@
                     </scroller>
                 </scrollView>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bxA-6P-TRv">
-                    <rect key="frame" x="98" y="377" width="125" height="32"/>
+                    <rect key="frame" x="98" y="347" width="125" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Clear Cache" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="60m-2k-LOH">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -312,7 +321,7 @@
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="omj-GF-VQL">
-                    <rect key="frame" x="223" y="377" width="125" height="32"/>
+                    <rect key="frame" x="223" y="347" width="125" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Clear Cookies" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ERz-cD-E3y">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -358,7 +367,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="7ev-pk-Wh4">
                         <font key="font" metaFont="system"/>
-                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
@@ -367,7 +376,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="u0P-eP-QhE">
                         <font key="font" metaFont="system"/>
-                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
@@ -380,6 +389,17 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="s2Q-D7-eui">
+                    <rect key="frame" x="144" y="450" width="92" height="24"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="r6F-WQ-1Dh">
+                        <font key="font" metaFont="system"/>
+                        <segments>
+                            <segment label="Off" selected="YES"/>
+                            <segment label="On" tag="1"/>
+                        </segments>
+                    </segmentedCell>
+                </segmentedControl>
             </subviews>
             <point key="canvasLocation" x="1491" y="320"/>
         </customView>

@@ -139,6 +139,12 @@
 {
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
     [_requestHeaders addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+
+    if (self.appRequestMetadata)
+    {
+        [_requestHeaders addEntriesFromDictionary:self.appRequestMetadata];
+    }
+
     //Correlation id:
     if (_correlationId)
     {
@@ -148,8 +154,8 @@
            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
-    NSURL *requestURL = [ADHelpers addClientVersionToURL:_requestURL];
-    
+
+    NSURL *requestURL = _requestURL;
     __auto_type factory = [MSIDAuthorityFactory new];
     __auto_type authority = [factory authorityFromUrl:requestURL context:self error:nil];
     __auto_type authorityUrl = [authority networkUrlWithContext:self];
@@ -233,7 +239,7 @@
     (void)task;
     
     NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.appRequestMetadata];
     
     if (modifiedURL == requestURL)
     {

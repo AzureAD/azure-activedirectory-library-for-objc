@@ -36,6 +36,7 @@
     IBOutlet NSTextView* _resultView;
     IBOutlet NSSegmentedControl* _validateAuthority;
     IBOutlet NSSegmentedControl* _webViewType;
+    IBOutlet NSSegmentedControl* _capabilitiesControl;
     
     IBOutlet NSPopUpButton* _profiles;
     

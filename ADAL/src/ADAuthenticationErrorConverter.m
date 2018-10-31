@@ -132,7 +132,7 @@ static NSDictionary *s_userInfoKeyMapping;
     }
 
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:msidError.userInfo[MSIDCorrelationIdKey]];
-    
+
     return [ADAuthenticationError errorWithDomainInternal:domain
                                                      code:errorCode
                                         protocolErrorCode:msidError.userInfo[MSIDOAuthErrorKey]
