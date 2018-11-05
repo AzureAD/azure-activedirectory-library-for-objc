@@ -31,16 +31,6 @@
 
 @implementation ADRequestParameters
 
-@synthesize authority = _authority;
-@synthesize resource = _resource;
-@synthesize clientId = _clientId;
-@synthesize redirectUri = _redirectUri;
-@synthesize identifier = _identifier;
-@synthesize extendedLifetime = _extendedLifetime;
-@synthesize forceRefresh = _forceRefresh;
-@synthesize correlationId = _correlationId;
-@synthesize telemetryRequestId = _telemetryRequestId;
-
 - (instancetype)init
 {
     self = [super init];
