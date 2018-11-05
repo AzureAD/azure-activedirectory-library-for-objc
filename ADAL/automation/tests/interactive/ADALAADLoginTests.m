@@ -105,6 +105,53 @@
     [self closeResultView];
 }
 
+- (void)testInteractiveAndSilentAADLogin_withPromptAlways_andClientCapabilities_noLoginHint_ADALWebView
+{
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    configurationRequest.appVersion = MSIDAppVersionV1;
+    [self loadTestConfiguration:configurationRequest];
+
+    NSDictionary *params = @{
+                             @"prompt_behavior" : @"always",
+                             @"validate_authority" : @YES,
+                             @"client_capabilities": @"cp1"
+                             };
+
+    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    [self aadEnterPassword];
+
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now do silent #296725
+    NSDictionary *silentParams = @{
+                                   @"user_identifier" : self.primaryAccount.account,
+                                   @"client_id" : self.testConfiguration.clientId,
+                                   @"authority" : self.testConfiguration.authority,
+                                   @"resource" : self.testConfiguration.resource,
+                                   @"client_capabilities": @"cp1"
+                                   };
+
+    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+}
+
 #if TARGET_OS_IPHONE
 - (void)testInteractiveAndSilentAADMFALogin_withPromptAlways_noLoginHint_ADALWebView
 {

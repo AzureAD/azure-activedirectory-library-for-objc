@@ -21,21 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRequestContext.h"
+#import "NSBundle+ADTestUtils.h"
 
-/* !
- This is a wrapper class for MSIDRequestContext for cases, when only correlationId is provided
- (some legacy token cache calls)
- */
+@implementation NSBundle (ADTestUtils)
 
-@interface ADMSIDContext : NSObject <MSIDRequestContext>
-
-@property (nonatomic, readonly) NSUUID *correlationId;
-@property (nonatomic, readonly) NSString *logComponent;
-@property (nonatomic, readonly) NSString *telemetryRequestId;
-@property (nonatomic, readonly) NSDictionary *appRequestMetadata;
-
-- (instancetype)initWithCorrelationId:(NSUUID *)correlationId;
+- (NSDictionary *)infoDictionary
+{
+    return [@{@"CFBundleDisplayName": @"UnitTestHost",
+             @"CFBundleShortVersionString": @"1.0"
+             } mutableCopy];
+}
 
 @end

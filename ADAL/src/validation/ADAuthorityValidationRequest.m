@@ -41,6 +41,8 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
                                                                  context:context];
     
     [webRequest setIsGetRequest:YES];
+    [webRequest setAppRequestMetadata:context.appRequestMetadata];
+
     [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {
         if (error)

@@ -224,8 +224,9 @@ static NSString *s_intuneResourceJSON = nil;
         }
         return nil;
     }
-    
+
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&internalError];
+
     if (internalError)
     {
         if (error)

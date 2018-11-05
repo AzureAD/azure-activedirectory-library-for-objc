@@ -153,7 +153,7 @@
 
 - (void)blackforestComEnterPassword
 {
-    XCUIElement *passwordTextField = self.testApp.secureTextFields[@"Enter password"];
+    XCUIElement *passwordTextField = self.testApp.secureTextFields.firstMatch;
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
     [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];

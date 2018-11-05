@@ -324,7 +324,9 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)acquireToken:(NSDictionary *)config
 {
     NSString *jsonString = [config toJsonString];
+    [self waitForElement:self.testApp.buttons[@"Acquire Token"]];
     [self.testApp.buttons[@"Acquire Token"] msidTap];
+    [self waitForElement:self.testApp.textViews[@"requestInfo"]];
     [self.testApp.textViews[@"requestInfo"] msidTap];
     [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
     sleep(1);
@@ -344,7 +346,9 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)acquireTokenSilent:(NSDictionary *)config
 {
     NSString *jsonString = [config toJsonString];
+    [self waitForElement:self.testApp.buttons[@"Acquire Token Silent"]];
     [self.testApp.buttons[@"Acquire Token Silent"] msidTap];
+    [self waitForElement:self.testApp.textViews[@"requestInfo"]];
     [self.testApp.textViews[@"requestInfo"] msidTap];
     [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
     sleep(1);

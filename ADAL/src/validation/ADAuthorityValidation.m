@@ -155,6 +155,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     // Check for AAD or ADFS
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:authorityURL context:nil error:nil];
+
     if (adfsAuthority)
     {
         if (!validateAuthority)
@@ -177,7 +178,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         // Validate ADFS authority
         [self validateADFSAuthority:authorityURL
                              domain:upnSuffix
-                      requestParams:requestParams
+                            context:requestParams
                     completionBlock:completionBlock];
     }
     else
@@ -208,6 +209,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
     MSIDAuthorityCacheRecord *record = [_aadCache objectForKey:authority.msidHostWithPortIfNecessary];
+
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
@@ -258,13 +260,13 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     NSError *localError;
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&localError];
-    
+
     if (localError)
     {
         completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:localError]);
         return;
     }
-    
+
     // Before we make the request, check the cache again, as these requests happen on a serial queue
     // and it's possible we were waiting on a request that got the information we're looking for.
     MSIDAadAuthorityCacheRecord *record = [_aadCache objectForKey:authority.environment];
@@ -337,14 +339,13 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 - (void)addInvalidAuthority:(NSString *)authorityString
 {
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:authorityString] context:nil error:nil];
-    
     [_aadCache addInvalidRecord:authority oauthError:nil context:nil];
 }
 
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSURL *)authority
                        domain:(NSString *)domain
-                requestParams:(ADRequestParameters *)requestParams
+                      context:(id<MSIDRequestContext>)context
               completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
     // Check cache first
@@ -356,7 +357,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     // DRS discovery
     [self requestDrsDiscovery:domain
-                      context:requestParams
+                      context:context
               completionBlock:^(id result, ADAuthenticationError *error)
     {
         NSString *passiveAuthEndpoint = [self passiveEndpointFromDRSMetaData:result];
@@ -368,7 +369,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
                 error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
                                                                protocolCode:nil
                                                                errorDetails:s_kDrsDiscoveryError
-                                                              correlationId:requestParams.correlationId];
+                                                              correlationId:context.correlationId];
             }
             completionBlock(NO, error);
             return;
@@ -376,7 +377,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         
         [self requestWebFingerValidation:passiveAuthEndpoint
                                authority:authority
-                                 context:requestParams
+                                 context:context
                          completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
             if (validated)
