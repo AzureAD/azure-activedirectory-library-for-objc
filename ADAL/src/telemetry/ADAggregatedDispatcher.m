@@ -37,13 +37,6 @@
 
 static NSDictionary *s_eventPropertiesDictionary;
 
-- (id)init
-{
-    //Ensure that the appropriate init function is called. This will cause the runtime to throw.
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
-}
-
 - (id)initWithDispatcher:(id<ADDispatcher>)dispatcher
 {
     self = [super initWithDispatcher:dispatcher];
