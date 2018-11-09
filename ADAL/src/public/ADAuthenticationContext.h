@@ -28,7 +28,6 @@
 @class ADTokenCacheItem;
 @class ADUserInformation;
 @class ADUserIdentifier;
-@class UIViewController;
 @class ADTokenCache;
 @class WKWebView;
 
