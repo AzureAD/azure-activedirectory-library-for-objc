@@ -1,3 +1,8 @@
+Version 2.6.7 (12.01.2018)
+------------
+* Changed teamIDHint to avoid conflicts with other SDKs
+* Improved userID handling for Intune app protection scenarios 
+
 Version 2.6.6 (09.10.2018)
 ------------
 * Added support to send claims to the token endpoint (#1272)

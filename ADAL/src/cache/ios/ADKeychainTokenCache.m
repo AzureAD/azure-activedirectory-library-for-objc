@@ -128,13 +128,20 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     {
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
+
+    ADAuthenticationError *teamIdError = nil;
     
-    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+    NSString* teamId = [ADKeychainUtil keychainTeamId:&teamIdError];
 #if !TARGET_OS_SIMULATOR
     // If we didn't find a team ID and we're on device then the rest of ADAL not only will not work
     // particularly well, we'll probably induce other issues by continuing.
     if (!teamId)
     {
+        if (teamIdError)
+        {
+            AD_LOG_ERROR(nil, @"Encountered an error when retrieving teamID. Error protocol code %@, error details %@, error %@", teamIdError.protocolCode, teamIdError.errorDetails, teamIdError);
+        }
+
         return nil;
     }
 #endif
