@@ -316,7 +316,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         
         if (!saveResult)
         {
-            return [ADAuthenticationResult resultFromMSIDError:msidError];
+            MSID_LOG_ERROR(nil, @"Failed to save tokens in cache, error code %ld, error domain %@, description %@", (long)msidError.code, msidError.domain, msidError.description);
+            MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
         NSString *userId = [[[result tokenCacheItem] userInformation] userId];
