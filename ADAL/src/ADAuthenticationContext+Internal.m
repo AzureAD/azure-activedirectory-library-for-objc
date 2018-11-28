@@ -112,16 +112,24 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
         ADErrorCode code = errorCode;
         NSString* suberror = [dictionary objectForKey:AUTH_SUBERROR];
+        NSMutableDictionary *userInfo = nil;
         if (suberror && [suberror isEqualToString:AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
+            userInfo = [[NSMutableDictionary alloc] initWithCapacity:2];
+            [userInfo setObject:suberror forKey:ADSuberrorKey];
+
+            // check for additional user identifier
+            NSString* userId = [dictionary objectForKey:AUTH_ADDITIONAL_USER_IDENTIFIER];
+            if (userId)
+                [userInfo setObject:userId forKey:ADUserIdKey];
         }
         
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error
                                            description:errorDetails
                                                   code:code
                                          correlationId:correlationId
-                                              userInfo:suberror ? @{ADSuberrorKey:suberror} : nil];
+                                              userInfo:userInfo];
     }
     
     return nil;
