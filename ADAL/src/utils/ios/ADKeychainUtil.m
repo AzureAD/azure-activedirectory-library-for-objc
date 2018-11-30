@@ -59,7 +59,7 @@
 
     if (readStatus == errSecInteractionNotAllowed)
     {
-        AD_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
+        MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
 
         OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
 
@@ -88,7 +88,7 @@
 
     if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
+        MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
 
         ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID" status:status correlationId:nil];
         if (error)
