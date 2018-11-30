@@ -1,14 +1,23 @@
-Version 2.7.6 (12.01.2018)
+Version 2.7.6 (29.11.2018)
 -----------
-* Changed teamIDHint to avoid conflicts with other SDKs
-* Improved userID handling for Intune app protection scenarios 
-* Don't fail acquireToken when saving broker response tokens failed
+* Don't dispatch ADAL callback to the main thread (#1350)
+* hanged teamIDHint to avoid conflicts with other SDKs
 
 Version 2.7.5 (11.02.2018)
 -----------
 * Don't fail acquireToken when saving to cache fails (#1338)
 
 Version 2.7.4 (10.30.2018)
+-----------
+* Added support to send claims to the token endpoint (#1272)
+* Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
+* Improve co-existence with ADAL.NET
+
+Version 2.6.7 (11.29.2018)
+------------
+* Changed teamIDHint to avoid conflicts with other SDKs
+
+Version 2.6.6 (09.10.2018)
 ------------
 * Added support to send claims to the token endpoint (#1272)
 * Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
