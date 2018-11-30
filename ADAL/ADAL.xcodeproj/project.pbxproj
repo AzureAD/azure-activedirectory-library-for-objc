@@ -193,6 +193,10 @@
 		967E351820E1C77100A2F09E /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		969502222123B051007DD27D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
 		969502232123B4C2007DD27D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
+		969DDBF121B0C813000B4C73 /* ADAuthenticationErrorMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBEB21B0C806000B4C73 /* ADAuthenticationErrorMap.m */; };
+		969DDBF221B0C814000B4C73 /* ADAuthenticationErrorMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBEB21B0C806000B4C73 /* ADAuthenticationErrorMap.m */; };
+		969DDBF621B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */; };
+		969DDBFB21B0CAF1000B4C73 /* ADAuthenticationErrorMapTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */; };
 		96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96AC69381E70E184008183A7 /* ADAutoResultViewController.m */; };
 		96B9F03E20DDD411006C806C /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F03D20DDD411006C806C /* GSS.framework */; };
 		96B9F04020DDD43E006C806C /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
@@ -1029,6 +1033,9 @@
 		94DD18E11C5ACFBF00F80C62 /* ADAL-Unit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-Unit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9603F94B2122CE4E0045CE62 /* ADTestWebAuthController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestWebAuthController.h; sourceTree = "<group>"; };
 		9603F94C2122CE4E0045CE62 /* ADTestWebAuthController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestWebAuthController.m; sourceTree = "<group>"; };
+		969DDBEA21B0C806000B4C73 /* ADAuthenticationErrorMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationErrorMap.h; sourceTree = "<group>"; };
+		969DDBEB21B0C806000B4C73 /* ADAuthenticationErrorMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationErrorMap.m; sourceTree = "<group>"; };
+		969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationErrorMapTests.m; sourceTree = "<group>"; };
 		96AC69371E70E184008183A7 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
 		96AC69381E70E184008183A7 /* ADAutoResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
 		96B9F03D20DDD411006C806C /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = System/Library/Frameworks/GSS.framework; sourceTree = SDKROOT; };
@@ -1595,6 +1602,8 @@
 				D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */,
 				941674431C9CCCAF00D8D52A /* ADAuthenticationError+Internal.h */,
 				8B5989501811A3DB00744AEE /* ADAuthenticationError.m */,
+				969DDBEA21B0C806000B4C73 /* ADAuthenticationErrorMap.h */,
+				969DDBEB21B0C806000B4C73 /* ADAuthenticationErrorMap.m */,
 				04D32CB91FD62A25000B123E /* ADAuthenticationErrorConverter.h */,
 				04D32CBC1FD62A58000B123E /* ADAuthenticationErrorConverter.m */,
 				8BD14617182189C800796E79 /* ADAuthenticationParameters+Internal.h */,
@@ -2025,6 +2034,7 @@
 				230E16DA1FAD44AA00ADC904 /* ADAuthorityUtilsTests.m */,
 				230E16E21FB17A6200ADC904 /* ADTelemetryAPIEventTests.m */,
 				04D32CDC1FDA0D2F000B123E /* ADAuthenticationErrorConverterTests.m */,
+				969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */,
 				232ED2B920083F7800C5D74A /* ADBrokerHelperTests.m */,
 				B20DC5D51F0D97C600957806 /* ios */,
 				B20DC5D81F0D97CD00957806 /* mac */,
@@ -3279,6 +3289,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				969DDBF621B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m in Sources */,
 				9603F94D2122CE4E0045CE62 /* ADTestWebAuthController.m in Sources */,
 				236BF3E52059C1D1006E3897 /* ADAuthenticationContext+TestUtil.m in Sources */,
 				23F4935120603ABF00BDD7D5 /* ADLegacyMacTokenCache.m in Sources */,
@@ -3365,6 +3376,7 @@
 				9453C40F1C586456006B9E79 /* ADAuthenticationResult+Internal.m in Sources */,
 				D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */,
 				23CF5E2C2040EFB400D348AF /* ADTokenCacheItem+MSIDTokens.m in Sources */,
+				969DDBF221B0C814000B4C73 /* ADAuthenticationErrorMap.m in Sources */,
 				9453C42F1C58646D006B9E79 /* ADAuthenticationRequest+Broker.m in Sources */,
 				B299FF1B1F22BE74004A2CB9 /* NSString+ADURLExtensions.m in Sources */,
 				2342583F2064442100621AFE /* MSIDBrokerResponse+ADAL.m in Sources */,
@@ -3406,6 +3418,7 @@
 				B20DC6161F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
 				B20DC5F81F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
 				B20DC5F61F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
+				969DDBFB21B0CAF1000B4C73 /* ADAuthenticationErrorMapTests.m in Sources */,
 				B20DC5F21F0D998A00957806 /* ADAuthenticationErrorTests.m in Sources */,
 				D67D3D3D1F38502900660F32 /* ADTestCase.m in Sources */,
 				04D32CDE1FDA0D2F000B123E /* ADAuthenticationErrorConverterTests.m in Sources */,
@@ -3652,6 +3665,7 @@
 				B299FF1A1F22BE32004A2CB9 /* NSString+ADURLExtensions.m in Sources */,
 				D664F1AA1D302B9C0017B799 /* ADAuthenticationParameters+Internal.m in Sources */,
 				D664F1AB1D302B9C0017B799 /* ADBrokerNotificationManager.m in Sources */,
+				969DDBF121B0C813000B4C73 /* ADAuthenticationErrorMap.m in Sources */,
 				D664F1AC1D302B9C0017B799 /* ADAuthenticationResult.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

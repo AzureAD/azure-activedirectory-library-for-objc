@@ -23,11 +23,7 @@
 
 #import "ADAuthenticationErrorConverter.h"
 #import "ADAuthenticationError.h"
-#import "MSIDError.h"
-
-static NSDictionary *s_errorDomainMapping;
-static NSDictionary *s_errorCodeMapping;
-static NSDictionary *s_userInfoKeyMapping;
+#import "ADAuthenticationErrorMap.h"
 
 @interface ADAuthenticationError (ErrorConverterUtil)
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
@@ -40,59 +36,6 @@ static NSDictionary *s_userInfoKeyMapping;
 
 @implementation ADAuthenticationErrorConverter
 
-+ (void)initialize
-{
-    s_errorDomainMapping = @{
-                             MSIDErrorDomain : ADAuthenticationErrorDomain,
-                             MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
-                             MSIDKeychainErrorDomain : ADKeychainErrorDomain,
-                             MSIDHttpErrorCodeDomain : ADHTTPErrorCodeDomain
-                             };
-    
-    s_errorCodeMapping = @{
-                           ADAuthenticationErrorDomain:@{
-                                   // General
-                                   @(MSIDErrorInternal) : @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInvalidInternalParameter) : @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInvalidDeveloperParameter) :@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
-                                   @(MSIDErrorUnsupportedFunctionality): @(AD_ERROR_UNEXPECTED),
-                                   // Cache
-                                   @(MSIDErrorCacheMultipleUsers) : @(AD_ERROR_CACHE_MULTIPLE_USERS),
-                                   @(MSIDErrorCacheBadFormat) : @(AD_ERROR_CACHE_BAD_FORMAT),
-                                   // Authority Validation
-                                   @(MSIDErrorAuthorityValidation) : @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
-                                   // Interactive flow
-                                   @(MSIDErrorUserCancel) : @(AD_ERROR_UI_USER_CANCEL),
-                                   @(MSIDErrorSessionCanceledProgrammatically) : @(AD_ERROR_UI_USER_CANCEL),
-                                   @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
-                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER)
-                                   },
-                           ADOAuthServerErrorDomain:@{
-                                   @(MSIDErrorInteractionRequired) : @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
-                                   @(MSIDErrorServerOauth) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
-                                   @(MSIDErrorServerRefreshTokenRejected) : @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
-                                   @(MSIDErrorServerInvalidRequest) :@(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidClient) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidGrant) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
-                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
-                                   @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE)
-                                   },
-                           ADHTTPErrorCodeDomain: @{
-                                   @(MSIDErrorServerUnhandledResponse) : @(AD_ERROR_UNEXPECTED)
-                                   }
-                           };
-    
-    s_userInfoKeyMapping = @{
-                             MSIDHTTPHeadersKey : ADHTTPHeadersKey,
-                             MSIDOAuthSubErrorKey : ADSuberrorKey
-                             };
-}
-
 + (ADAuthenticationError *)ADAuthenticationErrorFromMSIDError:(NSError *)msidError
 {
     if (!msidError)
@@ -101,18 +44,14 @@ static NSDictionary *s_userInfoKeyMapping;
     }
     
     // Map domain
-    NSString *domain = msidError.domain;
-    if (domain && s_errorDomainMapping[domain])
-    {
-        domain = s_errorDomainMapping[domain];
-    }
+    NSString *domain = [ADAuthenticationErrorMap errorDomains][msidError.domain] ?: msidError.domain;
     
     // Map errorCode
     // errorCode mapping is needed only if domain is in s_errorCodeMapping
     NSInteger errorCode = msidError.code;
-    if (domain && msidError.code && s_errorCodeMapping[domain])
+    if (domain && msidError.code && [ADAuthenticationErrorMap errorCodes][domain])
     {
-        NSNumber *mappedErrorCode = s_errorCodeMapping[domain][@(msidError.code)];
+        NSNumber *mappedErrorCode = [ADAuthenticationErrorMap errorCodes][domain][@(msidError.code)];
         if (mappedErrorCode != nil)
         {
             errorCode = [mappedErrorCode integerValue];
@@ -127,7 +66,7 @@ static NSDictionary *s_userInfoKeyMapping;
     
     for (NSString *key in [msidError.userInfo allKeys])
     {
-        NSString *mappedKey = s_userInfoKeyMapping[key] ? s_userInfoKeyMapping[key] : key;
+        NSString *mappedKey = [ADAuthenticationErrorMap userInfoKeys][key] ?: key;
         userInfo[mappedKey] = msidError.userInfo[key];
     }
 
