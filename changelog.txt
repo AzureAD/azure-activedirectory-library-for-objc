@@ -1,3 +1,9 @@
+Version 2.7.6 (12.01.2018)
+-----------
+* Changed teamIDHint to avoid conflicts with other SDKs
+* Improved userID handling for Intune app protection scenarios 
+* Don't fail acquireToken when saving broker response tokens failed
+
 Version 2.7.5 (11.02.2018)
 -----------
 * Don't fail acquireToken when saving to cache fails (#1338)
