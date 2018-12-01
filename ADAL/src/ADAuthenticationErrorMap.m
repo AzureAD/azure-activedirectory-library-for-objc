@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationErrorMap.h"
+#import "ADErrorCodes.h"
+#import "ADAuthenticationError.h"
 #import "MSIDError.h"
 
 static NSDictionary *s_errorDomainMapping;
