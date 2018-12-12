@@ -188,6 +188,7 @@
     config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 }
 
@@ -211,6 +212,7 @@
     [self acquireToken:config];
     [self enterADFSPassword];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 
     // Now do silent #296725
@@ -232,6 +234,7 @@
     // Now do access token refresh
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 
     // Now do silent #296725 without providing user ID
@@ -245,6 +248,7 @@
     config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
+    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 }
 
