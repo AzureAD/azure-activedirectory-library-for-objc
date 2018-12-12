@@ -120,9 +120,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
             [userInfo setObject:suberror forKey:ADSuberrorKey];
 
             // check for additional user identifier
-            NSString* userId = [dictionary objectForKey:AUTH_ADDITIONAL_USER_IDENTIFIER];
-            if (userId)
-                [userInfo setObject:userId forKey:ADUserIdKey];
+            userInfo[ADUserIdKey] = [dictionary objectForKey:AUTH_ADDITIONAL_USER_IDENTIFIER];
         }
         
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error
