@@ -102,6 +102,7 @@ extern NSString *const AUTH_CLOUD_INSTANCE_HOST_NAME;
 
 extern NSString *const AUTH_SUBERROR;
 extern NSString *const AUTH_PROTECTION_POLICY_REQUIRED;
+extern NSString *const AUTH_ADDITIONAL_USER_IDENTIFIER;
 
 extern NSString *const AD_MICROSOFT_ENROLLMENT_ID;
 
