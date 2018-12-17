@@ -1,3 +1,6 @@
+Version 2.7.7 (12.21.2018)
+-----------
+
 Version 2.7.6 (29.11.2018)
 -----------
 * Don't dispatch ADAL callback to the main thread (#1350)
