@@ -14,3 +14,4 @@ PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.automationapp
 PRODUCT_NAME = ADALAutomation
 INFOPLIST_FILE = automation/ios/Info.plist
 GCC_OPTIMIZATION_LEVEL = 0;
+USER_HEADER_SEARCH_PATHS = $IDCORE_PATH/tests/automation/** $IDCORE_PATH/src/**;
