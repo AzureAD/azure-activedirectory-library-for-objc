@@ -243,8 +243,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
                     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
                     MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-                    MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
-                    MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
+                    MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+                    MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
 
                     BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
                                                          saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid

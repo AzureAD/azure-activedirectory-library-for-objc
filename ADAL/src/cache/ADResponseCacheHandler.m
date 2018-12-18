@@ -57,9 +57,10 @@
                            cache:cache
                           params:requestParams];
     }
-    
+
     result = [cache saveTokensWithConfiguration:requestParams.msidConfig
                                        response:response
+                                        factory:[MSIDAADV1Oauth2Factory new]
                                         context:requestParams
                                           error:&msidError];
     
@@ -100,51 +101,8 @@
             MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
         }
     }
-    else if ([msidError.domain isEqualToString:MSIDOAuthErrorDomain] && msidError.code == MSIDErrorServerProtectionPoliciesRequired)
-    {
-        NSString *legacyAccountId = [self legacyAccountIdWithRefreshToken:refreshToken
-                                                                    cache:cache
-                                                                   params:requestParams];
-
-        if (legacyAccountId)
-        {
-            ADAuthenticationError *adError = [ADAuthenticationError errorFromExistingError:[ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]
-                                                                             correlationID:requestParams.correlationId
-                                                                        additionalUserInfo:@{ADUserIdKey : legacyAccountId}];
-            return [ADAuthenticationResult resultFromError:adError];
-        }
-    }
 
     return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
-}
-
-+ (NSString *)legacyAccountIdWithRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                                        cache:(MSIDLegacyTokenCacheAccessor *)cache
-                                       params:(ADRequestParameters *)requestParams
-{
-    NSString *legacyAccountId = refreshToken.accountIdentifier.legacyAccountId;
-
-    if (!legacyAccountId)
-    {
-        NSError *accountReadError = nil;
-        MSIDAccount *account = [cache accountForIdentifier:refreshToken.accountIdentifier
-                                                  familyId:refreshToken.familyId
-                                             configuration:requestParams.msidConfig
-                                                   context:requestParams
-                                                     error:&accountReadError];
-
-        if (!account)
-        {
-            MSID_LOG_WARN(requestParams, @"Couldn't find the account for refresh token, returning error without user_id");
-            MSID_LOG_WARN(requestParams, @"Couldn't find the account for refresh token, returning error without user_id (home account id = %@)", refreshToken.accountIdentifier.homeAccountId);
-        }
-        else
-        {
-            legacyAccountId = account.accountIdentifier.legacyAccountId;
-        }
-    }
-
-    return legacyAccountId;
 }
 
 @end

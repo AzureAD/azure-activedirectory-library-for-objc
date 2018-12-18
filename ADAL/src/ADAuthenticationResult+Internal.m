@@ -276,8 +276,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     BOOL isMRRT = response.tokenResponse.isMultiResource;
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:[[NSURL alloc] initWithString:response.authority] context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[[NSURL alloc] initWithString:response.authority] context:nil error:nil];
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:response.clientId target:response.resource];
     

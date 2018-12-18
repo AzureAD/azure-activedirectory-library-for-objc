@@ -132,8 +132,7 @@
 - (MSIDConfiguration *)msidConfig
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
-    __auto_type factory = [MSIDAuthorityFactory new];
-    __auto_type authority = [factory authorityFromUrl:authorityUrl context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri

@@ -52,7 +52,6 @@
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDADFSAuthority.h"
-#import "MSIDAuthorityFactory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -538,8 +537,7 @@
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
     refreshTokenItem.refreshToken = _refreshToken;
     refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
-    __auto_type factory = [MSIDAuthorityFactory new];
-    __auto_type authority = [factory authorityFromUrl:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
     refreshTokenItem.authority = authority;
     refreshTokenItem.clientId  = _requestParams.clientId;
     

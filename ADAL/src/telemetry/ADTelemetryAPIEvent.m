@@ -76,15 +76,11 @@
 
 - (void)setAuthority:(NSString *)authorityString
 {
-    [super setAuthority:authorityString];
-    
-    __auto_type factory = [MSIDAuthorityFactory new];
-     __auto_type authority = [factory authorityFromUrl:[NSURL URLWithString:authorityString] context:nil error:nil];
+     __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authorityString] context:nil error:nil];
     
     // set authority type
-    NSString* authorityType = [authority telemetryAuthorityType];
-
-    [self setAuthorityType:authorityType];
+    NSString *authorityType = [authority telemetryAuthorityType];
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_TYPE value:authorityType];
 }
 
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
