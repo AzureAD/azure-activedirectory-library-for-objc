@@ -24,7 +24,7 @@
 #import "ADAuthenticationResult.h"
 
 @class ADTokenCacheItem;
-@class MSIDBrokerResponse;
+@class MSIDAADV1BrokerResponse;
 
 /* Internally accessible methods.*/
 @interface ADAuthenticationResult (Internal)
@@ -53,7 +53,7 @@
                                            correlationId:(NSUUID*)correlationId;
 
 /*! Creates an authentication result from broker response, which can be with/without correlation id. */
-+ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDBrokerResponse *)response;
++ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDAADV1BrokerResponse *)response;
 
 /*! Internal method to set the extendedLifetimeToken flag. */
 - (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;

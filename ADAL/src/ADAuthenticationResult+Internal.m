@@ -28,7 +28,7 @@
 #import "ADUserInformation.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "ADAuthenticationErrorConverter.h"
-#import "MSIDBrokerResponse.h"
+#import "MSIDAADV1BrokerResponse.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDBrokerResponse+ADAL.h"
@@ -240,7 +240,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
 }
 
-+ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDBrokerResponse *)response
++ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDAADV1BrokerResponse *)response
 {
     if (!response)
     {

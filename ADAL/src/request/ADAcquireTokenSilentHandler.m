@@ -50,6 +50,7 @@
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -256,8 +257,7 @@
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                         context:_requestParams];
-         [event setGrantType:MSID_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
-         [event setResultStatus:[result status]];
+         [event setADALResultStatus:[result status]];
          [[MSIDTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
 
          NSString* resultStatus = @"Succeded";

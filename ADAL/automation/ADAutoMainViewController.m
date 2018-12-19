@@ -31,6 +31,7 @@
 #import <ADAL/ADTelemetry.h>
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
