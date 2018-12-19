@@ -24,9 +24,17 @@
 #import "ADAutoAcquireTokenWithRTAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoAcquireTokenWithRTAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoAcquireTokenWithRTAction new]];
+}
 
 - (NSString *)actionIdentifier
 {

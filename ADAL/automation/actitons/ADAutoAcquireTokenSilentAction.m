@@ -24,25 +24,56 @@
 #import "ADAutoAcquireTokenSilentAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoAcquireTokenSilentAction
 
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoAcquireTokenSilentAction new]];
+}
+
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_ACQUIRE_TOKEN_SILENT_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    NSError *applicationError = nil;
+    ADAuthenticationContext *context = [self contextFromParameters:parameters error:&applicationError];
+
+    if (!context)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:applicationError];
+        completionBlock(result);
+        return;
+    }
+
+    [context acquireTokenSilentWithResource:parameters.requestResource
+                                   clientId:parameters.clientId
+                                redirectUri:[NSURL URLWithString:parameters.redirectUri]
+                                     userId:parameters.legacyAccountIdentifier
+                                     claims:parameters.claims
+                            completionBlock:^(ADAuthenticationResult *result) {
+
+                                dispatch_async(dispatch_get_main_queue(), ^{
+
+                                    MSIDAutomationTestResult *testResult = [self testResultWithADALResult:result];
+                                    completionBlock(testResult);
+                                });
+
+                            }];
 }
 
 @end

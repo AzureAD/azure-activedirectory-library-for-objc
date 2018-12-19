@@ -24,18 +24,26 @@
 #import "ADAutoRemoveAccountAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoRemoveAccountAction
 
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoRemoveAccountAction new]];
+}
+
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_REMOVE_ACCOUNT_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters

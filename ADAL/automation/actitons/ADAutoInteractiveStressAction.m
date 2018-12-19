@@ -24,9 +24,17 @@
 #import "ADAutoInteractiveStressAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoInteractiveStressAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoInteractiveStressAction new]];
+}
 
 - (NSString *)actionIdentifier
 {

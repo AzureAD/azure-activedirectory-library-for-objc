@@ -24,25 +24,76 @@
 #import "ADAutoExpireATAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
+#import "ADTokenCacheKey.h"
 
 @implementation ADAutoExpireATAction
 
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoExpireATAction new]];
+}
+
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_EXPIRE_AT_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
+}
+
+- (id<ADTokenCacheDataSource>)cacheDatasource
+{
+    return nil;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+
+    NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
+
+    NSError *cacheError = nil;
+
+    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters.cacheAuthority
+                                                    resource:parameters.requestResource
+                                                    clientId:parameters.clientId
+                                                       error:&cacheError];
+
+    NSArray *items = [cache getItemsWithKey:key
+                                     userId:parameters.legacyAccountIdentifier
+                              correlationId:nil
+                                      error:&cacheError];
+
+    if (!items)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:cacheError];
+        completionBlock(result);
+        return;
+    }
+
+    int accessTokenCount = 0;
+    BOOL success = YES;
+
+    for (ADTokenCacheItem *item in allItems)
+    {
+        if (item.accessToken)
+        {
+            accessTokenCount++;
+            item.expiresOn = [NSDate new];
+            success &= [cache addOrUpdateItem:item correlationId:nil error:nil];
+        }
+    }
+
+    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:success additionalInfo:@{@"expired_access_token_count": @(accessTokenCount)}];
+    completionBlock(result);
 }
 
 @end

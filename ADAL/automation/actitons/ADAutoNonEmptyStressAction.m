@@ -24,9 +24,17 @@
 #import "ADAutoNonEmptyStressAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoNonEmptyStressAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoNonEmptyStressAction new]];
+}
 
 - (NSString *)actionIdentifier
 {

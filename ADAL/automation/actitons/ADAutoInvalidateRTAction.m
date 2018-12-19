@@ -24,18 +24,26 @@
 #import "ADAutoInvalidateRTAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoInvalidateRTAction
 
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoInvalidateRTAction new]];
+}
+
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_INVALIDATE_RT_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters

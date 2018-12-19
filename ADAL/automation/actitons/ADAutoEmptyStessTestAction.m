@@ -24,9 +24,17 @@
 #import "ADAutoEmptyStessTestAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationTestResult.h"
 
 @implementation ADAutoEmptyStessTestAction
+
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoEmptyStessTestAction new]];
+}
 
 - (NSString *)actionIdentifier
 {

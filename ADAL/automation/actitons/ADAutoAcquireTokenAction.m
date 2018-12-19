@@ -29,6 +29,9 @@
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
 
+// TODO: don't call cancelWebSession, because it won't work with older ADAL versions
+// TODO: revisit how we do passed in webview, as it won't work with older ADAL versions
+
 @implementation ADAutoAcquireTokenAction
 
 + (void)load
