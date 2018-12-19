@@ -28,7 +28,7 @@
 
 #import "NSURL+MSIDTestUtil.h"
 
-#import "ADApplicationTestUtil.h"
+#import "MSIDApplicationTestUtil.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADBrokerHelper.h"
 #import "ADBrokerKeyHelper.h"
@@ -82,7 +82,7 @@
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
     
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
         
         NSDictionary *expectedParams =
@@ -178,7 +178,7 @@
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
     
     // Parameters for launching broker
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
         
         NSDictionary *expectedParams =
@@ -278,7 +278,7 @@
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
 
         NSDictionary *expectedParams =
@@ -371,7 +371,7 @@
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
     
     // Parameters for launching broker
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
         
         NSDictionary *expectedParams =
@@ -482,7 +482,7 @@
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
     
     // Parameters for launching broker
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
         
         NSDictionary *expectedParams =
@@ -558,7 +558,7 @@
     params.redirectUri = redirectUri;
     params.scopesString = @"aza bzb";
     
-    MSIDLegacyTokenCacheAccessor *sharedCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    MSIDLegacyTokenCacheAccessor *sharedCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
     
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
                                                                  requestParams:params
@@ -600,7 +600,7 @@
     NSString *intuneResource = [ADEnrollmentGateway getTestResourceJSON];
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
 
         NSDictionary *expectedParams =
@@ -690,7 +690,7 @@
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
 
         NSDictionary *expectedParams =
@@ -793,7 +793,7 @@
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
 
         NSDictionary *expectedParams =
@@ -946,7 +946,7 @@
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
     [ADBrokerKeyHelper setSymmetricKey:brokerKey];
 
-    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
 
         NSDictionary *expectedParams =

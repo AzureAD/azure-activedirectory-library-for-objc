@@ -77,11 +77,11 @@
     [MSIDKeychainTokenCache reset];
     
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil];
 #endif
 }
 
@@ -322,7 +322,6 @@
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_IS_SUCCESSFUL)], @"yes");
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN)], @"no");
     // expect unhashed Oii
-    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_AUTHORITY)], TEST_AUTHORITY);//Oii
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_NAME)], [MSIDDeviceId applicationName]);//Oii
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_TENANT_ID)], @"6fd1f5cd-a94c-4335-889b-6c598e6d8048");//Oii
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_CLIENT_ID)], TEST_CLIENT_ID);//Oii

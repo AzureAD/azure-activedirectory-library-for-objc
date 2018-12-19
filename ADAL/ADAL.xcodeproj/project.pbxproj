@@ -458,8 +458,6 @@
 		D66A9F291F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */; };
 		D66A9F2A1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */; };
 		D66A9F2B1F7998D300144011 /* ADTokenCacheTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */; };
-		D6771E031F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */; };
-		D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */; };
 		D67D3D3B1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
 		D67D3D3C1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
 		D67D3D3D1F38502900660F32 /* ADTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D67D3D3A1F38502900660F32 /* ADTestCase.m */; };
@@ -1212,8 +1210,6 @@
 		D66A9F261F7998D300144011 /* ADTokenCacheTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheTestUtil.h; sourceTree = "<group>"; };
 		D66A9F271F7998D300144011 /* ADTokenCacheTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheTestUtil.m; sourceTree = "<group>"; };
 		D6771DFF1F749CE100D0DCDC /* ADBrokerIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADBrokerIntegrationTests.m; sourceTree = "<group>"; };
-		D6771E011F749FD800D0DCDC /* ADApplicationTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADApplicationTestUtil.h; sourceTree = "<group>"; };
-		D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADApplicationTestUtil.m; sourceTree = "<group>"; };
 		D67D3D391F38502900660F32 /* ADTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestCase.h; sourceTree = "<group>"; };
 		D67D3D3A1F38502900660F32 /* ADTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestCase.m; sourceTree = "<group>"; };
 		D67D3D3F1F38538100660F32 /* ADTest.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTest.pch; sourceTree = "<group>"; };
@@ -2278,8 +2274,6 @@
 			children = (
 				A521AB7220EED8AC0005735B /* ADEnrollmentGateway+TestUtil.m */,
 				A521AB6F20EEC34C0005735B /* ADEnrollmentGateway+TestUtil.h */,
-				D6771E011F749FD800D0DCDC /* ADApplicationTestUtil.h */,
-				D6771E021F749FD800D0DCDC /* ADApplicationTestUtil.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -3383,7 +3377,6 @@
 				96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */,
 				D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				D62256511F4C9EE8003D5DF4 /* ADTestAuthorityValidationResponse.m in Sources */,
-				D6771E031F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */,
 				234F3CE71F35161C00DE4AA4 /* ADAuthenticationContextTests.m in Sources */,
 				B20DC6151F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
 				A521AB7320EED8AD0005735B /* ADEnrollmentGateway+TestUtil.m in Sources */,
@@ -3556,7 +3549,6 @@
 				B2822A2F2055D67200390B6E /* ADLegacyMacTokenCache.m in Sources */,
 				236BF3E62059C1D2006E3897 /* ADAuthenticationContext+TestUtil.m in Sources */,
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
-				D6771E041F749FD800D0DCDC /* ADApplicationTestUtil.m in Sources */,
 				232153371FE0601D00C6960D /* ADTokenCacheItemArchivingToMSIDTokenTests.m in Sources */,
 				D6BA665020167BA2001085EC /* ADRefreshResponseBuilder.m in Sources */,
 				23F4935320605EF400BDD7D5 /* AADAuthorityValidationIntegrationTests.m in Sources */,

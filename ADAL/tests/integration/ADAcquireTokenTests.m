@@ -46,6 +46,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 
 #import "ADTestWebAuthController.h"
+#import "MSIDRefreshToken.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -80,9 +81,9 @@ const int sAsyncContextTimeout = 10;
 
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
-    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
 
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor] factory:[MSIDAADV1Oauth2Factory new]];
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor]];
 
     self.tokenCache = legacyTokenCacheAccessor;
     self.msalTokenCache = defaultTokenCacheAccessor;
@@ -2961,6 +2962,7 @@ const int sAsyncContextTimeout = 10;
 
     BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
                                                       response:[self adCreateV2TokenResponse]
+                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     XCTAssertNil(error);
@@ -3054,6 +3056,7 @@ const int sAsyncContextTimeout = 10;
 
     BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
                                                       response:[self adCreateV2TokenResponse]
+                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     XCTAssertNil(error);

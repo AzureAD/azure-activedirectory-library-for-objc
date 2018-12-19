@@ -329,7 +329,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 
     //now compute the hash on the unencrypted data
-    NSString *actualHash = [[decrypted msidSHA256] msidHexString];
+    NSString *actualHash = [[[[decrypted msidSHA256] msidHexString] msidTrimmedString] uppercaseString];
     if(![hash isEqualToString:actualHash])
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);

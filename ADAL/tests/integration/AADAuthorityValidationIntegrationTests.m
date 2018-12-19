@@ -64,7 +64,7 @@
     [super setUp];
 
     self.adTokenCache = [ADTokenCache new];
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil];
 }
 
 - (void)tearDown
