@@ -330,6 +330,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 #endif
 }
 
+#if TARGET_OS_IPHONE
 + (BOOL)saveBrokerResponse:(MSIDAADV1BrokerResponse *)brokerResponse
                      cache:(MSIDLegacyTokenCacheAccessor *)cache
                    factory:(MSIDOauth2Factory *)factory
@@ -356,6 +357,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
     return [cache saveTokensWithConfiguration:configuration response:tokenResponse factory:factory context:nil error:error];
 }
+#endif
 
 - (BOOL)canUseBroker
 {

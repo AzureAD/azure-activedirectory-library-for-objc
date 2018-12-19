@@ -65,7 +65,7 @@
         MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil];
         self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[defaultAccessor]];
 #else
-        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil factory:factory];
+        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil];
 #endif
     }
     
