@@ -28,6 +28,7 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
+#import "ADTokenCacheKey.h"
 
 @implementation ADAutoInvalidateRTAction
 
@@ -46,11 +47,53 @@
     return YES;
 }
 
+- (id<ADTokenCacheDataSource>)cacheDatasource
+{
+    return nil;
+}
+
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+
+    NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
+
+    NSError *cacheError = nil;
+
+    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters.cacheAuthority
+                                                    resource:parameters.requestResource
+                                                    clientId:parameters.clientId
+                                                       error:&cacheError];
+
+    NSArray *items = [cache getItemsWithKey:key
+                                     userId:parameters.legacyAccountIdentifier
+                              correlationId:nil
+                                      error:&cacheError];
+
+    if (!items)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:cacheError];
+        completionBlock(result);
+        return;
+    }
+
+    int refreshTokenCount = 0;
+    BOOL success = YES;
+
+    for (ADTokenCacheItem *item in allItems)
+    {
+        if (item.refreshToken)
+        {
+            refreshTokenCount++;
+            item.refreshToken = @"bad-refresh-token";
+            success &= [cache addOrUpdateItem:item correlationId:nil error:nil];
+        }
+    }
+
+    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:success additionalInfo:@{@"invalidated_refresh_token_count": @(refreshTokenCount)}];
+    completionBlock(result);
 }
 
 @end
