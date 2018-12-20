@@ -1,3 +1,9 @@
+Version 2.7.7 (12.21.2018)
+-----------
+* Don't log ADAL version on load (#1359)
+* Fixed userId returned for ADFS onPrem scenarios (#1357)
+* Return user displayable ID for Intune app protection scenarios (#1358)
+
 Version 2.7.6 (29.11.2018)
 -----------
 * Don't dispatch ADAL callback to the main thread (#1350)
