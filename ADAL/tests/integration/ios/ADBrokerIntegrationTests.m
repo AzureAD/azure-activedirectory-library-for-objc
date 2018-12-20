@@ -829,6 +829,7 @@
                                                           @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
                                                           @"error" : @"unauthorized_client",
                                                           @"suberror" : @"protection_policies_required",
+                                                          @"user_id" : @"user@microsoft.com",
                                                           }];
 
         [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri]];
@@ -854,6 +855,7 @@
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssert([@"user@microsoft.com" isEqualToString:result.error.userInfo[ADUserIdKey]]);
 
          [expectation fulfill];
      }];
