@@ -38,6 +38,7 @@
     
     self.enableNSLogging = [ADLogger getNSLogging];
     [ADLogger setNSLogging:YES];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];
 }
 
 - (void)tearDown

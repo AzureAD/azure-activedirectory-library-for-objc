@@ -40,8 +40,8 @@
 - (void)setUp
 {
     [super setUp];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
 }
-
 
 - (void)tearDown
 {
