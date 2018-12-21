@@ -102,16 +102,16 @@ static ADAuthenticationResult *s_result = nil;
         [self registerWebAuthNotifications];
     });
 
-    NSURL *requestAuthority = [NSURL URLWithString:context.authority];
+    NSURL *requestAuthorityURL = [NSURL URLWithString:context.authority];
 
-    MSIDAADAuthority *aadAuthority = [[MSIDAADAuthority alloc] initWithURL:requestAuthority context:nil error:nil];
+    MSIDAADAuthority *aadAuthority = [[MSIDAADAuthority alloc] initWithURL:requestAuthorityURL context:nil error:nil];
 
     if (aadAuthority)
     {
-        requestAuthority = [aadAuthority networkUrlWithContext:nil];
+        requestAuthorityURL = [aadAuthority networkUrlWithContext:nil];
     }
 
-    NSURL *authorityWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthority];
+    NSURL *authorityWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthorityURL];
     
     MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:authorityWithOauthSuffix
                                                                                                   redirectUri:requestParams.redirectUri
