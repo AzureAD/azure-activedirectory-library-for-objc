@@ -218,7 +218,7 @@
     [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
-         XCTAssertEqualObjects(message, @"message");
+         XCTAssertTrue([message containsString:@"message"]);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
          XCTAssertFalse(containsPii);
          
