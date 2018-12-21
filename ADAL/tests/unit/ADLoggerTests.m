@@ -38,6 +38,7 @@
     
     self.enableNSLogging = [ADLogger getNSLogging];
     [ADLogger setNSLogging:YES];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];
 }
 
 - (void)tearDown
@@ -217,6 +218,7 @@
     [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
+         XCTAssertTrue([message containsString:@"message"]);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
          XCTAssertFalse(containsPii);
          
