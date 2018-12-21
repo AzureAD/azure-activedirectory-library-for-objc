@@ -40,14 +40,12 @@
 - (void)setUp
 {
     [super setUp];
-    [ADLogger setNSLogging:YES];
 }
 
 
 - (void)tearDown
 {
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
-    [ADLogger setNSLogging:NO];
     [ADTestURLSession clearResponses];
     [[ADClientMetrics getInstance] clearMetrics];
     [ADAuthorityValidation clearAadCache];
