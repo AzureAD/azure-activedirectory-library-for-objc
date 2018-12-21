@@ -108,7 +108,7 @@ static ADAuthenticationResult *s_result = nil;
 
     if (aadAuthority)
     {
-        requestAuthority = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:aadAuthority context:nil];
+        requestAuthority = [aadAuthority networkUrlWithContext:nil];
     }
 
     NSURL *authorityWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthority];
