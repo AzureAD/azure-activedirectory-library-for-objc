@@ -34,7 +34,9 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
 #import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDAADEndpointProvider.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -99,11 +101,19 @@ static ADAuthenticationResult *s_result = nil;
     dispatch_once(&onceToken, ^{
         [self registerWebAuthNotifications];
     });
+
+    NSURL *requestAuthority = [NSURL URLWithString:context.authority];
+
+    MSIDAADAuthority *aadAuthority = [[MSIDAADAuthority alloc] initWithURL:requestAuthority context:nil error:nil];
+
+    if (aadAuthority)
+    {
+        requestAuthority = [[MSIDAadAuthorityCache sharedInstance] networkUrlForAuthority:aadAuthority context:nil];
+    }
+
+    NSURL *authorityWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthority];
     
-    //TODO: Replace with MSIDAADEndpointProvider method once available
-    NSString *authorityWithOAuthSuffix = [NSString stringWithFormat:@"%@%@", context.authority, MSID_OAUTH2_AUTHORIZE_SUFFIX];
-    
-    MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:authorityWithOAuthSuffix]
+    MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:authorityWithOauthSuffix
                                                                                                   redirectUri:requestParams.redirectUri
                                                                                                      clientId:requestParams.clientId
                                                                                                      resource:requestParams.resource
