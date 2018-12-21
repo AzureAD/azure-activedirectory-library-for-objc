@@ -44,6 +44,7 @@ NSString *const ADAL_AUTH_USERNAME_KEY                = @"username";
 NSString *const ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME    = @"cloud_instance_host_name";
 NSString *const ADAL_AUTH_SUBERROR                    = @"suberror";
 NSString *const ADAL_AUTH_PROTECTION_POLICY_REQUIRED  = @"protection_policy_required";
+NSString *const ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER  = @"adi";
 
 //application constants
 NSString* const ADAL_BROKER_SCHEME = @"msauth";
