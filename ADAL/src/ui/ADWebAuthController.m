@@ -111,9 +111,9 @@ static ADAuthenticationResult *s_result = nil;
         requestAuthorityURL = [aadAuthority networkUrlWithContext:nil];
     }
 
-    NSURL *authorityWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthorityURL];
+    NSURL *authorityURLWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthorityURL];
     
-    MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:authorityWithOauthSuffix
+    MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:authorityURLWithOauthSuffix
                                                                                                   redirectUri:requestParams.redirectUri
                                                                                                      clientId:requestParams.clientId
                                                                                                      resource:requestParams.resource
