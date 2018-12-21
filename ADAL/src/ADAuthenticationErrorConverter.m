@@ -89,7 +89,8 @@ static NSDictionary *s_userInfoKeyMapping;
     
     s_userInfoKeyMapping = @{
                              MSIDHTTPHeadersKey : ADHTTPHeadersKey,
-                             MSIDOAuthSubErrorKey : ADSuberrorKey
+                             MSIDOAuthSubErrorKey : ADSuberrorKey,
+                             MSIDUserDisplayableIdKey : ADUserIdKey
                              };
 }
 

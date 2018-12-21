@@ -69,14 +69,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @synthesize logComponent = _logComponent;
 @synthesize webView = _webView;
 
-+ (void)load
-{
-    // +load is called by the ObjC runtime before main() as it loads in ObjC symbols and
-    // populates the runtime.
-    
-    NSLog(@"ADAL version %@", ADAL_VERSION_VAR);
-}
-
 - (id)init
 {
     //Ensure that the appropriate init function is called. This will cause the runtime to throw.
