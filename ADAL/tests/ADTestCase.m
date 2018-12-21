@@ -29,6 +29,7 @@
 #import "ADTestCase.h"
 #import "ADClientMetrics.h"
 #import "ADAuthorityValidation+TestUtil.h"
+#import "ADLogger.h"
 
 #if TARGET_OS_IPHONE
 #import "ADApplicationTestUtil.h"
@@ -39,12 +40,14 @@
 - (void)setUp
 {
     [super setUp];
+    [ADLogger setNSLogging:YES];
 }
 
 
 - (void)tearDown
 {
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    [ADLogger setNSLogging:NO];
     [ADTestURLSession clearResponses];
     [[ADClientMetrics getInstance] clearMetrics];
     [ADAuthorityValidation clearAadCache];
