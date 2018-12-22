@@ -57,7 +57,7 @@ static BOOL msalAppInstalled = NO;
     NSDictionary *params = @{
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
-                             @"redirect_uri": @"x-msauth-automationapp://com.microsoft.adal.automationapp",
+                                 @"redirect_uri": @"x-msauth-automationapp://com.microsoft.adal.automationapp",
                              @"resource": @"https://graph.microsoft.com"
                              };
 

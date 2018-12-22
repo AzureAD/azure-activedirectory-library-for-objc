@@ -37,6 +37,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADAuthenticationErrorConverter.h"
+#import "MSIDClientCapabilitiesUtil.h"
 
 
 @implementation ADAuthenticationRequest (WebRequest)
@@ -49,6 +50,8 @@
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
+    [req setAppRequestMetadata:_requestParams.appRequestMetadata];
+
     [req sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
          if (error)

@@ -30,6 +30,7 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import <ADAL/ADTelemetry.h>
 #import "MSIDAADAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @interface ADAutoMainViewController () <ADDispatcher>
 
@@ -91,6 +92,11 @@
     if (parameters[@"correlation_id"])
     {
         context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
+    }
+
+    if (parameters[@"client_capabilities"])
+    {
+        context.clientCapabilities = @[parameters[@"client_capabilities"]];
     }
 
     return context;
@@ -169,6 +175,11 @@
         if ([parameters[@"use_broker"] boolValue])
         {
             redirectUri = [NSURL URLWithString:@"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp"];
+        }
+
+        if (parameters[@"client_capabilities"])
+        {
+            context.clientCapabilities = @[parameters[@"client_capabilities"]];
         }
 
         [context acquireTokenWithResource:parameters[@"resource"]
@@ -298,9 +309,18 @@
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
         
-        __auto_type aadAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
+        __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
 
-        NSArray *aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+        NSArray *aliases = nil;
+
+        if (authority)
+        {
+            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+        }
+        else
+        {
+            aliases = @[[NSURL URLWithString:parameters[@"authority"]]];
+        }
 
         for (NSURL *alias in aliases)
         {
@@ -371,15 +391,17 @@
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
 
-        NSURL *providedAuthority = [NSURL URLWithString:parameters[@"authority"]];
+        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] context:nil error:nil];
 
-        __auto_type aadAuthority = [[MSIDAADAuthority alloc] initWithURL:providedAuthority  context:nil error:nil];
+        NSArray *aliases = nil;
 
-        NSArray *aliases = @[providedAuthority];
-
-        if (aadAuthority)
+        if (authority)
         {
-            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+            aliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:authority];
+        }
+        else
+        {
+            aliases = @[[NSURL URLWithString:parameters[@"authority"]]];
         }
 
         for (NSURL *alias in aliases)

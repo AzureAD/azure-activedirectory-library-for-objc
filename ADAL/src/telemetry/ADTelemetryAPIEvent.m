@@ -83,7 +83,7 @@
     
     // set authority type
     NSString* authorityType = [authority telemetryAuthorityType];
-   
+
     [self setAuthorityType:authorityType];
 }
 

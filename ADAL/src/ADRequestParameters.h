@@ -36,7 +36,8 @@
 @property (retain, nonatomic) NSString *redirectUri;
 @property (retain, nonatomic) NSString *scopesString;
 @property (retain, nonatomic) ADUserIdentifier *identifier;
-@property (retain, nonatomic) NSString *claims;
+@property (retain, nonatomic) NSDictionary* decodedClaims;
+@property (retain, nonatomic) NSArray<NSString *>* clientCapabilities;
 @property (retain, nonatomic) NSString *extraQueryParameters;
 @property BOOL extendedLifetime;
 @property BOOL forceRefresh;
@@ -44,6 +45,7 @@
 @property (retain, nonatomic) NSString *telemetryRequestId;
 @property (retain, nonatomic) NSString *logComponent;
 @property (retain, nonatomic) MSIDAccountIdentifier *account;
+@property (retain, nonatomic) NSDictionary *appRequestMetadata;
 
 - (NSString *)openIdScopesString;
 - (MSIDConfiguration *)msidConfig;

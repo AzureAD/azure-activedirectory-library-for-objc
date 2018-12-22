@@ -43,6 +43,9 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDADFSAuthority.h"
+#import "NSData+MSIDExtensions.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -312,7 +315,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         
         if (!saveResult)
         {
-            return [ADAuthenticationResult resultFromMSIDError:msidError];
+            MSID_LOG_ERROR(nil, @"Failed to save tokens in cache, error code %ld, error domain %@, description %@", (long)msidError.code, msidError.domain, msidError.description);
+            MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
         NSString *userId = [[[result tokenCacheItem] userInformation] userId];
@@ -333,7 +337,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
     BOOL isADFSInstance = adfsAuthority != nil;
     if (isADFSInstance) return NO;
-    
     return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker];
 }
 
@@ -367,7 +370,18 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSString *enrollmentIds = [ADEnrollmentGateway allEnrollmentIdsJSON];
     NSString *mamResource = [ADEnrollmentGateway allIntuneMAMResourcesJSON];
     mamResource = mamResource ? mamResource : @"" ;
-    
+
+    NSString *capabilities = [_requestParams.clientCapabilities componentsJoinedByString:@","];
+
+    NSDictionary *clientMetadata = _requestParams.appRequestMetadata;
+
+    NSString *skipCacheValue = @"NO";
+
+    if (_skipCache || ![NSString msidIsStringNilOrBlank:_claims])
+    {
+        skipCacheValue = @"YES";
+    }
+
     NSDictionary *queryDictionary =
     @{
       @"authority"      : _requestParams.authority,
@@ -377,7 +391,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"username_type"  : _requestParams.identifier ? [_requestParams.identifier typeAsString] : @"",
       @"username"       : _requestParams.identifier.userId ? _requestParams.identifier.userId : @"",
       @"force"          : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
-      @"skip_cache"     : _skipCache ? @"YES" : @"NO",
+      @"skip_cache"     : skipCacheValue,
       @"correlation_id" : _requestParams.correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
       @"broker_key"     : base64UrlKey,
@@ -385,9 +399,12 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_version" : adalVersion,
       ADAL_BROKER_MAX_PROTOCOL_VERSION : @"2",
       @"extra_qp"       : _requestParams.extraQueryParameters? _requestParams.extraQueryParameters : @"",
-      @"claims"         : _requestParams.claims ? _requestParams.claims : @"",
+      @"claims"         : _claims ? _claims : @"",
       @"intune_enrollment_ids" : enrollmentIds ? enrollmentIds : @"",
       @"intune_mam_resource" : mamResource,
+      @"client_capabilities": capabilities ? capabilities : @"",
+      @"client_app_name": clientMetadata[MSID_APP_NAME_KEY],
+      @"client_app_version": clientMetadata[MSID_APP_VER_KEY]
       };
     
     NSDictionary<NSString *, NSString *> *resumeDictionary = nil;

@@ -23,6 +23,7 @@
 
 #import "ADALBaseiOSUITest.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "XCUIElement+CrossPlat.h"
 
 @implementation ADALBaseiOSUITest
 
@@ -56,8 +57,6 @@
 
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     [registerButton tap];
-
-    [self adfsEnterPasswordInApp:brokerApp];
 }
 
 - (void)unregisterDeviceInAuthenticator
@@ -180,7 +179,8 @@
     NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
     NSString *appName = appConfiguration[@"app_name"];
 
-    __auto_type appIcon = springBoardApp.icons[appName];
+    // take the first match if there are multiple matches, otherwise it may fail on calling tap
+    __auto_type appIcon = springBoardApp.icons[appName].firstMatch;
     [self waitForElement:appIcon];
     [appIcon tap];
 
@@ -188,7 +188,7 @@
 
     XCUIApplication *installedApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
     // Give app enough time to install
-    result = [installedApp waitForState:XCUIApplicationStateRunningForeground timeout:60];
+    result = [installedApp waitForState:XCUIApplicationStateRunningForeground timeout:120];
     XCTAssertTrue(result);
 
     return installedApp;
@@ -208,11 +208,12 @@
 
     NSString *appName = appConfiguration[@"app_name"];
 
-    __auto_type appIcon = springBoardApp.icons[appName];
+    // specify the whole path to make sure we get icon from home screen but not the multitask dock
+    __auto_type appIcon = springBoardApp.otherElements[@"Home screen icons"].scrollViews.otherElements.icons[appName];
 
     if (appIcon.exists)
     {
-        [appIcon pressForDuration:1.0f];
+        [appIcon pressForDuration:2.0f];
 
         XCUIElement *deleteButton = nil;
 
@@ -237,6 +238,26 @@
 
         [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
     }
+}
+
+#pragma mark - Guest users
+
+- (void)guestEnterUsernameInApp:(XCUIApplication *)application
+{
+    XCUIElement *usernameTextField = [application.textFields firstMatch];
+    [self waitForElement:usernameTextField];
+    [self tapElementAndWaitForKeyboardToAppear:usernameTextField app:application];
+    [usernameTextField activateTextField];
+    [usernameTextField typeText:self.primaryAccount.username];
+}
+
+- (void)guestEnterPasswordInApp:(XCUIApplication *)application
+{
+    XCUIElement *passwordTextField = [application.secureTextFields firstMatch];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:application];
+    [passwordTextField activateTextField];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

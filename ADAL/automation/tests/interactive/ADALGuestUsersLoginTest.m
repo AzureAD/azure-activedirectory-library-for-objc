@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADALBaseUITest.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "XCUIElement+CrossPlat.h"
 
 @interface ADALGuestUsersLoginTest : ADALBaseUITest
 
@@ -36,9 +37,8 @@
     [super setUp];
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    //configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureGuestUser];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     [self loadTestConfiguration:configurationRequest];
 }
 
@@ -54,7 +54,8 @@
 
     [self acquireToken:config];
     [self aadEnterEmail];
-    [self adfsEnterPassword];
+    [self guestEnterUsername];
+    [self guestEnterPassword];
 
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -108,7 +109,8 @@
 
     [self acquireToken:homeParams];
     [self aadEnterEmail];
-    [self adfsEnterPassword];
+    [self guestEnterUsername];
+    [self guestEnterPassword];
 
     [self assertAccessTokenNotNil];
 
@@ -127,7 +129,8 @@
     guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
     [self acquireToken:guestParams];
     [self aadEnterEmail];
-    [self adfsEnterPassword];
+    [self guestEnterUsername];
+    [self guestEnterPassword];
 
     [self assertAccessTokenNotNil];
 
@@ -182,7 +185,8 @@
 
     [self acquireToken:homeParams];
     [self aadEnterEmail];
-    [self adfsEnterPassword];
+    [self guestEnterUsername];
+    [self guestEnterPassword];
 
     [self assertAccessTokenNotNil];
 
@@ -207,6 +211,24 @@
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
 
     [self closeResultView];
+}
+
+- (void)guestEnterUsername
+{
+    XCUIElement *usernameTextField = [self.testApp.textFields firstMatch];
+    [self waitForElement:usernameTextField];
+    [self tapElementAndWaitForKeyboardToAppear:usernameTextField];
+    [usernameTextField activateTextField];
+    [usernameTextField typeText:self.primaryAccount.username];
+}
+
+- (void)guestEnterPassword
+{
+    XCUIElement *passwordTextField = [self.testApp.secureTextFields firstMatch];
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField];
+    [passwordTextField activateTextField];
+    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

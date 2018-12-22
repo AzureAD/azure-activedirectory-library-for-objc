@@ -65,7 +65,8 @@
     
     if (!result)
     {
-        return [ADAuthenticationResult resultFromMSIDError:msidError correlationId:requestParams.correlationId];
+        MSID_LOG_ERROR(nil, @"Failed to save tokens in cache, error code %ld, error domain %@, description %@", (long)msidError.code, msidError.domain, msidError.description);
+        MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
     }
     
     MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:requestParams.msidConfig];

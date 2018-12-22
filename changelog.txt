@@ -1,3 +1,61 @@
+
+Version 4.0.0 (12.21.2018)
+-------------
+* Support any version of server telemetry (#1287)
+* Don't use certificate from identity when creating credential in clientTLS handler (#1286)
+* Use WKWebView instead of UIWebView for iOS and WebView for macOS (#1262)
+* Pass claims challenge to the token endpoint (#1274)
+* ADAL now supports iOS 10+ and macOS 10.11+ only
+* WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
+
+Version 2.7.7 (12.21.2018)
+-----------
+* Don't log ADAL version on load (#1359)
+* Fixed userId returned for ADFS onPrem scenarios (#1357)
+* Return user displayable ID for Intune app protection scenarios (#1358)
+
+Version 2.7.6 (29.11.2018)
+-----------
+* Don't dispatch ADAL callback to the main thread (#1350)
+* Changed teamIDHint to avoid conflicts with other SDKs
+
+Version 2.7.5 (11.02.2018)
+-----------
+* Don't fail acquireToken when saving to cache fails (#1338)
+
+Version 2.7.4 (10.30.2018)
+-----------
+* Added support to send claims to the token endpoint (#1272)
+* Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
+* Improve co-existence with ADAL.NET
+
+Version 2.6.8 (12.21.2018)
+-----------
+* Return user displayable ID for Intune app protection scenarios (#1358)
+
+Version 2.6.7 (11.29.2018)
+------------
+* Changed teamIDHint to avoid conflicts with other SDKs
+
+Version 2.6.6 (09.10.2018)
+------------
+* Added support to send claims to the token endpoint (#1272)
+* Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
+* Improve co-existence with ADAL.NET
+
+Version 2.7.3
+------------
+* Fix occasional keychain util crash #1311
+
+Version 2.7.2 
+-------------
+* Fix issues with the iOS library compilation output.
+
+Version 2.7.1 
+-------------
+* Fix issues with the framework compilation and add correct bundle version to
+the framework
+
 Version 2.7.0 (07.23.2018)
 -------------
 * Add new API to skip access token in cache by passing a forceRefresh parameter (#1234)

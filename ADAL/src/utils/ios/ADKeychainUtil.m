@@ -50,22 +50,46 @@
 + (NSString*)retrieveTeamIDFromKeychain:(ADAuthenticationError * __autoreleasing *)error
 {
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount : @"teamIDHint",
+                             (id)kSecAttrAccount : @"SDK.ObjC.teamIDHint",
                              (id)kSecAttrService : @"",
                              (id)kSecReturnAttributes : @YES };
     CFDictionaryRef result = nil;
     
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    OSStatus readStatus = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+
+    if (readStatus == errSecInteractionNotAllowed)
+    {
+        MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
+
+        OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
+
+        if (deleteStatus != errSecSuccess)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
+
+            ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID deletion" status:deleteStatus correlationId:nil];
+            if (error)
+            {
+                *error = adError;
+            }
+            return nil;
+        }
+    }
+
+    OSStatus status = readStatus;
     
-    if (status == errSecItemNotFound)
+    if (readStatus == errSecItemNotFound
+        || readStatus == errSecInteractionNotAllowed)
     {
         NSMutableDictionary* addQuery = [query mutableCopy];
         [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
         status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
     }
-    
+
     if (status != errSecSuccess)
     {
+        MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
+
         ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID" status:status correlationId:nil];
         if (error)
         {

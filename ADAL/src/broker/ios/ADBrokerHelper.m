@@ -262,7 +262,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
         completion(result);
         return;
     }
-    
+
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     [self saveToPasteBoard:brokerRequest];
     dispatch_async(dispatch_get_main_queue(), ^{
