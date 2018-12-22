@@ -34,7 +34,6 @@
 #import "ADTokenCacheDataSource.h"
 #import "ADTelemetryTestDispatcher.h"
 #import "ADUserIdentifier.h"
-#import "ADTestAuthenticationViewController.h"
 #import "ADAuthorityValidation.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
@@ -46,6 +45,8 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAADV1Oauth2Factory.h"
 
+#import "ADTestWebAuthController.h"
+
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDKeychainTokenCache.h"
@@ -53,25 +54,10 @@
 #else
 #import "ADTokenCache+Internal.h"
 #endif
-#import "ADWebAuthDelegate.h"
 #import "ADUserInformation.h"
+#import "MSIDWebAADAuthResponse.h"
 
 const int sAsyncContextTimeout = 10;
-
-@interface ADAuthenticationRequest (UnitTestExtension)
-
-- (void)setAllowSilentRequests:(BOOL)allowSilent;
-
-@end
-
-@implementation ADAuthenticationRequest (UnitTestExtension)
-
-- (void)setAllowSilentRequests:(BOOL)allowSilent
-{
-    _allowSilent = allowSilent;
-}
-
-@end
 
 @interface ADAcquireTokenTests : ADTestCase
 
@@ -86,18 +72,18 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
-    
+
     [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
-    
+
 #if TARGET_OS_IPHONE
     [MSIDKeychainTokenCache reset];
-    
+
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
     MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
-    
+
     MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor] factory:[MSIDAADV1Oauth2Factory new]];
-    
+
     self.tokenCache = legacyTokenCacheAccessor;
     self.msalTokenCache = defaultTokenCacheAccessor;
 #else
@@ -110,7 +96,7 @@ const int sAsyncContextTimeout = 10;
 - (void)tearDown
 {
     [super tearDown];
-    
+
     [ADTelemetry sharedInstance].piiEnabled = NO;
 }
 
@@ -121,11 +107,11 @@ const int sAsyncContextTimeout = 10;
                                          validateAuthority:NO
                                                      error:nil];
     context.tokenCache = self.tokenCache;
-    
+
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    
+
     [context setCorrelationId:TEST_CORRELATION_ID];
-    
+
     return context;
 }
 
@@ -149,12 +135,12 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNotNil(result.error);
         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
         ADTAssertContains(result.error.errorDetails, @"resource");
-        
+
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     expectation = [self expectationWithDescription:@"acquireToken with invalid resource should return error."];
     [context acquireTokenWithResource:@"   "
                              clientId:TEST_CLIENT_ID
@@ -166,17 +152,17 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"resource");
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testBadClientId
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireToken without clientId should return error."];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:nil
@@ -189,12 +175,12 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          XCTAssertNil(result.authority);
          ADTAssertContains(result.error.errorDetails, @"clientId");
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     expectation = [self expectationWithDescription:@"acquireToken with invalid clientId should return error."];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:@"    "
@@ -207,17 +193,17 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          XCTAssertNil(result.authority);
          ADTAssertContains(result.error.errorDetails, @"clientId");
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testInvalidBrokerRedirectURI
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Expectation"];
     [context setCredentialsType:AD_CREDENTIALS_AUTO];
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -230,17 +216,17 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI);
          XCTAssertNil(result.authority);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testBadExtraQueryParameters
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenWithResource with bad extra query parameters."];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
@@ -255,17 +241,17 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"extraQueryParameters");
          XCTAssertNil(result.authority);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testAssertionBadAssertion
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenForAssertion with bad assertion."];
     [context acquireTokenForAssertion:nil
                         assertionType:AD_SAML1_1
@@ -279,10 +265,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"assertion");
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
@@ -370,15 +356,15 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
 
     ADAuthenticationError *error = nil;
-    
+
     NSArray* allItems = [self.cacheDataSource allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
     XCTAssertEqual(allItems.count, 2);
-    
+
     ADTokenCacheItem* mrrtItem = nil;
     ADTokenCacheItem* atItem = nil;
-    
+
     // Pull the MRRT and AT items out of the cache
     for (ADTokenCacheItem * item in allItems)
     {
@@ -1677,108 +1663,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual(allItems.count, 0);
 }
 
-- (void)testAllowSilentRequestParameters
-{
-    XCTestExpectation* expectation = [self expectationWithDescription:@"requestToken"];
-    ADAuthenticationContext *context = [self getTestAuthenticationContext];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:nil
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
-    
-    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
-                                                                 requestParams:params
-                                                                    tokenCache:self.tokenCache
-                                                                         error:nil];
-    [req setSilent:YES];
-    [req setAllowSilentRequests:YES];
-
-    // Following we add a mock response and specify the request url we expect (it must include login_hint)
-    ADTestURLResponse* response = [ADTestURLResponse new];
-    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&prompt=none&resource=resource&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&nux=1&response_type=code&login_hint=eric_cartman%40contoso.com"]];
-    
-    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
-
-    // TODO: It doesn't make sense to be sending this content type, seeing how there is no body, but we're sending it anyways
-    headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
-    [response setRequestHeaders:headers];
-    [response setResponseURL:@"https://idontmatter.com" code:401 headerFields:@{}];
-    [ADTestURLSession addResponse:response];
-
-    // We send the actual silent network request
-    [req requestToken:^(ADAuthenticationResult *result)
-     {
-         // if request url is not expected,
-         // our network mock will fail the unit test and it won't hit here
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_FAILED);
-         XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
-         XCTAssertNil(result.authority);
-
-         [expectation fulfill];
-     }];
-
-    [self waitForExpectations:@[expectation] timeout:1];
-}
-
-- (void)testAllowSilentRequestParameters_whenAuthCodeReturned_shouldSucceed
-{
-    XCTestExpectation* expectation = [self expectationWithDescription:@"requestToken"];
-    ADAuthenticationContext *context = [self getTestAuthenticationContext];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:TEST_CORRELATION_ID
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
-    
-    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
-                                                                 requestParams:params
-                                                                    tokenCache:self.tokenCache
-                                                                         error:nil];
-    [req setSilent:YES];
-    [req setAllowSilentRequests:YES];
-
-    // Add a mock response returning auth code for the allowSilent request
-    ADTestURLResponse* response = [ADTestURLResponse new];
-    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?prompt=none&response_type=code&login_hint=eric_cartman%40contoso.com&resource=resource&nux=1&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76"]];
-    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
-    headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
-    [response setRequestHeaders:headers];
-    [response setResponseURL:[NSString stringWithFormat:@"%@?code=fake_auth_code", TEST_REDIRECT_URL_STRING]
-                        code:401
-                headerFields:@{}];
-    [ADTestURLSession addResponse:response];
-
-    // Add a mock response returning tokens
-    [ADTestURLSession addResponse:[self adResponseAuthCode:@"fake_auth_code"
-                                                 authority:context.authority
-                                             correlationId:TEST_CORRELATION_ID]];
-
-    // We send the actual silent network request
-    [req requestToken:^(ADAuthenticationResult *result)
-     {
-         // Should succeed
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         XCTAssertNil(result.error);
-         XCTAssertNotNil(result.tokenCacheItem);
-
-         [expectation fulfill];
-     }];
-
-    [self waitForExpectations:@[expectation] timeout:1];
-}
-
 - (void)testAcquireTokenInteractive_whenCapabilitiesAndClaimsPassed_shouldPassClaimsToServer
 {
     NSString *authority = TEST_AUTHORITY;
@@ -1816,16 +1700,12 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
     XCTAssertNotNil(context);
 
-    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
-    [ADTestAuthenticationViewController onLoadRequest:^(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate) {
-        XCTAssertNotNil(urlRequest);
+    // Add a specific error as mock response to webview controller
+    NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
+    MSIDWebviewResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithURL:endURL context:nil error:nil];
+    [ADTestWebAuthController setResponse:aadResponse];
 
-        NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
-        [delegate webAuthDidCompleteWithURL:endURL];
-        [expectation1 fulfill];
-    }];
-
-    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire token"];
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
 
     NSString *claims = @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D";
 
@@ -1843,10 +1723,10 @@ const int sAsyncContextTimeout = 10;
 
                           XCTAssertNotNil(result);
                           XCTAssertEqual(result.status, AD_SUCCEEDED);
-                          [expectation2 fulfill];
+                          [expectation fulfill];
     }];
 
-    [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
+    [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
 - (void)testSkipCacheRequestParameters_whenSkipCacheIsNotSet_shouldNotSkipCache
@@ -1854,22 +1734,20 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireToken"];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:nil
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
-
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.resource = TEST_RESOURCE;
+    params.clientId = TEST_CLIENT_ID;
+    params.redirectUri = TEST_REDIRECT_URL.absoluteString;
+    params.identifier = [ADUserIdentifier identifierWithId:TEST_USER_ID];
+    params.extendedLifetime = NO;
+    
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
 
     // No skipCache is set, cached item should be found
-    
+
     ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
                                                                  requestParams:params
                                                                     tokenCache:self.tokenCache
@@ -1887,20 +1765,20 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+
 - (void)testSkipCacheRequestParameters_whenSkipCacheIsSet_shouldSkipCache
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireToken"];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:nil
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
+    
+    ADRequestParameters *params = [ADRequestParameters new];
+    params.authority = context.authority;
+    params.resource = TEST_RESOURCE;
+    params.clientId = TEST_CLIENT_ID;
+    params.redirectUri = TEST_REDIRECT_URL.absoluteString;
+    params.identifier = [ADUserIdentifier identifierWithId:TEST_USER_ID];
+    params.extendedLifetime = NO;
 
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
@@ -1914,7 +1792,7 @@ const int sAsyncContextTimeout = 10;
     [req setSkipCache:YES];
 
     // Add a specific error as mock response to webview controller
-    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    [ADTestWebAuthController setError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
 
     [req acquireToken:@"123"
       completionBlock:^(ADAuthenticationResult *result)
@@ -1943,7 +1821,7 @@ const int sAsyncContextTimeout = 10;
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
 
     // Add a specific error as mock response to webview controller
-    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    [ADTestWebAuthController setError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
 
     // "claims" is passed in, cache should be skipped and webview controller should be hit
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -2162,6 +2040,7 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
+
     XCTAssertNil(error);
 
     // Add an MRRT to the cache as well
@@ -2334,6 +2213,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
+    item.expiresOn = [NSDate date];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
 
@@ -2385,6 +2265,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
 
     ADTokenCacheItem* item = [self adCreateATCacheItem];
+    item.expiresOn = [NSDate date];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
 
@@ -2411,7 +2292,7 @@ const int sAsyncContextTimeout = 10;
     [ADTestURLSession addResponse:tokenResponse];
 
     // Add a specific error as mock response to webview controller
-    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    [ADTestWebAuthController setError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
 
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithClaims"];
 
@@ -2547,14 +2428,15 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+
 - (void)testAcquireToken_whenDuplicateClaimsIsPassedInEQP_shouldReturnError
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithResource"];
 
     // Add a specific error as mock response to webview controller
-    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
-
+    [ADTestWebAuthController setError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
@@ -2668,7 +2550,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"refresh token from server"
                                                 newAccessToken:@"access token from server"
                                                     newIDToken:[self adDefaultIDToken]];
-    
+
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                        MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
@@ -2677,9 +2559,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2716,7 +2598,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"refresh token from server"
                                                 newAccessToken:@"access token from server"
                                                     newIDToken:[self adDefaultIDToken]];
-    
+
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                        MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
@@ -2725,9 +2607,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2795,9 +2677,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2826,7 +2708,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
-    
+
     [context acquireTokenWithRefreshToken:nil
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2839,10 +2721,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
@@ -2851,13 +2733,13 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
-    
+
     // Add an AT and an MRRT to the cache
     [self.cacheDataSource addOrUpdateItem:[self adCreateATCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     // the request should be using refresh token from developer
     ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
@@ -2867,7 +2749,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"refresh token from server"
                                                 newAccessToken:@"access token from server"
                                                     newIDToken:[self adDefaultIDToken]];
-    
+
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                        MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
@@ -2876,9 +2758,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2895,10 +2777,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"refresh token from server");
          XCTAssertEqualObjects(result.tokenCacheItem.resource, TEST_RESOURCE);
          XCTAssertEqualObjects(result.tokenCacheItem.clientId, TEST_CLIENT_ID);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
@@ -2906,7 +2788,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
-    
+
     // the request should be using refresh token from developer
     ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
@@ -2916,7 +2798,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"refresh token from server"
                                                 newAccessToken:@"access token from server"
                                                     newIDToken:[self adDefaultIDToken]];
-    
+
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                        MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
@@ -2925,9 +2807,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -2939,15 +2821,15 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertEqualObjects(result.accessToken, @"access token from server");
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     // make a silent call again to see if tokens are stored properly
     expectation = [self expectationWithDescription:@"acquireTokenSilent"];
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -2961,10 +2843,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.accessToken, @"access token from server");
          XCTAssertEqualObjects(result.tokenCacheItem.resource, TEST_RESOURCE);
          XCTAssertEqualObjects(result.tokenCacheItem.clientId, TEST_CLIENT_ID);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
@@ -2973,11 +2855,11 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
-    
+
     // Add an MRRT to the cache
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     // Network Response to reject developer's refresh token
     ADTestURLResponse *response = [self adResponseBadRefreshToken:@"refresh token from developer"
                                                         authority:TEST_AUTHORITY
@@ -2987,7 +2869,7 @@ const int sAsyncContextTimeout = 10;
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
                                                     requestParams:nil];
-    
+
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                        MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
@@ -2996,9 +2878,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -3012,12 +2894,12 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.error.protocolCode, @"invalid_grant");
          XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     // Refresh token in cache should not be deleted because the token itself is different from
     // the one provided by developer
     ADTokenCacheItem *rtInCache = [self.cacheDataSource getItemWithKey:[self.adCreateMRRTCacheItem extractKey:nil]  userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
@@ -3028,7 +2910,7 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
-    
+
     // the request should be using refresh token from developer
     ADTestURLResponse *response = [self adResponseRefreshToken:@"refresh token from developer"
                                                      authority:TEST_AUTHORITY
@@ -3038,7 +2920,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"refresh token from server"
                                                 newAccessToken:@"access token from server"
                                                     newIDToken:[self adDefaultIDToken]];
-    
+
     // explicitly set scope=open as the required field in request body
     [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
                                        MSID_OAUTH2_REFRESH_TOKEN : @"refresh token from developer",
@@ -3047,9 +2929,9 @@ const int sAsyncContextTimeout = 10;
                                        MSID_OAUTH2_SCOPE : MSID_OAUTH2_SCOPE_OPENID_VALUE,
                                        MSID_OAUTH2_CLIENT_INFO: @"1"
                                        }];
-    
+
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenWithRefreshToken:@"refresh token from developer"
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
@@ -3062,10 +2944,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertEqual(result.error.domain, ADAuthenticationErrorDomain);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_WRONG_USER);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
@@ -3095,7 +2977,7 @@ const int sAsyncContextTimeout = 10;
                       newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     [ADTestURLSession addResponse:mrrtResponse];
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -3111,7 +2993,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 #endif
@@ -3122,12 +3004,12 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
-    
+
     // Add an MRRT to the cache as well
     ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
     [self.cacheDataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     // Set up the mock connection to reject the MRRT with a policy protection required error
     MSIDTestURLResponse *response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
                                                           authority:TEST_AUTHORITY
@@ -3137,9 +3019,8 @@ const int sAsyncContextTimeout = 10;
                                                       oauthSubError:@"protection_policy_required"
                                                       correlationId:TEST_CORRELATION_ID
                                                       requestParams:nil];
-    
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -3153,9 +3034,9 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.error.userInfo[ADUserIdKey], TEST_USER_ID);
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     // The MRRT should still be in the cache
     NSArray* allItems = [self.cacheDataSource allItems:&error];
     XCTAssertNotNil(allItems);
@@ -3170,14 +3051,14 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError *error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithMrrtByMsal"];
-    
+
     BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
                                                       response:[self adCreateV2TokenResponse]
                                                        context:nil
                                                          error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
-    
+
     // Set up the mock connection to reject the MRRT with a policy protection required error
     MSIDTestURLResponse *response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
                                                           authority:TEST_AUTHORITY
@@ -3187,9 +3068,8 @@ const int sAsyncContextTimeout = 10;
                                                       oauthSubError:@"protection_policy_required"
                                                       correlationId:TEST_CORRELATION_ID
                                                       requestParams:nil];
-    
     [ADTestURLSession addResponse:response];
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -3204,7 +3084,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.error.userInfo[ADUserIdKey], TEST_USER_ID);
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 #endif
@@ -3214,18 +3094,18 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError *error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
-    
+
     // Add a valid access token to the cache
     ADTokenCacheItem *item = [self adCreateATCacheItem];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     // Add an MRRT to the cache as well
     [self.cacheDataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]]];
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -3239,20 +3119,20 @@ const int sAsyncContextTimeout = 10;
          XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
          XCTAssertEqualObjects(result.accessToken, @"new access token");
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     NSArray *allItems = [self.cacheDataSource allItems:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(allItems);
     XCTAssertEqual(allItems.count, 2);
-    
+
     ADTokenCacheItem *mrrtItem = nil;
     ADTokenCacheItem *atItem = nil;
-    
+
     // Pull the MRRT and AT items out of the cache
     for (ADTokenCacheItem  *item in allItems)
     {
@@ -3265,13 +3145,13 @@ const int sAsyncContextTimeout = 10;
             atItem = item;
         }
     }
-    
+
     XCTAssertNotNil(mrrtItem);
     XCTAssertNotNil(atItem);
-    
+
     XCTAssertNil(atItem.refreshToken);
     XCTAssertNil(mrrtItem.accessToken);
-    
+
     // Make sure the tokens got updated
     XCTAssertEqualObjects(atItem.accessToken, @"new access token");
     XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
@@ -3282,12 +3162,12 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError *error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
-    
+
     // Add a valid access token to the cache
     ADTokenCacheItem *item = [self adCreateATCacheItem];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -3299,10 +3179,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
@@ -3311,14 +3191,14 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError *error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
-    
+
     // Add a valid access token and single resource RT to the cache
     ADTokenCacheItem *item = [self adCreateCacheItem];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
-    
+
     [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token" newIDToken:[self adDefaultIDToken]]];
-    
+
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
@@ -3333,10 +3213,10 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqualObjects(result.accessToken, @"new access token");
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new refresh token");
          XCTAssertEqualObjects(result.authority, TEST_AUTHORITY);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 

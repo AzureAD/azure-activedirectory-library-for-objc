@@ -202,8 +202,9 @@
     XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_VERSION)], [MSIDDeviceId applicationVersion]);//Oii
 #endif
     // expect hashed Pii
-    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [[[[MSIDDeviceId deviceTelemetryId] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
-    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [[[TEST_USER_ID dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
+    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [NSString msidHexStringFromData:[[[MSIDDeviceId deviceTelemetryId] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256]]);//Pii
+    XCTAssertEqualObjects([event objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)],
+                          [NSString msidHexStringFromData:[[TEST_USER_ID dataUsingEncoding:NSUTF8StringEncoding] msidSHA256]]);//Pii
 }
 
 - (void)testAcquireTokenTelemetry_whenPiiDisabledAndAggregrationOn_shouldReturnOneEventWithoutPii
@@ -330,8 +331,10 @@
     XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_APPLICATION_VERSION)], [MSIDDeviceId applicationVersion]);//Oii
 #endif
     // expect hashed Pii
-    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)], [[[[MSIDDeviceId deviceTelemetryId] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
-    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [[[TEST_USER_ID dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString]);//Pii
+    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_DEVICE_ID)],
+                          [NSString msidHexStringFromData:
+                           [[[MSIDDeviceId deviceTelemetryId] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256]]);//Pii
+    XCTAssertEqualObjects([apiEvent objectForKey:TELEMETRY_KEY(MSID_TELEMETRY_KEY_USER_ID)], [NSString msidHexStringFromData:[[TEST_USER_ID dataUsingEncoding:NSUTF8StringEncoding] msidSHA256]]);//Pii
 }
 
 - (void)testAcquireTokenTelemetry_whenPiiDisabledAndAggregrationOff_shouldReturnEventsWithoutPii

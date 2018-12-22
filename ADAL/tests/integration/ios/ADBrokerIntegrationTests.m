@@ -46,6 +46,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADEnrollmentGateway.h"
 #import "ADEnrollmentGateway+TestUtil.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface ADEnrollmentGateway ()
 
@@ -107,7 +108,7 @@
           @"client_app_version": @"1.0"
           };
         
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
@@ -203,7 +204,7 @@
           @"client_app_version": @"1.0"
           };
         
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
@@ -259,7 +260,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectations:@[expectation] timeout:1.0];
+    [self waitForExpectations:@[expectation] timeout:500.0];
     
     ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
     
@@ -396,7 +397,7 @@
           @"client_app_version": @"1.0"
           };
         
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
@@ -507,7 +508,7 @@
           @"client_app_version": @"1.0"
           };
         
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
@@ -625,7 +626,7 @@
           @"client_app_version": @"1.0"
           };
 
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
@@ -715,7 +716,7 @@
           @"client_app_version": @"1.0"
           };
 
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
@@ -818,7 +819,7 @@
           @"client_app_version": @"1.0"
           };
 
-        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [NSString msidWWWFormURLEncodedStringFromDictionary:expectedParams]];
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
 
@@ -879,18 +880,18 @@
 {
     NSDictionary* message = [ADBrokerIntegrationTests createV2BrokerResponseDicitonary:parameters];
     
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidWWWFormURLEncode]]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [NSString msidWWWFormURLEncodedStringFromDictionary:message]]];
 }
 
 + (NSURL *)createV2BrokerErrorResponse:(NSDictionary *)parameters
                            redirectUri:(NSString *)redirectUri
 {
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [parameters msidWWWFormURLEncode]]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [NSString msidWWWFormURLEncodedStringFromDictionary:parameters]]];
 }
 
 + (NSDictionary *) createV2BrokerResponseDicitonary:(NSDictionary *) parameters
 {
-    NSData *payload = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *payload = [[NSString msidWWWFormURLEncodedStringFromDictionary:parameters] dataUsingEncoding:NSUTF8StringEncoding];
     NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
 
     size_t bufferSize = [payload length] + kCCBlockSizeAES128;

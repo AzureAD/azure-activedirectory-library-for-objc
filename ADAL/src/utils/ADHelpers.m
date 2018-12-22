@@ -284,7 +284,8 @@
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        MSID_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:[NSURL URLWithString:authority]] ? [NSURL URLWithString:authority].host : @"unknown host");
+        NSURL *authorityUrl = [NSURL URLWithString:authority];
+        MSID_LOG_WARN(nil, @" The authority is not a valid URL - authority host: %@", [ADAuthorityUtils isKnownHost:authorityUrl] ? authorityUrl.host : @"unknown host");
         MSID_LOG_WARN_PII(nil, @" The authority is not a valid URL authority: %@", authority);
 
         return nil;

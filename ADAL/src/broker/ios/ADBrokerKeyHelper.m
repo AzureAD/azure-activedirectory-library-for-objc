@@ -28,9 +28,9 @@
 #import "ADBrokerKeyHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
-#import "ADPkeyAuthHelper.h"
 #import "MSIDOAuth2Constants.h"
 #import "ADHelpers.h"
+#import "MSIDPkeyAuthHelper.h"
 #import "NSData+MSIDExtensions.h"
 
 static NSData* s_symmetricKeyOverride = nil;
@@ -287,7 +287,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 + (void)setSymmetricKey:(NSString *)base64Key
 {
-    s_symmetricKeyOverride = base64Key ? [NSData msidDataFromBase64UrlEncodedString:base64Key] : nil;
+    s_symmetricKeyOverride = base64Key ?  [NSData msidDataFromBase64UrlEncodedString:base64Key] : nil;
 }
 
 + (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(ADAuthenticationError * __autoreleasing *)error
@@ -329,7 +329,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 
     //now compute the hash on the unencrypted data
-    NSString *actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
+    NSString *actualHash = [MSIDPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
     if(![hash isEqualToString:actualHash])
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);

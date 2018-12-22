@@ -25,14 +25,15 @@
 #import "ADWebAuthResponse.h"
 #import "ADWebResponse.h"
 #import "ADWebAuthRequest.h"
-#import "ADWorkplaceJoinConstants.h"
-#import "ADPKeyAuthHelper.h"
 #import "ADClientMetrics.h"
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDPkeyAuthHelper.h"
 #import "NSError+MSIDExtensions.h"
 
 @implementation ADWebAuthResponse
+
+static NSString *const kPKeyAuthName = @"PKeyAuth";
 
 + (void)processError:(NSError *)error
              request:(ADWebAuthRequest *)request
@@ -240,9 +241,9 @@
     
     if (statusCode == 400 || statusCode == 401)
     {
-        NSString *wwwAuthValue = [webResponse.headers valueForKey:kADALWwwAuthenticateHeader];
+        NSString *wwwAuthValue = [webResponse.headers valueForKey:@"WWW-Authenticate"];
         
-        if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
+        if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kPKeyAuthName])
         {
             [self handlePKeyAuthChallenge:wwwAuthValue
                                completion:completionBlock];
@@ -326,7 +327,7 @@
                      completion:(ADWebResponseCallback)completionBlock
 {
     //pkeyauth word length=8 + 1 whitespace
-    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[kADALPKeyAuthName length] + 1];
+    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[kPKeyAuthName length] + 1];
     
     NSDictionary* authHeaderParams = [ADWebAuthResponse parseAuthHeader:wwwAuthHeaderValue];
     
@@ -337,10 +338,10 @@
     }
     
     ADAuthenticationError* adError = nil;
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:[[_request URL] absoluteString]
-                                                        challengeData:authHeaderParams
-                                                              context:_request
-                                                                error:&adError];
+    NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[[_request URL] absoluteString]
+                                                          challengeData:authHeaderParams
+                                                                context:_request
+                                                                  error:&adError];
     
     if (!authHeader)
     {

@@ -127,7 +127,7 @@
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
 
     [self acquireToken:config];
-    [self assertError:@"AD_ERROR_DEVELOPER_INVALID_ARGUMENT"];
+    [self assertErrorCode:@"AD_ERROR_DEVELOPER_INVALID_ARGUMENT"];
 }
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADFSv3

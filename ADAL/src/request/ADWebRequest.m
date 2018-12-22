@@ -31,7 +31,6 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryHttpEvent.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "ADURLProtocol.h"
 #import "ADWebResponse.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDDeviceId.h"
@@ -173,9 +172,7 @@
     request.HTTPMethod          = _isGetRequest ? @"GET" : @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
-    
-    [ADURLProtocol addContext:self toRequest:request];
-    
+
     _task = [_session dataTaskWithRequest:request];
     [_task resume];
 }
@@ -251,8 +248,7 @@
     }
 
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-    [ADURLProtocol addContext:self toRequest:mutableRequest];
-    
+   
     completionHandler(mutableRequest);
   
 }

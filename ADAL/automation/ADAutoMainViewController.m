@@ -75,6 +75,10 @@
     {
         [self showPassedInWebViewControllerWithContext:context];
     }
+    else
+    {
+        context.webView = nil;
+    }
 
     if (parameters[@"use_broker"])
     {
@@ -188,7 +192,6 @@
                           completionBlock:^(ADAuthenticationResult *result)
          {
              dispatch_async(dispatch_get_main_queue(), ^{
-                 [weakSelf dismissPassedInWebViewController];
                  [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
              });
          }];
@@ -220,13 +223,14 @@
                                        clientId:parameters[@"client_id"]
                                     redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                                          userId:parameters[@"user_identifier"]
+                                         claims:parameters[@"claims"]
                                 completionBlock:^(ADAuthenticationResult *result) {
 
                                     dispatch_async(dispatch_get_main_queue(), ^{
                                         [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
                                     });
-        }];
 
+        }];
     };
 
     [self showRequestDataViewWithCompletionHandler:completionBlock];
@@ -267,6 +271,15 @@
         count++;
     }
 
+    // Clear WKWebView cookies
+
+    NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
+                                               modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+                                           completionHandler:^{
+                                               NSLog(@"Completed!");
+                                           }];
+
     [self showResultViewWithResult:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)count] logs:_resultLogs];
 }
 
@@ -295,8 +308,8 @@
         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
-
-        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] context:nil error:nil];
+        
+        __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
 
         NSArray *aliases = nil;
 
@@ -497,7 +510,7 @@
                                      clientId:parameters[@"client_id"]
                                   redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                               completionBlock:^(ADAuthenticationResult *result) {
-
+                                  
                                   dispatch_async(dispatch_get_main_queue(), ^{
                                       [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
                                   });
@@ -620,6 +633,7 @@
     if(result.error){
         [resultDict setValue:result.error.errorDetails forKey:@"error"];
         [resultDict setValue:result.error.description forKey:@"error_description"];
+        [resultDict setValue:[ADAuthenticationError stringForADErrorCode:result.error.code] forKey:@"error_code"];
     }
     else {
         NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";

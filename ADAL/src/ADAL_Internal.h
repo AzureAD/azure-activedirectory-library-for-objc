@@ -25,9 +25,10 @@
 // version in static define until we identify a better place.
 // (Note: All Info.plist files read version numbers from the following three lines
 // through build script. Don't change its format unless changing build script as well.)
-#define ADAL_VER_HIGH       2
-#define ADAL_VER_LOW        7
-#define ADAL_VER_PATCH      7
+
+#define ADAL_VER_HIGH       4
+#define ADAL_VER_LOW        0
+#define ADAL_VER_PATCH      0
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -59,22 +60,12 @@
 
 @class ADAuthenticationResult;
 @class MSIDTokenResponse;
+@class MSIDWebviewResponse;
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^MSIDAuthorizationCodeCallback)(MSIDWebviewResponse *response, ADAuthenticationError *error);
 typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADAuthenticationError *error);
-
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
-
 
 #import "ADAuthenticationRequest.h"
 

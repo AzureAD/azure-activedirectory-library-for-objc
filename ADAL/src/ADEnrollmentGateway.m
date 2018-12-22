@@ -26,6 +26,8 @@
 #import "ADAuthenticationError+Internal.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
 #import "MSIDAADAuthority.h"
 
 // Keys for Intune Enrollment ID
@@ -201,9 +203,9 @@ static NSString *s_intuneResourceJSON = nil;
     NSError *internalError = nil;
     id resources = [NSJSONSerialization JSONObjectWithData:[resourceJSON dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&internalError];
 
-    if (internalError  || !resources)
+    if (internalError || !resources)
     {
-        if(error)
+        if (error)
         {
             *error = [ADAuthenticationError errorFromNSError:internalError
                                                       errorDetails:[NSString stringWithFormat:@"Could not de-serialize Intune Resource JSON: <%@>", internalError.description]
@@ -213,7 +215,7 @@ static NSString *s_intuneResourceJSON = nil;
     }
     else if (![resources isKindOfClass:[NSDictionary class]])
     {
-        if(error)
+        if (error)
         {
             *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                   protocolCode:nil
@@ -235,16 +237,14 @@ static NSString *s_intuneResourceJSON = nil;
         }
         return nil;
     }
-
-
+    
     NSArray<NSURL *> *aliases = [[ADAuthorityValidation sharedInstance].aadCache cacheAliasesForAuthority:authority];
 
-    for(NSURL *alias in aliases)
+    for (NSURL *alias in aliases)
     {
         NSString *host = [alias msidHostWithPortIfNecessary];
 
-        if(resources[host])
-            return resources[host];
+        if (resources[host]) return resources[host];
     }
 
     return nil;

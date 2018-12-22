@@ -95,7 +95,7 @@
                                    };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
@@ -166,7 +166,7 @@
     NSDictionary *silentConfig = @{@"client_id": self.testConfiguration.clientId};
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
@@ -238,14 +238,14 @@
                                    };
 
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
                      @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
                      };
     [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     silentConfig = @{@"user_identifier": self.primaryAccount.username,

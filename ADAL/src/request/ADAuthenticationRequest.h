@@ -52,16 +52,13 @@
     ADRequestParameters* _requestParams;
     
     ADPromptBehavior _promptBehavior;
-    
-    NSString* _queryParams;
-    
+
     NSString* _refreshTokenCredential;
     
     NSString* _samlAssertion;
     ADAssertionType _assertionType;
     
     BOOL _silent;
-    BOOL _allowSilent;
     BOOL _skipCache;
     
     NSString* _logComponent;
@@ -112,7 +109,6 @@
 #if AD_BROKER
 - (NSString*)redirectUri;
 - (void)setRedirectUri:(NSString*)redirectUri;
-- (void)setAllowSilentRequests:(BOOL)allowSilent;
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential;
 #endif
 - (void)setSamlAssertion:(NSString*)samlAssertion;

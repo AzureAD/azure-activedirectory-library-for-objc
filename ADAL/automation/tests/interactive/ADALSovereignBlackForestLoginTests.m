@@ -77,7 +77,7 @@
     [self assertAuthUIAppear];
 
     [self closeAuthUI];
-    [self assertError:@"AD_ERROR_UI_USER_CANCEL"];
+    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
     [self closeResultView];
 
     // First try silent with WW authority
@@ -91,7 +91,7 @@
     config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
     [self acquireTokenSilent:config];
 
-    [self assertError:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     // Now try silent with correct authority - #296889

@@ -28,7 +28,6 @@
 #import "ADTokenCacheItem.h"
 #import "ADTokenCacheKey.h"
 #import "ADUserInformation.h"
-#import "ADWorkplaceJoinUtil.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"

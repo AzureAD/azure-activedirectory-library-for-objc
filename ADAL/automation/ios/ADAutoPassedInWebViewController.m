@@ -21,36 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#else
-#import <Cocoa/Cocoa.h>
+#import "ADAutoPassedInWebViewController.h"
+#import "ADWebAuthController.h"
 #import <WebKit/WebKit.h>
-#endif
-#import "ADALAutomation.h"
 
-@class ADAutoRequestViewController;
-@class ADAutoWebViewController;
-@class ADAuthenticationContext;
-@protocol ADTokenCacheDataSource;
+@interface ADAutoPassedInWebViewController ()
+@property (weak, nonatomic) IBOutlet UIView *contentView;
+@end
 
-#if TARGET_OS_IPHONE
-@interface ADAutoViewController : UIViewController
-#else
-@interface ADAutoViewController : NSViewController
-#endif
+@implementation ADAutoPassedInWebViewController
 
-@property (nonatomic) ADAutoRequestViewController *requestViewController;
-@property (nonatomic) ADAutoWebViewController *webViewController;
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+}
 
-- (void)showActionSelectionView;
-- (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
-- (void)dismissPassedInWebViewController;
-- (id<ADTokenCacheDataSource>)cacheDatasource;
-- (void)clearCache;
-- (void)clearKeychain;
-- (void)openURL:(NSURL *)url;
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    [self.contentView addSubview:self.passedInWebview];
+    self.passedInWebview.frame = CGRectMake(0, 0, self.contentView.frame.size.width, self.contentView.frame.size.height);
+}
+
+- (IBAction)cancelTapped:(id)sender {
+    
+    [self dismissViewControllerAnimated:YES completion:^{
+        [ADWebAuthController cancelCurrentWebAuthSession];
+    }];
+}
 
 @end

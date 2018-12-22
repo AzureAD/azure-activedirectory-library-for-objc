@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 extern NSString* kAdalResumeDictionaryKey;
 extern NSString* s_brokerAppVersion;
 extern NSString* s_brokerProtocolVersion;

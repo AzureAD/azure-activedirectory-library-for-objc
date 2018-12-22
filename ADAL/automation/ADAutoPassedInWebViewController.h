@@ -21,24 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADURLProtocol.h"
+#import "ADALAutomation.h"
 
-@class ADAuthenticationError;
+@interface ADAutoPassedInWebViewController : ADAutoViewController
 
-@interface ADNTLMHandler : NSObject <ADAuthMethodHandler>
-
-/* Handles a client authentication NTLM challenge by collecting user credentials. Returns YES,
- if the challenge has been handled. */
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                session:(NSURLSession *)session
-                   task:(NSURLSessionTask *)task
-               protocol:(ADURLProtocol *)protocol
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
-
-
-+ (BOOL)isChallengeCancelled;
-
-+ (void)setCancellationUrl:(NSString*) url;
+@property (nonatomic, weak) WKWebView *passedInWebview;
 
 @end

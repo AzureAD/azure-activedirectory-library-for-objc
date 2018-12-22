@@ -60,11 +60,13 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost
 {
+    //TODO: Replace with MSIDAADEndpointProvider method once available
     NSString *authorizationEndpoint = [authority.lowercaseString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX];
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};
+    
     NSString *endpoint = [NSString stringWithFormat:@"https://%@/%@?%@",
-                          trustedHost, MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data msidWWWFormURLEncode]];
+                          trustedHost, MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [NSString msidWWWFormURLEncodedStringFromDictionary:request_data]];
     
     return [NSURL URLWithString:endpoint];
 }

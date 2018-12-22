@@ -1,5 +1,5 @@
 
-# Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
+# Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and macOS
 =====================================
 
 | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
@@ -11,14 +11,15 @@ We recommend remaining up-to-date with the latest version of ADAL. The best plac
 
 The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
-NOTE: To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
-
+NOTE:
+- To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
+- WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
 =====================================
 
 
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
 
-The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
+The ADAL SDK for iOS and macOS gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
 
 ## Contribution History
 
@@ -28,7 +29,7 @@ The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work 
 
 ## Samples and Documentation
 
-We provide a full suite of [sample applications](https://github.com/AzureADSamples) and [documentation](http://cocoadocs.org/docsets/ADAL/) on GitHub to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
+We provide a full suite of [sample applications](https://github.com/AzureADSamples) and [documentation](http://cocoadocs.org/docsets/ADAL/) on GitHub to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, macOS, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
 
 Azure Identity samples for iOS is here: [https://github.com/AzureADSamples/NativeClient-iOS](https://github.com/AzureADSamples/NativeClient-iOS)
 
@@ -116,9 +117,9 @@ your application's bundle id.
 
 If you need to inspect the cache in your app, you can do it through the ADKeychainTokenCache interface.
 
-#### Mac OS X
+#### macOS
 
-Keychain is not directly supported by ADAL on Mac OS X. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persist tokens you must implement the ADTokenCacheDelegate and provide it on AuthenticationContext creation
+Keychain is not directly supported by ADAL on macOS. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persist tokens you must implement the ADTokenCacheDelegate and provide it on AuthenticationContext creation
 
 ```Objective-C
 @protocol ADTokenCacheDelegate <NSObject>

@@ -30,7 +30,8 @@
 #if TARGET_OS_IPHONE
 + (void)invokeBroker:(NSURL *)brokerURL
    completionHandler:(ADAuthenticationCallback)completion;
-+ (void)promptBrokerInstall:(NSURL *)redirectURL
+
++ (void)promptBrokerInstall:(NSURL *)appInstallLink
               brokerRequest:(NSURL *)brokerURL
           completionHandler:(ADAuthenticationCallback)completion;
 

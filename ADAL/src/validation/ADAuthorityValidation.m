@@ -36,9 +36,9 @@
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDAuthority.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDADFSAuthority.h"
-#import "MSIDAadAuthorityCacheRecord.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -154,7 +154,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     }
     
     // Check for AAD or ADFS
-     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:authorityURL context:nil error:nil];
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:authorityURL context:nil error:nil];
 
     if (adfsAuthority)
     {
@@ -208,7 +208,8 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 {
     // We first try to get a record from the cache, this will return immediately if it couldn't
     // obtain a read lock
-    MSIDAadAuthorityCacheRecord *record = [_aadCache objectForKey:authority.msidHostWithPortIfNecessary];
+    MSIDAuthorityCacheRecord *record = [_aadCache objectForKey:authority.msidHostWithPortIfNecessary];
+
     if (record)
     {
         completionBlock(record.validated, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError: record.error]);
@@ -310,21 +311,29 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
              return;
          }
 
+         if ([NSString msidIsStringNilOrBlank:response[@"tenant_discovery_endpoint"]])
+         {
+             NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"Unexpected discovery response", nil, nil, nil, requestParams.correlationId, nil);
+             completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
+             return;
+         }
+
          [_aadCache processMetadata:response[@"metadata"]
                openIdConfigEndpoint:[NSURL URLWithString:response[@"tenant_discovery_endpoint"]]
                           authority:authority
                             context:requestParams
-                         completion:^(BOOL result, NSError *error) {
+                         completion:^(BOOL result, NSError *error)
+          {
 
-                             if (!result)
-                             {
-                                 completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error]);
-                                 return;
-                             }
+              if (!result)
+              {
+                  completionBlock(NO, [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:error]);
+                  return;
+              }
 
-                             completionBlock(YES, nil);
+              completionBlock(YES, nil);
          }];
-    }];
+     }];
 }
 
 - (void)addInvalidAuthority:(NSString *)authorityString

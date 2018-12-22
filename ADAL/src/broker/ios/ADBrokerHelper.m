@@ -239,7 +239,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     [appPasteBoard setURL:url];
 }
 
-+ (void)promptBrokerInstall:(NSURL *)redirectURL
++ (void)promptBrokerInstall:(NSURL *)appInstallLink
               brokerRequest:(NSURL *)brokerRequest
           completionHandler:(ADAuthenticationCallback)completion
 {
@@ -250,15 +250,23 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
         return;
     }
     
-    NSString* query = [redirectURL query];
-    NSDictionary* queryParams = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:query];
-    NSString* appURLString = [queryParams objectForKey:@"app_link"];
-    __block NSURL* appURL = [NSURL URLWithString:appURLString];
-                        
+    if (!appInstallLink)
+    {
+        ADAuthenticationError *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
+                                                                              protocolCode:nil
+                                                                              errorDetails:[NSString stringWithFormat:@"appInstallLink is not valid - %@", appInstallLink.absoluteString]
+                                                                                  userInfo:nil
+                                                                             correlationId:nil];
+        
+        ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:nil];
+        completion(result);
+        return;
+    }
+
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     [self saveToPasteBoard:brokerRequest];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [ADAppExtensionUtil sharedApplicationOpenURL:appURL];
+        [ADAppExtensionUtil sharedApplicationOpenURL:appInstallLink];
     });
 }
 

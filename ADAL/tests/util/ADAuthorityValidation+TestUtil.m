@@ -28,7 +28,7 @@
 
 + (void)clearAadCache
 {
-    [[ADAuthorityValidation sharedInstance]->_aadCache removeAllObjects];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 }
 
 @end

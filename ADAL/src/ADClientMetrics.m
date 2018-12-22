@@ -60,7 +60,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 
 - (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
                 endpoint:(NSString *)endPoint
-{
+{    
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:endPoint] context:nil error:nil];
     BOOL isADFSInstance = adfsAuthority != nil;
 

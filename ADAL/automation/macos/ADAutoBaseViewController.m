@@ -21,21 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoViewController.h"
+#import "ADAutoBaseViewController.h"
 #import "ADAutoRequestViewController.h"
 #import "ADAutoResultViewController.h"
 #import "ADAL.h"
 #import "ADTokenCacheDataSource.h"
 #import "ADTokenCache.h"
 #import "ADTokenCache+Internal.h"
-#import "ADAutoWebViewController.h"
 #import "ADTestAppCache.h"
+#import "ADAutoPassedInWebViewController.h"
 
-@interface ADAutoViewController ()
+@interface ADAutoBaseViewController ()
 
 @end
 
-@implementation ADAutoViewController
+@implementation ADAutoBaseViewController
 
 - (void)showActionSelectionView
 {
@@ -73,15 +73,10 @@
 - (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context
 {
     [self selectTabViewAtIndex:3];
-    ADAutoWebViewController *webViewController = (ADAutoWebViewController *) [self viewControllerAtIndex:3];
-    [context setWebView:webViewController.webView];
-    self.webViewController = webViewController;
+    ADAutoPassedInWebViewController *webViewController = (ADAutoPassedInWebViewController *) [self viewControllerAtIndex:3];
+    [context setWebView:webViewController.passedInWebview];
 }
 
-- (void)dismissPassedInWebViewController
-{
-    self.webViewController = nil;
-}
 
 - (id<ADTokenCacheDataSource>)cacheDatasource
 {

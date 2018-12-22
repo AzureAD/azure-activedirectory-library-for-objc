@@ -1,3 +1,13 @@
+
+Version 4.0.0 (12.21.2018)
+-------------
+* Support any version of server telemetry (#1287)
+* Don't use certificate from identity when creating credential in clientTLS handler (#1286)
+* Use WKWebView instead of UIWebView for iOS and WebView for macOS (#1262)
+* Pass claims challenge to the token endpoint (#1274)
+* ADAL now supports iOS 10+ and macOS 10.11+ only
+* WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
+
 Version 2.7.7 (12.21.2018)
 -----------
 * Don't log ADAL version on load (#1359)
@@ -7,7 +17,7 @@ Version 2.7.7 (12.21.2018)
 Version 2.7.6 (29.11.2018)
 -----------
 * Don't dispatch ADAL callback to the main thread (#1350)
-* hanged teamIDHint to avoid conflicts with other SDKs
+* Changed teamIDHint to avoid conflicts with other SDKs
 
 Version 2.7.5 (11.02.2018)
 -----------

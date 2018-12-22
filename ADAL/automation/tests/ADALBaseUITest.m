@@ -88,24 +88,31 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 - (void)assertAuthUIAppear
 {
-#if TARGET_OS_IPHONE
-    XCUIElement *webView = self.testApp.otherElements[@"ADAL_SIGN_IN_WEBVIEW"].firstMatch;
-#else
-    XCUIElement *webView = self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].firstMatch;
-#endif
-    
+    XCUIElement *webView = [self.testApp.webViews elementBoundByIndex:0];
     BOOL result = [webView waitForExistenceWithTimeout:2.0];
     
     XCTAssertTrue(result);
 }
 
-- (void)assertError:(NSString *)error
+- (void)assertErrorCode:(NSString *)expectedErrorCode
+{
+    [self assertErrorContent:expectedErrorCode key:@"error_code"];
+}
+
+- (void)assertErrorDescription:(NSString *)errorDescription
 {
     NSDictionary *result = [self resultDictionary];
-    
-    XCTAssertNotEqual([result[@"error"] length], 0);
-    NSString *errorDescription = result[@"error_description"];
-    XCTAssertTrue([errorDescription containsString:error]);
+    NSString *actualContent = result[@"error_description"];
+    XCTAssertNotEqual([actualContent length], 0);
+    XCTAssertTrue([actualContent containsString:errorDescription]);
+}
+
+- (void)assertErrorContent:(NSString *)expectedContent key:(NSString *)key
+{
+    NSDictionary *result = [self resultDictionary];
+    NSString *actualContent = result[key];
+    XCTAssertNotEqual([actualContent length], 0);
+    XCTAssertEqualObjects(actualContent, expectedContent);
 }
 
 - (void)assertAccessTokenNotNil
@@ -283,9 +290,9 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)closeAuthUI
 {
 #if TARGET_OS_IPHONE
-     [self.testApp.navigationBars[@"ADAuthenticationView"].buttons[@"Cancel"] msidTap];
+    [[self.testApp.navigationBars elementBoundByIndex:0].buttons[@"Cancel"] msidTap];
 #else
-    [self.testApp.windows[@"ADAL_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
+    [self.testApp.windows[@"MSID_SIGN_IN_WINDOW"].buttons[XCUIIdentifierCloseWindow] click];
 #endif
 }
 
@@ -369,10 +376,15 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 - (void)openURL:(NSDictionary *)config
 {
     NSString *jsonString = [config toJsonString];
-    [self waitForElement:self.testApp.buttons[@"openUrlInSafari"]];
-    [self.testApp.buttons[@"openUrlInSafari"] msidTap];
-    [self waitForElement:self.testApp.textViews[@"requestInfo"]];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
+
+    XCUIElement *openURLButton = self.testApp.buttons[@"openUrlInSafari"];
+    [self waitForElement:openURLButton];
+    [openURLButton msidTap];
+
+    XCUIElement *requestInfoView = self.testApp.textViews[@"requestInfo"];
+    [self waitForElement:requestInfoView];
+
+    [requestInfoView msidTap];
     [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
     sleep(1);
     [self.testApp.buttons[@"Go"] msidTap];

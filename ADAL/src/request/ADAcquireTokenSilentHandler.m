@@ -45,6 +45,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "ADAuthenticationSettings.h"
 #import "MSIDAuthority.h"
+#import "NSData+MSIDExtensions.h"
+#import "MSIDADFSAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDClientCapabilitiesUtil.h"
@@ -133,7 +135,7 @@
 
     if (useOpenidConnect)
     {
-        request_data[MSID_OAUTH2_SCOPE] = _requestParams.openidScopesString;
+        request_data[MSID_OAUTH2_SCOPE] = _requestParams.openIdScopesString;
     }
     else
     {
@@ -213,7 +215,7 @@
 {
     NSString* grantType = @"refresh_token";
     
-    NSString* ctx = [[[[[NSUUID UUID] UUIDString] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256] msidHexString];
+    NSString* ctx = [NSString msidHexStringFromData:[[[[NSUUID UUID] UUIDString] dataUsingEncoding:NSUTF8StringEncoding] msidSHA256]];
     NSDictionary *header = @{
                              @"alg" : @"HS256",
                              @"typ" : @"JWT",

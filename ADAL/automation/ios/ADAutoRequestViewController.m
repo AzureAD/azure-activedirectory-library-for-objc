@@ -21,23 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
+#import "ADAutoRequestViewController.h"
 
-typedef enum
+@interface ADAutoRequestViewController ()
+
+@property (strong, nonatomic) IBOutlet UIButton *requestGo;
+
+@end
+
+@implementation ADAutoRequestViewController
+
+- (void)viewWillAppear:(BOOL)animated
 {
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
+    [super viewWillAppear:animated];
+    
+    self.requestInfo.text = nil;
+}
 
-@interface ADPkeyAuthHelper : NSObject
+- (IBAction)go:(id)sender
+{
+    self.requestInfo.editable = NO;
+    self.requestGo.enabled = NO;
+    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
 
-+ (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
-                                 challengeData:(nullable NSDictionary*)challengeData
-                                       context:(nullable id<MSIDRequestContext>)context
-                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-
-+ (nonnull NSString*)computeThumbprint:(nonnull NSData*)data
-                                isSha2:(BOOL)isSha2;
+    NSError* error = nil;
+    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (!params)
+    {
+        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, (long)error.code, error.localizedDescription];
+        
+        params = @{ @"error" : errorString };
+    }
+    
+    [self dismissViewControllerAnimated:NO completion:^{
+        self.completionBlock(params);
+    }];
+}
 
 @end

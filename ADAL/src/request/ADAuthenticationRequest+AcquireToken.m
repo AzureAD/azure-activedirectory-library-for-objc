@@ -48,6 +48,16 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDClientCapabilitiesUtil.h"
 
+#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDADFSAuthority.h"
+#import "MSIDAuthorityFactory.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDAppExtensionUtil.h"
+#endif
+
 @implementation ADAuthenticationRequest (AcquireToken)
 
 #pragma mark -
@@ -66,8 +76,11 @@
     
     NSString *logMessage = [NSString stringWithFormat:@"%@ idtype = %@", _silent ? @"Silent" : @"", [_requestParams.identifier typeAsString]];
     NSString *logMessagePII = [NSString stringWithFormat:@"resource = %@, clientId = %@, userId = %@", _requestParams.resource, _requestParams.clientId, _requestParams.identifier.userId];
-    if ([ADAuthorityUtils isKnownHost:[NSURL URLWithString:_requestParams.authority]]) {
-        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, [NSURL URLWithString:_requestParams.authority].host];
+    
+    NSURL *authorityUrl = [NSURL URLWithString:_requestParams.authority];
+    
+    if ([ADAuthorityUtils isKnownHost:authorityUrl]) {
+        logMessage = [NSString stringWithFormat:@"%@ authority host: %@", logMessage, authorityUrl.host];
     } else {
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
@@ -186,12 +199,12 @@
 
 - (BOOL)checkExtraQueryParameters
 {
-    if ([NSString msidIsStringNilOrBlank:_queryParams])
+    if ([NSString msidIsStringNilOrBlank:_requestParams.extraQueryParameters])
     {
         return YES;
     }
     
-    NSString* queryParams = _queryParams.msidTrimmedString;
+    NSString* queryParams = _requestParams.extraQueryParameters.msidTrimmedString;
     if ([queryParams hasPrefix:@"&"])
     {
         queryParams = [queryParams substringFromIndex:1];
@@ -209,7 +222,7 @@
     }
     
     // Make sure claims is not in EQP
-    NSDictionary *queryParamsDict = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:_queryParams];
+    NSDictionary *queryParamsDict = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:_requestParams.extraQueryParameters];
     if (queryParamsDict[@"claims"])
     {
         if (error)
@@ -221,7 +234,6 @@
         }
         return NO;
     }
-
     // Always skip access token cache if claims parameter is not nil/empty
     [_requestParams setForceRefresh:YES];
 
@@ -289,7 +301,7 @@
         return;
     }
 
-    if (_silent && !_allowSilent)
+    if (_silent)
     {
         
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -419,84 +431,46 @@
         }
     };
 
-    __block BOOL silentRequest = _allowSilent;
-    
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
     // Get the code first:
     [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORIZATION_CODE];
-    [self requestCode:^(NSString * code, ADAuthenticationError *error)
-     {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORIZATION_CODE
-                                                                        context:_requestParams];
-
-         if (error)
-         {
-             if (silentRequest)
-             {
-                 _allowSilent = NO;
-                 [self requestToken:completionBlock];
-                 return;
-             }
-             
-             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
-             : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
-             
-             [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? MSID_TELEMETRY_VALUE_CANCELLED:MSID_TELEMETRY_VALUE_FAILED];
-             [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-             completionBlock(result);
-         }
-         else
-         {
+    
+    [self requestCode:^(MSIDWebviewResponse *response, ADAuthenticationError *error) {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORIZATION_CODE
+                                                                       context:_requestParams];
+        
+        if (error)
+        {
+            ADAuthenticationResult *result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
+            : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+            
+            [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? MSID_TELEMETRY_VALUE_CANCELLED:MSID_TELEMETRY_VALUE_FAILED];
+            [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+            completionBlock(result);
+            return;
+        }
 #if TARGET_OS_IPHONE
-             if([code hasPrefix:@"msauth://"])
-             {
-                 [event setAPIStatus:@"try to prompt to install broker"];
-                 [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-                 
-                 ADAuthenticationError* error = nil;
-                 NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
-                 if (!brokerRequestURL)
-                 {
-                     ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
-                     [result setCloudAuthority:_cloudAuthority];
-                     completionBlock(result);
-                     return;
-                 }
-                 
-                 [ADBrokerHelper promptBrokerInstall:[NSURL URLWithString:code]
-                                       brokerRequest:brokerRequestURL
-                                   completionHandler:completionBlock];
-                 return;
-             }
-             else
+        if ([self processMSAuthResponse:response telemetryEvent:event completionHandler:completionBlock])
+        {
+            return;
+        }
 #endif
-             {
-                 [event setAPIStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
-                 [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-                 
-                 [[MSIDTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
-                 [self requestTokenByCode:code
-                          completionBlock:^(MSIDTokenResponse *response, ADAuthenticationError *error)
-                  {
-                      ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
-                                                                                      fromRefreshToken:nil
-                                                                                                 cache:self.tokenCache
-                                                                                                params:_requestParams];
-                      
-                      [result setCloudAuthority:_cloudAuthority];
-                      
-                      ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
-                                                                                     context:_requestParams];
-                      [event setGrantType:MSID_TELEMETRY_VALUE_BY_CODE];
-                      [event setResultStatus:[result status]];
-                      [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-                      
-                      completionBlock(result);
-                  }];
-             }
-         }
-     }];
+        
+        if ([self processOpenBrowserResponse:response telemetryEvent:event completionHandler:completionBlock])
+        {
+            return;
+        }
+        
+       if (![self processOAuthResponse:response telemetryEvent:event completionHandler:completionBlock])
+       {
+           ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Received invalid response" correlationId:_context.correlationId]];
+           [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+           [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+           
+           completionBlock(result);
+       }
+    }];
 }
 
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
@@ -527,9 +501,9 @@
     {
         [requestData setValue:_requestParams.scopesString forKey:MSID_OAUTH2_SCOPE];
     }
-
-     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
-     BOOL isADFSInstance = adfsAuthority != nil;
+    
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
+    BOOL isADFSInstance = adfsAuthority != nil;
 
     if (!isADFSInstance)
     {
@@ -577,5 +551,141 @@
          completionBlock(result);
      }];
 }
+
+#if TARGET_OS_IPHONE
+- (BOOL)processMSAuthResponse:(MSIDWebviewResponse *)response
+               telemetryEvent:(ADTelemetryAPIEvent *)event
+            completionHandler:(ADAuthenticationCallback)completionHandler
+{
+    if (![response isKindOfClass:MSIDWebMSAuthResponse.class])
+    {
+        return NO;
+    }
+    
+    [event setAPIStatus:@"try to prompt to install broker"];
+    [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+    
+    MSIDWebMSAuthResponse *authResponse = (MSIDWebMSAuthResponse *)response;
+    
+    ADAuthenticationError *error = nil;
+    NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
+    if (!brokerRequestURL)
+    {
+        ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+        [result setCloudAuthority:_cloudAuthority];
+        completionHandler(result);
+        return YES;
+    }
+    
+    [ADBrokerHelper promptBrokerInstall:[NSURL URLWithString:authResponse.appInstallLink]
+                          brokerRequest:brokerRequestURL
+                      completionHandler:completionHandler];
+    return YES;
+}
+#endif
+
+- (BOOL)processOpenBrowserResponse:(MSIDWebviewResponse *)response
+                    telemetryEvent:(ADTelemetryAPIEvent *)event
+                 completionHandler:(ADAuthenticationCallback)completionHandler
+{
+    if (![response isKindOfClass:MSIDWebOpenBrowserResponse.class])
+    {
+        return NO;
+    }
+    
+    NSURL *browserURL = ((MSIDWebOpenBrowserResponse *)response).browserURL;
+    
+    
+#if TARGET_OS_IPHONE
+    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+    {
+        MSID_LOG_INFO(nil, @"Opening a browser");
+        MSID_LOG_INFO_PII(nil, @"Opening a browser - %@", browserURL);
+
+        [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
+    }
+    else
+    {
+        ADAuthenticationError *error = [ADAuthenticationError errorWithDomain:ADAuthenticationErrorDomain
+                                                                         code:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
+                                                            protocolErrorCode:nil
+                                                                 errorDetails:ADInteractionNotSupportedInExtension
+                                                                correlationId:_requestParams.correlationId];
+        
+        ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+        
+        [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+        [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+        
+        completionHandler(result);
+        return YES;
+    }
+#else
+    [[NSWorkspace sharedWorkspace] openURL:browserURL];
+#endif
+    ADAuthenticationResult *result = [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId];
+    
+    [event setAPIStatus: MSID_TELEMETRY_VALUE_CANCELLED];
+    [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+    
+    completionHandler(result);
+    return YES;
+}
+
+- (BOOL)processOAuthResponse:(MSIDWebviewResponse *)response
+               telemetryEvent:(ADTelemetryAPIEvent *)event
+            completionHandler:(ADAuthenticationCallback)completionHandler
+{
+    if (![response isKindOfClass:MSIDWebOAuth2Response.class])
+    {
+        return NO;
+    }
+    
+    MSIDWebOAuth2Response *oauthResponse = (MSIDWebOAuth2Response *)response;
+    
+    if (oauthResponse.authorizationCode)
+    {
+        if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
+        {
+            [self setCloudInstanceHostname:((MSIDWebAADAuthResponse *)response).cloudHostName];
+        }
+        
+        [event setAPIStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
+        [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+        
+        [[MSIDTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
+        
+        [self requestTokenByCode:oauthResponse.authorizationCode
+                 completionBlock:^(MSIDTokenResponse *tokenResponse, ADAuthenticationError *error)
+         {
+             ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
+                                                                             fromRefreshToken:nil
+                                                                                        cache:self.tokenCache
+                                                                                       params:_requestParams];
+             
+             [result setCloudAuthority:_cloudAuthority];
+             
+             ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
+                                                                            context:_requestParams];
+             [event setGrantType:MSID_TELEMETRY_VALUE_BY_CODE];
+             [event setResultStatus:[result status]];
+             [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+             
+             completionHandler(result);
+         }];
+        return YES;
+    }
+    else
+    {
+        ADAuthenticationResult *result = [ADAuthenticationResult resultFromMSIDError:oauthResponse.oauthError];
+        
+        [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+        [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+        
+        completionHandler(result);
+        return YES;
+    }
+}
+
 
 @end
