@@ -87,7 +87,8 @@
         }
     }
 
-    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:success additionalInfo:@{@"expired_access_token_count": @(accessTokenCount)}];
+    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:success additionalInfo:nil];
+    result.actionCount = accessTokenCount;
     completionBlock(result);
 }
 

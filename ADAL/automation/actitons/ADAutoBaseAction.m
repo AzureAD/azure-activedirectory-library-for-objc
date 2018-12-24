@@ -25,6 +25,8 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomation.h"
+#import "MSIDAutomationErrorResult.h"
+#import "MSIDAutomationSuccessResult.h"
 #import <ADAL/ADAL.h>
 
 #if TARGET_OS_IPHONE
@@ -82,12 +84,40 @@
 
 - (MSIDAutomationTestResult *)testResultWithADALError:(NSError *)error
 {
-    return nil; // TODO
+    return [[MSIDAutomationErrorResult alloc] initWithAction:self.actionIdentifier error:error additionalInfo:nil];
 }
 
 - (MSIDAutomationTestResult *)testResultWithADALResult:(ADAuthenticationResult *)adalResult
 {
-    return nil; // TODO
+    if (adalResult.error)
+    {
+        return [self testResultWithADALError:adalResult.error];
+    }
+
+    MSIDAutomationUserInformation *userInfo = [MSIDAutomationUserInformation new];
+    userInfo.objectId = adalResult.tokenCacheItem.userInformation.userObjectId;
+    userInfo.tenantId = adalResult.tokenCacheItem.userInformation.tenantId;
+    userInfo.givenName = adalResult.tokenCacheItem.userInformation.givenName;
+    userInfo.familyName = adalResult.tokenCacheItem.userInformation.familyName;
+    userInfo.username = adalResult.tokenCacheItem.userInformation.userId;
+    userInfo.localAccountId = adalResult.tokenCacheItem.userInformation.uniqueId;
+
+    NSURL *authority = [NSURL URLWithString:adalResult.tokenCacheItem.authority];
+    userInfo.environment = authority.host;
+
+    long expiresOn = [adalResult.tokenCacheItem.expiresOn timeIntervalSince1970];
+
+    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithAction:self.actionIdentifier
+                                                                                  accessToken:adalResult.tokenCacheItem.accessToken
+                                                                                 refreshToken:adalResult.tokenCacheItem.refreshToken
+                                                                                      idToken:adalResult.tokenCacheItem.userInformation.rawIdToken
+                                                                                    authority:adalResult.authority
+                                                                                       target:adalResult.tokenCacheItem.resource
+                                                                                expiresOnDate:expiresOn
+                                                                                       isMRRT:adalResult.tokenCacheItem.isMultiResourceRefreshToken
+                                                                              userInformation:userInfo additionalInfo:nil];
+
+    return result;
 }
 
 - (id<ADTokenCacheDataSource>)cacheDatasource

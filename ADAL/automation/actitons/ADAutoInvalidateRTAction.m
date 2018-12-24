@@ -87,7 +87,8 @@
         }
     }
 
-    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:success additionalInfo:@{@"invalidated_refresh_token_count": @(refreshTokenCount)}];
+    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:success additionalInfo:nil];
+    result.actionCount = refreshTokenCount;
     completionBlock(result);
 }
 
