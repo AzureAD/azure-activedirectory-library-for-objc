@@ -56,6 +56,7 @@
                                       oauthError:(NSString *)oauthError
                                    oauthSubError:(NSString *)oauthSubError
                                    correlationId:(NSUUID *)correlationId
+                        additionalResponseParams:(NSDictionary *)additionalResponse
                                    requestParams:(NSDictionary *)requestParams;
 
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError;

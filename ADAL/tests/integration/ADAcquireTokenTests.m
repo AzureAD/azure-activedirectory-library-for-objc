@@ -1294,6 +1294,7 @@ const int sAsyncContextTimeout = 10;
                          oauthError:@"invalid_grant"
                       oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
+           additionalResponseParams:nil
                       requestParams:nil];
     
     ADTestURLResponse* mrrtResponse =
@@ -2235,6 +2236,7 @@ const int sAsyncContextTimeout = 10;
                                                        oauthError:@"interaction_required"
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
+                                         additionalResponseParams:nil
                                                     requestParams:@{MSID_OAUTH2_CLAIMS : decodedClaims}];
 
     [ADTestURLSession addResponse:response];
@@ -2288,6 +2290,7 @@ const int sAsyncContextTimeout = 10;
                          oauthError:@"interaction_required"
                       oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
+           additionalResponseParams:nil
                       requestParams:@{MSID_OAUTH2_CLAIMS : decodedClaims}];
 
     [ADTestURLSession addResponse:tokenResponse];
@@ -2668,6 +2671,7 @@ const int sAsyncContextTimeout = 10;
                                                        oauthError:@"invalid_grant"
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
+                                         additionalResponseParams:nil
                                                     requestParams:nil];
     
     // explicitly set scope=open as the required field in request body
@@ -2869,6 +2873,7 @@ const int sAsyncContextTimeout = 10;
                                                        oauthError:@"invalid_grant"
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
+                                         additionalResponseParams:nil
                                                     requestParams:nil];
 
     // explicitly set scope=open as the required field in request body
@@ -3020,6 +3025,7 @@ const int sAsyncContextTimeout = 10;
                                                          oauthError:@"unauthorized_client"
                                                       oauthSubError:@"protection_policy_required"
                                                       correlationId:TEST_CORRELATION_ID
+                                           additionalResponseParams:@{@"adi":TEST_USER_ID}
                                                       requestParams:nil];
     [ADTestURLSession addResponse:response];
 
@@ -3070,6 +3076,7 @@ const int sAsyncContextTimeout = 10;
                                                          oauthError:@"unauthorized_client"
                                                       oauthSubError:@"protection_policy_required"
                                                       correlationId:TEST_CORRELATION_ID
+                                           additionalResponseParams:@{@"adi":TEST_USER_ID}
                                                       requestParams:nil];
     [ADTestURLSession addResponse:response];
 

@@ -750,6 +750,7 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
                          oauthError:@"invalid_grant"
                       oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
+           additionalResponseParams:nil
                       requestParams:nil];
     
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);
