@@ -30,6 +30,7 @@
 #import "ADClientMetrics.h"
 #import "ADAuthorityValidation+TestUtil.h"
 #import "ADTestWebAuthController.h"
+#import "ADLogger.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
@@ -40,8 +41,8 @@
 - (void)setUp
 {
     [super setUp];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
 }
-
 
 - (void)tearDown
 {
