@@ -27,6 +27,12 @@
 #import "MSIDAutomation.h"
 #import <ADAL/ADAL.h>
 
+#if TARGET_OS_IPHONE
+#import "ADKeychainTokenCache+Internal.h"
+#else
+#import "ADTokenCache+Internal.h"
+#endif
+
 @implementation ADAutoBaseAction
 
 - (NSString *)actionIdentifier
@@ -82,6 +88,15 @@
 - (MSIDAutomationTestResult *)testResultWithADALResult:(ADAuthenticationResult *)adalResult
 {
     return nil; // TODO
+}
+
+- (id<ADTokenCacheDataSource>)cacheDatasource
+{
+#if TARGET_OS_IPHONE
+    return [ADKeychainTokenCache new];
+#else
+    return [ADTokenCache defaultCache];
+#endif
 }
 
 - (ADPromptBehavior)promptBehaviorForRequest:(MSIDAutomationTestRequest *)request

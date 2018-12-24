@@ -46,11 +46,6 @@
     return YES;
 }
 
-- (id<ADTokenCacheDataSource>)cacheDatasource
-{
-    return nil;
-}
-
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock

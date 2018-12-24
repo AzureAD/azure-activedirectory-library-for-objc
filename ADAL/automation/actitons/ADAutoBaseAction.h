@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (ADPromptBehavior)promptBehaviorForRequest:(MSIDAutomationTestRequest *)request;
 - (ADUserIdentifier *)userIdentifierForRequest:(MSIDAutomationTestRequest *)request;
 - (NSString *)extraQueryParamsForRequest:(MSIDAutomationTestRequest *)request;
+- (id<ADTokenCacheDataSource>)cacheDatasource;
 
 @end
 
