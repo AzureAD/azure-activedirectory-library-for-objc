@@ -38,19 +38,54 @@
 
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_NON_EMPTY_STRESS_TEST_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
+}
+
+- (id<ADTokenCacheDataSource>)cacheDatasource
+{
+    return nil;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    NSError *contextError = nil;
+    ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
+
+    if (!context)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:contextError];
+        completionBlock(result);
+        return;
+    }
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(10);
+
+    while (YES)
+    {
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+            [context acquireTokenSilentWithResource:parameters.requestResource
+                                           clientId:parameters.clientId
+                                        redirectUri:[NSURL URLWithString:parameters.redirectUri]
+                                             userId:parameters.legacyAccountIdentifier
+                                    completionBlock:^(ADAuthenticationResult *result) {
+
+                                        id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+                                        [cache removeItem:result.tokenCacheItem error:nil];
+
+                                        dispatch_semaphore_signal(sem);
+                                    }];
+        });
+    }
 }
 
 @end

@@ -38,19 +38,49 @@
 
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    dispatch_semaphore_t sem = dispatch_semaphore_create(10);
+
+    __block BOOL stop = NO;
+
+    while (!stop)
+    {
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+            NSError *contextError = nil;
+            ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
+
+            if (!context)
+            {
+                MSIDAutomationTestResult *result = [self testResultWithADALError:contextError];
+                completionBlock(result);
+                dispatch_semaphore_signal(sem);
+                stop = YES;
+                return;
+            }
+
+            [context acquireTokenSilentWithResource:parameters.requestResource
+                                           clientId:parameters.clientId
+                                        redirectUri:[NSURL URLWithString:parameters.redirectUri]
+                                             userId:parameters.legacyAccountIdentifier
+                                    completionBlock:^(ADAuthenticationResult *result) {
+                                        dispatch_semaphore_signal(sem);
+                                    }];
+        });
+    }
 }
 
 @end

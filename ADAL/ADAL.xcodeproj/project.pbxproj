@@ -4930,11 +4930,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				DEVELOPMENT_TEAM = UBF8T346G9;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -4942,10 +4944,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EBC1FC370C100CD70C5 /* adal__testapp__ios.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				DEVELOPMENT_TEAM = UBF8T346G9;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};

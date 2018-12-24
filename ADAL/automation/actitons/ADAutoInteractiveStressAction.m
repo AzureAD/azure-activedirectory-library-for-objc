@@ -38,19 +38,89 @@
 
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    NSError *contextError = nil;
+    ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
+
+    if (!context)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:contextError];
+        completionBlock(result);
+        return;
+    }
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+        // Start polling silently in background while we complete interactive login
+        [self pollWithParameters:parameters
+             containerController:containerController
+                 completionBlock:completionBlock];
+    });
+
+    [context acquireTokenWithResource:parameters.requestResource
+                             clientId:parameters.clientId
+                          redirectUri:[NSURL URLWithString:parameters.redirectUri]
+                               userId:parameters.legacyAccountIdentifier
+                      completionBlock:^(ADAuthenticationResult *result) {
+                          (void) result;
+                      }];
+}
+
+- (void)pollWithParameters:(MSIDAutomationTestRequest *)parameters
+       containerController:(MSIDAutomationMainViewController *)containerController
+           completionBlock:(MSIDAutoCompletionBlock)completionBlock
+{
+    NSError *contextError = nil;
+    ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
+
+    if (!context)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:contextError];
+        completionBlock(result);
+        return;
+    }
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(10);
+
+    __block BOOL stop = NO;
+
+    while (!stop)
+    {
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+            [context acquireTokenSilentWithResource:parameters.requestResource
+                                           clientId:parameters.clientId
+                                        redirectUri:[NSURL URLWithString:parameters.redirectUri]
+                                             userId:parameters.legacyAccountIdentifier
+                                    completionBlock:^(ADAuthenticationResult *result) {
+
+                                        if (result.status == AD_SUCCEEDED)
+                                        {
+                                            stop = YES;
+                                        }
+
+                                        dispatch_semaphore_signal(sem);
+                                    }];
+        });
+    }
+
+    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                success:YES
+                                                                         additionalInfo:nil];
+    completionBlock(result);
 }
 
 @end

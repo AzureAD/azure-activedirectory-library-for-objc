@@ -28,6 +28,7 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
+#import "ADTokenCacheDataSource.h"
 
 @implementation ADAutoRemoveAccountAction
 
@@ -46,11 +47,45 @@
     return YES;
 }
 
+- (id<ADTokenCacheDataSource>)cacheDatasource
+{
+    return nil;
+}
+
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+
+    NSError *error = nil;
+    BOOL operationResult = YES;
+
+    if (parameters.legacyAccountIdentifier && parameters.clientId)
+    {
+        operationResult = [cache removeAllForUserId:parameters.legacyAccountIdentifier clientId:parameters.clientId error:&error];
+    }
+    else if (parameters.clientId)
+    {
+        operationResult = [cache removeAllForClientId:parameters.clientId error:&error];
+    }
+    else if (parameters.legacyAccountIdentifier)
+    {
+        operationResult = [cache wipeAllItemsForUserId:parameters.legacyAccountIdentifier error:&error];
+    }
+
+    if (!operationResult)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:error];
+        completionBlock(result);
+        return;
+    }
+
+    MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                success:YES
+                                                                         additionalInfo:nil];
+
+    completionBlock(result);
 }
 
 @end

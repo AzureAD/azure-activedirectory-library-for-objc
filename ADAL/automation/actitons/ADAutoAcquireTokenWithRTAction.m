@@ -38,19 +38,40 @@
 
 - (NSString *)actionIdentifier
 {
-    return @"base_action";
+    return MSID_AUTO_ACQUIRE_TOKEN_WITH_RT_IDENTIFIER;
 }
 
 - (BOOL)needsRequestParameters
 {
-    return NO;
+    return YES;
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    NSAssert(NO, @"Abstract class. Should be implemented in subclass");
+    NSError *contextError = nil;
+    ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
+
+    if (!context)
+    {
+        MSIDAutomationTestResult *result = [self testResultWithADALError:contextError];
+        completionBlock(result);
+        return;
+    }
+
+    [context acquireTokenWithRefreshToken:parameters.refreshToken
+                                 resource:parameters.requestResource
+                                 clientId:parameters.clientId
+                              redirectUri:[NSURL URLWithString:parameters.redirectUri]
+                          completionBlock:^(ADAuthenticationResult *result) {
+
+                              dispatch_async(dispatch_get_main_queue(), ^{
+
+                                  MSIDAutomationTestResult *testResult = [self testResultWithADALResult:result];
+                                  completionBlock(testResult);
+                              });
+                          }];
 }
 
 @end
