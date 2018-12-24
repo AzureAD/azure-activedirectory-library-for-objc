@@ -84,7 +84,11 @@
 
 - (MSIDAutomationTestResult *)testResultWithADALError:(NSError *)error
 {
-    return [[MSIDAutomationErrorResult alloc] initWithAction:self.actionIdentifier error:error additionalInfo:nil];
+    NSString *errorName = [ADAuthenticationError stringForADErrorCode:error.code];
+    return [[MSIDAutomationErrorResult alloc] initWithAction:self.actionIdentifier
+                                                       error:error
+                                                   errorName:errorName
+                                              additionalInfo:nil];
 }
 
 - (MSIDAutomationTestResult *)testResultWithADALResult:(ADAuthenticationResult *)adalResult
