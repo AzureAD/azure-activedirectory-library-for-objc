@@ -50,59 +50,77 @@ static NSDictionary *s_userInfoKeyMapping;
 + (void)initialize
 {
     s_errorDomainMapping = @{
-                             MSIDErrorDomain : ADAuthenticationErrorDomain,
-                             MSIDOAuthErrorDomain : ADOAuthServerErrorDomain,
-                             MSIDKeychainErrorDomain : ADKeychainErrorDomain,
-                             MSIDHttpErrorCodeDomain : ADHTTPErrorCodeDomain
-                             };
-    
-    s_errorCodeMapping = @{
-                           ADAuthenticationErrorDomain:@{
-                                   // General
-                                   @(MSIDErrorInternal) : @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInvalidInternalParameter) : @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInvalidDeveloperParameter) :@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
-                                   @(MSIDErrorMissingAccountParameter) : @(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
-                                   @(MSIDErrorUnsupportedFunctionality): @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInteractionRequired): @(AD_ERROR_SERVER_OAUTH),
-                                   // Cache
-                                   @(MSIDErrorCacheMultipleUsers) : @(AD_ERROR_CACHE_MULTIPLE_USERS),
-                                   @(MSIDErrorCacheBadFormat) : @(AD_ERROR_CACHE_BAD_FORMAT),
-                                   // Authority Validation
-                                   @(MSIDErrorAuthorityValidation) : @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
-                                   // Interactive flow
-                                   @(MSIDErrorUserCancel) : @(AD_ERROR_UI_USER_CANCEL),
-                                   @(MSIDErrorSessionCanceledProgrammatically) : @(AD_ERROR_UI_USER_CANCEL),
-                                   @(MSIDErrorInteractiveSessionStartFailure) : @(AD_ERROR_UNEXPECTED),
-                                   @(MSIDErrorInteractiveSessionAlreadyRunning) : @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
-                                   @(MSIDErrorNoMainViewController) : @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER)
-                                   },
-                           ADOAuthServerErrorDomain:@{
-                                   @(MSIDErrorInteractionRequired) : @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
-                                   @(MSIDErrorServerOauth) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidResponse) : @(AD_ERROR_SERVER_INVALID_RESPONSE),
-                                   @(MSIDErrorServerRefreshTokenRejected) : @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
-                                   @(MSIDErrorServerInvalidRequest) :@(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidClient) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidGrant) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidScope) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerInvalidState) : @(AD_ERROR_SERVER_OAUTH),
-                                   @(MSIDErrorServerNonHttpsRedirect) : @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
-                                   @(MSIDErrorServerProtectionPoliciesRequired) : @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
-                                   @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE)
-                                   },
-                           ADHTTPErrorCodeDomain: @{
-                                   @(MSIDErrorServerUnhandledResponse) : @(AD_ERROR_UNEXPECTED)
-                                   }
-                           };
-    
-    s_userInfoKeyMapping = @{
-                             MSIDHTTPHeadersKey : ADHTTPHeadersKey,
-                             MSIDOAuthSubErrorKey : ADSuberrorKey,
-                             MSIDUserDisplayableIdkey : ADUserIdKey
-                             };
-}
+        MSIDErrorDomain: ADAuthenticationErrorDomain,
+        MSIDOAuthErrorDomain: ADOAuthServerErrorDomain,
+        MSIDKeychainErrorDomain: ADKeychainErrorDomain,
+        MSIDHttpErrorCodeDomain: ADHTTPErrorCodeDomain
+    };
 
+    s_errorCodeMapping = @{
+        ADAuthenticationErrorDomain: @{
+            // General
+            @(MSIDErrorInternal): @(AD_ERROR_UNEXPECTED),
+            @(MSIDErrorInvalidInternalParameter): @(AD_ERROR_UNEXPECTED),
+            @(MSIDErrorInvalidDeveloperParameter): @(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+            @(MSIDErrorMissingAccountParameter): @(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+            @(MSIDErrorUnsupportedFunctionality): @(AD_ERROR_UNEXPECTED),
+            @(MSIDErrorInteractionRequired): @(AD_ERROR_SERVER_USER_INPUT_NEEDED),
+            @(MSIDErrorServerNonHttpsRedirect): @(AD_ERROR_SERVER_NON_HTTPS_REDIRECT),
+            @(MSIDErrorMismatchedAccount): @(AD_ERROR_SERVER_WRONG_USER),
+            // Cache
+            @(MSIDErrorCacheMultipleUsers): @(AD_ERROR_CACHE_MULTIPLE_USERS),
+            @(MSIDErrorCacheBadFormat): @(AD_ERROR_CACHE_BAD_FORMAT),
+            // Authority Validation
+            @(MSIDErrorAuthorityValidation): @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
+            @(MSIDErrorAuthorityValidationWebFinger): @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
+            // Interactive flow
+            @(MSIDErrorUserCancel): @(AD_ERROR_UI_USER_CANCEL),
+            @(MSIDErrorSessionCanceledProgrammatically): @(AD_ERROR_UI_USER_CANCEL),
+            @(MSIDErrorInteractiveSessionStartFailure): @(AD_ERROR_UNEXPECTED),
+            @(MSIDErrorInteractiveSessionAlreadyRunning): @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
+            @(MSIDErrorNoMainViewController): @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
+            @(MSIDErrorAttemptToOpenURLFromExtension): @(AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION),
+            @(MSIDErrorUINotSupportedInExtension): @(AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION),
+            // Broker flow
+            @(MSIDErrorBrokerResponseNotReceived): @(AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE),
+            @(MSIDErrorBrokerNoResumeStateFound): @(AD_ERROR_TOKENBROKER_NO_RESUME_STATE),
+            @(MSIDErrorBrokerBadResumeStateFound): @(AD_ERROR_TOKENBROKER_BAD_RESUME_STATE),
+            @(MSIDErrorBrokerMismatchedResumeState): @(AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE),
+            @(MSIDErrorBrokerResponseHashMissing): @(AD_ERROR_TOKENBROKER_HASH_MISSING),
+            @(MSIDErrorBrokerCorruptedResponse): @(AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE),
+            @(MSIDErrorBrokerResponseDecryptionFailed): @(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED),
+            @(MSIDErrorBrokerResponseHashMismatch): @(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH),
+            @(MSIDErrorBrokerKeyFailedToCreate): @(AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY),
+            @(MSIDErrorBrokerKeyNotFound): @(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED),
+            @(MSIDErrorWorkplaceJoinRequired): @(AD_ERROR_SERVER_WPJ_REQUIRED),
+            @(MSIDErrorBrokerUnknown): @(AD_ERROR_TOKENBROKER_UNKNOWN)
+        },
+        ADOAuthServerErrorDomain: @{
+            @(MSIDErrorServerOauth): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerInvalidResponse): @(AD_ERROR_SERVER_INVALID_RESPONSE),
+            @(MSIDErrorServerRefreshTokenRejected): @(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED),
+            @(MSIDErrorServerInvalidRequest): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerInvalidClient): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerInvalidGrant): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerInvalidScope): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerUnauthorizedClient): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerDeclinedScopes): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerInvalidState): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerProtectionPoliciesRequired): @(AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED),
+            @(MSIDErrorAuthorizationFailed): @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
+        },
+
+        ADHTTPErrorCodeDomain: @{
+            @(MSIDErrorServerUnhandledResponse): @(AD_ERROR_UNEXPECTED)
+        }
+    };
+
+    s_userInfoKeyMapping = @{
+        MSIDHTTPHeadersKey: ADHTTPHeadersKey,
+        MSIDOAuthSubErrorKey: ADSuberrorKey,
+        MSIDUserDisplayableIdkey: ADUserIdKey
+    };
+}
 
 + (NSErrorDomain)adErrorDomainFromMsidError:(NSError *)msidError
 {
