@@ -52,7 +52,7 @@
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDADFSAuthority.h"
-#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority+Internal.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -119,7 +119,7 @@
         {
             [event setUserId:_requestParams.identifier.userId];
         }
-        [event setResultStatus:result.status];
+        [event setADALResultStatus:result.status];
         [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? MSID_TELEMETRY_VALUE_YES:MSID_TELEMETRY_VALUE_NO];
         [event setErrorCode:[result.error code]];
         [event setErrorDomain:[result.error domain]];
@@ -444,8 +444,8 @@
         {
             ADAuthenticationResult *result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
             : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
-            
-            [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? MSID_TELEMETRY_VALUE_CANCELLED:MSID_TELEMETRY_VALUE_FAILED];
+
+            [event setResultStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? MSID_TELEMETRY_VALUE_CANCELLED:MSID_TELEMETRY_VALUE_FAILED];
             [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
             completionBlock(result);
             return;
@@ -465,7 +465,7 @@
        if (![self processOAuthResponse:response telemetryEvent:event completionHandler:completionBlock])
        {
            ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Received invalid response" correlationId:_context.correlationId]];
-           [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+           [event setResultStatus:MSID_TELEMETRY_VALUE_FAILED];
            [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
            
            completionBlock(result);
@@ -537,9 +537,8 @@
     // Construct a refresh token object to wrap up the refresh token provided by developer
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
     refreshTokenItem.refreshToken = _refreshToken;
-    refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
-    __auto_type factory = [MSIDAuthorityFactory new];
-    __auto_type authority = [factory authorityFromUrl:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
+    refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:_requestParams.identifier.userId homeAccountId:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
     refreshTokenItem.authority = authority;
     refreshTokenItem.clientId  = _requestParams.clientId;
     
@@ -562,7 +561,7 @@
         return NO;
     }
     
-    [event setAPIStatus:@"try to prompt to install broker"];
+    [event setResultStatus:@"try to prompt to install broker"];
     [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
     
     MSIDWebMSAuthResponse *authResponse = (MSIDWebMSAuthResponse *)response;
@@ -614,7 +613,7 @@
         
         ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
         
-        [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+        [event setResultStatus: MSID_TELEMETRY_VALUE_FAILED];
         [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
         
         completionHandler(result);
@@ -625,7 +624,7 @@
 #endif
     ADAuthenticationResult *result = [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId];
     
-    [event setAPIStatus: MSID_TELEMETRY_VALUE_CANCELLED];
+    [event setResultStatus: MSID_TELEMETRY_VALUE_CANCELLED];
     [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
     
     completionHandler(result);
@@ -650,7 +649,7 @@
             [self setCloudInstanceHostname:((MSIDWebAADAuthResponse *)response).cloudHostName];
         }
         
-        [event setAPIStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
+        [event setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
         [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
         
         [[MSIDTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_TOKEN_GRANT];
@@ -667,8 +666,7 @@
              
              ADTelemetryAPIEvent *event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                             context:_requestParams];
-             [event setGrantType:MSID_TELEMETRY_VALUE_BY_CODE];
-             [event setResultStatus:[result status]];
+             [event setADALResultStatus:[result status]];
              [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
              
              completionHandler(result);
@@ -679,7 +677,7 @@
     {
         ADAuthenticationResult *result = [ADAuthenticationResult resultFromMSIDError:oauthResponse.oauthError];
         
-        [event setAPIStatus: MSID_TELEMETRY_VALUE_FAILED];
+        [event setResultStatus:MSID_TELEMETRY_VALUE_FAILED];
         [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
         
         completionHandler(result);

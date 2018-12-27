@@ -46,6 +46,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 
 #import "ADTestWebAuthController.h"
+#import "MSIDRefreshToken.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
@@ -80,16 +81,16 @@ const int sAsyncContextTimeout = 10;
 
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
-    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV2Oauth2Factory new]];
+    MSIDDefaultTokenCacheAccessor *defaultTokenCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil];
 
-    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor] factory:[MSIDAADV1Oauth2Factory new]];
+    MSIDLegacyTokenCacheAccessor *legacyTokenCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:@[defaultTokenCacheAccessor]];
 
     self.tokenCache = legacyTokenCacheAccessor;
     self.msalTokenCache = defaultTokenCacheAccessor;
 #else
     ADTokenCache *adTokenCache = [ADTokenCache new];
     self.cacheDataSource = adTokenCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil];
 #endif
 }
 
@@ -1293,6 +1294,7 @@ const int sAsyncContextTimeout = 10;
                          oauthError:@"invalid_grant"
                       oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
+           additionalResponseParams:nil
                       requestParams:nil];
     
     ADTestURLResponse* mrrtResponse =
@@ -2234,6 +2236,7 @@ const int sAsyncContextTimeout = 10;
                                                        oauthError:@"interaction_required"
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
+                                         additionalResponseParams:nil
                                                     requestParams:@{MSID_OAUTH2_CLAIMS : decodedClaims}];
 
     [ADTestURLSession addResponse:response];
@@ -2287,6 +2290,7 @@ const int sAsyncContextTimeout = 10;
                          oauthError:@"interaction_required"
                       oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
+           additionalResponseParams:nil
                       requestParams:@{MSID_OAUTH2_CLAIMS : decodedClaims}];
 
     [ADTestURLSession addResponse:tokenResponse];
@@ -2667,6 +2671,7 @@ const int sAsyncContextTimeout = 10;
                                                        oauthError:@"invalid_grant"
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
+                                         additionalResponseParams:nil
                                                     requestParams:nil];
     
     // explicitly set scope=open as the required field in request body
@@ -2868,6 +2873,7 @@ const int sAsyncContextTimeout = 10;
                                                        oauthError:@"invalid_grant"
                                                     oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
+                                         additionalResponseParams:nil
                                                     requestParams:nil];
 
     // explicitly set scope=open as the required field in request body
@@ -2961,6 +2967,7 @@ const int sAsyncContextTimeout = 10;
 
     BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
                                                       response:[self adCreateV2TokenResponse]
+                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     XCTAssertNil(error);
@@ -3018,6 +3025,7 @@ const int sAsyncContextTimeout = 10;
                                                          oauthError:@"unauthorized_client"
                                                       oauthSubError:@"protection_policy_required"
                                                       correlationId:TEST_CORRELATION_ID
+                                           additionalResponseParams:@{@"adi":TEST_USER_ID}
                                                       requestParams:nil];
     [ADTestURLSession addResponse:response];
 
@@ -3054,6 +3062,7 @@ const int sAsyncContextTimeout = 10;
 
     BOOL result = [_msalTokenCache saveTokensWithConfiguration:[self adCreateV2DefaultConfiguration]
                                                       response:[self adCreateV2TokenResponse]
+                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     XCTAssertNil(error);
@@ -3067,6 +3076,7 @@ const int sAsyncContextTimeout = 10;
                                                          oauthError:@"unauthorized_client"
                                                       oauthSubError:@"protection_policy_required"
                                                       correlationId:TEST_CORRELATION_ID
+                                           additionalResponseParams:@{@"adi":TEST_USER_ID}
                                                       requestParams:nil];
     [ADTestURLSession addResponse:response];
 

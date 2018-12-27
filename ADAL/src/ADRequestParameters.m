@@ -125,15 +125,14 @@
 {
     _identifier = identifier;
     
-    self.account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:self.identifier.userId
-                                                            homeAccountId:nil];
+    self.account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:self.identifier.userId
+                                                          homeAccountId:nil];
 }
 
 - (MSIDConfiguration *)msidConfig
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
-    __auto_type factory = [MSIDAuthorityFactory new];
-    __auto_type authority = [factory authorityFromUrl:authorityUrl context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri

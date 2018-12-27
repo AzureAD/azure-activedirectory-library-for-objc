@@ -28,7 +28,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
 #import "MSIDClientInfo.h"
-#import "MSIDBrokerResponse.h"
+#import "MSIDAADV1BrokerResponse.h"
 
 @interface ADAuthenticationResultTests : ADTestCase
 
@@ -135,7 +135,7 @@
                                };
     
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);
@@ -173,7 +173,7 @@
                                };
     
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);
@@ -210,7 +210,7 @@
                                };
     
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);
@@ -248,7 +248,7 @@
                                };
     
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);
@@ -277,7 +277,7 @@
                                };
     
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);
@@ -303,7 +303,7 @@
                                };
 
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);
@@ -328,7 +328,7 @@
                                };
     
     NSError *error = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:response error:&error];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:response error:&error];
     
     XCTAssertNotNil(brokerResponse);
     XCTAssertNil(error);

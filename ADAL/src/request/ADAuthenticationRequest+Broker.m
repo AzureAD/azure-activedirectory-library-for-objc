@@ -37,7 +37,7 @@
 #import "ADEnrollmentGateway.h"
 #import "MSIDAuthority.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
-#import "MSIDBrokerResponse.h"
+#import "MSIDAADV1BrokerResponse.h"
 #import "ADResponseCacheHandler.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
@@ -46,6 +46,8 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDConstants.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority+Internal.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -216,7 +218,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
                                                                                             error:&intuneTokenError];
 
             NSError *tokenResponseError = nil;
-            MSIDBrokerResponse *intuneTokenResponse = [[MSIDBrokerResponse alloc] initWithDictionary:decryptedIntuneTokenResponse error:&tokenResponseError];
+            MSIDAADV1BrokerResponse *intuneTokenResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedIntuneTokenResponse error:&tokenResponseError];
 
             if (!keychainGroup)
             {
@@ -243,24 +245,22 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
                     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
                     MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-                    MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
-                    MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
+                    MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+                    MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
 
-                    BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
-                                                         saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid
-                                                                  context:nil
-                                                                    error:&tokenResponseError];
+                    NSError *saveError = nil;
+                    BOOL saveResult = [self saveBrokerResponse:intuneTokenResponse cache:cache factory:factory error:&saveError];
 
                     if (!saveResult)
                     {
-                        MSID_LOG_WARN(nil, @"Failed to save Intune token");
+                        MSID_LOG_WARN(nil, @"Failed to save Intune token with error %@, %ld", saveError.domain, (long)saveError.code);
                     }
                 }
             }
         }
 
         NSError *msidError = nil;
-        MSIDBrokerResponse *msidBrokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:brokerResponse error:&msidError];
+        MSIDAADV1BrokerResponse *msidBrokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:brokerResponse error:&msidError];
 
         if (msidError)
         {
@@ -290,7 +290,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     }
     
     NSError *msidError = nil;
-    MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:queryParamsMap error:&msidError];
+    MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:queryParamsMap error:&msidError];
     
     if (msidError)
     {
@@ -305,13 +305,11 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     {
         MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
         MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
-        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
+        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
 
-        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
-                                             saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
-                                                      context:nil
-                                                        error:&msidError];
+        NSError *saveError = nil;
+        BOOL saveResult = [self saveBrokerResponse:brokerResponse cache:cache factory:factory error:&saveError];
         
         if (!saveResult)
         {
@@ -331,6 +329,35 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     return nil;
 #endif
 }
+
+#if TARGET_OS_IPHONE
++ (BOOL)saveBrokerResponse:(MSIDAADV1BrokerResponse *)brokerResponse
+                     cache:(MSIDLegacyTokenCacheAccessor *)cache
+                   factory:(MSIDOauth2Factory *)factory
+                     error:(NSError **)error
+{
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:brokerResponse.authority] context:nil error:error];
+
+    if (!authority)
+    {
+        return NO;
+    }
+
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:nil
+                                                                           clientId:brokerResponse.clientId
+                                                                             target:brokerResponse.resource];
+
+    MSIDTokenResponse *tokenResponse = brokerResponse.tokenResponse;
+
+    if (brokerResponse.isAccessTokenInvalid)
+    {
+        return [cache saveSSOStateWithConfiguration:configuration response:tokenResponse factory:factory context:nil error:error];
+    }
+
+    return [cache saveTokensWithConfiguration:configuration response:tokenResponse factory:factory context:nil error:error];
+}
+#endif
 
 - (BOOL)canUseBroker
 {

@@ -156,8 +156,7 @@
     }
 
     NSURL *requestURL = _requestURL;
-    __auto_type factory = [MSIDAuthorityFactory new];
-    __auto_type authority = [factory authorityFromUrl:requestURL context:self error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:requestURL context:self error:nil];
     __auto_type authorityUrl = [authority networkUrlWithContext:self];
     if (authorityUrl)
     {

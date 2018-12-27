@@ -50,6 +50,7 @@
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface ADAcquireTokenSilentHandler()
 
@@ -158,7 +159,7 @@
 
     if (!isADFSInstance)
     {
-        NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
+        NSString *legacyAccountId = cacheItem.accountIdentifier.displayableId;
         NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
         ADAuthenticationError *error = nil;
         NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
@@ -256,8 +257,7 @@
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_TOKEN_GRANT
                                                                         context:_requestParams];
-         [event setGrantType:MSID_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
-         [event setResultStatus:[result status]];
+         [event setADALResultStatus:[result status]];
          [[MSIDTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
 
          NSString* resultStatus = @"Succeded";
@@ -327,7 +327,7 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"" homeAccountId:nil];
+        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
                                                    configuration:_requestParams.msidConfig

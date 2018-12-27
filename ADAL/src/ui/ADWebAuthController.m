@@ -37,6 +37,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDAADEndpointProvider.h"
+#import "MSIDAuthority+Internal.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";

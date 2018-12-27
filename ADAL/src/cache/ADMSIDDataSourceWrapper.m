@@ -61,12 +61,11 @@
         self.dataSource = dataSource;
         self.seriazer = serializer;
 
-        MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 #if TARGET_OS_IPHONE
-        MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil factory:factory];
-        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[defaultAccessor] factory:factory];
+        MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil];
+        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[defaultAccessor]];
 #else
-        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil factory:factory];
+        self.legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil];
 #endif
     }
     
@@ -268,11 +267,13 @@
                       clientId:(NSString *)clientId
                          error:(ADAuthenticationError **)error
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:userId homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:userId homeAccountId:nil];
 
     NSError *msidError = nil;
     BOOL result = [_legacyAccessor clearCacheForAccount:account
+                                              authority:nil
                                                clientId:clientId
+                                               familyId:nil
                                                 context:nil
                                                   error:&msidError];
 

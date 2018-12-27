@@ -64,7 +64,7 @@
     [super setUp];
 
     self.adTokenCache = [ADTokenCache new];
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.adTokenCache.macTokenCache otherCacheAccessors:nil];
 }
 
 - (void)tearDown
@@ -750,6 +750,7 @@ static ADAuthenticationContext *CreateAuthContext(NSString *authority)
                          oauthError:@"invalid_grant"
                       oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
+           additionalResponseParams:nil
                       requestParams:nil];
     
     ADTestURLResponse *validationResponse = CreateAuthorityValidationResponse(authority, nil, preferredAuthority);

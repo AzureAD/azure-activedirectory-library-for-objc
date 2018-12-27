@@ -97,7 +97,7 @@ static NSDictionary *s_userInfoKeyMapping;
     s_userInfoKeyMapping = @{
                              MSIDHTTPHeadersKey : ADHTTPHeadersKey,
                              MSIDOAuthSubErrorKey : ADSuberrorKey,
-                             MSIDUserDisplayableIdKey : ADUserIdKey
+                             MSIDUserDisplayableIdkey : ADUserIdKey
                              };
 }
 
@@ -105,9 +105,8 @@ static NSDictionary *s_userInfoKeyMapping;
 + (NSErrorDomain)adErrorDomainFromMsidError:(NSError *)msidError
 {
     if (!msidError) return nil;
-    NSString *newDomain = s_errorDomainMapping[msidError.domain];
-    
-    return newDomain;
+
+    return s_errorDomainMapping[msidError.domain] ?: msidError.domain;
 }
 
 + (NSInteger)adErrorCodeFromMsidError:(NSError *)msidError
