@@ -21,7 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !AD_BROKER
 #import "ADAL_Internal.h"
+#endif
+
 #import "ADAuthenticationError.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
@@ -44,6 +47,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 
 @synthesize errorDetails = _errorDetails;
 @synthesize protocolCode = _protocolCode;
+
+#if !AD_BROKER
 
 - (id)init
 {
@@ -396,5 +401,6 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                 return [NSString stringWithFormat:@"%ld", (long)code];
     }
 }
+#endif
 
 @end

@@ -28,7 +28,7 @@
 #import "ADUserInformation.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "ADAuthenticationErrorConverter.h"
-#import "MSIDBrokerResponse.h"
+#import "MSIDAADV1BrokerResponse.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "ADTokenCacheItem+MSIDTokens.h"
 #import "MSIDBrokerResponse+ADAL.h"
@@ -240,7 +240,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
 }
 
-+ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDBrokerResponse *)response
++ (ADAuthenticationResult*)resultFromBrokerResponse:(MSIDAADV1BrokerResponse *)response
 {
     if (!response)
     {
@@ -276,8 +276,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     BOOL isMRRT = response.tokenResponse.isMultiResource;
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:[[NSURL alloc] initWithString:response.authority] context:nil error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[[NSURL alloc] initWithString:response.authority] context:nil error:nil];
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:response.clientId target:response.resource];
     

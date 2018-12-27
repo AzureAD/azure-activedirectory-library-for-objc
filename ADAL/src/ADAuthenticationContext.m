@@ -523,15 +523,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 #if TARGET_OS_IPHONE
 - (MSIDLegacyTokenCacheAccessor *)createIosCache:(id<MSIDTokenCacheDataSource>)dataSource
 {
-    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
-    MSIDLegacyTokenCacheAccessor *legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[defaultAccessor] factory:factory];
+    MSIDDefaultTokenCacheAccessor *defaultAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+    MSIDLegacyTokenCacheAccessor *legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[defaultAccessor]];
     return legacyAccessor;
 }
 #else
 - (MSIDLegacyTokenCacheAccessor *)createMacCache:(id<MSIDTokenCacheDataSource>)dataSource
 {
-    return [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    return [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
 }
 #endif
 

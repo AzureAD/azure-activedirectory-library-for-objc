@@ -21,12 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #import <Foundation/Foundation.h>
 
-@interface ADApplicationTestUtil : NSObject
+@interface ADAuthenticationErrorMap : NSObject
 
-+ (void)onOpenURL:(BOOL (^)(NSURL *url, NSDictionary<NSString *, id> *options))openUrlBlock;
-+ (void)reset;
+@property (class, readonly) NSDictionary *errorDomains;
+@property (class, readonly) NSDictionary *errorCodes;
+@property (class, readonly) NSDictionary *userInfoKeys;
+
++ (NSErrorDomain)adErrorDomainFromMsidError:(NSError *)msidError;
++ (NSInteger)adErrorCodeFromMsidError:(NSError *)msidError;
 
 @end

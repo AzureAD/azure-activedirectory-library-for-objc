@@ -33,7 +33,7 @@
 #import "ADLogger.h"
 
 #if TARGET_OS_IPHONE
-#import "ADApplicationTestUtil.h"
+#import "MSIDApplicationTestUtil.h"
 #endif
 
 @implementation ADTestCase
@@ -52,7 +52,7 @@
     [ADAuthorityValidation clearAadCache];
     
 #if TARGET_OS_IPHONE
-    [ADApplicationTestUtil reset];
+    [MSIDApplicationTestUtil reset];
 #endif
     
     [ADTestWebAuthController reset];

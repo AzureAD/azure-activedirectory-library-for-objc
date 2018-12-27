@@ -25,10 +25,12 @@
 
 @interface ADTelemetryAPIEvent : MSIDTelemetryAPIEvent
 
-- (void)setResultStatus:(ADAuthenticationResultStatus)status;
+- (void)setAuthority:(NSString *)authorityString;
+- (void)setADALResultStatus:(ADAuthenticationResultStatus)status;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
 - (void)setUserInformation:(ADUserInformation *)userInfo;
 - (void)setProtocolCode:(NSString *)protocolCode;
 - (void)setErrorCode:(NSUInteger)errorCode;
+- (void)setAuthorityValidationStatus:(NSString *)status;
 
 @end

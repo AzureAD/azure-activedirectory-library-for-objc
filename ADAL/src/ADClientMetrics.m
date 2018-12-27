@@ -28,6 +28,7 @@
 #import "ADErrorCodes.h"
 #import "MSIDAuthority.h"
 #import "MSIDADFSAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation ADClientMetrics
 

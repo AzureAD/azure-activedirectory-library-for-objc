@@ -273,6 +273,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       oauthError:(NSString *)oauthError
                                    oauthSubError:(NSString *)oauthSubError
                                    correlationId:(NSUUID *)correlationId
+                        additionalResponseParams:(NSDictionary *)additionalResponse
                                    requestParams:(NSDictionary *)requestParams
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
@@ -296,6 +297,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     if (oauthSubError)
     {
         jsonDictionary[MSID_OAUTH2_SUB_ERROR] = oauthSubError;
+    }
+
+    if (additionalResponse)
+    {
+        [jsonDictionary addEntriesFromDictionary:additionalResponse];
     }
 
     NSMutableDictionary *requestParamsBody = [@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
@@ -329,6 +335,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 oauthError:oauthError
                              oauthSubError:nil
                              correlationId:TEST_CORRELATION_ID
+                  additionalResponseParams:nil
                              requestParams:nil];
 }
 
@@ -728,7 +735,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     baseToken.authority = [TEST_AUTHORITY authority];
     baseToken.clientId = TEST_CLIENT_ID;
-    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"unique User Id"];
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"unique User Id"];
     baseToken.additionalServerInfo = @{@"key2" : @"value2"};
 }
 

@@ -32,7 +32,7 @@
 
 @implementation ADTelemetryAPIEvent
 
-- (void)setResultStatus:(ADAuthenticationResultStatus)status
+- (void)setADALResultStatus:(ADAuthenticationResultStatus)status
 {
     NSString* statusStr = nil;
     switch (status) {
@@ -76,15 +76,16 @@
 
 - (void)setAuthority:(NSString *)authorityString
 {
-    [super setAuthority:authorityString];
-    
-    __auto_type factory = [MSIDAuthorityFactory new];
-     __auto_type authority = [factory authorityFromUrl:[NSURL URLWithString:authorityString] context:nil error:nil];
+     __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authorityString] context:nil error:nil];
     
     // set authority type
-    NSString* authorityType = [authority telemetryAuthorityType];
+    NSString *authorityType = [authority telemetryAuthorityType];
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_TYPE value:authorityType];
+}
 
-    [self setAuthorityType:authorityType];
+- (void)setAuthorityValidationStatus:(NSString *)status
+{
+    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS value:status];
 }
 
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
