@@ -62,7 +62,9 @@ static NSDictionary *s_userInfoKeyMapping;
                                    @(MSIDErrorInternal) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInvalidInternalParameter) : @(AD_ERROR_UNEXPECTED),
                                    @(MSIDErrorInvalidDeveloperParameter) :@(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
+                                   @(MSIDErrorMissingAccountParameter) : @(AD_ERROR_DEVELOPER_INVALID_ARGUMENT),
                                    @(MSIDErrorUnsupportedFunctionality): @(AD_ERROR_UNEXPECTED),
+                                   @(MSIDErrorInteractionRequired): @(AD_ERROR_SERVER_OAUTH),
                                    // Cache
                                    @(MSIDErrorCacheMultipleUsers) : @(AD_ERROR_CACHE_MULTIPLE_USERS),
                                    @(MSIDErrorCacheBadFormat) : @(AD_ERROR_CACHE_BAD_FORMAT),

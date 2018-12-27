@@ -44,7 +44,7 @@
     }
     
     // Map domain
-    NSString *domain = [ADAuthenticationErrorMap errorDomains][msidError.domain] ?: msidError.domain;
+    NSString *domain = [ADAuthenticationErrorMap adErrorDomainFromMsidError:msidError];
     
     // Map errorCode
     // errorCode mapping is needed only if domain is in s_errorCodeMapping
