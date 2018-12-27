@@ -27,6 +27,16 @@
 #import "MSIDNotifications.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "ADAuthenticationSettings.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryUIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "ADAuthorityUtils.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDAADEndpointProvider.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -91,11 +101,19 @@ static ADAuthenticationResult *s_result = nil;
     dispatch_once(&onceToken, ^{
         [self registerWebAuthNotifications];
     });
+
+    NSURL *requestAuthorityURL = [NSURL URLWithString:context.authority];
+
+    MSIDAADAuthority *aadAuthority = [[MSIDAADAuthority alloc] initWithURL:requestAuthorityURL context:nil error:nil];
+
+    if (aadAuthority)
+    {
+        requestAuthorityURL = [aadAuthority networkUrlWithContext:nil];
+    }
+
+    NSURL *authorityURLWithOauthSuffix = [[MSIDAADEndpointProvider new] oauth2AuthorizeEndpointWithUrl:requestAuthorityURL];
     
-    //TODO: Replace with MSIDAADEndpointProvider method once available
-    NSString *authorityWithOAuthSuffix = [NSString stringWithFormat:@"%@%@", context.authority, MSID_OAUTH2_AUTHORIZE_SUFFIX];
-    
-    MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:authorityWithOAuthSuffix]
+    MSIDWebviewConfiguration *webviewConfig = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:authorityURLWithOauthSuffix
                                                                                                   redirectUri:requestParams.redirectUri
                                                                                                      clientId:requestParams.clientId
                                                                                                      resource:requestParams.resource
@@ -108,10 +126,12 @@ static ADAuthenticationResult *s_result = nil;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
     
     webviewConfig.extraQueryParameters = [self.class dictionaryFromQueryString:requestParams.extraQueryParameters];
+
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:requestParams.clientCapabilities developerClaims:requestParams.decodedClaims];
     
-    if (requestParams.claims)
+    if (![NSString msidIsStringNilOrBlank:claims])
     {
-        webviewConfig.claims = [requestParams.claims msidWWWFormURLDecode];
+        webviewConfig.claims = [claims msidWWWFormURLDecode];
     }
 
 #if TARGET_OS_IPHONE

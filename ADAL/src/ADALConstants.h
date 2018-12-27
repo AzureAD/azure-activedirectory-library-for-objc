@@ -43,6 +43,7 @@ extern NSString *const ADAL_AUTH_USERNAME_KEY;
 extern NSString *const ADAL_AUTH_CLOUD_INSTANCE_HOST_NAME;
 extern NSString *const ADAL_AUTH_SUBERROR;
 extern NSString *const ADAL_AUTH_PROTECTION_POLICY_REQUIRED;
+extern NSString *const ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER;
 
 extern NSString* const ADAL_BROKER_SCHEME;
 extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;

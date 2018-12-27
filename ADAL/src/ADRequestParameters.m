@@ -27,8 +27,39 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDConstants.h"
 
 @implementation ADRequestParameters
+
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self)
+    {
+        [self initDefaultAppMetadata];
+    }
+
+    return self;
+}
+
+- (void)initDefaultAppMetadata
+{
+    NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
+
+    NSString *appName = metadata[@"CFBundleDisplayName"];
+
+    if (!appName)
+    {
+        appName = metadata[@"CFBundleName"];
+    }
+
+    NSString *appVer = metadata[@"CFBundleShortVersionString"];
+
+    _appRequestMetadata = @{MSID_VERSION_KEY: ADAL_VERSION_NSSTRING,
+                            MSID_APP_NAME_KEY: appName ? appName : @"",
+                            MSID_APP_VER_KEY: appVer ? appVer : @""};
+}
 
 - (id)copyWithZone:(NSZone*)zone
 {
@@ -41,7 +72,6 @@
     parameters->_redirectUri = [_redirectUri copyWithZone:zone];
     parameters->_scopesString = [_scopesString copyWithZone:zone];
     parameters->_identifier = [_identifier copyWithZone:zone];
-    parameters->_claims = [_claims copyWithZone:zone];
     parameters->_extraQueryParameters = [_extraQueryParameters copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_forceRefresh = _forceRefresh;
@@ -49,7 +79,9 @@
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
     parameters->_logComponent = [_logComponent copyWithZone:zone];
     parameters->_account = [_account copyWithZone:zone];
-    
+    parameters->_decodedClaims = [_decodedClaims copyWithZone:zone];
+    parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
+
     return parameters;
 }
 
@@ -102,7 +134,7 @@
     NSURL *authorityUrl = [[NSURL alloc] initWithString:self.cloudAuthority ? self.cloudAuthority : self.authority];
     __auto_type factory = [MSIDAuthorityFactory new];
     __auto_type authority = [factory authorityFromUrl:authorityUrl context:nil error:nil];
-    
+
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId

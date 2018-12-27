@@ -27,7 +27,7 @@
 static LogCallback s_OldCallback = nil;
 static ADLoggerCallback s_LoggerCallback = nil;
 
-static NSMutableDictionary* s_adalId = nil;
+static NSMutableDictionary* s_adalFullMetadata = nil;
 
 @implementation ADLogger
 

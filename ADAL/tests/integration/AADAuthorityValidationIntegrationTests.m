@@ -324,8 +324,8 @@
     requestParams.correlationId = [NSUUID UUID];
 
     NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedHost:@"login.windows.net"];
-    NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
-
+    NSString* requestURLString = requestURL.absoluteString;
+    
     requestURL = [NSURL URLWithString:requestURLString];
 
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];

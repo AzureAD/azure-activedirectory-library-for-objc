@@ -58,6 +58,13 @@ static BOOL brokerAppInstalled = NO;
 {
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+
+    // We expect auth UI to appear
+    XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
+    XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
+
+    [self guestEnterUsernameInApp:brokerApp];
+    [self guestEnterPasswordInApp:brokerApp];
     __auto_type cancelAuthButton = brokerApp.buttons[@"Cancel"];
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists = 0"];

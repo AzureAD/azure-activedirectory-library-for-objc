@@ -248,11 +248,20 @@
     ADUserIdentifier* identifier = [self identifier];
     
     BOOL validateAuthority = _validateAuthority.selectedSegment == 0;
+
+    NSArray *capabilities = nil;
+
+    if (_capabilitiesControl.selectedSegment == 1)
+    {
+        capabilities = @[@"cp1"];
+    }
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:validateAuthority
                                                                                     error:&error];
+    context.clientCapabilities = capabilities;
+
     if (!context)
     {
         NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
@@ -345,9 +354,18 @@
     NSURL* redirectUri = [settings redirectUri];
     ADUserIdentifier* identifier = [self identifier];
     BOOL validateAuthority = _validateAuthority.selectedSegment == 0;
+
+    NSArray *capabilities = nil;
+
+    if (_capabilitiesControl.selectedSegment == 1)
+    {
+        capabilities = @[@"cp1"];
+    }
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
+    context.clientCapabilities = capabilities;
+
     if (!context)
     {
         NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];

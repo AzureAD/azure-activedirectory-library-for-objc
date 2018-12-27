@@ -193,8 +193,10 @@ static BOOL brokerAppInstalled = NO;
     // Register device with this account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
+    [self.testApp launch];
     [self.testApp activate];
 
     // Acquire token for a resource requiring device authentication
@@ -229,6 +231,7 @@ static BOOL brokerAppInstalled = NO;
     // Register device with that account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
@@ -284,6 +287,7 @@ static BOOL brokerAppInstalled = NO;
     // Register device with that account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
+    [self adfsEnterPasswordInApp:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
@@ -309,10 +313,9 @@ static BOOL brokerAppInstalled = NO;
     NSMutableDictionary *paramsCopy = [params mutableCopy];
     paramsCopy[@"claims"] = @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D";
     config = [self.testConfiguration configWithAdditionalConfiguration:paramsCopy];
-    
+
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
-    [self assertRefreshTokenNotNil];
     [self closeResultView];
 }
 

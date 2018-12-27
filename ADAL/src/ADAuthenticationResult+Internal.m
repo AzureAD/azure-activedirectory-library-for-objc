@@ -278,7 +278,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     __auto_type authorityFactory = [MSIDAuthorityFactory new];
     __auto_type authority = [authorityFactory authorityFromUrl:[[NSURL alloc] initWithString:response.authority] context:nil error:nil];
-    
+
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:response.clientId target:response.resource];
     
     MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response.tokenResponse

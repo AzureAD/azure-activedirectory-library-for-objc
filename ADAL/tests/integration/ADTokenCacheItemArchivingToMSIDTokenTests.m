@@ -80,7 +80,6 @@
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertNil(tokenCacheItem.homeAccountId);
-    XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
 }
 
@@ -117,7 +116,6 @@
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertNil(tokenCacheItem.homeAccountId);
-    XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
 }
 
@@ -154,7 +152,6 @@
     XCTAssertNil(tokenCacheItem.familyId);
     XCTAssertEqualObjects(tokenCacheItem.authority.absoluteString, TEST_AUTHORITY);
     XCTAssertNil(tokenCacheItem.homeAccountId);
-    XCTAssertNil(tokenCacheItem.clientInfo);
     XCTAssertEqualObjects(tokenCacheItem.additionalInfo, additionalServerInfo);
 }
 

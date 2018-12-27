@@ -275,7 +275,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                    correlationId:(NSUUID *)correlationId
                                    requestParams:(NSDictionary *)requestParams
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSDictionary *requestHeaders = nil;
     if (correlationId)
@@ -512,7 +512,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                              useOpenidConnect:(BOOL)useOpenidConnect
                                 requestParams:(NSDictionary *)requestParams
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [correlationId UUIDString];
@@ -535,7 +535,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
     [requestParamsBody addEntriesFromDictionary:requestParams];
 
-
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
@@ -552,7 +551,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
     headers[@"client-request-id"] = [correlationId UUIDString];
@@ -593,7 +592,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = nil;
-    tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
@@ -615,7 +613,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.expiresOn = nil;
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = @"familyId value";
-    tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = nil;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
@@ -637,7 +634,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
     tokenCacheItem.familyId = @"familyId value";
-    tokenCacheItem.clientInfo = [self adCreateClientInfo];
     tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
     tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
     tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
@@ -695,8 +691,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (MSIDConfiguration *)adCreateV2DefaultConfiguration
 {
-    
-    
     return [[MSIDConfiguration alloc] initWithAuthority:[TEST_AUTHORITY authority]
                                             redirectUri:TEST_REDIRECT_URL_STRING
                                                clientId:TEST_CLIENT_ID
@@ -735,7 +729,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     baseToken.authority = [TEST_AUTHORITY authority];
     baseToken.clientId = TEST_CLIENT_ID;
     baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"unique User Id"];
-    baseToken.clientInfo = [self adCreateClientInfo];
     baseToken.additionalServerInfo = @{@"key2" : @"value2"};
 }
 
