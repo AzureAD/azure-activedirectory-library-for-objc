@@ -125,8 +125,7 @@ static NSDictionary *s_userInfoKeyMapping;
 + (NSErrorDomain)adErrorDomainFromMsidError:(NSError *)msidError
 {
     if (!msidError) return nil;
-
-    return s_errorDomainMapping[msidError.domain] ?: msidError.domain;
+    return s_errorDomainMapping[msidError.domain];
 }
 
 + (NSInteger)adErrorCodeFromMsidError:(NSError *)msidError
@@ -136,11 +135,10 @@ static NSDictionary *s_userInfoKeyMapping;
     NSString *adDomain = [self adErrorDomainFromMsidError:msidError];
     if (!adDomain) return msidError.code;
     
-    
     NSNumber *mappedErrorCode = s_errorCodeMapping[adDomain][@(msidError.code)];
     if (!mappedErrorCode)
     {
-        MSID_LOG_WARN(nil, @"ADAuthenticationErrorMap could not find the error code mapping entry for domain (%@) + error code (%ld).", adDomain, (long)msidError.code);
+        NSAssert(NO, @"Error mapping incorrect - domain found, but code no match.");
         return msidError.code;
     }
     

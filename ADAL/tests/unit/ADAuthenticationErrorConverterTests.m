@@ -46,7 +46,7 @@
     XCTAssertNil(adalError);
 }
 
-- (void)testErrorConversion_whenOnlyErrorDomainIsMapped_shouldKeepErrorCode {
+- (void)testErrorConversion_whenOnlyErrorDomainIsMapped_shouldThrowAssert {
     NSInteger errorCode = -9999;
     NSString *errorDescription = @"a fake error description.";
     NSString *oauthError = @"a fake oauth error message.";
@@ -55,6 +55,25 @@
     NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
     
     NSError *msidError = MSIDCreateError(MSIDErrorDomain,
+                                         errorCode,
+                                         errorDescription,
+                                         oauthError,
+                                         nil,
+                                         underlyingError,
+                                         correlationId,
+                                         @{MSIDHTTPHeadersKey : httpHeaders});
+    XCTAssertThrows([ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError]);
+}
+
+- (void)testErrorConversion_whenDomainNotMapped_shouldKeepErrorCode {
+    NSInteger errorCode = -9999;
+    NSString *errorDescription = @"a fake error description.";
+    NSString *oauthError = @"a fake oauth error message.";
+    NSError *underlyingError = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecItemNotFound userInfo:nil];
+    NSUUID *correlationId = [NSUUID UUID];
+    NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
+    
+    NSError *msidError = MSIDCreateError(ADAuthenticationErrorDomain,
                                          errorCode,
                                          errorDescription,
                                          oauthError,
