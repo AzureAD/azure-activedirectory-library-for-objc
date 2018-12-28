@@ -47,7 +47,7 @@
     NSString *domain = ADAuthenticationErrorMap.errorDomains[msidError.domain] ?: msidError.domain;
     
     // Map errorCode
-    // errorCode mapping is needed only if domain is in s_errorCodeMapping
+    // errorCode mapping is needed only if domain is newly mapped (thus, is a MSIDError)
     NSInteger errorCode = ([domain isEqualToString:msidError.domain]) ?
                             msidError.code :
                             [ADAuthenticationErrorMap.errorCodes[domain][@(msidError.code)] integerValue];
