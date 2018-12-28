@@ -56,7 +56,7 @@
 - (void)testErrorDomainFromMsidError_whenNotMappableError_shouldReturnNil
 {
     NSError *msidError = MSIDCreateError(NSURLErrorDomain, NSURLErrorUnknown, nil, nil, nil, nil, nil, nil);
-    XCTAssertNil(msidError);
+    XCTAssertNil([ADAuthenticationErrorMap adErrorDomainFromMsidError:msidError]);
 }
 
 - (void)testErrorCodeFromMsidError_whenMappedDomainAndMappableCode_shouldReturnMappedCode
