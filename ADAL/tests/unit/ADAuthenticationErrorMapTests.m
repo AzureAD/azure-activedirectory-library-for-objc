@@ -56,7 +56,8 @@
 - (void)testErrorDomainFromMsidError_whenNotMappableError_shouldReturnNil
 {
     NSError *msidError = MSIDCreateError(NSURLErrorDomain, NSURLErrorUnknown, nil, nil, nil, nil, nil, nil);
-    XCTAssertNil([ADAuthenticationErrorMap adErrorDomainFromMsidError:msidError]);
+    NSString *errorDomain = [ADAuthenticationErrorMap adErrorDomainFromMsidError:msidError];
+    XCTAssertNil(errorDomain);
 }
 
 - (void)testErrorCodeFromMsidError_whenMappedDomainAndMappableCode_shouldReturnMappedCode
@@ -67,10 +68,12 @@
     XCTAssertEqual(code, expectedErrorCode);
 }
 
-- (void)testErrorCodeFromMsidError_whenMappedDomainAndUnmappableCode_shouldThrowAssert
+- (void)testErrorCodeFromMsidError_whenMappedDomainAndUnmappableCode_shouldReturnUnmappedCode
 {
     NSError *msidError = MSIDCreateError(MSIDErrorDomain, 99999, nil, nil, nil, nil, nil, nil);
-    XCTAssertThrows([ADAuthenticationErrorMap adErrorCodeFromMsidError:msidError]);
+    NSInteger code = [ADAuthenticationErrorMap adErrorCodeFromMsidError:msidError];
+    NSInteger expectedErrorCode = 99999;
+    XCTAssertEqual(code, expectedErrorCode);
 }
 
 - (void)testErrorCodeFromMsidError_whenUnmappedDomain_shouldReturnCodeAsIs
