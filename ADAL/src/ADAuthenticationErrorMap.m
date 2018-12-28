@@ -139,6 +139,7 @@ static NSDictionary *s_userInfoKeyMapping;
     if (!mappedErrorCode)
     {
         NSAssert(NO, @"Error mapping incorrect - domain found, but code no match.");
+        MSID_LOG_WARN(nil, @"ADAuthenticationErrorMap - could not find the error code mapping entry for domain (%@) + error code (%ld).", adDomain, (long)msidError.code);
         return msidError.code;
     }
     
