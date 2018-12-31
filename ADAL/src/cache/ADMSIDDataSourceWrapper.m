@@ -82,7 +82,7 @@
 {
     NSError *cacheError = nil;
     
-    BOOL result = [self.dataSource removeItemsWithKey:[item tokenCacheKey] context:nil error:&cacheError];
+    BOOL result = [self.dataSource removeItemsWithTokenKey:[item tokenCacheKey] context:nil error:&cacheError];
     
     if (cacheError && error)
     {
