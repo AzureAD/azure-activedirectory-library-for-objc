@@ -135,15 +135,13 @@ static NSDictionary *s_userInfoKeyMapping;
     NSString *adDomain = [self adErrorDomainFromMsidError:msidError];
     if (!adDomain) return msidError.code;
  
-    // No mapping available for keychain error domain, return code as is.
     if ([adDomain isEqualToString:ADKeychainErrorDomain]) return msidError.code;
     
-    // Other errors should be mapped.
     NSNumber *mappedErrorCode = s_errorCodeMapping[adDomain][@(msidError.code)];
     if (!mappedErrorCode)
     {
         MSID_LOG_WARN(nil, @"ADAuthenticationErrorMap - could not find the error code mapping entry for domain (%@) + error code (%ld).", adDomain, (long)msidError.code);
-        return AD_ERROR_UNEXPECTED;
+        return msidError.code;
     }
     
     return [mappedErrorCode integerValue];

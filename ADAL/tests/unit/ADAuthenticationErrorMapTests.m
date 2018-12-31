@@ -72,7 +72,7 @@
 {
     NSError *msidError = MSIDCreateError(MSIDErrorDomain, 99999, nil, nil, nil, nil, nil, nil);
     NSInteger code = [ADAuthenticationErrorMap adErrorCodeFromMsidError:msidError];
-    NSInteger expectedErrorCode = AD_ERROR_UNEXPECTED;
+    NSInteger expectedErrorCode = 99999;
     XCTAssertEqual(code, expectedErrorCode);
 }
 
