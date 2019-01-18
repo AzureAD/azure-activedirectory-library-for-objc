@@ -22,55 +22,60 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDTestAccountsProvider.h"
+#import "MSIDTestConfigurationProvider.h"
 #import "XCUIElement+ADALiOSUITests.h"
 #import "MSIDTestAutomationConfiguration.h"
 #import "MSIDTestAutomationConfigurationRequest.h"
 
+@class MSIDAutomationErrorResult;
+@class MSIDAutomationSuccessResult;
+
 @interface ADALBaseUITest : XCTestCase
 
 @property (nonatomic) XCUIApplication *testApp;
-@property (nonatomic, class) MSIDTestAccountsProvider *accountsProvider;
+@property (nonatomic, class) MSIDTestConfigurationProvider *confProvider;
 @property (nonatomic) MSIDTestAccount *primaryAccount;
 @property (nonatomic) MSIDTestAutomationConfiguration *testConfiguration;
 
+// Result
+- (MSIDAutomationErrorResult *)automationErrorResult;
+- (MSIDAutomationSuccessResult *)automationSuccessResult;
+- (NSDictionary *)automationResultDictionary;
+- (NSDictionary *)resultIDTokenClaims;
+
+// Asserts
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
 - (void)assertAuthUIAppear;
 - (void)assertErrorCode:(NSString *)expectedErrorCode;
 - (void)assertErrorDescription:(NSString *)errorDescription;
-- (void)assertErrorContent:(NSString *)expectedContent key:(NSString *)key;
+- (void)assertErrorSubcode:(NSString *)errorSubcode;
 - (void)assertAccessTokenNotNil;
-- (NSDictionary *)resultIDTokenClaims;
 - (void)assertRefreshTokenNotNil;
 
+// Actions
+- (void)aadEnterEmail;
+- (void)aadEnterEmail:(NSString *)email app:(XCUIApplication *)app;
+- (void)aadEnterPassword;
+- (void)aadEnterPassword:(NSString *)password app:(XCUIApplication *)app;
+- (void)adfsEnterPassword;
+- (void)adfsEnterPassword:(NSString *)password app:(XCUIApplication *)app;
 - (void)closeResultView;
 - (void)invalidateRefreshToken:(NSDictionary *)config;
 - (void)expireAccessToken:(NSDictionary *)config;
 - (void)acquireToken:(NSDictionary *)config;
 - (void)acquireTokenSilent:(NSDictionary *)config;
-- (void)acquireTokenWithRefreshToken:(NSDictionary *)config;
-- (void)clearCache;
 - (void)clearKeychain;
 - (void)clearCookies;
-- (void)blackForestWaitForNextButton:(XCUIApplication *)application;
-- (void)aadEnterEmail:(NSString *)email;
-- (void)aadEnterEmail;
-- (void)aadEnterEmailInApp:(XCUIApplication *)app;
-- (void)aadEnterPassword;
-- (void)aadEnterPassword:(NSString *)password;
-- (void)aadEnterPasswordInApp:(XCUIApplication *)app;
-- (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp;
-- (void)adfsEnterPassword;
-- (void)adfsEnterPasswordInApp:(XCUIApplication *)app;
-- (void)adfsEnterPassword:(NSString *)password;
-- (void)adfsEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp;
-- (void)closeAuthUI;
 - (void)openURL:(NSDictionary *)config;
+- (void)blackForestWaitForNextButton:(XCUIApplication *)application;
+- (void)closeAuthUI;
+- (void)acquireTokenWithRefreshToken:(NSDictionary *)config;
 
+// Helpers
 - (void)waitForElement:(id)object;
-- (NSDictionary *)resultDictionary;
 - (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request;
 - (void)loadPasswordForAccount:(MSIDTestAccount *)account;
+- (NSDictionary *)configWithTestRequest:(MSIDAutomationTestRequest *)request;
 
 @end

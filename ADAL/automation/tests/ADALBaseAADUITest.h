@@ -21,35 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDVersion.h"
-#import "ADAL_Internal.h"
+#import "ADALBaseiOSUITest.h"
 
-static NSMutableDictionary *s_adalId = nil;
+@class MSIDAutomationTestRequest;
 
-@implementation MSIDVersion
+@interface ADALBaseAADUITest : ADALBaseiOSUITest
 
-+ (NSString *)platformName
-{
-#if TARGET_OS_IPHONE
-    return @"iOS";
-#else
-    return @"OSX";
-#endif
-}
+- (NSString *)runSharedAADLoginWithTestRequest:(MSIDAutomationTestRequest *)request;
+- (void)runSharedSilentAADLoginWithTestRequest:(MSIDAutomationTestRequest *)request;
 
-+ (NSString *)sdkName
-{
-    return @"ADAL";
-}
-
-+ (NSString *)sdkVersion
-{
-    return ADAL_VERSION_NSSTRING;
-}
-
-+ (NSString *)telemetryEventPrefix
-{
-    return @"Microsoft.ADAL.";
-}
+- (void)runSharedAuthUIAppearsStepWithTestRequest:(MSIDAutomationTestRequest *)request;
+- (NSString *)runSharedResultAssertionWithTestRequest:(MSIDAutomationTestRequest *)request;
 
 @end

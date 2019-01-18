@@ -35,6 +35,10 @@
 #import "ADTokenCache+Internal.h"
 #endif
 
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAuthority+Internal.h"
+
 @implementation ADAutoBaseAction
 
 - (NSString *)actionIdentifier
@@ -103,8 +107,9 @@
     userInfo.tenantId = adalResult.tokenCacheItem.userInformation.tenantId;
     userInfo.givenName = adalResult.tokenCacheItem.userInformation.givenName;
     userInfo.familyName = adalResult.tokenCacheItem.userInformation.familyName;
-    userInfo.username = adalResult.tokenCacheItem.userInformation.userId;
+    userInfo.username = adalResult.tokenCacheItem.userInformation.upn ?: adalResult.tokenCacheItem.userInformation.eMail;
     userInfo.localAccountId = adalResult.tokenCacheItem.userInformation.uniqueId;
+    userInfo.legacyAccountId = adalResult.tokenCacheItem.userInformation.userId;
 
     NSURL *authority = [NSURL URLWithString:adalResult.tokenCacheItem.authority];
     userInfo.environment = authority.host;
@@ -158,7 +163,7 @@
 
 - (ADUserIdentifier *)userIdentifierForRequest:(MSIDAutomationTestRequest *)request
 {
-    NSString *userId = request.legacyAccountIdentifier;
+    NSString *userId = request.legacyAccountIdentifier ?: request.loginHint;
 
     ADUserIdentifier *userIdentifier = nil;
 
@@ -205,5 +210,26 @@
 
     return output;
 }
+
+- (NSString *)cacheUrlWithParameters:(MSIDAutomationTestRequest *)parameters
+{
+    NSString *authority = parameters.cacheAuthority ?: parameters.configurationAuthority;
+    
+    MSIDAADAuthority *aadAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
+    
+    NSString *cacheUrlString = nil;
+    
+    if (aadAuthority)
+    {
+        cacheUrlString = [[MSIDAadAuthorityCache sharedInstance] cacheUrlForAuthority:aadAuthority context:nil].absoluteString;
+    }
+    else
+    {
+        cacheUrlString = authority;
+    }
+    
+    return cacheUrlString;
+}
+
 
 @end

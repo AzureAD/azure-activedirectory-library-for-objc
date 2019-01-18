@@ -36,7 +36,5 @@
 - (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId;
 - (void)removeAppWithId:(NSString *)appId;
 - (void)acceptAuthSessionDialog;
-- (void)guestEnterUsernameInApp:(XCUIApplication *)application;
-- (void)guestEnterPasswordInApp:(XCUIApplication *)application;
 
 @end

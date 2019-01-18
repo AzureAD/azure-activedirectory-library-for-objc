@@ -65,7 +65,8 @@ static BOOL olderADALAppInstalled = NO;
     [userNameField typeText:self.primaryAccount.username];
     [olderApp.buttons[@"prompt always"] tap];
 
-    [self aadEnterPasswordInApp:olderApp];
+    NSString *password = [NSString stringWithFormat:@"%@\n", self.primaryAccount.password];
+    [self aadEnterPassword:password app:olderApp];
     [self validateSuccessfulResultInApp:olderApp];
 
     [self.testApp activate];
@@ -169,7 +170,7 @@ static BOOL olderADALAppInstalled = NO;
 
 - (XCUIApplication *)olderADALApp
 {
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"adal_1_2_x"];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:@"adal_1_2_x"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *olderApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];

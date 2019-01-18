@@ -29,8 +29,6 @@
 @class ADAuthenticationResult;
 @class ADUserIdentifier;
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface ADAutoBaseAction : NSObject <MSIDAutomationTestAction>
 
 - (ADAuthenticationContext *)contextFromParameters:(MSIDAutomationTestRequest *)request
@@ -42,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (ADUserIdentifier *)userIdentifierForRequest:(MSIDAutomationTestRequest *)request;
 - (NSString *)extraQueryParamsForRequest:(MSIDAutomationTestRequest *)request;
 - (id<ADTokenCacheDataSource>)cacheDatasource;
+- (NSString *)cacheUrlWithParameters:(MSIDAutomationTestRequest *)parameters;
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -53,12 +53,12 @@
 {
     id<ADTokenCacheDataSource> cache = [self cacheDatasource];
 
-    NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
-
     NSError *cacheError = nil;
-
-    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters.cacheAuthority
-                                                    resource:parameters.requestResource
+    
+    NSString *cacheUrlString = [self cacheUrlWithParameters:parameters];
+    
+    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:cacheUrlString
+                                                    resource:nil
                                                     clientId:parameters.clientId
                                                        error:&cacheError];
 
@@ -77,7 +77,7 @@
     int refreshTokenCount = 0;
     BOOL success = YES;
 
-    for (ADTokenCacheItem *item in allItems)
+    for (ADTokenCacheItem *item in items)
     {
         if (item.refreshToken)
         {
