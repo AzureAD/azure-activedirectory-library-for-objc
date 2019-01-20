@@ -23,6 +23,7 @@
 
 #import "ADALBaseUITest.h"
 #import "XCTestCase+TextFieldTap.h"
+#import "MSIDAutomationSuccessResult.h"
 
 @interface ADALOnPremLoginTests : ADALBaseUITest
 
@@ -37,49 +38,54 @@
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier": self.primaryAccount.account,
-                             @"validate_authority" : @NO
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
+    
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.uiBehavior = @"always";
+    adfsRequest.loginHint = self.primaryAccount.account;
+    adfsRequest.validateAuthority = NO;
+    adfsRequest.configurationAuthority = self.testConfiguration.authority;
+    
+    NSDictionary *adfsConfig = [self configWithTestRequest:adfsRequest];
+    [self acquireToken:adfsConfig];
     [self enterADFSPassword];
     [self assertAccessTokenNotNil];
+    // ADFSv3 is not OIDC compliant and therefore userId will be missing
+    XCTAssertNil([self automationSuccessResult].userInformation.legacyAccountId);
     [self closeResultView];
 
     // Now do silent #296725
-    config = [self.testConfiguration configWithAdditionalConfiguration:@{@"validate_authority":@NO}];
-    [self acquireTokenSilent:config];
+    NSDictionary *adfsSilentConfig = [self configWithTestRequest:adfsRequest];
+    [self acquireTokenSilent:adfsSilentConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now do silent with user identifier
-    NSDictionary *silentConfig = [self.testConfiguration configWithAdditionalConfiguration:@{@"validate_authority":@NO,@"user_identifier": self.primaryAccount.account}];
-    [self acquireTokenSilent:silentConfig];
+    adfsRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    
+    NSDictionary *adfsSilentConfigWithUserId = [self configWithTestRequest:adfsRequest];
+    // Acquire token silently
+    [self acquireTokenSilent:adfsSilentConfigWithUserId];
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
+    
     // Now expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:adfsSilentConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
-
+    
     // Now do access token refresh
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:adfsSilentConfigWithUserId];
     [self assertAccessTokenNotNil];
+    XCTAssertNil([self automationSuccessResult].userInformation.legacyAccountId);
     [self closeResultView];
 
     // Now expire access token again
-    [self expireAccessToken:config];
+    [self expireAccessToken:adfsSilentConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do access token refresh again, verifying that refresh token wasn't deleted as a result of the first operation
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:adfsSilentConfigWithUserId];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -91,22 +97,22 @@
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
+    
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.uiBehavior = @"auto";
+    adfsRequest.loginHint = self.primaryAccount.account;
+    adfsRequest.validateAuthority = NO;
+    adfsRequest.configurationAuthority = self.testConfiguration.authority;
+    
+    NSDictionary *adfsConfig = [self configWithTestRequest:adfsRequest];
 
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"user_identifier": self.primaryAccount.account,
-                             @"validate_authority" : @NO,
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
+    [self acquireToken:adfsConfig];
     [self enterADFSPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now do acquiretoken again with prompt auto and expect result to be returned immediately
-    [self acquireToken:config];
+    [self acquireToken:adfsConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -118,41 +124,39 @@
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
+    
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.uiBehavior = @"always";
+    adfsRequest.validateAuthority = YES;
+    adfsRequest.configurationAuthority = self.testConfiguration.authority;
+    
+    NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];
     [self assertErrorCode:@"AD_ERROR_DEVELOPER_INVALID_ARGUMENT"];
 }
 
-- (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADFSv3
+// TODO: re-enable once ADFSv3 authority validation is not broken anymore
+- (void)DISABLED_testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADFSv3
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier": self.primaryAccount.account,
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
+    
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.uiBehavior = @"always";
+    adfsRequest.validateAuthority = YES;
+    adfsRequest.configurationAuthority = self.testConfiguration.authority;
+    adfsRequest.loginHint = self.primaryAccount.account;
+    
+    NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];
     [self enterADFSPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now do silent #296725
-    config = [self.testConfiguration configWithAdditionalConfiguration:@{}];
     [self acquireTokenSilent:config];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -166,29 +170,25 @@
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier": self.primaryAccount.account,
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
+    
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.uiBehavior = @"always";
+    adfsRequest.validateAuthority = YES;
+    adfsRequest.configurationAuthority = self.testConfiguration.authority;
+    adfsRequest.loginHint = self.primaryAccount.account;
+    
+    NSDictionary *adfsConfig = [self configWithTestRequest:adfsRequest];
+    [self acquireToken:adfsConfig];
     [self enterADFSPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now do silent #296725
-    NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account
-                                   };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
+    adfsRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentADFSConfig = [self configWithTestRequest:adfsRequest];
+    [self acquireTokenSilent:silentADFSConfig];
     [self assertAccessTokenNotNil];
-    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
+    XCTAssertEqualObjects([self automationSuccessResult].userInformation.legacyAccountId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 }
 
@@ -200,55 +200,45 @@
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier": self.primaryAccount.account,
-                             @"validate_authority" : @NO
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
+    
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.uiBehavior = @"always";
+    adfsRequest.validateAuthority = NO;
+    adfsRequest.configurationAuthority = self.testConfiguration.authority;
+    adfsRequest.loginHint = self.primaryAccount.account;
+    
+    NSDictionary *adfsConfig = [self configWithTestRequest:adfsRequest];
+    [self acquireToken:adfsConfig];
     [self enterADFSPassword];
     [self assertAccessTokenNotNil];
-    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
+    XCTAssertEqualObjects([self automationSuccessResult].userInformation.legacyAccountId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 
     // Now do silent #296725
-    NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account,
-                                   @"validate_authority" : @NO
-                                   };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
+    adfsRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentADFSConfig = [self configWithTestRequest:adfsRequest];
+    [self acquireTokenSilent:silentADFSConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:silentADFSConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do access token refresh
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:silentADFSConfig];
     [self assertAccessTokenNotNil];
-    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
+    XCTAssertEqualObjects([self automationSuccessResult].userInformation.legacyAccountId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 
     // Now do silent #296725 without providing user ID
-    silentParams = @{
-                     @"client_id" : self.testConfiguration.clientId,
-                     @"authority" : self.testConfiguration.authority,
-                     @"resource" : self.testConfiguration.resource,
-                     @"validate_authority" : @NO
-                     };
+    adfsRequest.legacyAccountIdentifier = nil;
+    silentADFSConfig = [self configWithTestRequest:adfsRequest];
 
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:silentADFSConfig];
     [self assertAccessTokenNotNil];
-    XCTAssertEqualObjects([[self resultDictionary][@"displayable_id"] lowercaseString], self.primaryAccount.account.lowercaseString);
+    XCTAssertEqualObjects([self automationSuccessResult].userInformation.legacyAccountId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
 }
 

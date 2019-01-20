@@ -39,7 +39,6 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderShibboleth;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
@@ -48,13 +47,10 @@
 // #290995 iteration 5
 - (void)testInteractiveShibLogin_withPromptAlways_noLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *shibRequest = [self.class.confProvider defaultAppRequest];
+    shibRequest.uiBehavior = @"always";
     
+    NSDictionary *config = [self configWithTestRequest:shibRequest];
     [self acquireToken:config];
     
     [self aadEnterEmail];
@@ -62,39 +58,34 @@
     [self shibEnterUsername];
     [self shibEnterPassword];
     
-    [self assertAccessTokenNotNil];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:shibRequest];
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:config];
-    [self assertAuthUIAppear];
+    [self runSharedAuthUIAppearsStepWithTestRequest:shibRequest];
 
 }
 
 // #290995 iteration 6
 - (void)testInteractiveShibLogin_withPromptAlways_withLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *shibRequest = [self.class.confProvider defaultAppRequest];
+    shibRequest.uiBehavior = @"always";
+    shibRequest.loginHint = self.primaryAccount.account;
     
+    NSDictionary *config = [self configWithTestRequest:shibRequest];
     [self acquireToken:config];
     
     [self shibEnterUsername];
     [self shibEnterPassword];
     
-    [self assertAccessTokenNotNil];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:shibRequest];
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
-    [self clearCookies];
     
-    // Acquire token again.
-    [self acquireToken:config];
-    [self assertAuthUIAppear];
+    shibRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self runSharedSilentLoginWithTestRequest:shibRequest];
 }
 
 #pragma mark - Private

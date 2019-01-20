@@ -54,6 +54,7 @@
 - (void)assertRefreshTokenNotNil;
 
 // Actions
+- (void)performAction:(NSString *)action withConfig:(NSDictionary *)config;
 - (void)aadEnterEmail;
 - (void)aadEnterEmail:(NSString *)email app:(XCUIApplication *)app;
 - (void)aadEnterPassword;
@@ -77,5 +78,11 @@
 - (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request;
 - (void)loadPasswordForAccount:(MSIDTestAccount *)account;
 - (NSDictionary *)configWithTestRequest:(MSIDAutomationTestRequest *)request;
+
+// Shared steps
+- (void)runSharedAuthUIAppearsStepWithTestRequest:(MSIDAutomationTestRequest *)request;
+- (NSString *)runSharedResultAssertionWithTestRequest:(MSIDAutomationTestRequest *)request;
+- (void)runSharedSilentLoginWithTestRequest:(MSIDAutomationTestRequest *)request;
+- (NSString *)runSharedAADLoginWithTestRequest:(MSIDAutomationTestRequest *)request;
 
 @end

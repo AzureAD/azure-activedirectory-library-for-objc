@@ -46,14 +46,15 @@
 }
 
 
-- (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView
+// TODO: enable NTLM tests once NTLM environment is available
+- (void)DISABLED_testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"validate_authority" : @NO
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    request.uiBehavior = @"always";
+    request.validateAuthority = NO;
+    request.configurationAuthority = self.testConfiguration.authority;
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     [self ntlmWaitForAlert];
@@ -71,15 +72,15 @@
     [self assertAccessTokenNotNil];
 }
 
-- (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
+- (void)DISABLED_testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"validate_authority" : @NO,
-                             @"web_view" : @"passed_in"
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    request.uiBehavior = @"always";
+    request.validateAuthority = NO;
+    request.usePassedWebView = YES;
+    request.configurationAuthority = self.testConfiguration.authority;
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     [self ntlmWaitForAlert];
@@ -96,15 +97,14 @@
     [self closeResultView];
 }
 
-
-- (void)testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView_andCancelAuth
+- (void)DISABLED_testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView_andCancelAuth
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"validate_authority" : @NO
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    request.uiBehavior = @"always";
+    request.validateAuthority = NO;
+    request.configurationAuthority = self.testConfiguration.authority;
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     [self ntlmWaitForAlert];

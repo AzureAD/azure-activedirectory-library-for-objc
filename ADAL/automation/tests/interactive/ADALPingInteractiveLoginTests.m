@@ -39,7 +39,6 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderPing;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
@@ -48,12 +47,10 @@
 // #290995 iteration 9
 - (void)testInteractivePingLogin_withPromptAlways_noLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *pingRequest = [self.class.confProvider defaultAppRequest];
+    pingRequest.uiBehavior = @"always";
     
+    NSDictionary *config = [self configWithTestRequest:pingRequest];
     [self acquireToken:config];
     
     [self aadEnterEmail];
@@ -61,12 +58,12 @@
     [self pingEnterUsername];
     [self pingEnterPassword];
     
-    [self assertAccessTokenNotNil];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:pingRequest];
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:config];
-    [self assertAuthUIAppear];
+    [self runSharedAuthUIAppearsStepWithTestRequest:pingRequest];
 }
 
 
@@ -74,25 +71,22 @@
 // #290995 iteration 10
 - (void)testInteractivePingLogin_withPromptAlways_withLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *pingRequest = [self.class.confProvider defaultAppRequest];
+    pingRequest.uiBehavior = @"always";
+    pingRequest.loginHint = self.primaryAccount.account;
     
+    NSDictionary *config = [self configWithTestRequest:pingRequest];
     [self acquireToken:config];
     
     [self pingEnterUsername];
     [self pingEnterPassword];
     
-    [self assertAccessTokenNotNil];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:pingRequest];
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
     
-    // Acquire token again.
-    [self acquireToken:config];
-    [self assertAuthUIAppear];
+    pingRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self runSharedSilentLoginWithTestRequest:pingRequest];
 }
 
 #pragma mark - Private

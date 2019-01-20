@@ -39,7 +39,6 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = NO;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
@@ -51,83 +50,48 @@
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_withLoginHint_ADALWebView
 {
     // Do interactive login
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"extra_qp": @"instance_aware=true",
-                             @"authority" : @"https://login.microsoftonline.com/common"
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"always";
+    request.loginHint = self.primaryAccount.account;
+    request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
+    request.legacyAccountIdentifierType = @"required_displayable";
+    request.extraQueryParameters = @{@"instance_aware": @1};
     
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     [self blackForestWaitForNextButton:self.testApp];
     [self blackforestComEnterPassword];
     
-    [self assertAccessTokenNotNil];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:request];
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
-
-    NSMutableDictionary *mutableConfig = [config mutableCopy];
-    [mutableConfig removeObjectForKey:@"user_identifier"];
     
-    // Acquire token again.
-    [self acquireToken:mutableConfig];
-    [self assertAuthUIAppear];
+    // Do UI appears test
+    [self runSharedAuthUIAppearsStepWithTestRequest:request];
 
-    [self closeAuthUI];
-    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
-    [self closeResultView];
-
-    // First try silent with WW authority
-    NSDictionary *silentParams = @{
-                                @"user_identifier" : self.primaryAccount.account,
-                                @"client_id" : self.testConfiguration.clientId,
-                                @"resource" : self.testConfiguration.resource,
-                                @"authority" : @"https://login.microsoftonline.com/common"
-                                };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-
+    // First try silent with (wrong) WW authority
+    request.legacyAccountIdentifier = userId;
+    NSDictionary *silentWWConfig = [self configWithTestRequest:request];
+    [self acquireTokenSilent:silentWWConfig];
     [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
-    // Now try silent with correct authority - #296889
-    silentParams = @{
-                     @"user_identifier" : self.primaryAccount.account,
-                     @"client_id" : self.testConfiguration.clientId,
-                     @"authority" : self.testConfiguration.authority,
-                     @"resource" : self.testConfiguration.resource
-                     };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    // Now expire access token
-    [self expireAccessToken:config];
-    [self assertAccessTokenExpired];
-    [self closeResultView];
-
-    // Now do access token refresh
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
+    // Now try silent with correct blackforest authority - #296889
+    request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"de"];
+    [self runSharedSilentLoginWithTestRequest:request];
 }
 
 // #290995 iteration 14
 - (void)testInteractiveAADLogin_withBlackforestUser_withPromptAlways_noLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"extra_qp": @"instance_aware=true",
-                             @"authority" : @"https://login.microsoftonline.com/common"
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    // Do interactive login
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"always";
+    request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
+    request.extraQueryParameters = @{@"instance_aware": @1};
     
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
     
     [self blackforestComEnterEmail];

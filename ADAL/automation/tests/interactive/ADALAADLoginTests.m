@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "ADALBaseAADUITest.h"
+#import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "XCUIElement+CrossPlat.h"
 #import "MSIDAutomationSuccessResult.h"
 
-@interface ADALAADInteractiveLoginTests : ADALBaseAADUITest
+@interface ADALAADInteractiveLoginTests : ADALBaseUITest
 
 @end
 
@@ -59,7 +59,7 @@
 
     // Now do silent #2967259
     request.legacyAccountIdentifier = userId;
-    [self runSharedSilentAADLoginWithTestRequest:request];
+    [self runSharedSilentLoginWithTestRequest:request];
     
     request.legacyAccountIdentifier = nil;
 
@@ -82,11 +82,12 @@
     
     // Now do silent
     request.legacyAccountIdentifier = userId;
-    [self runSharedSilentAADLoginWithTestRequest:request];
+    [self runSharedSilentLoginWithTestRequest:request];
 }
 
 #if TARGET_OS_IPHONE
-- (void)testInteractiveAndSilentAADMFALogin_withPromptAlways_noLoginHint_ADALWebView
+// TODO: re-enable this test once we have reasonable test environment for MFA
+- (void)DISABLED_testInteractiveAndSilentAADMFALogin_withPromptAlways_noLoginHint_ADALWebView
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
@@ -106,7 +107,6 @@
     [self waitForElement:mfaTitle];
 
     [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
-
     sleep(5);
 
     [self.testApp activate];
@@ -116,6 +116,30 @@
     __auto_type verifyTitle = self.testApp.staticTexts[@"Verify your identity"];
     [self waitForElement:verifyTitle];
 }
+
+- (void)testInteractiveAADLogin_whenAppSentToBackground_ADALWebView_shouldSuccessfullyCompleteAuth
+{
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"always";
+    
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self acquireToken:config];
+    [self aadEnterEmail];
+    
+    [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+    sleep(5);
+    
+    [self.testApp activate];
+    [self aadEnterPassword];
+    
+    [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+    sleep(5);
+    [self.testApp activate];
+    
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:request];
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
+}
+
 #endif
 
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled
@@ -236,7 +260,7 @@
     [self closeResultView];
     
     // Run silent again
-    [self runSharedSilentAADLoginWithTestRequest:fociRequest];
+    [self runSharedSilentLoginWithTestRequest:fociRequest];
 }
 
 
@@ -274,12 +298,12 @@
     // User 1, silent login.
     self.primaryAccount = self.testConfiguration.accounts[0];
     firstRequest.legacyAccountIdentifier = firstUserId;
-    [self runSharedSilentAADLoginWithTestRequest:firstRequest];
+    [self runSharedSilentLoginWithTestRequest:firstRequest];
     
     // User 2, silent login.
     self.primaryAccount = self.testConfiguration.accounts[1];
     secondRequest.legacyAccountIdentifier = secondUserId;
-    [self runSharedSilentAADLoginWithTestRequest:secondRequest];
+    [self runSharedSilentLoginWithTestRequest:secondRequest];
 }
 
 // #296758: Different ADUserIdentifierType settings
@@ -454,7 +478,7 @@
     [self closeResultView];
     
     refreshTokenRequest.legacyAccountIdentifier = self.primaryAccount.account;
-    [self runSharedSilentAADLoginWithTestRequest:refreshTokenRequest];
+    [self runSharedSilentLoginWithTestRequest:refreshTokenRequest];
 }
 
 #pragma mark - Private

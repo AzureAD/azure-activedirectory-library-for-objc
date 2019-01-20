@@ -104,8 +104,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 #pragma mark - Action helpers
 
-- (void)performAction:(NSString *)action
-           withConfig:(NSDictionary *)config
+- (void)performAction:(NSString *)action withConfig:(NSDictionary *)config
 {
     NSString *jsonString = [config toJsonString];
     [self.testApp.buttons[action] msidTap];
@@ -376,5 +375,86 @@ static MSIDTestConfigurationProvider *s_confProvider;
     return updatedRequest.jsonDictionary;
 }
 
+#pragma mark - Shared steps
+
+- (void)runSharedAuthUIAppearsStepWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self acquireToken:config];
+    
+    [self assertAuthUIAppear];
+    [self closeAuthUI];
+    
+    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
+    [self closeResultView];
+}
+
+- (NSString *)runSharedResultAssertionWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    [self assertAccessTokenNotNil];
+    
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
+    XCTAssertNotNil(result.userInformation.legacyAccountId);
+    
+    if (request.testAccount)
+    {
+        NSString *resultTenantId = result.userInformation.tenantId;
+        
+        NSString *idToken = result.idToken;
+        XCTAssertNotNil(idToken);
+        
+        MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:nil];
+        XCTAssertNotNil(idToken);
+        
+        NSString *idTokenTenantId = claims.jsonDictionary[@"tid"];
+        
+        XCTAssertEqualObjects(resultTenantId, request.testAccount.targetTenantId);
+        XCTAssertEqualObjects(resultTenantId, idTokenTenantId);
+    }
+    
+    return result.userInformation.legacyAccountId;
+}
+
+- (void)runSharedSilentLoginWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    NSDictionary *config = [self configWithTestRequest:request];
+    // Acquire token silently
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+    
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+    
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self runSharedResultAssertionWithTestRequest:request];
+    [self closeResultView];
+}
+
+- (NSString *)runSharedAADLoginWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self acquireToken:config];
+    [self assertAuthUIAppear];
+    
+    if (request.usePassedWebView)
+    {
+        XCTAssertTrue(self.testApp.staticTexts[@"PassedIN"]);
+    }
+    
+    if (!request.loginHint && !request.homeAccountIdentifier)
+    {
+        [self aadEnterEmail];
+    }
+    
+    [self aadEnterPassword];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:request];
+    [self closeResultView];
+    return userId;
+}
 
 @end

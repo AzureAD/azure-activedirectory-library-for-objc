@@ -25,7 +25,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2018 MS Open Tech. All rights reserved.</string>
 	<key>NSMainStoryboardFile</key>
-	<string>Main</string>
+	<string>MainAutomation</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
