@@ -60,23 +60,32 @@
         return;
     }
 
-    dispatch_semaphore_t sem = dispatch_semaphore_create(10);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [self runStressTestImpl:parameters context:context];
+    });
+}
 
+- (void)runStressTestImpl:(MSIDAutomationTestRequest *)parameters
+                  context:(ADAuthenticationContext *)context
+{
+    dispatch_semaphore_t sem = dispatch_semaphore_create(10);
+    
     while (YES)
     {
         dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-
+        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
+            
             [context acquireTokenSilentWithResource:parameters.requestResource
                                            clientId:parameters.clientId
                                         redirectUri:[NSURL URLWithString:parameters.redirectUri]
                                              userId:parameters.legacyAccountIdentifier
                                     completionBlock:^(ADAuthenticationResult *result) {
-
+                                        
                                         id<ADTokenCacheDataSource> cache = [self cacheDatasource];
                                         [cache removeItem:result.tokenCacheItem error:nil];
-
+                                        
                                         dispatch_semaphore_signal(sem);
                                     }];
         });

@@ -111,9 +111,10 @@
     XCTAssertNotNil(appConfiguration);
 
     NSString *appInstallUrl = appConfiguration[@"install_url"];
-
-    NSDictionary *dictionary = @{@"safari_url": appInstallUrl};
-    [self openURL:dictionary];
+    
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    request.extraQueryParameters = @{@"url": appInstallUrl};
+    [self openURL:request.jsonDictionary];
 
     XCUIApplication *safariApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
 

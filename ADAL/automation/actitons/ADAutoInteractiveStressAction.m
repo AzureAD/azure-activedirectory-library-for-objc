@@ -106,7 +106,7 @@
                                         redirectUri:[NSURL URLWithString:parameters.redirectUri]
                                              userId:parameters.legacyAccountIdentifier
                                     completionBlock:^(ADAuthenticationResult *result) {
-
+                                        
                                         if (result.status == AD_SUCCEEDED)
                                         {
                                             stop = YES;

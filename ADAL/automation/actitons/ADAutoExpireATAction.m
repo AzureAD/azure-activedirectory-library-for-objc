@@ -55,29 +55,36 @@
 
     NSError *cacheError = nil;
     
-    NSString *cacheUrlString = [self cacheUrlWithParameters:parameters];
-
-    ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:cacheUrlString
-                                                    resource:parameters.requestResource
-                                                    clientId:parameters.clientId
-                                                       error:&cacheError];
-
-    NSArray *items = [cache getItemsWithKey:key
-                                     userId:parameters.legacyAccountIdentifier
-                              correlationId:nil
-                                      error:&cacheError];
-
-    if (!items)
+    NSArray *cacheAliases = [self cacheAliasesWithParameters:parameters];
+    
+    NSMutableArray *foundAccessTokens = [NSMutableArray new];
+    
+    for (NSURL *cacheURL in cacheAliases)
     {
-        MSIDAutomationTestResult *result = [self testResultWithADALError:cacheError];
-        completionBlock(result);
-        return;
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:cacheURL.absoluteString
+                                                        resource:parameters.requestResource
+                                                        clientId:parameters.clientId
+                                                           error:&cacheError];
+        
+        NSArray *items = [cache getItemsWithKey:key
+                                         userId:parameters.legacyAccountIdentifier
+                                  correlationId:nil
+                                          error:&cacheError];
+        
+        if (!items)
+        {
+            MSIDAutomationTestResult *result = [self testResultWithADALError:cacheError];
+            completionBlock(result);
+            return;
+        }
+        
+        [foundAccessTokens addObjectsFromArray:items];
     }
 
     int accessTokenCount = 0;
     BOOL success = YES;
 
-    for (ADTokenCacheItem *item in items)
+    for (ADTokenCacheItem *item in foundAccessTokens)
     {
         if (item.accessToken)
         {

@@ -54,7 +54,8 @@ static BOOL brokerAppInstalled = NO;
     [self loadTestConfiguration:configurationRequest];
 }
 
-- (void)testBrokerLoginWithGuestUsers_whenInGuestTenant_andDeviceRegistered_andLegacyBroker
+// TODO: older Authenticator build is not available anymore, re-enable this test if it's still necessary with a resigned authenticator build
+- (void)DISABLED_testBrokerLoginWithGuestUsers_whenInGuestTenant_andDeviceRegistered_andLegacyBroker
 {
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
@@ -62,9 +63,10 @@ static BOOL brokerAppInstalled = NO;
     // We expect auth UI to appear
     XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
     XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
+    
+    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
 
-    [self guestEnterUsernameInApp:brokerApp];
-    [self guestEnterPasswordInApp:brokerApp];
     __auto_type cancelAuthButton = brokerApp.buttons[@"Cancel"];
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"exists = 0"];
@@ -73,16 +75,14 @@ static BOOL brokerAppInstalled = NO;
     [self waitForExpectationsWithTimeout:60.0f handler:nil];
 
     [self.testApp activate];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
+    
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"auto";
+    request.brokerEnabled = YES;
+    request.loginHint = self.primaryAccount.account;
+    request.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     [self brokerApp];

@@ -50,19 +50,30 @@
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [self runStressTestImpl:parameters
+                completionBlock:completionBlock];
+        
+    });
+}
+
+- (void)runStressTestImpl:(MSIDAutomationTestRequest *)parameters
+          completionBlock:(MSIDAutoCompletionBlock)completionBlock
+{
     dispatch_semaphore_t sem = dispatch_semaphore_create(10);
-
+    
     __block BOOL stop = NO;
-
+    
     while (!stop)
     {
         dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-
+        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
+            
             NSError *contextError = nil;
             ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
-
+            
             if (!context)
             {
                 MSIDAutomationTestResult *result = [self testResultWithADALError:contextError];
@@ -71,7 +82,7 @@
                 stop = YES;
                 return;
             }
-
+            
             [context acquireTokenSilentWithResource:parameters.requestResource
                                            clientId:parameters.clientId
                                         redirectUri:[NSURL URLWithString:parameters.redirectUri]

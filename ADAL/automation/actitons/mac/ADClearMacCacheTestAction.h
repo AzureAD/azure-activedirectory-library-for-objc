@@ -21,26 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationTestAction.h"
+#import "ADAutoBaseAction.h"
 
-@class MSIDAutomationTestRequest;
-@class ADAuthenticationContext;
-@class ADAuthenticationResult;
-@class ADUserIdentifier;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface ADAutoBaseAction : NSObject <MSIDAutomationTestAction>
-
-- (ADAuthenticationContext *)contextFromParameters:(MSIDAutomationTestRequest *)request
-                                             error:(NSError **)error;
-
-- (MSIDAutomationTestResult *)testResultWithADALError:(NSError *)error;
-- (MSIDAutomationTestResult *)testResultWithADALResult:(ADAuthenticationResult *)adalResult;
-- (ADPromptBehavior)promptBehaviorForRequest:(MSIDAutomationTestRequest *)request;
-- (ADUserIdentifier *)userIdentifierForRequest:(MSIDAutomationTestRequest *)request;
-- (NSString *)extraQueryParamsForRequest:(MSIDAutomationTestRequest *)request;
-- (id<ADTokenCacheDataSource>)cacheDatasource;
-- (NSString *)cacheUrlWithParameters:(MSIDAutomationTestRequest *)parameters;
-- (NSArray *)cacheAliasesWithParameters:(MSIDAutomationTestRequest *)parameters;
+@interface ADClearMacCacheTestAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

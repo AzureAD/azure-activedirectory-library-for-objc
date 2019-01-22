@@ -21,26 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationTestAction.h"
+#import "ADClearMacCacheTestAction.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationTestResult.h"
+#import "ADTestAppCache.h"
 
-@class MSIDAutomationTestRequest;
-@class ADAuthenticationContext;
-@class ADAuthenticationResult;
-@class ADUserIdentifier;
+@implementation ADClearMacCacheTestAction
 
-@interface ADAutoBaseAction : NSObject <MSIDAutomationTestAction>
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADClearMacCacheTestAction new]];
+}
 
-- (ADAuthenticationContext *)contextFromParameters:(MSIDAutomationTestRequest *)request
-                                             error:(NSError **)error;
+- (NSString *)actionIdentifier
+{
+    return MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER;
+}
 
-- (MSIDAutomationTestResult *)testResultWithADALError:(NSError *)error;
-- (MSIDAutomationTestResult *)testResultWithADALResult:(ADAuthenticationResult *)adalResult;
-- (ADPromptBehavior)promptBehaviorForRequest:(MSIDAutomationTestRequest *)request;
-- (ADUserIdentifier *)userIdentifierForRequest:(MSIDAutomationTestRequest *)request;
-- (NSString *)extraQueryParamsForRequest:(MSIDAutomationTestRequest *)request;
-- (id<ADTokenCacheDataSource>)cacheDatasource;
-- (NSString *)cacheUrlWithParameters:(MSIDAutomationTestRequest *)parameters;
-- (NSArray *)cacheAliasesWithParameters:(MSIDAutomationTestRequest *)parameters;
+- (BOOL)needsRequestParameters
+{
+    return NO;
+}
+
+- (void)performActionWithParameters:(NSDictionary *)parameters
+                containerController:(MSIDAutoViewController *)containerController
+                    completionBlock:(MSIDAutoCompletionBlock)completionBlock
+{
+    BOOL result = [[ADTestAppCache sharedCache] clearCacheWithError:nil];
+
+    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                    success:result
+                                                                             additionalInfo:nil];
+    
+    if (completionBlock)
+    {
+        completionBlock(testResult);
+    }
+}
 
 @end

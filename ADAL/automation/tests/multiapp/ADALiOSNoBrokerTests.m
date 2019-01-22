@@ -38,6 +38,10 @@
     [self removeAppWithId:@"broker"];
 
     [self.testApp activate];
+    
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
+    [self loadTestConfiguration:configurationRequest];
 }
 
 - (void)tearDown
@@ -61,17 +65,15 @@
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES,
-                             @"resource": @"00000004-0000-0ff1-ce00-000000000000"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.brokerEnabled = YES;
+    request.loginHint = self.primaryAccount.account;
+    request.legacyAccountIdentifier = self.primaryAccount.account;
+    request.uiBehavior = @"always";
+    request.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"sfb_guid"];
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
     [self aadEnterPassword];
 
@@ -97,7 +99,7 @@
     [allowButton tap];
 
     // Enter password in broker
-    [self aadEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
 
     // It should prompt to register
     __auto_type registerButtonInBroker = brokerApp.buttons[@"Register"];
@@ -126,20 +128,13 @@
 // #296279
 - (void)testBrokerInstallAfterInitialSignin
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
-    [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"auto";
+    request.brokerEnabled = YES;
+    request.loginHint = self.primaryAccount.account;
+    request.legacyAccountIdentifier = self.primaryAccount.account;
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
     [self aadEnterPassword];
 
@@ -156,16 +151,7 @@
     [self.testApp activate];
     [self closeResultView];
 
-    params = @{
-               @"validate_authority" : @YES,
-               @"user_identifier" : self.primaryAccount.account,
-               @"user_identifier_type" : @"optional_displayable",
-               @"use_broker": @YES,
-               @"prompt_behavior" : @"auto"
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
+    // Acquire token again to ensure broker is not called
     [self expireAccessToken:config];
     [self assertAccessTokenExpired];
     [self closeResultView];
@@ -179,14 +165,12 @@
     [self assertAccessTokenExpired];
     [self closeResultView];
 
-    NSDictionary *keyParams = @{@"user_identifier" : self.primaryAccount.account,
-                                @"client_id" : self.testConfiguration.clientId,
-                                @"authority" : self.testConfiguration.authority};
-
-    [self invalidateRefreshToken:keyParams];
+    // Now invalidate refresh token
+    [self invalidateRefreshToken:config];
     [self assertRefreshTokenInvalidated];
     [self closeResultView];
 
+    // Make sure broker is used, since our local cache is now invalid
     [self acquireToken:config];
     BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:300.0f];
     XCTAssertTrue(result);
@@ -196,8 +180,7 @@
         [brokerApp.alerts.buttons[@"Ok"] tap];
     }
 
-    [self aadEnterPasswordInApp:brokerApp];
-
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
 
@@ -216,25 +199,18 @@
 
     [self.testApp activate];
     [self closeResultView];
-
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
-    [self loadTestConfiguration:configurationRequest];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    
+    MSIDAutomationTestRequest *brokerRequest = [self.class.confProvider defaultAppRequest];
+    brokerRequest.uiBehavior = @"auto";
+    brokerRequest.brokerEnabled = YES;
+    brokerRequest.loginHint = self.primaryAccount.account;
+    brokerRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    
+    NSDictionary *config = [self configWithTestRequest:brokerRequest];
     [self acquireToken:config];
 
     XCUIApplication *brokerApp = [self brokerApp];
-    [self aadEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     [self waitForRedirectToTheTestApp];
 
     [self assertAccessTokenNotNil];

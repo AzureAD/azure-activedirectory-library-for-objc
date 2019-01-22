@@ -48,22 +48,18 @@ static BOOL msalAppInstalled = NO;
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
 - (void)testCoexistenceWithMSAL_whenSigninInADALFirst_andSameClientId
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                                 @"redirect_uri": @"x-msauth-automationapp://com.microsoft.adal.automationapp",
-                             @"resource": @"https://graph.microsoft.com"
-                             };
+    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
+    adalRequest.uiBehavior = @"always";
+    adalRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"ms_graph"];
+    
+    NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
 
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
+    [self acquireToken:adalConfig];
     [self aadEnterEmail];
     [self aadEnterPassword];
 
@@ -71,31 +67,25 @@ static BOOL msalAppInstalled = NO;
     [self closeResultView];
 
     self.testApp = [self msalTestApp];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"scopes": @"https://graph.microsoft.com/.default",
-               @"redirect_uri": @"x-msauth-msalautomationapp://com.microsoft.msal.automationapp",
-               @"home_account_identifier": self.primaryAccount.homeAccountId,
-               // MSAL doesn't have authority migration feature yet, so we need to use login.windows.net authority
-               @"authority": [NSString stringWithFormat:@"https://login.windows.net/%@", self.primaryAccount.targetTenantId]
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
+    
+    MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultAppRequest];
+    msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
+    msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
+    
+    NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
+    
     // Acquire token silent
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:msalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:msalConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do token refresh
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:msalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -103,19 +93,14 @@ static BOOL msalAppInstalled = NO;
 - (void)testCoexistenceWithMSAL_whenSigninInMSALFirstAndUseDefaultScope_andSameClientId
 {
     self.testApp = [self msalTestApp];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"scopes": @"https://graph.microsoft.com/.default",
-                             @"redirect_uri": @"x-msauth-msalautomationapp://com.microsoft.msal.automationapp",
-                             @"resource": @"https://graph.microsoft.com",
-                             @"authority": @"https://login.windows.net/organizations",
-                             @"ui_behavior": @"force",
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
+    
+    MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultAppRequest];
+    msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
+    msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
+    msalRequest.uiBehavior = @"force";
+    
+    NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
+    [self acquireToken:msalConfig];
     [self acceptAuthSessionDialog];
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -125,33 +110,34 @@ static BOOL msalAppInstalled = NO;
 
     self.testApp = [XCUIApplication new];
     [self.testApp activate];
-
-    NSMutableDictionary *mutableParams = [config mutableCopy];
-    mutableParams[@"authority"] = @"https://login.windows.net/common";
-    mutableParams[@"user_identifier"] = self.primaryAccount.account;
+    
+    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
+    adalRequest.uiBehavior = @"always";
+    adalRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    adalRequest.loginHint = self.primaryAccount.account;
+    
+    NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
 
     // Acquire token silent
-    [self acquireTokenSilent:mutableParams];
+    [self acquireTokenSilent:adalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Expire access token
-    [self expireAccessToken:mutableParams];
+    [self expireAccessToken:adalConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do token refresh
-    [self acquireTokenSilent:mutableParams];
+    [self acquireTokenSilent:adalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Go back to MSAL test app
     self.testApp = [self msalTestApp];
 
-    mutableParams[@"home_account_identifier"] = self.primaryAccount.homeAccountId;
-
     // Acquire token silent
-    [self acquireTokenSilent:mutableParams];
+    [self acquireTokenSilent:msalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -164,19 +150,14 @@ static BOOL msalAppInstalled = NO;
 - (void)testCoexistenceWithMSAL_whenSigninInMSALFirst_andDifferentClient_withFociSupport
 {
     self.testApp = [self msalTestApp];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive",
-                             @"scopes": @"https://graph.microsoft.com/.default",
-                             @"authority": @"https://login.microsoftonline.com/organizations",
-                             @"ui_behavior": @"force",
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
+    
+    MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultFociRequestWithBroker];
+    msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
+    msalRequest.loginHint = self.primaryAccount.account;
+    msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
+    
+    NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
+    [self acquireToken:msalConfig];
     [self acceptAuthSessionDialog];
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -186,29 +167,18 @@ static BOOL msalAppInstalled = NO;
     // Switch back to the new ADAL app
     self.testApp = [XCUIApplication new];
     [self.testApp activate];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-               @"authority": @"https://login.windows.net/common",
-               @"user_identifier": self.primaryAccount.account
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireTokenSilent:config2];
+    
+    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultFociRequestWithBroker];
+    adalRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
+    
+    NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
+    [self acquireTokenSilent:adalConfig];
     [self assertAccessTokenNotNil];
 
     // Go back to MSAL test app
     self.testApp = [self msalTestApp];
-
-    NSMutableDictionary *mutableConfig = [config mutableCopy];
-    mutableConfig[@"home_account_identifier"] = self.primaryAccount.homeAccountId;
-
     // Acquire token silent
-    [self acquireTokenSilent:mutableConfig];
+    [self acquireTokenSilent:msalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -221,22 +191,19 @@ static BOOL msalAppInstalled = NO;
     [self allowNotificationsInSystemAlert];
     [self.testApp activate];
     [self closeResultView];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES,
-                             @"scopes": @"https://graph.microsoft.com/.default",
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
+    
+    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
+    adalRequest.brokerEnabled = YES;
+    adalRequest.uiBehavior = @"auto";
+    adalRequest.loginHint = self.primaryAccount.account;
+    adalRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"ms_graph"];
+    
+    NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
+    [self acquireToken:adalConfig];
 
     XCUIApplication *brokerApp = [self brokerApp];
 
-    [self aadEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     [self waitForRedirectToTheTestApp];
 
     [self assertAccessTokenNotNil];
@@ -245,22 +212,22 @@ static BOOL msalAppInstalled = NO;
 
     // Go back to MSAL test app
     self.testApp = [self msalTestApp];
-
-    NSMutableDictionary *mutableConfig = [config mutableCopy];
-    mutableConfig[@"home_account_identifier"] = nil;
-    mutableConfig[@"user_legacy_identifier"] = self.primaryAccount.username;
-    mutableConfig[@"authority"] = [NSString stringWithFormat:@"https://login.windows.net/%@", self.primaryAccount.targetTenantId];
-    mutableConfig[@"redirect_uri"] = @"x-msauth-msalautomationapp://com.microsoft.msal.automationapp";
+    
+    MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultAppRequest];
+    msalRequest.legacyAccountIdentifier = self.primaryAccount.username;
+    msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
+    
+    NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
 
     // Acquire token silent
-    [self acquireTokenSilent:mutableConfig];
+    [self acquireTokenSilent:msalConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
 
 - (XCUIApplication *)msalTestApp
 {
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"msal_unified"];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:@"msal_unified"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *msalApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];

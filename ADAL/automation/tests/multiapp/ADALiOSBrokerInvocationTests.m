@@ -53,8 +53,7 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)tearDown
 {
-    NSString *appBundleId = [self.class.accountsProvider appInstallForConfiguration:@"broker"][@"app_bundle_id"];
-
+    NSString *appBundleId = [self.class.confProvider appInstallForConfiguration:@"broker"][@"app_bundle_id"];
     XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
     [brokerApp terminate];
     [super tearDown];
@@ -64,32 +63,27 @@ static BOOL brokerAppInstalled = NO;
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = NO;
     configurationRequest.accountFeatures = @[];
     [self loadTestConfiguration:configurationRequest];
 
     // Do interactive login
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"force",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"extra_qp": @"instance_aware=true",
-                             @"authority" : @"https://login.microsoftonline.com/common",
-                             @"use_broker": @YES
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
+    MSIDAutomationTestRequest *instanceAwareRequest = [self.class.confProvider defaultAppRequest];
+    instanceAwareRequest.uiBehavior = @"force";
+    instanceAwareRequest.loginHint = self.primaryAccount.account;
+    instanceAwareRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    instanceAwareRequest.legacyAccountIdentifierType = @"optional_displayable";
+    instanceAwareRequest.extraQueryParameters = @{@"instance_aware": @1};
+    instanceAwareRequest.brokerEnabled = YES;
+    instanceAwareRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
+    
+    NSDictionary *instanceAwareConfig = [self configWithTestRequest:instanceAwareRequest];
+    [self acquireToken:instanceAwareConfig];
 
     XCUIApplication *brokerApp = [self brokerApp];
     [self blackForestWaitForNextButton:brokerApp];
-
-    XCUIElement *passwordTextField = brokerApp.secureTextFields[@"Password"];
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:brokerApp];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
-
+    
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     [self waitForRedirectToTheTestApp];
 
     [self assertAccessTokenNotNil];
@@ -101,39 +95,24 @@ static BOOL brokerAppInstalled = NO;
     [self closeResultView];
 
     // First try silent with WW authority
-    NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account,
-                                   @"client_id" : self.testConfiguration.clientId,
-                                   @"resource" : self.testConfiguration.resource,
-                                   @"authority" : @"https://login.microsoftonline.com/common"
-                                   };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-
+    [self acquireTokenSilent:instanceAwareConfig];
     [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
     // Now try silent with correct authority - #296889
-    silentParams = @{
-                     @"user_identifier" : self.primaryAccount.account,
-                     @"client_id" : self.testConfiguration.clientId,
-                     @"authority" : self.testConfiguration.authority,
-                     @"resource" : self.testConfiguration.resource
-                     };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
+    instanceAwareRequest.configurationAuthority = [NSString stringWithFormat:@"https://%@/common", self.testConfiguration.authorityHost];
+    instanceAwareConfig = [self configWithTestRequest:instanceAwareRequest];
+    [self acquireTokenSilent:instanceAwareConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Now expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:instanceAwareConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do access token refresh
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:instanceAwareConfig];
     [self assertAccessTokenNotNil];
 }
 
@@ -141,18 +120,15 @@ static BOOL brokerAppInstalled = NO;
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
+    
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"auto";
+    request.loginHint = self.primaryAccount.account;
+    request.brokerEnabled = YES;
+    request.legacyAccountIdentifierType = self.primaryAccount.account;
 
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     XCUIApplication *brokerApp = [self brokerApp];
@@ -160,7 +136,7 @@ static BOOL brokerAppInstalled = NO;
     // Kill the test app
     [self.testApp terminate];
 
-    [self aadEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
 
     BOOL result = [self.testApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
@@ -186,31 +162,27 @@ static BOOL brokerAppInstalled = NO;
     // Load configuration
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    //configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
 
     // Register device with this account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
-    [self adfsEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp launch];
     [self.testApp activate];
 
     // Acquire token for a resource requiring device authentication
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @NO,
-                             @"resource": @"00000004-0000-0ff1-ce00-000000000000"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
+    MSIDAutomationTestRequest *deviceAuthRequest = [self.class.confProvider defaultAppRequest];
+    deviceAuthRequest.uiBehavior = @"always";
+    deviceAuthRequest.brokerEnabled = NO;
+    deviceAuthRequest.loginHint = self.primaryAccount.account;
+    deviceAuthRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"sfb_guid"];
+    
+    NSDictionary *deviceAuthConf = [self configWithTestRequest:deviceAuthRequest];
+    [self acquireToken:deviceAuthConf];
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
@@ -231,22 +203,20 @@ static BOOL brokerAppInstalled = NO;
     // Register device with that account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
-    [self adfsEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
 
     // Acquire token for a resource that doesn't require device authentication
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @NO,
-                             @"resource": @"00000002-0000-0000-c000-000000000000"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"always";
+    request.brokerEnabled = NO;
+    request.loginHint = self.primaryAccount.account;
+    request.legacyAccountIdentifier = self.primaryAccount.account;
+    request.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
     [self aadEnterPassword];
 
@@ -259,19 +229,10 @@ static BOOL brokerAppInstalled = NO;
     [self assertAccessTokenExpired];
     [self closeResultView];
 
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"user_identifier" : self.primaryAccount.account,
-               @"user_identifier_type" : @"optional_displayable",
-               @"use_broker": @NO,
-               @"resource": @"00000004-0000-0ff1-ce00-000000000000"
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
     // Now do access token refresh with a resouce requiring device auth
-    [self acquireTokenSilent:config];
+    request.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"sfb_guid"];
+    NSDictionary *deviceAuthConfig = [self configWithTestRequest:request];
+    [self acquireTokenSilent:deviceAuthConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
@@ -287,34 +248,31 @@ static BOOL brokerAppInstalled = NO;
     // Register device with that account
     [self registerDeviceInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
-    [self adfsEnterPasswordInApp:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp activate];
-
+    
     // Acquire token for a resource that doesn't require device authentication
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @NO,
-                             @"resource": @"00000002-0000-0000-c000-000000000000"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"always";
+    request.brokerEnabled = NO;
+    request.loginHint = self.primaryAccount.account;
+    request.legacyAccountIdentifier = self.primaryAccount.account;
+    request.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
     [self closeResultView];
+    
+    // Now pass device claims to test claims on token endpoint
+    request.claims = @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D";
+    NSDictionary *deviceAuthConfig = [self configWithTestRequest:request];
 
-    NSMutableDictionary *paramsCopy = [params mutableCopy];
-    paramsCopy[@"claims"] = @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D";
-    config = [self.testConfiguration configWithAdditionalConfiguration:paramsCopy];
-
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:deviceAuthConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }

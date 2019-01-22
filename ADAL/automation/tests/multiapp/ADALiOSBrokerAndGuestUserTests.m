@@ -58,21 +58,20 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testBasicBrokerLoginWithGuestUsers
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
-    [self acquireToken:config];
+    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
+    adalRequest.uiBehavior = @"auto";
+    adalRequest.loginHint = self.primaryAccount.account;
+    adalRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    adalRequest.legacyAccountIdentifierType = @"optional_displayable";
+    adalRequest.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    adalRequest.brokerEnabled = YES;
+    
+    NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
+    [self acquireToken:adalConfig];
 
     XCUIApplication *brokerApp = [self brokerApp];
-
-    [self guestEnterUsernameInApp:brokerApp];
-    [self guestEnterPasswordInApp:brokerApp];
+    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
 
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
@@ -81,12 +80,12 @@ static BOOL brokerAppInstalled = NO;
     [self closeResultView];
 
     // Now expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:adalConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do access token refresh
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:adalConfig];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
@@ -95,23 +94,20 @@ static BOOL brokerAppInstalled = NO;
 - (void)testBrokerLoginWithGuestUsers_whenInHomeAndGuestTenants
 {
     // Sign in home tenant
-    NSDictionary *homeParams = @{
-                                 @"prompt_behavior" : @"force",
-                                 @"validate_authority" : @YES,
-                                 @"authority": @"https://login.microsoftonline.com/common",
-                                 @"use_broker": @YES,
-                                 @"user_identifier" : self.primaryAccount.account
-                                 };
-
-    homeParams = [self.testConfiguration configWithAdditionalConfiguration:homeParams account:self.primaryAccount];
-
-    [self acquireToken:homeParams];
+    MSIDAutomationTestRequest *homeRequest = [self.class.confProvider defaultAppRequest];
+    homeRequest.uiBehavior = @"force";
+    homeRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
+    homeRequest.brokerEnabled = YES;
+    homeRequest.loginHint = self.primaryAccount.account;
+    homeRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    
+    NSDictionary *homeConfig = [self configWithTestRequest:homeRequest];
+    [self acquireToken:homeConfig];
 
     // Expect sign in to be handled in broker
     XCUIApplication *brokerApp = [self brokerApp];
-
-    [self guestEnterUsernameInApp:brokerApp];
-    [self guestEnterPasswordInApp:brokerApp];
+    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
 
     [self waitForRedirectToTheTestApp];
     [self assertAccessTokenNotNil];
@@ -119,17 +115,17 @@ static BOOL brokerAppInstalled = NO;
     [self closeResultView];
 
     // Sign in into guest tenant
-    NSDictionary *guestParams = @{
-                                  @"prompt_behavior" : @"force",
-                                  @"validate_authority" : @YES,
-                                  @"use_broker": @YES,
-                                  @"user_identifier" : self.primaryAccount.account
-                                  };
-
-    guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
-    [self acquireToken:guestParams];
-    [self guestEnterUsernameInApp:brokerApp];
-    [self guestEnterPasswordInApp:brokerApp];
+    MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
+    guestRequest.brokerEnabled = YES;
+    guestRequest.loginHint = self.primaryAccount.account;
+    guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    guestRequest.uiBehavior = @"force";
+    guestRequest.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    
+    NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
+    [self acquireToken:guestConfig];
+    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
 
     [self waitForRedirectToTheTestApp];
 
@@ -138,28 +134,19 @@ static BOOL brokerAppInstalled = NO;
     [self closeResultView];
 
     // Do silent for home tenant
-    NSDictionary *silentHomeParams = @{@"user_identifier": self.primaryAccount.account,
-                                       @"authority": @"https://login.microsoftonline.com/common",
-                                       };
-    silentHomeParams = [self.testConfiguration configWithAdditionalConfiguration:silentHomeParams account:self.primaryAccount];
-    [self expireAccessToken:silentHomeParams];
+    [self expireAccessToken:homeConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
-    [self acquireTokenSilent:silentHomeParams];
+    [self acquireTokenSilent:homeConfig];
     [self assertAccessTokenNotNil];
-
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.homeTenantId);
-
     [self closeResultView];
 
     // Do silent for guest tenant
-    NSDictionary *silentGuestParams = @{@"user_identifier": self.primaryAccount.account,
-                                        };
-    silentGuestParams = [self.testConfiguration configWithAdditionalConfiguration:silentGuestParams account:self.primaryAccount];
-    [self expireAccessToken:silentGuestParams];
+    [self expireAccessToken:guestConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
-    [self acquireTokenSilent:silentGuestParams];
+    [self acquireTokenSilent:guestConfig];
     [self assertAccessTokenNotNil];
 
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -173,23 +160,23 @@ static BOOL brokerAppInstalled = NO;
     // We expect auth UI to appear
     XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
     XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
-
-    [self guestEnterUsernameInApp:brokerApp];
-    [self guestEnterPasswordInApp:brokerApp];
+    
+    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];
     [self.testApp launch];
     [self.testApp activate];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable",
-                             @"use_broker": @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
+    
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.uiBehavior = @"auto";
+    request.loginHint = self.primaryAccount.account;
+    request.legacyAccountIdentifier = self.primaryAccount.account;
+    request.legacyAccountIdentifierType = @"optional_displayable";
+    request.brokerEnabled = YES;
+    request.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
 
     [self waitForRedirectToTheTestApp];

@@ -231,5 +231,25 @@
     return cacheUrlString;
 }
 
+- (NSArray *)cacheAliasesWithParameters:(MSIDAutomationTestRequest *)parameters
+{
+    NSString *authority = parameters.cacheAuthority ?: parameters.configurationAuthority;
+    
+    MSIDAADAuthority *aadAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
+    
+    NSArray *cacheAliases = nil;
+    
+    if (aadAuthority)
+    {
+        cacheAliases = [[MSIDAadAuthorityCache sharedInstance] cacheAliasesForAuthority:aadAuthority];
+    }
+    else
+    {
+        cacheAliases = @[[NSURL URLWithString:authority]];
+    }
+    
+    return cacheAliases;
+}
+
 
 @end

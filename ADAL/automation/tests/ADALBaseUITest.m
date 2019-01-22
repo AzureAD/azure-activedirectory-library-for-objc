@@ -40,6 +40,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 + (void)setUp
 {
     [super setUp];
+    MSIDTestAutomationConfiguration.defaultRegisteredScheme = @"x-msauth-adaltestapp-210";
     NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
     self.class.confProvider = [[MSIDTestConfigurationProvider alloc] initWithConfigurationPath:confPath];
 }
@@ -236,7 +237,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)aadEnterEmail
 {
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account] app:self.testApp];
+    [self aadEnterEmail:self.primaryAccount.account app:self.testApp];
 }
 
 - (void)aadEnterEmail:(NSString *)email app:(XCUIApplication *)app
@@ -250,34 +251,23 @@ static MSIDTestConfigurationProvider *s_confProvider;
     
     [self tapElementAndWaitForKeyboardToAppear:emailTextField app:app];
     [emailTextField selectTextWithApp:app];
-    [emailTextField typeText:email];
+    NSString *emailString = [NSString stringWithFormat:@"%@\n", email];
+    [emailTextField typeText:emailString];
 }
 
 - (void)aadEnterPassword
 {
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password] app:self.testApp];
+    [self enterPassword:self.primaryAccount.password app:self.testApp];
 }
 
-- (void)aadEnterPassword:(NSString *)password app:(XCUIApplication *)app
+- (void)enterPassword:(NSString *)password app:(XCUIApplication *)app
 {
     // Enter password
     XCUIElement *passwordTextField = app.secureTextFields.firstMatch;
     [self waitForElement:passwordTextField];
     [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:app];
-    [passwordTextField typeText:password];
-}
-
-- (void)adfsEnterPassword
-{
-    [self adfsEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password] app:self.testApp];
-}
-
-- (void)adfsEnterPassword:(NSString *)password app:(XCUIApplication *)app
-{
-    XCUIElement *passwordTextField = app.secureTextFields[@"Password"];
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:app];
-    [passwordTextField typeText:password];
+    NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+    [passwordTextField typeText:passwordString];
 }
 
 - (void)closeResultView
@@ -307,7 +297,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)clearKeychain
 {
-    [self.testApp.buttons[MSID_AUTO_CLEAR_KEYCHAIN_ACTION_IDENTIFIER] msidTap];
+    [self.testApp.buttons[MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER] msidTap];
     [self waitForElement:self.testApp.buttons[@"Done"]];
     [self.testApp.buttons[@"Done"] msidTap];
 }

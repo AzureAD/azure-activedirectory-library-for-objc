@@ -58,9 +58,7 @@
 - (void)aadEnterEmail;
 - (void)aadEnterEmail:(NSString *)email app:(XCUIApplication *)app;
 - (void)aadEnterPassword;
-- (void)aadEnterPassword:(NSString *)password app:(XCUIApplication *)app;
-- (void)adfsEnterPassword;
-- (void)adfsEnterPassword:(NSString *)password app:(XCUIApplication *)app;
+- (void)enterPassword:(NSString *)password app:(XCUIApplication *)app;
 - (void)closeResultView;
 - (void)invalidateRefreshToken:(NSDictionary *)config;
 - (void)expireAccessToken:(NSDictionary *)config;
