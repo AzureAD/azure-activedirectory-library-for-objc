@@ -63,7 +63,7 @@ static BOOL brokerAppInstalled = NO;
     adalRequest.loginHint = self.primaryAccount.account;
     adalRequest.legacyAccountIdentifier = self.primaryAccount.account;
     adalRequest.legacyAccountIdentifierType = @"optional_displayable";
-    adalRequest.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    adalRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
     adalRequest.brokerEnabled = YES;
     
     NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
@@ -120,7 +120,7 @@ static BOOL brokerAppInstalled = NO;
     guestRequest.loginHint = self.primaryAccount.account;
     guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
     guestRequest.promptBehavior = @"force";
-    guestRequest.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
     
     NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
     [self acquireToken:guestConfig];
@@ -174,7 +174,7 @@ static BOOL brokerAppInstalled = NO;
     request.legacyAccountIdentifier = self.primaryAccount.account;
     request.legacyAccountIdentifierType = @"optional_displayable";
     request.brokerEnabled = YES;
-    request.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
+    request.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
     
     NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];

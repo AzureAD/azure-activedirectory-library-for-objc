@@ -47,8 +47,7 @@
 {
     MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
     guestRequest.promptBehavior = @"always";
-    guestRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment
-                                                                                        tenantId:self.primaryAccount.targetTenantId];
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
     
     NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
     [self acquireToken:guestConfig];
@@ -111,8 +110,8 @@
     // Sign in into guest tenant
     MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
     guestRequest.promptBehavior = @"always";
-    guestRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment
-                                                                                        tenantId:self.primaryAccount.targetTenantId];
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
+    
     NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
     [self acquireToken:guestConfig];
     [self aadEnterEmail];
@@ -171,8 +170,7 @@
 
     // Sign in into guest tenant with prompt auto. Should sign in silently
     MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
-    guestRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment
-                                                                                        tenantId:self.primaryAccount.targetTenantId];
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
     guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
     
     NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
