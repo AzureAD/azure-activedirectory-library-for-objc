@@ -38,15 +38,20 @@
     BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
 
-    if ([brokerApp.alerts.buttons[@"Ok"] exists])
-    {
-        [brokerApp.alerts.buttons[@"Ok"] tap];
-    }
+    [self acceptBrokerDialogs:brokerApp];
 
     return brokerApp;
 }
 
-- (void)registerDeviceInAuthenticator
+- (void)acceptBrokerDialogs:(XCUIApplication *)brokerApp
+{
+    if ([brokerApp.alerts.buttons[@"Ok"] exists])
+    {
+        [brokerApp.alerts.buttons[@"Ok"] tap];
+    }
+}
+
+- (void)startDeviceRegistrationFlowInAuthenticator
 {
     __auto_type brokerApp = [self openDeviceRegistrationMenuInAuthenticator];
 
@@ -57,6 +62,22 @@
 
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     [registerButton tap];
+}
+
+- (void)registerDeviceInAuthenticatorAndCompleteAuth
+{
+    [self startDeviceRegistrationFlowInAuthenticator];
+    
+    XCUIApplication *brokerApp = [self brokerApp];
+    
+    // We expect auth UI to appear
+    XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
+    XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
+    
+    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
 }
 
 - (void)unregisterDeviceInAuthenticator

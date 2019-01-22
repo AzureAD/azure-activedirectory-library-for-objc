@@ -57,7 +57,7 @@ static BOOL brokerAppInstalled = NO;
 // TODO: older Authenticator build is not available anymore, re-enable this test if it's still necessary with a resigned authenticator build
 - (void)DISABLED_testBrokerLoginWithGuestUsers_whenInGuestTenant_andDeviceRegistered_andLegacyBroker
 {
-    [self registerDeviceInAuthenticator];
+    [self startDeviceRegistrationFlowInAuthenticator];
     XCUIApplication *brokerApp = [self brokerApp];
 
     // We expect auth UI to appear

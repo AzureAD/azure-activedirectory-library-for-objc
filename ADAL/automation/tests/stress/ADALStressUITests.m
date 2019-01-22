@@ -27,11 +27,11 @@
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomationSuccessResult.h"
 
-@interface ADStressUITests : ADALBaseUITest
+@interface ADALStressUITests : ADALBaseUITest
 
 @end
 
-@implementation ADStressUITests
+@implementation ADALStressUITests
 
 - (void)setUp
 {

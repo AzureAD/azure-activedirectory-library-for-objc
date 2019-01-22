@@ -59,8 +59,6 @@
 		236BF407205B4E1A006E3897 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
 		236BF40B205B4E1C006E3897 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
 		23766BB32013D91E00449D47 /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
-		23B7919D20118B9F008D4BD2 /* ADAutoPassedInWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B7919820118B9E008D4BD2 /* ADAutoPassedInWebViewController.m */; };
-		23B791A220119030008D4BD2 /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */; };
 		23B791CA2012B54B008D4BD2 /* ADALBaseUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */; };
 		23B791CD2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */; };
 		23B791CF2012B7A9008D4BD2 /* ADALAADLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */; };
@@ -193,7 +191,6 @@
 		969DDBF221B0C814000B4C73 /* ADAuthenticationErrorMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBEB21B0C806000B4C73 /* ADAuthenticationErrorMap.m */; };
 		969DDBF621B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */; };
 		969DDBFB21B0CAF1000B4C73 /* ADAuthenticationErrorMapTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */; };
-		96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96AC69381E70E184008183A7 /* ADAutoResultViewController.m */; };
 		96AF5719215EE8D20062B70F /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		96B9F03E20DDD411006C806C /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F03D20DDD411006C806C /* GSS.framework */; };
 		96B9F04020DDD43E006C806C /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
@@ -320,8 +317,8 @@
 		B2649E0C21F3EBC200CAD2D9 /* ADALCacheRemovalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B212D38C20E2FF76001575CD /* ADALCacheRemovalTests.m */; };
 		B2649E0D21F3F9A800CAD2D9 /* libIdentityAutomation Mac.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B275521A2082BEB900AA7A38 /* libIdentityAutomation Mac.dylib */; };
 		B2649E1321F6747600CAD2D9 /* ADClearMacCacheTestAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B2649E1121F6747600CAD2D9 /* ADClearMacCacheTestAction.m */; };
-		B2649E1521F680FF00CAD2D9 /* ADStressUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D32CFA20E9C317002C39AD /* ADStressUITests.m */; };
-		B2649E1621F6810000CAD2D9 /* ADStressUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D32CFA20E9C317002C39AD /* ADStressUITests.m */; };
+		B2649E1521F680FF00CAD2D9 /* ADALStressUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D32CFA20E9C317002C39AD /* ADALStressUITests.m */; };
+		B2649E1621F6810000CAD2D9 /* ADALStressUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D32CFA20E9C317002C39AD /* ADALStressUITests.m */; };
 		B2649E1821F684AE00CAD2D9 /* ADALiOSBrokerAndGuestUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AACDFE20DF23F000AC88E2 /* ADALiOSBrokerAndGuestUserTests.m */; };
 		B2649E1A21F6953E00CAD2D9 /* ADALiOSBrokerInvocationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A409E620D3689F004AA9B7 /* ADALiOSBrokerInvocationTests.m */; };
 		B2649E1F21F6A33D00CAD2D9 /* ADALiOSNoBrokerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CCE20D8834D00FDAAEC /* ADALiOSNoBrokerTests.m */; };
@@ -393,16 +390,7 @@
 		B2E2CFEE20ED99EB00AC0D3E /* adal__additional_settings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 96B9F04620DDFC0C006C806C /* adal__additional_settings.xcconfig */; };
 		B2E2CFEF20ED9A3700AC0D3E /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDA1FC37A6200CD70C5 /* WebKit.framework */; };
 		B2E9684320E96B7800906F3D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9684220E96B7800906F3D /* AppDelegate.m */; };
-		B2E9684820E96B7A00906F3D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2E9684720E96B7A00906F3D /* Assets.xcassets */; };
-		B2E9684B20E96B7A00906F3D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2E9684920E96B7A00906F3D /* Main.storyboard */; };
 		B2E9684E20E96B7A00906F3D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9684D20E96B7A00906F3D /* main.m */; };
-		B2E9685B20E970E600906F3D /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E9685A20E970E600906F3D /* ADAutoResultViewController.m */; };
-		B2EE687B20E9DEE900AA78A9 /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE687A20E9DEE900AA78A9 /* ADAutoRequestViewController.m */; };
-		B2EE688220E9E01E00AA78A9 /* ADAutoBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688120E9E01E00AA78A9 /* ADAutoBaseViewController.m */; };
-		B2EE688520EA8C8800AA78A9 /* ADAutoBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688420EA8C8800AA78A9 /* ADAutoBaseViewController.m */; };
-		B2EE688820EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */; };
-		B2EE688920EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */; };
-		B2EE688D20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2EE688B20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m */; };
 		B2FBFD8120D37E4E001EB7AA /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2FBFD8220D47528001EB7AA /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
 		D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */; };
@@ -421,8 +409,6 @@
 		D632B54F1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D632B54B1F50AE6B001173F1 /* ADAuthorityValidation+TestUtil.m */; };
 		D64C1F4C1DB9B05900850036 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F4B1DB9B05900850036 /* main.m */; };
 		D64C1F4F1DB9B05900850036 /* ADAutoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */; };
-		D64C1F551DB9B05900850036 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D64C1F531DB9B05900850036 /* Main.storyboard */; };
-		D64C1F571DB9B05A00850036 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D64C1F561DB9B05A00850036 /* Assets.xcassets */; };
 		D64C1F5A1DB9B05A00850036 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D64C1F581DB9B05A00850036 /* LaunchScreen.storyboard */; };
 		D664F17A1D302B9C0017B799 /* ADWebAuthRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095191CDC2BC300D28FC2 /* ADWebAuthRequest.m */; };
 		D664F17D1D302B9C0017B799 /* ADWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C38B1C5820E3006B9E79 /* ADWebRequest.m */; };
@@ -942,10 +928,6 @@
 		23766BB12013D91E00449D47 /* NSDictionary+ADALiOSUITests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ADALiOSUITests.h"; sourceTree = "<group>"; };
 		23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ADALiOSUITests.m"; sourceTree = "<group>"; };
 		237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__uitest__ios.xcconfig; sourceTree = "<group>"; };
-		23B7919720118B9E008D4BD2 /* ADAutoPassedInWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoPassedInWebViewController.h; sourceTree = "<group>"; };
-		23B7919820118B9E008D4BD2 /* ADAutoPassedInWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoPassedInWebViewController.m; sourceTree = "<group>"; };
-		23B791A020119030008D4BD2 /* ADAutoRequestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoRequestViewController.h; sourceTree = "<group>"; };
-		23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoRequestViewController.m; sourceTree = "<group>"; };
 		23B791C82012B54B008D4BD2 /* ADALBaseUITest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALBaseUITest.h; sourceTree = "<group>"; };
 		23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALBaseUITest.m; sourceTree = "<group>"; };
 		23B791CB2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+ADALiOSUITests.h"; sourceTree = "<group>"; };
@@ -1075,8 +1057,6 @@
 		969DDBEA21B0C806000B4C73 /* ADAuthenticationErrorMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationErrorMap.h; sourceTree = "<group>"; };
 		969DDBEB21B0C806000B4C73 /* ADAuthenticationErrorMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationErrorMap.m; sourceTree = "<group>"; };
 		969DDBF521B0CAED000B4C73 /* ADAuthenticationErrorMapTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationErrorMapTests.m; sourceTree = "<group>"; };
-		96AC69371E70E184008183A7 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
-		96AC69381E70E184008183A7 /* ADAutoResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
 		96B9F03D20DDD411006C806C /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = System/Library/Frameworks/GSS.framework; sourceTree = SDKROOT; };
 		96B9F04120DDD4A2006C806C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.4.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		96B9F04620DDFC0C006C806C /* adal__additional_settings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = adal__additional_settings.xcconfig; sourceTree = "<group>"; };
@@ -1189,24 +1169,14 @@
 		B2CD211520632C09009869D5 /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/GSS.framework; sourceTree = DEVELOPER_DIR; };
 		B2D1841A208335300001D445 /* ADALUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADALUITests.swift; sourceTree = "<group>"; };
 		B2D32CF820E9C317002C39AD /* StressIOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StressIOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B2D32CFA20E9C317002C39AD /* ADStressUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADStressUITests.m; sourceTree = "<group>"; };
+		B2D32CFA20E9C317002C39AD /* ADALStressUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALStressUITests.m; sourceTree = "<group>"; };
 		B2D32CFC20E9C317002C39AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B2E9683F20E96B7700906F3D /* ADALAutomationForMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ADALAutomationForMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2E9684120E96B7800906F3D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		B2E9684220E96B7800906F3D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		B2E9684720E96B7A00906F3D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B2E9684A20E96B7A00906F3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B2E9684C20E96B7A00906F3D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B2E9684D20E96B7A00906F3D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B2E9684F20E96B7A00906F3D /* ADALAutomationForMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ADALAutomationForMac.entitlements; sourceTree = "<group>"; };
-		B2E9685A20E970E600906F3D /* ADAutoResultViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
-		B2EE687A20E9DEE900AA78A9 /* ADAutoRequestViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoRequestViewController.m; sourceTree = "<group>"; };
-		B2EE688120E9E01E00AA78A9 /* ADAutoBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoBaseViewController.m; sourceTree = "<group>"; };
-		B2EE688320EA8C8800AA78A9 /* ADAutoBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoBaseViewController.h; sourceTree = "<group>"; };
-		B2EE688420EA8C8800AA78A9 /* ADAutoBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoBaseViewController.m; sourceTree = "<group>"; };
-		B2EE688620EA8E5700AA78A9 /* ADAutoMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoMainViewController.h; sourceTree = "<group>"; };
-		B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoMainViewController.m; sourceTree = "<group>"; };
-		B2EE688B20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoPassedInWebViewController.m; sourceTree = "<group>"; };
 		D60B65371F355C5700A89487 /* ADAuthorityValidationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		D60B65381F355C5700A89487 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
 		D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALConstants.h; sourceTree = "<group>"; };
@@ -1220,11 +1190,8 @@
 		D64C1F4B1DB9B05900850036 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D64C1F4D1DB9B05900850036 /* ADAutoAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoAppDelegate.h; sourceTree = "<group>"; };
 		D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAutoAppDelegate.m; sourceTree = "<group>"; };
-		D64C1F541DB9B05900850036 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		D64C1F561DB9B05A00850036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D64C1F591DB9B05A00850036 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D64C1F5B1DB9B05A00850036 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D64C1F691DBADAF900850036 /* ADALAutomation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALAutomation.h; sourceTree = "<group>"; };
 		D664F1B41D302B9C0017B799 /* libADAL-core.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libADAL-core.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6669FA91F1D4F51002492C5 /* ADAuthorityValidation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidation.h; sourceTree = "<group>"; };
 		D6669FAA1F1D4F51002492C5 /* ADAuthorityValidation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidation.m; sourceTree = "<group>"; };
@@ -1983,12 +1950,6 @@
 				975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */,
 				D64C1F4D1DB9B05900850036 /* ADAutoAppDelegate.h */,
 				D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */,
-				B2EE688420EA8C8800AA78A9 /* ADAutoBaseViewController.m */,
-				23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */,
-				96AC69381E70E184008183A7 /* ADAutoResultViewController.m */,
-				23B7919820118B9E008D4BD2 /* ADAutoPassedInWebViewController.m */,
-				D64C1F531DB9B05900850036 /* Main.storyboard */,
-				D64C1F561DB9B05A00850036 /* Assets.xcassets */,
 				D64C1F581DB9B05A00850036 /* LaunchScreen.storyboard */,
 				D64C1F5B1DB9B05A00850036 /* Info.plist */,
 				D64C1F4A1DB9B05900850036 /* Supporting Files */,
@@ -2002,12 +1963,6 @@
 				B2C9547C21EFC2F700323C35 /* MainAutomation.storyboard */,
 				B2E9684120E96B7800906F3D /* AppDelegate.h */,
 				B2E9684220E96B7800906F3D /* AppDelegate.m */,
-				B2EE688120E9E01E00AA78A9 /* ADAutoBaseViewController.m */,
-				B2E9685A20E970E600906F3D /* ADAutoResultViewController.m */,
-				B2EE687A20E9DEE900AA78A9 /* ADAutoRequestViewController.m */,
-				B2EE688B20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m */,
-				B2E9684720E96B7A00906F3D /* Assets.xcassets */,
-				B2E9684920E96B7A00906F3D /* Main.storyboard */,
 				B2E9684C20E96B7A00906F3D /* Info.plist */,
 				B2E9684D20E96B7A00906F3D /* main.m */,
 				B2E9684F20E96B7A00906F3D /* ADALAutomationForMac.entitlements */,
@@ -2077,7 +2032,7 @@
 		B2000C0F20EBF09D0092790A /* stress */ = {
 			isa = PBXGroup;
 			children = (
-				B2D32CFA20E9C317002C39AD /* ADStressUITests.m */,
+				B2D32CFA20E9C317002C39AD /* ADALStressUITests.m */,
 				B2D32CFC20E9C317002C39AD /* Info.plist */,
 			);
 			path = stress;
@@ -2275,13 +2230,6 @@
 				B2000C0C20EBF0880092790A /* tests */,
 				B2000C0720EB038C0092790A /* macos */,
 				B2000C0620EB03830092790A /* ios */,
-				D64C1F691DBADAF900850036 /* ADALAutomation.h */,
-				B2EE688320EA8C8800AA78A9 /* ADAutoBaseViewController.h */,
-				23B791A020119030008D4BD2 /* ADAutoRequestViewController.h */,
-				96AC69371E70E184008183A7 /* ADAutoResultViewController.h */,
-				23B7919720118B9E008D4BD2 /* ADAutoPassedInWebViewController.h */,
-				B2EE688620EA8E5700AA78A9 /* ADAutoMainViewController.h */,
-				B2EE688720EA8E5700AA78A9 /* ADAutoMainViewController.m */,
 			);
 			path = automation;
 			sourceTree = "<group>";
@@ -3212,10 +3160,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2C9547D21EFC2F700323C35 /* MainAutomation.storyboard in Resources */,
-				B2E9684820E96B7A00906F3D /* Assets.xcassets in Resources */,
 				B2000C0B20EB09DB0092790A /* adal__automationapp__mac.xcconfig in Resources */,
 				B2000C2020EC1EA40092790A /* adal__uitest__mac.xcconfig in Resources */,
-				B2E9684B20E96B7A00906F3D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3224,9 +3170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D64C1F5A1DB9B05A00850036 /* LaunchScreen.storyboard in Resources */,
-				D64C1F571DB9B05A00850036 /* Assets.xcassets in Resources */,
 				B2C9547B21EFC2DC00323C35 /* MainAutomation.storyboard in Resources */,
-				D64C1F551DB9B05900850036 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3583,7 +3527,7 @@
 				B2000C7020EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */,
 				B2000C6220EC394D0092790A /* ADALBaseUITest.m in Sources */,
 				B247A53D21F0079400ED358D /* MSIDVersion.m in Sources */,
-				B2649E1621F6810000CAD2D9 /* ADStressUITests.m in Sources */,
+				B2649E1621F6810000CAD2D9 /* ADALStressUITests.m in Sources */,
 				B225F063217559870052334D /* NSBundle+ADTestUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3678,7 +3622,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B247A53B21F0079300ED358D /* MSIDVersion.m in Sources */,
-				B2649E1521F680FF00CAD2D9 /* ADStressUITests.m in Sources */,
+				B2649E1521F680FF00CAD2D9 /* ADALStressUITests.m in Sources */,
 				B247A53321F0002000ED358D /* ADALBaseiOSUITest.m in Sources */,
 				B2000C6E20EC39BA0092790A /* XCUIElement+CrossPlat.m in Sources */,
 				B2D32D0920E9D5FA002C39AD /* NSDictionary+ADALiOSUITests.m in Sources */,
@@ -3695,12 +3639,9 @@
 			files = (
 				B2934B3721C87DE200ADFE2E /* ADAutoEmptyStessTestAction.m in Sources */,
 				B2934B2B21C87DB800ADFE2E /* ADAutoInvalidateRTAction.m in Sources */,
-				B2EE688220E9E01E00AA78A9 /* ADAutoBaseViewController.m in Sources */,
 				B2934B3B21C87DF200ADFE2E /* ADAutoNonEmptyStressAction.m in Sources */,
 				B2934B1721C87D1E00ADFE2E /* ADALUITests.swift in Sources */,
-				B2EE687B20E9DEE900AA78A9 /* ADAutoRequestViewController.m in Sources */,
 				B2E9684E20E96B7A00906F3D /* main.m in Sources */,
-				B2EE688920EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */,
 				B2934B1F21C87D8500ADFE2E /* ADAutoAcquireTokenAction.m in Sources */,
 				B2934B2321C87D9800ADFE2E /* ADAutoAcquireTokenSilentAction.m in Sources */,
 				B2934B3321C87DD200ADFE2E /* ADAutoAcquireTokenWithRTAction.m in Sources */,
@@ -3710,9 +3651,7 @@
 				B2A02CE720F598B20048792D /* ADTestAppCache.m in Sources */,
 				B2934B2721C87DAB00ADFE2E /* ADAutoExpireATAction.m in Sources */,
 				B2934B3F21C87E0500ADFE2E /* ADAutoInteractiveStressAction.m in Sources */,
-				B2E9685B20E970E600906F3D /* ADAutoResultViewController.m in Sources */,
 				B2934B2F21C87DC400ADFE2E /* ADAutoRemoveAccountAction.m in Sources */,
-				B2EE688D20EA8ECC00AA78A9 /* ADAutoPassedInWebViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3720,18 +3659,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96AC69391E70E184008183A7 /* ADAutoResultViewController.m in Sources */,
 				B2934B2E21C87DC400ADFE2E /* ADAutoRemoveAccountAction.m in Sources */,
-				23B7919D20118B9F008D4BD2 /* ADAutoPassedInWebViewController.m in Sources */,
 				B2934B3221C87DD200ADFE2E /* ADAutoAcquireTokenWithRTAction.m in Sources */,
 				B2934B3E21C87E0500ADFE2E /* ADAutoInteractiveStressAction.m in Sources */,
 				B2934B3621C87DE200ADFE2E /* ADAutoEmptyStessTestAction.m in Sources */,
-				B2EE688520EA8C8800AA78A9 /* ADAutoBaseViewController.m in Sources */,
 				B2934B2221C87D9800ADFE2E /* ADAutoAcquireTokenSilentAction.m in Sources */,
 				D64C1F4F1DB9B05900850036 /* ADAutoAppDelegate.m in Sources */,
-				23B791A220119030008D4BD2 /* ADAutoRequestViewController.m in Sources */,
 				B2934B2A21C87DB800ADFE2E /* ADAutoInvalidateRTAction.m in Sources */,
-				B2EE688820EA8E5700AA78A9 /* ADAutoMainViewController.m in Sources */,
 				B2934B2621C87DAB00ADFE2E /* ADAutoExpireATAction.m in Sources */,
 				B2934B1E21C87D8500ADFE2E /* ADAutoAcquireTokenAction.m in Sources */,
 				D64C1F4C1DB9B05900850036 /* main.m in Sources */,
@@ -3991,22 +3925,6 @@
 				8BFEF067182DA57800122C0C /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		B2E9684920E96B7A00906F3D /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B2E9684A20E96B7A00906F3D /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		D64C1F531DB9B05900850036 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D64C1F541DB9B05900850036 /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		D64C1F581DB9B05A00850036 /* LaunchScreen.storyboard */ = {

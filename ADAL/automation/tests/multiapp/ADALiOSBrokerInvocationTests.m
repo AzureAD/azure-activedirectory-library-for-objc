@@ -166,11 +166,7 @@ static BOOL brokerAppInstalled = NO;
     [self loadTestConfiguration:configurationRequest];
 
     // Register device with this account
-    [self registerDeviceInAuthenticator];
-    XCUIApplication *brokerApp = [self brokerApp];
-    [self enterPassword:self.primaryAccount.password app:brokerApp];
-    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
-    [self waitForElement:unregisterButton];
+    [self registerDeviceInAuthenticatorAndCompleteAuth];
     [self.testApp launch];
     [self.testApp activate];
 
@@ -188,8 +184,6 @@ static BOOL brokerAppInstalled = NO;
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
     [self closeResultView];
-
-    [brokerApp terminate];
 }
 
 - (void)testDeviceAuthInSilentFlow
@@ -201,11 +195,7 @@ static BOOL brokerAppInstalled = NO;
     [self loadTestConfiguration:configurationRequest];
 
     // Register device with that account
-    [self registerDeviceInAuthenticator];
-    XCUIApplication *brokerApp = [self brokerApp];
-    [self enterPassword:self.primaryAccount.password app:brokerApp];
-    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
-    [self waitForElement:unregisterButton];
+    [self registerDeviceInAuthenticatorAndCompleteAuth];
     [self.testApp activate];
 
     // Acquire token for a resource that doesn't require device authentication
@@ -246,11 +236,7 @@ static BOOL brokerAppInstalled = NO;
     [self loadTestConfiguration:configurationRequest];
 
     // Register device with that account
-    [self registerDeviceInAuthenticator];
-    XCUIApplication *brokerApp = [self brokerApp];
-    [self enterPassword:self.primaryAccount.password app:brokerApp];
-    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
-    [self waitForElement:unregisterButton];
+    [self registerDeviceInAuthenticatorAndCompleteAuth];
     [self.testApp activate];
     
     // Acquire token for a resource that doesn't require device authentication
