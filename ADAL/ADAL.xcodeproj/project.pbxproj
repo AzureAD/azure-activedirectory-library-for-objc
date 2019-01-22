@@ -658,6 +658,13 @@
 			remoteGlobalIDString = B2584857207477D7007FAD22;
 			remoteInfo = KeyVaultMac;
 		};
+		B267478821F6CBFA00BD1717 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B27551C7208179EE00AA7A38;
+			remoteInfo = "IdentityAutomation iOS";
+		};
 		B27552172082BEB900AA7A38 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
@@ -2753,6 +2760,7 @@
 			);
 			dependencies = (
 				B2934B1221C87CC800ADFE2E /* PBXTargetDependency */,
+				B267478921F6CBFA00BD1717 /* PBXTargetDependency */,
 			);
 			name = ADALAutomation;
 			productName = ADALAutomation;
@@ -3824,6 +3832,11 @@
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = B20DC5B11F0D96A700957806 /* PBXContainerItemProxy */;
+		};
+		B267478921F6CBFA00BD1717 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomation iOS";
+			targetProxy = B267478821F6CBFA00BD1717 /* PBXContainerItemProxy */;
 		};
 		B27552402082EEBB00AA7A38 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

@@ -74,7 +74,6 @@
     XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
     XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
     
-    [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
     [self enterPassword:self.primaryAccount.password app:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
     [self waitForElement:unregisterButton];

@@ -167,6 +167,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Register device with this account
     [self registerDeviceInAuthenticatorAndCompleteAuth];
+    [[self brokerApp] terminate];
     [self.testApp launch];
     [self.testApp activate];
 
@@ -196,6 +197,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Register device with that account
     [self registerDeviceInAuthenticatorAndCompleteAuth];
+    [[self brokerApp] terminate];
     [self.testApp activate];
 
     // Acquire token for a resource that doesn't require device authentication
