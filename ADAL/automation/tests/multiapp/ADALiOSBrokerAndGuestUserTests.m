@@ -154,7 +154,7 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testBrokerLoginWithGuestUsers_whenGuestTenant_andDeviceRegistered
 {
-    [self registerDeviceInAuthenticatorAndCompleteAuth];
+    [self registerDeviceInAuthenticatorAndCompleteAuth:YES];
     [self.testApp launch];
     [self.testApp activate];
     

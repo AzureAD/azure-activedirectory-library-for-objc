@@ -27,7 +27,7 @@
 
 - (XCUIApplication *)brokerApp;
 - (void)startDeviceRegistrationFlowInAuthenticator;
-- (void)registerDeviceInAuthenticatorAndCompleteAuth;
+- (void)registerDeviceInAuthenticatorAndCompleteAuth:(BOOL)enterEmail;
 - (void)unregisterDeviceInAuthenticator;
 - (XCUIApplication *)openDeviceRegistrationMenuInAuthenticator;
 - (void)openAppInstallURLForAppId:(NSString *)appId;

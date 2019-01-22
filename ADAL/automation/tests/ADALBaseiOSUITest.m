@@ -64,7 +64,7 @@
     [registerButton tap];
 }
 
-- (void)registerDeviceInAuthenticatorAndCompleteAuth
+- (void)registerDeviceInAuthenticatorAndCompleteAuth:(BOOL)enterEmail
 {
     [self startDeviceRegistrationFlowInAuthenticator];
     
@@ -73,6 +73,11 @@
     // We expect auth UI to appear
     XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
     XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
+    
+    if (enterEmail)
+    {
+        [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    }
     
     [self enterPassword:self.primaryAccount.password app:brokerApp];
     __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
