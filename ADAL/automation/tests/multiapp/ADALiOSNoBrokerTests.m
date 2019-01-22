@@ -70,7 +70,7 @@
     request.brokerEnabled = YES;
     request.loginHint = self.primaryAccount.account;
     request.legacyAccountIdentifier = self.primaryAccount.account;
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"sfb_guid"];
     
     NSDictionary *config = [self configWithTestRequest:request];
@@ -129,7 +129,7 @@
 - (void)testBrokerInstallAfterInitialSignin
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"auto";
+    request.promptBehavior = @"auto";
     request.brokerEnabled = YES;
     request.loginHint = self.primaryAccount.account;
     request.legacyAccountIdentifier = self.primaryAccount.account;
@@ -201,7 +201,7 @@
     [self closeResultView];
     
     MSIDAutomationTestRequest *brokerRequest = [self.class.confProvider defaultAppRequest];
-    brokerRequest.uiBehavior = @"auto";
+    brokerRequest.promptBehavior = @"auto";
     brokerRequest.brokerEnabled = YES;
     brokerRequest.loginHint = self.primaryAccount.account;
     brokerRequest.legacyAccountIdentifier = self.primaryAccount.account;

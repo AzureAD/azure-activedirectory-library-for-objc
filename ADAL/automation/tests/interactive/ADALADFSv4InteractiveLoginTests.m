@@ -46,7 +46,7 @@
 {
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
     adfsRequest.validateAuthority = YES;
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];
@@ -78,7 +78,7 @@
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
     adfsRequest.validateAuthority = YES;
     adfsRequest.loginHint = self.primaryAccount.account;
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];

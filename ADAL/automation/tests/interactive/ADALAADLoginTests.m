@@ -51,7 +51,7 @@
 {
     // Setup test params
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSString *userId = [self runSharedAADLoginWithTestRequest:request];
     XCTAssertNotNil(userId);
@@ -73,7 +73,7 @@
 - (void)testInteractiveAndSilentAADLogin_withPromptAlways_andClientCapabilities_noLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.clientCapabilities = @[@"cp1"];
     
     NSString *userId = [self runSharedAADLoginWithTestRequest:request];
@@ -95,7 +95,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.requestResource = [self.class.confProvider resourceForEnvironment:self.class.confProvider.wwEnvironment type:@"ms_graph"];
     
     NSDictionary *config = [self configWithTestRequest:request];
@@ -120,7 +120,7 @@
 - (void)testInteractiveAADLogin_whenAppSentToBackground_ADALWebView_shouldSuccessfullyCompleteAuth
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
@@ -145,7 +145,7 @@
 - (void)testInteractiveAADLogin_withPromptAlways_noLoginHint_ADALWebView_andAuthCanceled
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
@@ -158,7 +158,7 @@
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
     
     NSString *userId = [self runSharedAADLoginWithTestRequest:request];
@@ -193,7 +193,7 @@
 - (void)testInteractiveAADLogin_withPromptAlways_withLoginHint_PassedInWebView
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
     request.usePassedWebView = YES;
     
@@ -213,7 +213,7 @@
 {
     MSIDAutomationTestRequest *firstRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
     firstRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
-    firstRequest.uiBehavior = @"always";
+    firstRequest.promptBehavior = @"always";
     
     NSString *userId = [self runSharedAADLoginWithTestRequest:firstRequest];
     XCTAssertNotNil(userId);
@@ -235,7 +235,7 @@
 {
     MSIDAutomationTestRequest *fociRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
     fociRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
-    fociRequest.uiBehavior = @"always";
+    fociRequest.promptBehavior = @"always";
     
     NSString *userId = [self runSharedAADLoginWithTestRequest:fociRequest];
     XCTAssertNotNil(userId);
@@ -276,7 +276,7 @@
     
     // User 1, interactive login.
     MSIDAutomationTestRequest *firstRequest = [self.class.confProvider defaultAppRequest];
-    firstRequest.uiBehavior = @"always";
+    firstRequest.promptBehavior = @"always";
     firstRequest.loginHint = self.primaryAccount.account;
     
     NSString *firstUserId = [self runSharedAADLoginWithTestRequest:firstRequest];
@@ -288,7 +288,7 @@
     [self loadPasswordForAccount:self.primaryAccount];
     
     MSIDAutomationTestRequest *secondRequest = [self.class.confProvider defaultAppRequest];
-    secondRequest.uiBehavior = @"always";
+    secondRequest.promptBehavior = @"always";
     secondRequest.loginHint = self.primaryAccount.account;
     
     NSString *secondUserId = [self runSharedAADLoginWithTestRequest:secondRequest];
@@ -321,7 +321,7 @@
 
     // Optional Displayable, change account
     MSIDAutomationTestRequest *optionalIdRequest = [self.class.confProvider defaultAppRequest];
-    optionalIdRequest.uiBehavior = @"always";
+    optionalIdRequest.promptBehavior = @"always";
     optionalIdRequest.loginHint = secondaryAccount.account;
     optionalIdRequest.legacyAccountIdentifierType = @"optional_displayable";
     
@@ -348,7 +348,7 @@
 
     // Required Displayable, change account
     MSIDAutomationTestRequest *requiredIdRequest = [self.class.confProvider defaultAppRequest];
-    requiredIdRequest.uiBehavior = @"always";
+    requiredIdRequest.promptBehavior = @"always";
     requiredIdRequest.loginHint = secondaryAccount.account;
     requiredIdRequest.legacyAccountIdentifierType = @"required_displayable";
     
@@ -381,7 +381,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
 
     NSDictionary *config = [self configWithTestRequest:request];
@@ -434,13 +434,13 @@
 
     // User 1.
     MSIDAutomationTestRequest *firstRequest = [self.class.confProvider defaultAppRequest];
-    firstRequest.uiBehavior = @"always";
+    firstRequest.promptBehavior = @"always";
     firstRequest.loginHint = self.primaryAccount.account;
     [self runSharedAADLoginWithTestRequest:firstRequest];
     
     // User 2
     MSIDAutomationTestRequest *secondRequest = [self.class.confProvider defaultAppRequest];
-    secondRequest.uiBehavior = @"always";
+    secondRequest.promptBehavior = @"always";
     secondRequest.loginHint = self.testConfiguration.accounts[1].account;
     [self runSharedAADLoginWithTestRequest:secondRequest];
 
@@ -454,7 +454,7 @@
 - (void)testAcquireTokenByRefreshToken_withAADRefreshToken
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
     
     NSDictionary *config = [self configWithTestRequest:request];

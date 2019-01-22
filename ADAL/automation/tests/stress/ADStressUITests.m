@@ -57,7 +57,7 @@
 - (void)testStressRun_withNonEmptyCache
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:request];
     
@@ -75,7 +75,7 @@
 - (void)testStressRun_withInteractiveAndSilentPollingInBackground
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:request];
     [self performAction:MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER withConfig:config];

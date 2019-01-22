@@ -71,7 +71,7 @@ static BOOL olderADALAppInstalled = NO;
     [olderApp terminate];
     
     MSIDAutomationTestRequest *newADALRequest = [self.class.confProvider defaultFociRequestWithBroker];
-    newADALRequest.uiBehavior = @"auto";
+    newADALRequest.promptBehavior = @"auto";
     newADALRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
     newADALRequest.legacyAccountIdentifier = self.primaryAccount.account;
     newADALRequest.brokerEnabled = NO;
@@ -113,7 +113,7 @@ static BOOL olderADALAppInstalled = NO;
     [self.testApp activate];
     
     MSIDAutomationTestRequest *newADALRequest = [self.class.confProvider defaultFociRequestWithBroker];
-    newADALRequest.uiBehavior = @"auto";
+    newADALRequest.promptBehavior = @"auto";
     newADALRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
     newADALRequest.legacyAccountIdentifier = self.primaryAccount.account;
     newADALRequest.brokerEnabled = NO;

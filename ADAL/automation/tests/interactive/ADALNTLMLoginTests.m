@@ -50,7 +50,7 @@
 - (void)DISABLED_testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.validateAuthority = NO;
     request.configurationAuthority = self.testConfiguration.authority;
     
@@ -75,7 +75,7 @@
 - (void)DISABLED_testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_PassedInWebView
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.validateAuthority = NO;
     request.usePassedWebView = YES;
     request.configurationAuthority = self.testConfiguration.authority;
@@ -100,7 +100,7 @@
 - (void)DISABLED_testInteractiveNTLMLogin_withPromptAlways_withoutLoginHint_ADALWebView_andCancelAuth
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.validateAuthority = NO;
     request.configurationAuthority = self.testConfiguration.authority;
     

@@ -54,7 +54,7 @@ static BOOL msalAppInstalled = NO;
 - (void)testCoexistenceWithMSAL_whenSigninInADALFirst_andSameClientId
 {
     MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
-    adalRequest.uiBehavior = @"always";
+    adalRequest.promptBehavior = @"always";
     adalRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"ms_graph"];
     
     NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
@@ -97,7 +97,7 @@ static BOOL msalAppInstalled = NO;
     MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultAppRequest];
     msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
     msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
-    msalRequest.uiBehavior = @"force";
+    msalRequest.promptBehavior = @"force";
     
     NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
     [self acquireToken:msalConfig];
@@ -112,7 +112,7 @@ static BOOL msalAppInstalled = NO;
     [self.testApp activate];
     
     MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
-    adalRequest.uiBehavior = @"always";
+    adalRequest.promptBehavior = @"always";
     adalRequest.legacyAccountIdentifier = self.primaryAccount.account;
     adalRequest.loginHint = self.primaryAccount.account;
     
@@ -194,7 +194,7 @@ static BOOL msalAppInstalled = NO;
     
     MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
     adalRequest.brokerEnabled = YES;
-    adalRequest.uiBehavior = @"auto";
+    adalRequest.promptBehavior = @"auto";
     adalRequest.loginHint = self.primaryAccount.account;
     adalRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"ms_graph"];
     

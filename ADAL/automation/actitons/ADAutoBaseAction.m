@@ -142,17 +142,17 @@
 {
     ADPromptBehavior promptBehavior = AD_PROMPT_AUTO;
 
-    if (request.uiBehavior)
+    if (request.promptBehavior)
     {
-        if ([request.uiBehavior isEqualToString:@"refresh_session"])
+        if ([request.promptBehavior isEqualToString:@"refresh_session"])
         {
             promptBehavior = AD_PROMPT_REFRESH_SESSION;
         }
-        else if ([request.uiBehavior isEqualToString:@"always"])
+        else if ([request.promptBehavior isEqualToString:@"always"])
         {
             promptBehavior = AD_PROMPT_ALWAYS;
         }
-        else if ([request.uiBehavior isEqualToString:@"force"])
+        else if ([request.promptBehavior isEqualToString:@"force"])
         {
             promptBehavior = AD_FORCE_PROMPT;
         }

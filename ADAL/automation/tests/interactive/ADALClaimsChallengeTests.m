@@ -43,7 +43,7 @@
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
     request.usePassedWebView = YES;
     request.loginHint = self.primaryAccount.account;
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
@@ -54,7 +54,7 @@
     
     request.claims = @"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D";
     request.legacyAccountIdentifier = self.primaryAccount.account;
-    request.uiBehavior = @"auto";
+    request.promptBehavior = @"auto";
     NSDictionary *claimsConfig = [self configWithTestRequest:request];
 
     // Acquire token again.

@@ -40,7 +40,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     adfsRequest.loginHint = self.primaryAccount.account;
     adfsRequest.validateAuthority = NO;
     adfsRequest.configurationAuthority = self.testConfiguration.authority;
@@ -99,7 +99,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
-    adfsRequest.uiBehavior = @"auto";
+    adfsRequest.promptBehavior = @"auto";
     adfsRequest.loginHint = self.primaryAccount.account;
     adfsRequest.validateAuthority = NO;
     adfsRequest.configurationAuthority = self.testConfiguration.authority;
@@ -126,7 +126,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     adfsRequest.validateAuthority = YES;
     adfsRequest.configurationAuthority = self.testConfiguration.authority;
     
@@ -145,7 +145,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     adfsRequest.validateAuthority = YES;
     adfsRequest.configurationAuthority = self.testConfiguration.authority;
     adfsRequest.loginHint = self.primaryAccount.account;
@@ -172,7 +172,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     adfsRequest.validateAuthority = YES;
     adfsRequest.configurationAuthority = self.testConfiguration.authority;
     adfsRequest.loginHint = self.primaryAccount.account;
@@ -202,7 +202,7 @@
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
-    adfsRequest.uiBehavior = @"always";
+    adfsRequest.promptBehavior = @"always";
     adfsRequest.validateAuthority = NO;
     adfsRequest.configurationAuthority = self.testConfiguration.authority;
     adfsRequest.loginHint = self.primaryAccount.account;

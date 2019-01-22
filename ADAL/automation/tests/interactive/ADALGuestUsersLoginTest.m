@@ -46,7 +46,7 @@
 - (void)testInteractiveAndSilentAADLogin_withPromptAlways_noLoginHint_ADALWebView_andGuestUserInGuestTenantOnly
 {
     MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
-    guestRequest.uiBehavior = @"always";
+    guestRequest.promptBehavior = @"always";
     guestRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment
                                                                                         tenantId:self.primaryAccount.targetTenantId];
     
@@ -93,7 +93,7 @@
 {
     // Sign in home tenant
     MSIDAutomationTestRequest *homeRequest = [self.class.confProvider defaultAppRequest];
-    homeRequest.uiBehavior = @"always";
+    homeRequest.promptBehavior = @"always";
     homeRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
     
     NSDictionary *homeConfig = [self configWithTestRequest:homeRequest];
@@ -110,7 +110,7 @@
 
     // Sign in into guest tenant
     MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
-    guestRequest.uiBehavior = @"always";
+    guestRequest.promptBehavior = @"always";
     guestRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment
                                                                                         tenantId:self.primaryAccount.targetTenantId];
     NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
@@ -153,7 +153,7 @@
 {
     // Sign in home tenant
     MSIDAutomationTestRequest *homeRequest = [self.class.confProvider defaultAppRequest];
-    homeRequest.uiBehavior = @"always";
+    homeRequest.promptBehavior = @"always";
     homeRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
     
     NSDictionary *homeConfig = [self configWithTestRequest:homeRequest];

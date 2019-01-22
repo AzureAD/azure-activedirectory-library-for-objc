@@ -48,7 +48,7 @@
 - (void)testInteractiveShibLogin_withPromptAlways_noLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *shibRequest = [self.class.confProvider defaultAppRequest];
-    shibRequest.uiBehavior = @"always";
+    shibRequest.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:shibRequest];
     [self acquireToken:config];
@@ -71,7 +71,7 @@
 - (void)testInteractiveShibLogin_withPromptAlways_withLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *shibRequest = [self.class.confProvider defaultAppRequest];
-    shibRequest.uiBehavior = @"always";
+    shibRequest.promptBehavior = @"always";
     shibRequest.loginHint = self.primaryAccount.account;
     
     NSDictionary *config = [self configWithTestRequest:shibRequest];

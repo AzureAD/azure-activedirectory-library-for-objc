@@ -135,14 +135,14 @@
 {
     // Sign account 1 into app 1
     MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
-    firstLabAppRequest.uiBehavior = @"always";
+    firstLabAppRequest.promptBehavior = @"always";
     firstLabAppRequest.loginHint = self.primaryAccount.account;
     firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
     [self runSharedAADLoginWithTestRequest:firstLabAppRequest];
     
     // Sign account 1 into app 2
     MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
-    firstFociAppRequest.uiBehavior = @"always";
+    firstFociAppRequest.promptBehavior = @"always";
     firstFociAppRequest.loginHint = self.primaryAccount.account;
     firstFociAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
     [self runSharedAADLoginWithTestRequest:firstFociAppRequest];
@@ -155,7 +155,7 @@
     // Sign account 2 into app 1
     [self loadPasswordForAccount:self.primaryAccount];
     MSIDAutomationTestRequest *secondLabAppRequest = [self.class.confProvider defaultAppRequest];
-    secondLabAppRequest.uiBehavior = @"always";
+    secondLabAppRequest.promptBehavior = @"always";
     secondLabAppRequest.loginHint = [self.testConfiguration.accounts[1] account];
     secondLabAppRequest.legacyAccountIdentifier = [self.testConfiguration.accounts[1] account];
     [self runSharedAADLoginWithTestRequest:secondLabAppRequest];

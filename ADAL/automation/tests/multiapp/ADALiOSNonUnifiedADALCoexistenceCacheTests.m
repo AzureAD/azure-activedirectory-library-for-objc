@@ -58,7 +58,7 @@ static BOOL adalAppInstalled = NO;
     self.testApp = [self olderADALApp];
     
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:request];
 
@@ -94,7 +94,7 @@ static BOOL adalAppInstalled = NO;
 {
     // Sign in the new test app
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.legacyAccountIdentifier = self.primaryAccount.account;
     
     NSDictionary *config = [self configWithTestRequest:request];
@@ -127,7 +127,7 @@ static BOOL adalAppInstalled = NO;
 
     // Sign into the current version
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
     request.validateAuthority = NO;
     request.configurationAuthority = self.testConfiguration.authority;
@@ -174,7 +174,7 @@ static BOOL adalAppInstalled = NO;
 {
     // Sign in the new test app
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww-alias"];
     
     NSDictionary *config = [self configWithTestRequest:request];
@@ -193,7 +193,7 @@ static BOOL adalAppInstalled = NO;
     self.testApp = [self olderADALApp];
     
     MSIDAutomationTestRequest *aliasRequest = [self.class.confProvider defaultAppRequest];
-    aliasRequest.uiBehavior = @"always";
+    aliasRequest.promptBehavior = @"always";
     
     NSDictionary *aliasConfig = [self configWithTestRequest:aliasRequest];
 
@@ -207,7 +207,7 @@ static BOOL adalAppInstalled = NO;
     self.testApp = [self olderADALApp];
     
     MSIDAutomationTestRequest *fociRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
-    fociRequest.uiBehavior = @"always";
+    fociRequest.promptBehavior = @"always";
     
     NSDictionary *fociConfig = [self configWithTestRequest:fociRequest];
     [self acquireToken:fociConfig];
@@ -221,7 +221,7 @@ static BOOL adalAppInstalled = NO;
     [self.testApp activate];
     
     MSIDAutomationTestRequest *secondFociRequest = [self.class.confProvider defaultFociRequestWithBroker];
-    secondFociRequest.uiBehavior = @"always";
+    secondFociRequest.promptBehavior = @"always";
     
     NSDictionary *secondFociConfig = [self configWithTestRequest:secondFociRequest];
     [self acquireTokenSilent:secondFociConfig];

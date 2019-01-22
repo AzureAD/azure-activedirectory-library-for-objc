@@ -59,7 +59,7 @@ static BOOL brokerAppInstalled = NO;
 - (void)testBasicBrokerLoginWithGuestUsers
 {
     MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultAppRequest];
-    adalRequest.uiBehavior = @"auto";
+    adalRequest.promptBehavior = @"auto";
     adalRequest.loginHint = self.primaryAccount.account;
     adalRequest.legacyAccountIdentifier = self.primaryAccount.account;
     adalRequest.legacyAccountIdentifierType = @"optional_displayable";
@@ -95,7 +95,7 @@ static BOOL brokerAppInstalled = NO;
 {
     // Sign in home tenant
     MSIDAutomationTestRequest *homeRequest = [self.class.confProvider defaultAppRequest];
-    homeRequest.uiBehavior = @"force";
+    homeRequest.promptBehavior = @"force";
     homeRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
     homeRequest.brokerEnabled = YES;
     homeRequest.loginHint = self.primaryAccount.account;
@@ -119,7 +119,7 @@ static BOOL brokerAppInstalled = NO;
     guestRequest.brokerEnabled = YES;
     guestRequest.loginHint = self.primaryAccount.account;
     guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
-    guestRequest.uiBehavior = @"force";
+    guestRequest.promptBehavior = @"force";
     guestRequest.configurationAuthority = [NSString stringWithFormat:@"https://%@/%@", self.testConfiguration.authorityHost, self.primaryAccount.targetTenantId];
     
     NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
@@ -169,7 +169,7 @@ static BOOL brokerAppInstalled = NO;
     [self.testApp activate];
     
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"auto";
+    request.promptBehavior = @"auto";
     request.loginHint = self.primaryAccount.account;
     request.legacyAccountIdentifier = self.primaryAccount.account;
     request.legacyAccountIdentifierType = @"optional_displayable";

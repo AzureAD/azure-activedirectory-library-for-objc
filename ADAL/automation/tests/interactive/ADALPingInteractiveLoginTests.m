@@ -48,7 +48,7 @@
 - (void)testInteractivePingLogin_withPromptAlways_noLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *pingRequest = [self.class.confProvider defaultAppRequest];
-    pingRequest.uiBehavior = @"always";
+    pingRequest.promptBehavior = @"always";
     
     NSDictionary *config = [self configWithTestRequest:pingRequest];
     [self acquireToken:config];
@@ -72,7 +72,7 @@
 - (void)testInteractivePingLogin_withPromptAlways_withLoginHint_ADALWebView
 {
     MSIDAutomationTestRequest *pingRequest = [self.class.confProvider defaultAppRequest];
-    pingRequest.uiBehavior = @"always";
+    pingRequest.promptBehavior = @"always";
     pingRequest.loginHint = self.primaryAccount.account;
     
     NSDictionary *config = [self configWithTestRequest:pingRequest];

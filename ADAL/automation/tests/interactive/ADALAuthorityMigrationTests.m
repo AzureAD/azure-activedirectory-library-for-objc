@@ -41,7 +41,7 @@
 - (void)testAuthorityMigration_withPublicCloud_whenAppUpdatingAuthorities
 {
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww-alias" tenantId:nil];
     
     NSDictionary *config = [self configWithTestRequest:request];
@@ -82,7 +82,7 @@
 - (void)testAuthorityMigration_withPublicCloud_andFRT_whenAppsUsingDifferentAuthorities
 {
     MSIDAutomationTestRequest *firstRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
-    firstRequest.uiBehavior = @"always";
+    firstRequest.promptBehavior = @"always";
     firstRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww" tenantId:nil];
     
     NSDictionary *firstConfig = [self configWithTestRequest:firstRequest];

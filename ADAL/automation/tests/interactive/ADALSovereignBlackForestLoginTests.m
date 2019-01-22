@@ -51,7 +51,7 @@
 {
     // Do interactive login
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
     request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
     request.legacyAccountIdentifierType = @"required_displayable";
@@ -87,7 +87,7 @@
 {
     // Do interactive login
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
     request.extraQueryParameters = @{@"instance_aware": @1};
     

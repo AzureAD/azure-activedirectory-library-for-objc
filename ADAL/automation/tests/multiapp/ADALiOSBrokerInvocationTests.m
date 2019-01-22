@@ -69,7 +69,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Do interactive login
     MSIDAutomationTestRequest *instanceAwareRequest = [self.class.confProvider defaultAppRequest];
-    instanceAwareRequest.uiBehavior = @"force";
+    instanceAwareRequest.promptBehavior = @"force";
     instanceAwareRequest.loginHint = self.primaryAccount.account;
     instanceAwareRequest.legacyAccountIdentifier = self.primaryAccount.account;
     instanceAwareRequest.legacyAccountIdentifierType = @"optional_displayable";
@@ -123,7 +123,7 @@ static BOOL brokerAppInstalled = NO;
     [self loadTestConfiguration:configurationRequest];
     
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"auto";
+    request.promptBehavior = @"auto";
     request.loginHint = self.primaryAccount.account;
     request.brokerEnabled = YES;
     request.legacyAccountIdentifierType = self.primaryAccount.account;
@@ -176,7 +176,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Acquire token for a resource requiring device authentication
     MSIDAutomationTestRequest *deviceAuthRequest = [self.class.confProvider defaultAppRequest];
-    deviceAuthRequest.uiBehavior = @"always";
+    deviceAuthRequest.promptBehavior = @"always";
     deviceAuthRequest.brokerEnabled = NO;
     deviceAuthRequest.loginHint = self.primaryAccount.account;
     deviceAuthRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"sfb_guid"];
@@ -210,7 +210,7 @@ static BOOL brokerAppInstalled = NO;
 
     // Acquire token for a resource that doesn't require device authentication
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.brokerEnabled = NO;
     request.loginHint = self.primaryAccount.account;
     request.legacyAccountIdentifier = self.primaryAccount.account;
@@ -255,7 +255,7 @@ static BOOL brokerAppInstalled = NO;
     
     // Acquire token for a resource that doesn't require device authentication
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
-    request.uiBehavior = @"always";
+    request.promptBehavior = @"always";
     request.brokerEnabled = NO;
     request.loginHint = self.primaryAccount.account;
     request.legacyAccountIdentifier = self.primaryAccount.account;
