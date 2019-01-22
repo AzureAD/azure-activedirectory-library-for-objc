@@ -537,7 +537,7 @@
     // Construct a refresh token object to wrap up the refresh token provided by developer
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
     refreshTokenItem.refreshToken = _refreshToken;
-    refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:_requestParams.identifier.userId homeAccountId:nil];
+    refreshTokenItem.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:_requestParams.identifier.userId homeAccountId:nil];
     __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
     refreshTokenItem.authority = authority;
     refreshTokenItem.clientId  = _requestParams.clientId;

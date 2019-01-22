@@ -82,7 +82,7 @@
 {
     NSError *cacheError = nil;
     
-    BOOL result = [self.dataSource removeItemsWithKey:[item tokenCacheKey] context:nil error:&cacheError];
+    BOOL result = [self.dataSource removeItemsWithTokenKey:[item tokenCacheKey] context:nil error:&cacheError];
     
     if (cacheError && error)
     {
@@ -267,7 +267,7 @@
                       clientId:(NSString *)clientId
                          error:(ADAuthenticationError **)error
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:userId homeAccountId:nil];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:userId homeAccountId:nil];
 
     NSError *msidError = nil;
     BOOL result = [_legacyAccessor clearCacheForAccount:account

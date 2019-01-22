@@ -46,7 +46,62 @@
     XCTAssertNil(adalError);
 }
 
-- (void)testErrorConversion_whenOnlyErrorDomainIsMapped_shouldKeepErrorCode {
+- (void)testErrorConversion_whenErrorDomainIsNotMapped_shouldKeepErrorCode {
+    NSInteger errorCode = -9999;
+    NSString *errorDescription = @"a fake error description.";
+    NSString *oauthError = @"a fake oauth error message.";
+    NSError *underlyingError = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecItemNotFound userInfo:nil];
+    NSUUID *correlationId = [NSUUID UUID];
+    NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
+    
+    NSError *msidError = MSIDCreateError(@"Unmapped Domain",
+                                         errorCode,
+                                         errorDescription,
+                                         oauthError,
+                                         nil,
+                                         underlyingError,
+                                         correlationId,
+                                         @{MSIDHTTPHeadersKey : httpHeaders});
+    ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+    
+    XCTAssertNotNil(adalError);
+    XCTAssertEqualObjects(adalError.domain, @"Unmapped Domain");
+    XCTAssertEqual(adalError.code, errorCode);
+    XCTAssertEqualObjects(adalError.errorDetails, errorDescription);
+    XCTAssertEqualObjects(adalError.protocolCode, oauthError);
+    XCTAssertEqualObjects(adalError.userInfo[NSUnderlyingErrorKey], underlyingError);
+    XCTAssertEqualObjects(adalError.userInfo[ADHTTPHeadersKey], httpHeaders);
+}
+
+- (void)testErrorConversion_whenErrorDomainIsKeychain_shouldKeepErrorCode {
+    NSInteger errorCode = -9999;
+    NSString *errorDescription = @"a fake error description.";
+    NSString *oauthError = @"a fake oauth error message.";
+    NSError *underlyingError = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecItemNotFound userInfo:nil];
+    NSUUID *correlationId = [NSUUID UUID];
+    NSDictionary *httpHeaders = @{@"fake header key" : @"fake header value"};
+    
+    NSError *msidError = MSIDCreateError(MSIDKeychainErrorDomain,
+                                         errorCode,
+                                         errorDescription,
+                                         oauthError,
+                                         nil,
+                                         underlyingError,
+                                         correlationId,
+                                         @{MSIDHTTPHeadersKey : httpHeaders});
+    ADAuthenticationError *adalError = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+    
+    XCTAssertNotNil(adalError);
+    XCTAssertEqualObjects(adalError.domain, ADKeychainErrorDomain);
+    XCTAssertEqual(adalError.code, errorCode);
+    XCTAssertEqualObjects(adalError.errorDetails, errorDescription);
+    XCTAssertEqualObjects(adalError.protocolCode, oauthError);
+    XCTAssertEqualObjects(adalError.userInfo[NSUnderlyingErrorKey], underlyingError);
+    XCTAssertEqualObjects(adalError.userInfo[ADHTTPHeadersKey], httpHeaders);
+
+}
+
+- (void)testErrorConversion_whenErrorDomainIsMappedAndNoErrorCode_shouldADALUnexpectedError {
     NSInteger errorCode = -9999;
     NSString *errorDescription = @"a fake error description.";
     NSString *oauthError = @"a fake oauth error message.";
@@ -66,12 +121,14 @@
     
     XCTAssertNotNil(adalError);
     XCTAssertEqualObjects(adalError.domain, ADAuthenticationErrorDomain);
-    XCTAssertEqual(adalError.code, errorCode);
+    XCTAssertEqual(adalError.code, AD_ERROR_UNEXPECTED);
     XCTAssertEqualObjects(adalError.errorDetails, errorDescription);
     XCTAssertEqualObjects(adalError.protocolCode, oauthError);
     XCTAssertEqualObjects(adalError.userInfo[NSUnderlyingErrorKey], underlyingError);
     XCTAssertEqualObjects(adalError.userInfo[ADHTTPHeadersKey], httpHeaders);
 }
+
+
 
 - (void)testErrorConversion_whenBothErrorDomainAndCodeAreMapped_shouldMapBoth {
     NSString *domain = MSIDErrorDomain;

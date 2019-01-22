@@ -125,8 +125,8 @@
 {
     _identifier = identifier;
     
-    self.account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:self.identifier.userId
-                                                            homeAccountId:nil];
+    self.account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:self.identifier.userId
+                                                          homeAccountId:nil];
 }
 
 - (MSIDConfiguration *)msidConfig

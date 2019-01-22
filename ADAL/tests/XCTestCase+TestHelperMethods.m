@@ -735,7 +735,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     baseToken.authority = [TEST_AUTHORITY authority];
     baseToken.clientId = TEST_CLIENT_ID;
-    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"unique User Id"];
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"unique User Id"];
     baseToken.additionalServerInfo = @{@"key2" : @"value2"};
 }
 

@@ -310,7 +310,7 @@
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
         
-        __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
+        __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] rawTenant:nil context:nil error:nil];
 
         NSArray *aliases = nil;
 
@@ -392,7 +392,7 @@
 
         NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
 
-        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] context:nil error:nil];
+        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] rawTenant:nil context:nil error:nil];
 
         NSArray *aliases = nil;
 

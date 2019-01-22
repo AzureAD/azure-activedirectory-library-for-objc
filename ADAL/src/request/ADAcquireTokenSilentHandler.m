@@ -159,7 +159,7 @@
 
     if (!isADFSInstance)
     {
-        NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
+        NSString *legacyAccountId = cacheItem.accountIdentifier.displayableId;
         NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
         ADAuthenticationError *error = nil;
         NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
@@ -327,7 +327,7 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"" homeAccountId:nil];
+        MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
                                                    configuration:_requestParams.msidConfig
