@@ -71,6 +71,8 @@ static BOOL msalAppInstalled = NO;
     MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultAppRequest];
     msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
     msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
+    msalRequest.cacheAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil tenantId:self.primaryAccount.targetTenantId];
+    msalRequest.redirectUri = [self.testConfiguration redirectUriWithPrefix:@"x-msauth-msalautomationapp"];
     
     NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
     
@@ -98,6 +100,7 @@ static BOOL msalAppInstalled = NO;
     msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
     msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
     msalRequest.promptBehavior = @"force";
+    msalRequest.redirectUri = [self.testConfiguration redirectUriWithPrefix:@"x-msauth-msalautomationapp"];
     
     NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
     [self acquireToken:msalConfig];
@@ -152,14 +155,14 @@ static BOOL msalAppInstalled = NO;
     self.testApp = [self msalTestApp];
     
     MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultFociRequestWithBroker];
-    msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
+    msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"aad_graph_static"];
     msalRequest.loginHint = self.primaryAccount.account;
     msalRequest.homeAccountIdentifier = self.primaryAccount.homeAccountId;
+    msalRequest.promptBehavior = @"force";
     
     NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
     [self acquireToken:msalConfig];
     [self acceptAuthSessionDialog];
-    [self aadEnterEmail];
     [self aadEnterPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
@@ -168,12 +171,15 @@ static BOOL msalAppInstalled = NO;
     self.testApp = [XCUIApplication new];
     [self.testApp activate];
     
-    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultFociRequestWithBroker];
+    MSIDAutomationTestRequest *adalRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
+    adalRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil tenantId:@"common"];
     adalRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
+    adalRequest.legacyAccountIdentifier = self.primaryAccount.account;
     
     NSDictionary *adalConfig = [self configWithTestRequest:adalRequest];
     [self acquireTokenSilent:adalConfig];
     [self assertAccessTokenNotNil];
+    [self closeResultView];
 
     // Go back to MSAL test app
     self.testApp = [self msalTestApp];
@@ -216,6 +222,8 @@ static BOOL msalAppInstalled = NO;
     MSIDAutomationTestRequest *msalRequest = [self.class.confProvider defaultAppRequest];
     msalRequest.legacyAccountIdentifier = self.primaryAccount.username;
     msalRequest.requestScopes = [self.class.confProvider scopesForEnvironment:nil type:@"ms_graph"];
+    msalRequest.redirectUri = [self.testConfiguration redirectUriWithPrefix:@"x-msauth-msalautomationapp"];
+    msalRequest.cacheAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil tenantId:self.primaryAccount.targetTenantId];
     
     NSDictionary *msalConfig = [self configWithTestRequest:msalRequest];
 

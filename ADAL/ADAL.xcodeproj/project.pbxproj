@@ -2759,8 +2759,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				B2934B1221C87CC800ADFE2E /* PBXTargetDependency */,
 				B267478921F6CBFA00BD1717 /* PBXTargetDependency */,
+				B2934B1221C87CC800ADFE2E /* PBXTargetDependency */,
 			);
 			name = ADALAutomation;
 			productName = ADALAutomation;
