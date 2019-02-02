@@ -54,6 +54,7 @@
     request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
     request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
+    request.requestResource = [self.class.confProvider resourceForEnvironment:@"de" type:@"aad_graph"];
     request.legacyAccountIdentifierType = @"required_displayable";
     request.extraQueryParameters = @{@"instance_aware": @1};
     
@@ -90,6 +91,7 @@
     request.promptBehavior = @"always";
     request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
     request.extraQueryParameters = @{@"instance_aware": @1};
+    request.requestResource = [self.class.confProvider resourceForEnvironment:@"de" type:@"aad_graph"];
     
     NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
