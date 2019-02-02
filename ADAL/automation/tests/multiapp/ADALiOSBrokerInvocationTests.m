@@ -75,6 +75,7 @@ static BOOL brokerAppInstalled = NO;
     instanceAwareRequest.legacyAccountIdentifierType = @"optional_displayable";
     instanceAwareRequest.extraQueryParameters = @{@"instance_aware": @1};
     instanceAwareRequest.brokerEnabled = YES;
+    instanceAwareRequest.requestResource = [self.class.confProvider resourceForEnvironment:@"de" type:@"aad_graph"];
     instanceAwareRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:self.class.confProvider.wwEnvironment];
     
     NSDictionary *instanceAwareConfig = [self configWithTestRequest:instanceAwareRequest];
