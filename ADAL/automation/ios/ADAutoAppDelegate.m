@@ -36,6 +36,7 @@
     (void)application;
     (void)launchOptions;
     
+    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];
     [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii) {
         [MSIDAutomationMainViewController forwardIdentitySDKLog:message];
     }];

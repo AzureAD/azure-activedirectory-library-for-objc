@@ -28,6 +28,7 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
+#import <ADAL/ADAL.h>
 
 @implementation ADAutoInteractiveStressAction
 
@@ -81,6 +82,8 @@
        containerController:(MSIDAutomationMainViewController *)containerController
            completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
+    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
+    
     NSError *contextError = nil;
     ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
 
@@ -116,11 +119,15 @@
                                     }];
         });
     }
-
+    
     MSIDAutomationTestResult *result = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
                                                                                 success:YES
                                                                          additionalInfo:nil];
-    completionBlock(result);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        completionBlock(result);
+        [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];
+    });
 }
 
 @end
