@@ -28,15 +28,18 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
-
-// TODO: don't call cancelWebSession, because it won't work with older ADAL versions
-// TODO: revisit how we do passed in webview, as it won't work with older ADAL versions
+#import "MSIDAutomationPassedInWebViewController.h"
+#import <ADAL/ADWebAuthController.h>
 
 @implementation ADAutoAcquireTokenAction
 
 + (void)load
 {
     [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoAcquireTokenAction new]];
+    
+    [MSIDAutomationPassedInWebViewController setCancelTappedCallback:^{
+        [ADWebAuthController cancelCurrentWebAuthSession];
+    }];
 }
 
 - (NSString *)actionIdentifier

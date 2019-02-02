@@ -209,7 +209,6 @@
 		B2000C2120EC1EA40092790A /* adal__uitest__mac.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = B2000C1F20EC1EA40092790A /* adal__uitest__mac.xcconfig */; };
 		B2000C2320EC1F330092790A /* ADALBaseiOSUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C2220EC1F330092790A /* ADALBaseiOSUITest.m */; };
 		B2000C2520EC2A720092790A /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFCA1FBD1B1300EE4487 /* libIdentityCore.a */; };
-		B2000C2620EC2A760092790A /* libIdentityAutomation Mac.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B275521A2082BEB900AA7A38 /* libIdentityAutomation Mac.dylib */; };
 		B2000C2720EC2A960092790A /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2000C2820EC2AF20092790A /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F03D20DDD411006C806C /* GSS.framework */; };
 		B2000C2920EC2AF90092790A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDA1FC37A6200CD70C5 /* WebKit.framework */; };
@@ -262,6 +261,13 @@
 		B20DC61B1F0DA34B00957806 /* ADBrokerMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61A1F0DA34B00957806 /* ADBrokerMessageTests.m */; };
 		B20DC61D1F0DA39C00957806 /* ADBrokerKeyHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61C1F0DA39C00957806 /* ADBrokerKeyHelperTests.m */; };
 		B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */; };
+		B21FA9FE2206427D00806B68 /* libIdentityAutomationTestLib iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B21FA9F92206427000806B68 /* libIdentityAutomationTestLib iOS.a */; };
+		B21FAA012206428D00806B68 /* libIdentityAutomationTestLib iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B21FA9F92206427000806B68 /* libIdentityAutomationTestLib iOS.a */; };
+		B21FAA042206429B00806B68 /* libIdentityAutomationTestLib iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B21FA9F92206427000806B68 /* libIdentityAutomationTestLib iOS.a */; };
+		B21FAA07220642AB00806B68 /* libIdentityAutomationTestLib Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B21FA9FB2206427000806B68 /* libIdentityAutomationTestLib Mac.a */; };
+		B21FAA0A220642C300806B68 /* libIdentityAutomationTestLib Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B21FA9FB2206427000806B68 /* libIdentityAutomationTestLib Mac.a */; };
+		B21FAA0E2206434700806B68 /* MainAutomation.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B21FAA0D2206434700806B68 /* MainAutomation.storyboard */; };
+		B21FAA102206435D00806B68 /* MainAutomation.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B21FAA0F2206435D00806B68 /* MainAutomation.storyboard */; };
 		B225F063217559870052334D /* NSBundle+ADTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B225F062217559870052334D /* NSBundle+ADTestUtils.m */; };
 		B227F2982057685700F7B822 /* ADMSIDDataSourceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */; };
 		B227F2992057685700F7B822 /* ADMSIDDataSourceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */; };
@@ -277,7 +283,6 @@
 		B2375ED220EECBFB00E7686A /* ADALOnPremLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BA4963208C1F6700CE92FC /* ADALOnPremLoginTests.m */; };
 		B2375ED320EECBFD00E7686A /* ADALCacheRemovalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B212D38C20E2FF76001575CD /* ADALCacheRemovalTests.m */; };
 		B2375EDE20EEED1100E7686A /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFCA1FBD1B1300EE4487 /* libIdentityCore.a */; };
-		B2375EDF20EEED1600E7686A /* libIdentityAutomation Mac.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B275521A2082BEB900AA7A38 /* libIdentityAutomation Mac.dylib */; };
 		B2375EE020EEED2100E7686A /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CF4EDE1FC37A7800CD70C5 /* SecurityInterface.framework */; };
 		B2375EE120EEED2700E7686A /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F03D20DDD411006C806C /* GSS.framework */; };
 		B2375EE220EEED3700E7686A /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
@@ -325,7 +330,6 @@
 		B2649E2221F6A79500CAD2D9 /* ADALiOSOlderADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB820D7183800FDAAEC /* ADALiOSOlderADALCoexistenceCacheTests.m */; };
 		B2649E2321F6A96100CAD2D9 /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2948CB620D717FA00FDAAEC /* ADALiOSNonUnifiedADALCoexistenceCacheTests.m */; };
 		B2649E2521F6B88500CAD2D9 /* ADALiOSMSALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A409D520D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m */; };
-		B27552442082EECF00AA7A38 /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
 		B2822A2F2055D67200390B6E /* ADLegacyMacTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A2D2055D67200390B6E /* ADLegacyMacTokenCache.m */; };
 		B2822A302055D67200390B6E /* ADLegacyMacTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A2D2055D67200390B6E /* ADLegacyMacTokenCache.m */; };
 		B2822A342055DBF900390B6E /* ADLegacyKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B2822A312055DBF800390B6E /* ADLegacyKeychainTokenCache.m */; };
@@ -367,21 +371,17 @@
 		B2A02CE920F5AEF20048792D /* ADALADFSv4InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AACE0420DF2CFF00AC88E2 /* ADALADFSv4InteractiveLoginTests.m */; };
 		B2A02CEA20F5AEF50048792D /* ADALADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */; };
 		B2A409E220D36545004AA9B7 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
-		B2A409E320D3654B004AA9B7 /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
 		B2A409E420D3665D004AA9B7 /* ADALBaseUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */; };
 		B2A409E520D3665F004AA9B7 /* XCUIElement+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */; };
 		B2AF9AB02022A751009602CF /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF9AAC2022A70A009602CF /* ADLoggerTests.m */; };
 		B2AF9AB12022A752009602CF /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AF9AAC2022A70A009602CF /* ADLoggerTests.m */; };
 		B2B4EBF121769AF30016F3D8 /* NSBundle+ADTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B225F062217559870052334D /* NSBundle+ADTestUtils.m */; };
 		B2BA485A20884A0C00CE92FC /* XCTestCase+TextFieldTap.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BA485920884A0C00CE92FC /* XCTestCase+TextFieldTap.m */; };
-		B2C9547B21EFC2DC00323C35 /* MainAutomation.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2C9547621EFC2DB00323C35 /* MainAutomation.storyboard */; };
-		B2C9547D21EFC2F700323C35 /* MainAutomation.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2C9547C21EFC2F700323C35 /* MainAutomation.storyboard */; };
 		B2CD211620632C09009869D5 /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CD211520632C09009869D5 /* GSS.framework */; };
 		B2D1841B208335300001D445 /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2D32D0620E9C33F002C39AD /* ADALBaseUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791C92012B54B008D4BD2 /* ADALBaseUITest.m */; };
 		B2D32D0820E9D5F8002C39AD /* XCUIElement+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CC2012B5A8008D4BD2 /* XCUIElement+ADALiOSUITests.m */; };
 		B2D32D0920E9D5FA002C39AD /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
-		B2D32D0A20E9D701002C39AD /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
 		B2D32D0B20E9D724002C39AD /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		B2D32D0D20E9D804002C39AD /* ADALUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1841A208335300001D445 /* ADALUITests.swift */; };
 		B2D32D0E20E9D860002C39AD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B9F04120DDD4A2006C806C /* WebKit.framework */; };
@@ -623,6 +623,62 @@
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
 		};
+		B21FA9F82206427000806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B2ED1BA62204D24700A24E82;
+			remoteInfo = "IdentityAutomationTestLib iOS";
+		};
+		B21FA9FA2206427000806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B2ED1BB32204D26700A24E82;
+			remoteInfo = "IdentityAutomationTestLib Mac";
+		};
+		B21FA9FC2206427600806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B2ED1BA52204D24700A24E82;
+			remoteInfo = "IdentityAutomationTestLib iOS";
+		};
+		B21FA9FF2206428700806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B2ED1BA52204D24700A24E82;
+			remoteInfo = "IdentityAutomationTestLib iOS";
+		};
+		B21FAA022206429500806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B2ED1BA52204D24700A24E82;
+			remoteInfo = "IdentityAutomationTestLib iOS";
+		};
+		B21FAA05220642A200806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B2ED1BB22204D26700A24E82;
+			remoteInfo = "IdentityAutomationTestLib Mac";
+		};
+		B21FAA08220642B400806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B2ED1BB22204D26700A24E82;
+			remoteInfo = "IdentityAutomationTestLib Mac";
+		};
+		B21FAA0B220642CF00806B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B27551D420817A1E00AA7A38;
+			remoteInfo = "IdentityAutomationAppLib Mac";
+		};
 		B258488A20747B01007FAD22 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */;
@@ -678,13 +734,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = B27551D520817A1E00AA7A38;
 			remoteInfo = "IdentityAutomation Mac";
-		};
-		B275523F2082EEBB00AA7A38 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D626FFC01FBD1B1300EE4487 /* IdentityCore.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = B27551C7208179EE00AA7A38;
-			remoteInfo = "IdentityAutomation iOS";
 		};
 		B2934B1121C87CC800ADFE2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1109,6 +1158,8 @@
 		B20DC61C1F0DA39C00957806 /* ADBrokerKeyHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelperTests.m; sourceTree = "<group>"; };
 		B20DC61E1F0DA3C500957806 /* ADKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		B212D38C20E2FF76001575CD /* ADALCacheRemovalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALCacheRemovalTests.m; sourceTree = "<group>"; };
+		B21FAA0D2206434700806B68 /* MainAutomation.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainAutomation.storyboard; path = IdentityCore/IdentityCore/tests/automation/ui_app_lib/ui_common/ios/MainAutomation.storyboard; sourceTree = SOURCE_ROOT; };
+		B21FAA0F2206435D00806B68 /* MainAutomation.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainAutomation.storyboard; path = IdentityCore/IdentityCore/tests/automation/ui_app_lib/ui_common/macos/MainAutomation.storyboard; sourceTree = SOURCE_ROOT; };
 		B225F061217559870052334D /* NSBundle+ADTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBundle+ADTestUtils.h"; sourceTree = "<group>"; };
 		B225F062217559870052334D /* NSBundle+ADTestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+ADTestUtils.m"; sourceTree = "<group>"; };
 		B227F2962057685700F7B822 /* ADMSIDDataSourceWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADMSIDDataSourceWrapper.h; sourceTree = "<group>"; };
@@ -1171,8 +1222,6 @@
 		B2BA495F208BFDA800CE92FC /* ADALAuthorityMigrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALAuthorityMigrationTests.m; sourceTree = "<group>"; };
 		B2BA4961208C009F00CE92FC /* ADALClaimsChallengeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALClaimsChallengeTests.m; sourceTree = "<group>"; };
 		B2BA4963208C1F6700CE92FC /* ADALOnPremLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADALOnPremLoginTests.m; sourceTree = "<group>"; };
-		B2C9547621EFC2DB00323C35 /* MainAutomation.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainAutomation.storyboard; path = IdentityCore/IdentityCore/tests/automation/action_common/ui_common/ios/MainAutomation.storyboard; sourceTree = SOURCE_ROOT; };
-		B2C9547C21EFC2F700323C35 /* MainAutomation.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainAutomation.storyboard; path = IdentityCore/IdentityCore/tests/automation/action_common/ui_common/macos/MainAutomation.storyboard; sourceTree = SOURCE_ROOT; };
 		B2CD211520632C09009869D5 /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/GSS.framework; sourceTree = DEVELOPER_DIR; };
 		B2D1841A208335300001D445 /* ADALUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADALUITests.swift; sourceTree = "<group>"; };
 		B2D32CF820E9C317002C39AD /* StressIOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StressIOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1322,8 +1371,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FA9FE2206427D00806B68 /* libIdentityAutomationTestLib iOS.a in Frameworks */,
 				B247A53821F000B100ED358D /* libIdentityCore.a in Frameworks */,
-				B27552442082EECF00AA7A38 /* libIdentityAutomation iOS.a in Frameworks */,
 				969502232123B4C2007DD27D /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1390,12 +1439,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FAA07220642AB00806B68 /* libIdentityAutomationTestLib Mac.a in Frameworks */,
 				B2000C2B20EC2B730092790A /* SecurityInterface.framework in Frameworks */,
 				B2000C2A20EC2B3E0092790A /* Security.framework in Frameworks */,
 				B2000C2920EC2AF90092790A /* WebKit.framework in Frameworks */,
 				B2000C2820EC2AF20092790A /* GSS.framework in Frameworks */,
 				B2000C2520EC2A720092790A /* libIdentityCore.a in Frameworks */,
-				B2000C2620EC2A760092790A /* libIdentityAutomation Mac.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1403,10 +1452,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FAA0A220642C300806B68 /* libIdentityAutomationTestLib Mac.a in Frameworks */,
 				B2375EE320EEEDA500E7686A /* WebKit.framework in Frameworks */,
 				B2375EE120EEED2700E7686A /* GSS.framework in Frameworks */,
 				B2375EE020EEED2100E7686A /* SecurityInterface.framework in Frameworks */,
-				B2375EDF20EEED1600E7686A /* libIdentityAutomation Mac.dylib in Frameworks */,
 				B2375EDE20EEED1100E7686A /* libIdentityCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1437,9 +1486,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FAA012206428D00806B68 /* libIdentityAutomationTestLib iOS.a in Frameworks */,
 				B2E15FE120E8453D00D3CAC4 /* WebKit.framework in Frameworks */,
 				B2A409E220D36545004AA9B7 /* libIdentityCore.a in Frameworks */,
-				B2A409E320D3654B004AA9B7 /* libIdentityAutomation iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1447,9 +1496,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FAA042206429B00806B68 /* libIdentityAutomationTestLib iOS.a in Frameworks */,
 				B2D32D0E20E9D860002C39AD /* WebKit.framework in Frameworks */,
 				B2D32D0B20E9D724002C39AD /* libIdentityCore.a in Frameworks */,
-				B2D32D0A20E9D701002C39AD /* libIdentityAutomation iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1953,10 +2002,10 @@
 		B2000C0620EB03830092790A /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				B2C9547621EFC2DB00323C35 /* MainAutomation.storyboard */,
 				975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */,
 				D64C1F4D1DB9B05900850036 /* ADAutoAppDelegate.h */,
 				D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */,
+				B21FAA0D2206434700806B68 /* MainAutomation.storyboard */,
 				D64C1F581DB9B05A00850036 /* LaunchScreen.storyboard */,
 				D64C1F5B1DB9B05A00850036 /* Info.plist */,
 				D64C1F4A1DB9B05900850036 /* Supporting Files */,
@@ -1967,9 +2016,9 @@
 		B2000C0720EB038C0092790A /* macos */ = {
 			isa = PBXGroup;
 			children = (
-				B2C9547C21EFC2F700323C35 /* MainAutomation.storyboard */,
 				B2E9684120E96B7800906F3D /* AppDelegate.h */,
 				B2E9684220E96B7800906F3D /* AppDelegate.m */,
+				B21FAA0F2206435D00806B68 /* MainAutomation.storyboard */,
 				B2E9684C20E96B7A00906F3D /* Info.plist */,
 				B2E9684D20E96B7A00906F3D /* main.m */,
 				B2E9684F20E96B7A00906F3D /* ADALAutomationForMac.entitlements */,
@@ -2208,6 +2257,8 @@
 				23F32F211FFD793100B2905E /* MSIDTestsHostApp.app */,
 				B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */,
 				B275521A2082BEB900AA7A38 /* libIdentityAutomation Mac.dylib */,
+				B21FA9F92206427000806B68 /* libIdentityAutomationTestLib iOS.a */,
+				B21FA9FB2206427000806B68 /* libIdentityAutomationTestLib Mac.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2508,7 +2559,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				B27552402082EEBB00AA7A38 /* PBXTargetDependency */,
+				B21FA9FD2206427600806B68 /* PBXTargetDependency */,
 				23658C83201023F70055CE7D /* PBXTargetDependency */,
 			);
 			name = InteractiveIOSTests;
@@ -2625,6 +2676,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B21FAA06220642A200806B68 /* PBXTargetDependency */,
 				B2000C1A20EC1CE90092790A /* PBXTargetDependency */,
 			);
 			name = InteractiveMacOSTests;
@@ -2644,6 +2696,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B21FAA09220642B400806B68 /* PBXTargetDependency */,
 				B2000C4620EC2F6E0092790A /* PBXTargetDependency */,
 			);
 			name = StressMacOSTests;
@@ -2702,6 +2755,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B21FAA002206428700806B68 /* PBXTargetDependency */,
 				B2A409D920D36524004AA9B7 /* PBXTargetDependency */,
 			);
 			name = MultiAppIOSTests;
@@ -2721,6 +2775,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B21FAA032206429500806B68 /* PBXTargetDependency */,
 				B2D32CFE20E9C317002C39AD /* PBXTargetDependency */,
 			);
 			name = StressIOSTests;
@@ -2740,6 +2795,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B21FAA0C220642CF00806B68 /* PBXTargetDependency */,
 				B2000C5620EC348C0092790A /* PBXTargetDependency */,
 			);
 			name = ADALAutomationForMac;
@@ -2978,6 +3034,20 @@
 			remoteRef = 23F32F201FFD793100B2905E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		B21FA9F92206427000806B68 /* libIdentityAutomationTestLib iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libIdentityAutomationTestLib iOS.a";
+			remoteRef = B21FA9F82206427000806B68 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B21FA9FB2206427000806B68 /* libIdentityAutomationTestLib Mac.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libIdentityAutomationTestLib Mac.a";
+			remoteRef = B21FA9FA2206427000806B68 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		B258488B20747B01007FAD22 /* KeyVaultMessageServer.app */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.application;
@@ -3167,7 +3237,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2C9547D21EFC2F700323C35 /* MainAutomation.storyboard in Resources */,
+				B21FAA102206435D00806B68 /* MainAutomation.storyboard in Resources */,
 				B2000C0B20EB09DB0092790A /* adal__automationapp__mac.xcconfig in Resources */,
 				B2000C2020EC1EA40092790A /* adal__uitest__mac.xcconfig in Resources */,
 			);
@@ -3177,8 +3247,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FAA0E2206434700806B68 /* MainAutomation.storyboard in Resources */,
 				D64C1F5A1DB9B05A00850036 /* LaunchScreen.storyboard in Resources */,
-				B2C9547B21EFC2DC00323C35 /* MainAutomation.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3833,15 +3903,40 @@
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = B20DC5B11F0D96A700957806 /* PBXContainerItemProxy */;
 		};
+		B21FA9FD2206427600806B68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomationTestLib iOS";
+			targetProxy = B21FA9FC2206427600806B68 /* PBXContainerItemProxy */;
+		};
+		B21FAA002206428700806B68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomationTestLib iOS";
+			targetProxy = B21FA9FF2206428700806B68 /* PBXContainerItemProxy */;
+		};
+		B21FAA032206429500806B68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomationTestLib iOS";
+			targetProxy = B21FAA022206429500806B68 /* PBXContainerItemProxy */;
+		};
+		B21FAA06220642A200806B68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomationTestLib Mac";
+			targetProxy = B21FAA05220642A200806B68 /* PBXContainerItemProxy */;
+		};
+		B21FAA09220642B400806B68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomationTestLib Mac";
+			targetProxy = B21FAA08220642B400806B68 /* PBXContainerItemProxy */;
+		};
+		B21FAA0C220642CF00806B68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "IdentityAutomationAppLib Mac";
+			targetProxy = B21FAA0B220642CF00806B68 /* PBXContainerItemProxy */;
+		};
 		B267478921F6CBFA00BD1717 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "IdentityAutomation iOS";
 			targetProxy = B267478821F6CBFA00BD1717 /* PBXContainerItemProxy */;
-		};
-		B27552402082EEBB00AA7A38 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "IdentityAutomation iOS";
-			targetProxy = B275523F2082EEBB00AA7A38 /* PBXContainerItemProxy */;
 		};
 		B2934B1221C87CC800ADFE2E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
