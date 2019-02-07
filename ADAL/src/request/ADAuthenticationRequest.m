@@ -162,7 +162,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
         return NO;
     }
 
-    NSData *decodedData = [_claims.msidWWWFormURLDecode dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *decodedData = [_claims.msidURLDecode dataUsingEncoding:NSUTF8StringEncoding];
     NSError *jsonError = nil;
     NSDictionary *decodedDictionary = [NSDictionary msidDictionaryFromJsonData:decodedData error:&jsonError];
 
