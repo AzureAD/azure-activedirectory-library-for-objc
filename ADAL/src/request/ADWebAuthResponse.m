@@ -338,7 +338,7 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
     }
     
     ADAuthenticationError* adError = nil;
-    NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[[_request URL] absoluteString]
+    NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:_request.URL
                                                           challengeData:authHeaderParams
                                                                 context:_request
                                                                   error:&adError];
