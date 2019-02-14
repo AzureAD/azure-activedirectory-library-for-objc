@@ -102,7 +102,7 @@ static NSDictionary *s_userInfoKeyMapping;
             @(MSIDErrorServerInvalidRequest): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerInvalidClient): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerInvalidGrant): @(AD_ERROR_SERVER_OAUTH),
-            @(MSIDErrorServerInvalidScope): @(AD_ERROR_SERVER_OAUTH),
+            @(MSIDErrorServerInvalidScope): @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
             @(MSIDErrorServerUnauthorizedClient): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerDeclinedScopes): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerInvalidState): @(AD_ERROR_SERVER_OAUTH),
