@@ -44,7 +44,7 @@
     if (self)
     {
         //Initialize the defaults here:
-        self.requestTimeOut = 300;//in seconds.
+        self.requestTimeOut = 30;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
 #if TARGET_OS_IPHONE
         
