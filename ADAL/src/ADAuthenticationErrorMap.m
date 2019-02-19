@@ -72,7 +72,6 @@ static NSDictionary *s_userInfoKeyMapping;
             @(MSIDErrorCacheBadFormat): @(AD_ERROR_CACHE_BAD_FORMAT),
             // Authority Validation
             @(MSIDErrorAuthorityValidation): @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
-            @(MSIDErrorAuthorityValidationWebFinger): @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
             // Interactive flow
             @(MSIDErrorUserCancel): @(AD_ERROR_UI_USER_CANCEL),
             @(MSIDErrorSessionCanceledProgrammatically): @(AD_ERROR_UI_USER_CANCEL),
