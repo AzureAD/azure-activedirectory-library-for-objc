@@ -72,7 +72,6 @@ static NSDictionary *s_userInfoKeyMapping;
             @(MSIDErrorCacheBadFormat): @(AD_ERROR_CACHE_BAD_FORMAT),
             // Authority Validation
             @(MSIDErrorAuthorityValidation): @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
-            @(MSIDErrorAuthorityValidationWebFinger): @(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION),
             // Interactive flow
             @(MSIDErrorUserCancel): @(AD_ERROR_UI_USER_CANCEL),
             @(MSIDErrorSessionCanceledProgrammatically): @(AD_ERROR_UI_USER_CANCEL),
@@ -102,7 +101,7 @@ static NSDictionary *s_userInfoKeyMapping;
             @(MSIDErrorServerInvalidRequest): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerInvalidClient): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerInvalidGrant): @(AD_ERROR_SERVER_OAUTH),
-            @(MSIDErrorServerInvalidScope): @(AD_ERROR_SERVER_AUTHORIZATION_CODE),
+            @(MSIDErrorServerInvalidScope): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerUnauthorizedClient): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerDeclinedScopes): @(AD_ERROR_SERVER_OAUTH),
             @(MSIDErrorServerInvalidState): @(AD_ERROR_SERVER_OAUTH),

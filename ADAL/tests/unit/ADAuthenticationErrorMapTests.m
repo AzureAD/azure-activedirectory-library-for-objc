@@ -84,11 +84,11 @@
     XCTAssertEqual(code, expectedErrorCode);
 }
 
-- (void)testErrorCodeFromMsidError_whenInvalidScopeError_shouldReturnServerAuthCodeError
+- (void)testErrorCodeFromMsidError_whenInvalidScopeError_shouldReturnServerOauthError
 {
     NSError *msidError = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidScope, nil, nil, nil, nil, nil, nil);
     NSInteger code = [ADAuthenticationErrorMap adErrorCodeFromMsidError:msidError];
-    NSInteger expectedErrorCode = AD_ERROR_SERVER_AUTHORIZATION_CODE;
+    NSInteger expectedErrorCode = AD_ERROR_SERVER_OAUTH;
     XCTAssertEqual(code, expectedErrorCode);
 }
 
