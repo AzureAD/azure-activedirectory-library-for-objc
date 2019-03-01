@@ -2119,6 +2119,60 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testAcquireTokenSilent_whenUserMismatch_shouldContinueWithoutError
+{
+    XCTestExpectation* expectation = [self expectationWithDescription:@"requestToken"];
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                extendedLifetime:NO
+                                                                   correlationId:TEST_CORRELATION_ID
+                                                              telemetryRequestId:nil
+                                                                    logComponent:nil];
+    
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
+                                                                 requestParams:params
+                                                                    tokenCache:self.tokenCache
+                                                                         error:nil];
+    [req setSilent:YES];
+    [req setAllowSilentRequests:YES];
+    
+    // Add a mock response returning auth code for the allowSilent request
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?prompt=none&response_type=code&login_hint=eric_cartman%40contoso.com&resource=resource&nux=1&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76"]];
+    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
+    [response setRequestHeaders:headers];
+    [response setResponseURL:[NSString stringWithFormat:@"%@?code=fake_auth_code", TEST_REDIRECT_URL_STRING]
+                        code:401
+                headerFields:@{}];
+    [ADTestURLSession addResponse:response];
+    
+    // Add a mock response returning tokens
+    [ADTestURLSession addResponse:[self adResponseAuthCode:@"fake_auth_code"
+                                                 authority:context.authority
+                                                    userId:@"someotheruser@contoso.com"
+                                             correlationId:TEST_CORRELATION_ID]];
+    
+    // We send the actual silent network request
+    [req requestToken:^(ADAuthenticationResult *result)
+     {
+         // Should succeed
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertNotNil(result.tokenCacheItem);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+}
+
 - (void)testAcquireTokenSilent_whenCapabilitiesSet_andValidMRRT_shouldNotSkipAccessTokenCache
 {
     ADAuthenticationError* error = nil;
@@ -3024,7 +3078,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(rtInCache);
 }
 
-- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenAndUserIdMismatch_shouldReturnError
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenAndUserIdMismatch_shouldSucceed
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
@@ -3057,11 +3111,11 @@ const int sAsyncContextTimeout = 10;
                                    userId:@"mismatchuser@abc.com"
                           completionBlock:^(ADAuthenticationResult *result)
      {
-         //error is returned because user id provided does not match the refresh token
+         // Should succeed
          XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_FAILED);
-         XCTAssertEqual(result.error.domain, ADAuthenticationErrorDomain);
-         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_WRONG_USER);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertNotNil(result.tokenCacheItem);
          
          [expectation fulfill];
      }];

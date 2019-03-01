@@ -147,6 +147,11 @@
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId;
 
+- (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
+                                authority:(NSString *)authority
+                                   userId:(NSString *)userId
+                            correlationId:(NSUUID *)correlationId;
+
 - (NSString *)adDefaultIDToken;
 
 /*! Used for constructing a response with a specific HTTP code and HTTP headers 

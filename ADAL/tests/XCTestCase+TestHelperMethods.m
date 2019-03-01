@@ -551,6 +551,14 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 authority:(NSString *)authority
                             correlationId:(NSUUID *)correlationId
 {
+    return [self adResponseAuthCode:authCode authority:authority userId:TEST_USER_ID correlationId:correlationId];
+}
+
+- (ADTestURLResponse *)adResponseAuthCode:(NSString *)authCode
+                                authority:(NSString *)authority
+                                   userId:(NSString *)userId
+                            correlationId:(NSUUID *)correlationId
+{
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
     NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
@@ -571,7 +579,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                            @"access_token" : TEST_ACCESS_TOKEN,
                                            @"expires_in" : @"3600",
                                            @"resource" : TEST_RESOURCE,
-                                           @"id_token" : [self adCreateUserInformation:TEST_USER_ID].rawIdToken }];
+                                           @"id_token" : [self adCreateUserInformation:userId].rawIdToken }];
     
     return response;
 }
