@@ -71,8 +71,7 @@
 {
     ADAuthenticationError* adError = nil;
     ADRegistrationInformation *info =
-    [ADWorkPlaceJoinUtil getRegistrationInformation:context
-                                              error:&adError];
+    [ADWorkPlaceJoinUtil getRegistrationInformation:context challenge:nil error:&adError];
     
     if (!info && adError)
     {
