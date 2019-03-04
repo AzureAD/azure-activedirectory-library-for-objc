@@ -57,6 +57,13 @@
                                                                      certificateAuthorities:challenge.protectionSpace.distinguishedNames
                                                                                       error:error];
     
+    // If there's no identity in the keychain, return nil. adError won't be set if the
+    // identity can't be found since this isn't considered an error condition.
+    if (!identityDict)
+    {
+        return nil;
+    }
+    
     identity = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
     
     NSData *issuerData = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
