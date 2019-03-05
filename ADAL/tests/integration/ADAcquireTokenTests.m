@@ -2123,54 +2123,47 @@ const int sAsyncContextTimeout = 10;
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"requestToken"];
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
-    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
-                                                                        resource:TEST_RESOURCE
-                                                                        clientId:TEST_CLIENT_ID
-                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
-                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
-                                                                extendedLifetime:NO
-                                                                   correlationId:TEST_CORRELATION_ID
-                                                              telemetryRequestId:nil
-                                                                    logComponent:nil];
     
-    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
-                                                                 requestParams:params
-                                                                    tokenCache:self.tokenCache
-                                                                         error:nil];
-    [req setSilent:YES];
-    [req setAllowSilentRequests:YES];
-    
-    // Add a mock response returning auth code for the allowSilent request
-    ADTestURLResponse* response = [ADTestURLResponse new];
-    [response setRequestURL:[NSURL URLWithString:@"https://login.windows.net/contoso.com/oauth2/authorize?prompt=none&response_type=code&login_hint=eric_cartman%40contoso.com&resource=resource&nux=1&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76"]];
-    NSMutableDictionary *headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
-    headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
-    [response setRequestHeaders:headers];
-    [response setResponseURL:[NSString stringWithFormat:@"%@?code=fake_auth_code", TEST_REDIRECT_URL_STRING]
-                        code:401
-                headerFields:@{}];
-    [ADTestURLSession addResponse:response];
+    ADTokenCacheItem* item = [self adCreateMRRTCacheItem];
+    [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:nil];
     
     // Add a mock response returning tokens
-    [ADTestURLSession addResponse:[self adResponseAuthCode:@"fake_auth_code"
-                                                 authority:context.authority
-                                                    userId:@"someotheruser@contoso.com"
-                                             correlationId:TEST_CORRELATION_ID]];
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
     
-    // We send the actual silent network request
-    [req requestToken:^(ADAuthenticationResult *result)
-     {
-         // Should succeed
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         XCTAssertNil(result.error);
-         XCTAssertNotNil(result.tokenCacheItem);
-         
-         [expectation fulfill];
-     }];
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                requestHeaders:headers
+                                                 correlationId:TEST_CORRELATION_ID
+                                                  responseCode:200
+                                               responseHeaders:nil
+                                                  responseJson:@{ MSID_OAUTH2_REFRESH_TOKEN : @"new refresh token",
+                                                                  MSID_OAUTH2_ACCESS_TOKEN : @"new access token",
+                                                                  MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                                                  @"id_token" : [self adCreateUserInformation:@"someotheruser@contoso.com"].rawIdToken
+                                                                  }
+                                              useOpenidConnect:YES
+                                                 requestParams:nil];
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                                     claims:nil
+                            completionBlock:^(ADAuthenticationResult *result) {
+                                
+                                XCTAssertNotNil(result);
+                                XCTAssertEqual(result.status, AD_SUCCEEDED);
+                                XCTAssertNil(result.error);
+                                XCTAssertNotNil(result.tokenCacheItem);
+                                
+                                [expectation fulfill];
+                            }];
     
     [self waitForExpectations:@[expectation] timeout:1];
-    
 }
 
 - (void)testAcquireTokenSilent_whenCapabilitiesSet_andValidMRRT_shouldNotSkipAccessTokenCache
