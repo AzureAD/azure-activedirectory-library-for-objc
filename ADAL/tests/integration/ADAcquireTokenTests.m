@@ -1997,6 +1997,53 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+- (void)testAcquireTokenSilent_whenUserMismatch_shouldContinueWithoutError
+{
+    XCTestExpectation* expectation = [self expectationWithDescription:@"requestToken"];
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    
+    ADTokenCacheItem* item = [self adCreateMRRTCacheItem];
+    [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:nil];
+    
+    // Add a mock response returning tokens
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
+    
+    ADTestURLResponse *response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                requestHeaders:headers
+                                                 correlationId:TEST_CORRELATION_ID
+                                                  responseCode:200
+                                               responseHeaders:nil
+                                                  responseJson:@{ MSID_OAUTH2_REFRESH_TOKEN : @"new refresh token",
+                                                                  MSID_OAUTH2_ACCESS_TOKEN : @"new access token",
+                                                                  MSID_OAUTH2_RESOURCE : TEST_RESOURCE,
+                                                                  @"id_token" : [self adCreateUserInformation:@"someotheruser@contoso.com"].rawIdToken
+                                                                  }
+                                              useOpenidConnect:YES
+                                                 requestParams:nil];
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                                     claims:nil
+                            completionBlock:^(ADAuthenticationResult *result) {
+                                
+                                XCTAssertNotNil(result);
+                                XCTAssertEqual(result.status, AD_SUCCEEDED);
+                                XCTAssertNil(result.error);
+                                XCTAssertNotNil(result.tokenCacheItem);
+                                
+                                [expectation fulfill];
+                            }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
 - (void)testAcquireTokenSilent_whenCapabilitiesSet_andValidMRRT_shouldNotSkipAccessTokenCache
 {
     ADAuthenticationError* error = nil;
@@ -2906,7 +2953,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(rtInCache);
 }
 
-- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenAndUserIdMismatch_shouldReturnError
+- (void)testAcquireTokenWithRefreshTokenAndUserId_whenRefreshTokenAndUserIdMismatch_shouldSucceed
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
@@ -2939,11 +2986,11 @@ const int sAsyncContextTimeout = 10;
                                    userId:@"mismatchuser@abc.com"
                           completionBlock:^(ADAuthenticationResult *result)
      {
-         //error is returned because user id provided does not match the refresh token
+         // Should succeed
          XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_FAILED);
-         XCTAssertEqual(result.error.domain, ADAuthenticationErrorDomain);
-         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_WRONG_USER);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertNotNil(result.tokenCacheItem);
 
          [expectation fulfill];
      }];

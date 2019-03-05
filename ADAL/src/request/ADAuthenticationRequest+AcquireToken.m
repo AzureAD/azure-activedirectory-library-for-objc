@@ -273,7 +273,9 @@
 {
     [[MSIDTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
     ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
-                                                                               tokenCache:self.tokenCache];
+                                                                               tokenCache:self.tokenCache
+                                                                             verifyUserId:!_silent];
+    
     [request getToken:^(ADAuthenticationResult *result)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
@@ -295,7 +297,8 @@
             ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
                                                                             fromRefreshToken:nil
                                                                                        cache:self.tokenCache
-                                                                                      params:_requestParams];
+                                                                                      params:_requestParams
+                                                                                verifyUserId:YES];
             completionBlock(result);
         }];
         return;
@@ -456,7 +459,6 @@
             return;
         }
 #endif
-        
         if ([self processOpenBrowserResponse:response telemetryEvent:event completionHandler:completionBlock])
         {
             return;
@@ -532,7 +534,8 @@
 - (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
-                                                                               tokenCache:self.tokenCache];
+                                                                               tokenCache:self.tokenCache
+                                                                             verifyUserId:!_silent];
     
     // Construct a refresh token object to wrap up the refresh token provided by developer
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
@@ -661,7 +664,8 @@
              ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
                                                                              fromRefreshToken:nil
                                                                                         cache:self.tokenCache
-                                                                                       params:_requestParams];
+                                                                                       params:_requestParams
+                                                                                 verifyUserId:!_silent];
              
              [result setCloudAuthority:_cloudAuthority];
              

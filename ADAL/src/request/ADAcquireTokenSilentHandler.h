@@ -43,10 +43,14 @@
     ADAuthenticationResult *_mrrtResult;
     
     BOOL _attemptedFRT;
+    
+    // Verify userId being returned is same as one asked
+    BOOL _verifyUserId;
 }
 
 + (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
-                                        tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache;
+                                        tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
+                                      verifyUserId:(BOOL)verifyUserId;
 
 - (void)getToken:(ADAuthenticationCallback)completionBlock;
 
