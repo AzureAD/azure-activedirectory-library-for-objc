@@ -39,6 +39,7 @@
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                                               cache:(MSIDLegacyTokenCacheAccessor *)cache
                                              params:(ADRequestParameters *)requestParams
+                                       verifyUserId:(BOOL)verifyUserId
 {
     NSError *msidError = nil;
 
@@ -77,7 +78,7 @@
                                                               multiResourceRefreshToken:response.isMultiResource
                                                                           correlationId:requestParams.correlationId];
     
-    return [ADAuthenticationContext updateResult:adResult toUser:[requestParams identifier]]; //Verify the user
+    return [ADAuthenticationContext updateResult:adResult toUser:[requestParams identifier] verifyUserId:verifyUserId]; //Verify the user
 }
 
 + (ADAuthenticationResult *)handleError:(NSError *)msidError
