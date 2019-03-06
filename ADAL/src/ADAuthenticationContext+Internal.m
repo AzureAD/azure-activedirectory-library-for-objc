@@ -134,6 +134,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 //an error result is returned. Returns the same result, if no issues are found.
 + (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
                                  toUser:(ADUserIdentifier*)userId
+                           verifyUserId:(BOOL)verifyUserId
 {
     if (!result)
     {
@@ -159,7 +160,8 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         return result;
     }
     
-    if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
+    if (verifyUserId &&
+        (![ADUserIdentifier identifier:userId matchesInfo:userInfo]))
     {
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER

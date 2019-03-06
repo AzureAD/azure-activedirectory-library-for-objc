@@ -1,6 +1,10 @@
-Version 2.7.8 (03.01.2018)
+Version 2.7.9 (03.06.2018)
 -----------
-* Hotfix to query WPJ cert using issuers from authentication challenge.
+* Hotfix for Mac OS to query WPJ cert using issuers from authentication challenge.
+
+Version 2.7.8
+-----------
+* Hotfix to skip user Id matching check for an acquire token silent call.
 
 Version 2.7.7 (12.21.2018)
 -----------

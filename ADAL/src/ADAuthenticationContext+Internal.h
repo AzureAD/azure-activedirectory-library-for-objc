@@ -55,8 +55,10 @@ extern NSString* const ADRedirectUriInvalidError;
 
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
-+ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult *)result
-                                 toUser:(ADUserIdentifier *)userId;
+
++ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
+                                 toUser:(ADUserIdentifier*)userId
+                           verifyUserId:(BOOL)verifyUserId;
 
 @end
 

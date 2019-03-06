@@ -34,6 +34,7 @@
 + (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                                               cache:(MSIDLegacyTokenCacheAccessor *)cache
-                                             params:(ADRequestParameters *)requestParams;
+                                             params:(ADRequestParameters *)requestParams
+                                       verifyUserId:(BOOL)verifyUserId;
 
 @end

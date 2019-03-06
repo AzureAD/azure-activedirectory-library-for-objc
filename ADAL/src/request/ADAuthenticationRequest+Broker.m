@@ -322,7 +322,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         
         NSString *userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
-                                       toUser:[ADUserIdentifier identifierWithId:userId]];
+                                       toUser:[ADUserIdentifier identifierWithId:userId]
+                                 verifyUserId:YES];
     }
     
     return result;
