@@ -52,8 +52,8 @@
 
 
 + (ADRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                challenge:(NSURLAuthenticationChallenge *)challenge
-                                                    error:(ADAuthenticationError * __autoreleasing *)error;
+                                             urlChallenge:(NSURLAuthenticationChallenge *)challenge
+                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString* teamId = [ADKeychainUtil keychainTeamId:error];
 

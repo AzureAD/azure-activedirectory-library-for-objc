@@ -72,7 +72,7 @@
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     ADAuthenticationError *adError = nil;
-    ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context challenge:challenge error:&adError];
+    ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context urlChallenge:challenge error:&adError];
     if (!info || ![info isWorkPlaceJoined])
     {
         MSID_LOG_INFO(protocol.context, @"Device is not workplace joined");
