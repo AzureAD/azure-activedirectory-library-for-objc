@@ -57,12 +57,10 @@
     NSDictionary *identityDict = (__bridge_transfer NSDictionary *)[self getWPJIdentityDict:context
                                                                      certificateAuthorities:challenge.protectionSpace.distinguishedNames];
     
-    if (!identityDict)
+    if (!identityDict || ![identityDict isKindOfClass:[NSDictionary class]])
     {
         return nil;
     }
-    
-    assert([identityDict isKindOfClass:[NSDictionary class]]);
     
     identity = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
     
