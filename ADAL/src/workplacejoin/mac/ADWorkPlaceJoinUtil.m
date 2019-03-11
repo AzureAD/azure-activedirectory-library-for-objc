@@ -159,7 +159,7 @@ _error:
     }
     
     CFIndex identityCount = CFArrayGetCount(identityList);
-    NSString *challengeIssuerName = [[NSString alloc] initWithData:authorities[0] encoding:0];
+    NSString *challengeIssuerName = [[NSString alloc] initWithData:authorities[0] encoding:NSASCIIStringEncoding];
     
     for (int resultIndex = 0; resultIndex < identityCount; resultIndex++)
     {
