@@ -84,13 +84,13 @@
     
     if (!certificate || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
-        // The code above will catch missing security items, but not missing item attributes. These are caught here.
-        ADAuthenticationError* adError =
-        [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data"
-                                         correlationId:context.correlationId];
-        
         if (error)
         {
+            // The code above will catch missing security items, but not missing item attributes. These are caught here.
+            ADAuthenticationError* adError =
+            [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data"
+                                             correlationId:context.correlationId];
+            
             *error = adError;
         }
         
@@ -168,7 +168,7 @@ _error:
         if ([identityDict isKindOfClass:[NSDictionary class]])
         {
             currentIssuer = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
-            currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:0];
+            currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:NSASCIIStringEncoding];
             
             if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
             {
