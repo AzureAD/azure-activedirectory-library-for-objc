@@ -54,7 +54,7 @@
     OSStatus status = noErr;
     
     MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information");
-    identity = [self copyWPJIdentity:context certificateAuthorities:challenge.protectionSpace.distinguishedNames];
+    identity = [self copyWPJIdentity:context issuer:&issuer certificateAuthorities:challenge.protectionSpace.distinguishedNames];
     
     // If there's no identity in the keychain, return nil. adError won't be set if the
     // identity can't be found since this isn't considered an error condition.
@@ -71,7 +71,6 @@
     
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
-    issuer = (__bridge_transfer NSData*)(SecCertificateCopyNormalizedIssuerContent(certificate, nil));
     
     if (issuer)
     {
@@ -130,6 +129,7 @@ _error:
 }
 
 + (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
+                           issuer:(NSData **)issuer
            certificateAuthorities:(NSArray<NSData *> *)authorities
 
 {
@@ -138,7 +138,6 @@ _error:
         return NULL;
     }
     
-    /*kSecMatchIssuers only works for 10.13 or higher. For versions <10.12, this query will return multiple items */
     NSDictionary *query = @{ (__bridge id)kSecClass : (__bridge id)kSecClassIdentity,
                              (__bridge id)kSecReturnAttributes:(__bridge id)kCFBooleanTrue,
                              (__bridge id)kSecReturnRef :  (__bridge id)kCFBooleanTrue,
@@ -149,10 +148,11 @@ _error:
     CFArrayRef identityList = NULL;
     SecIdentityRef identityRef = NULL;
     NSDictionary *identityDict = nil;
-    NSData *issuer = nil;
+    NSData *currentIssuer = nil;
     NSString *currentIssuerName = nil;
     
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&identityList);
+    
     if (status != errSecSuccess)
     {
         return NULL;
@@ -167,12 +167,13 @@ _error:
         
         if ([identityDict isKindOfClass:[NSDictionary class]])
         {
-            issuer = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
-            currentIssuerName = [[NSString alloc] initWithData:issuer encoding:0];
+            currentIssuer = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
+            currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:0];
             
             if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
             {
                 identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
+                *issuer = currentIssuer;
                 break;
             }
         }
@@ -184,7 +185,7 @@ _error:
         identityList = NULL;
     }
     
-    return identityRef;
+    return identityRef; //Caller must call CFRelease
 }
 
 @end
