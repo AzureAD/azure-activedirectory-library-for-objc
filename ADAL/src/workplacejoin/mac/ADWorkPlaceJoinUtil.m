@@ -138,10 +138,12 @@ _error:
         return NULL;
     }
     
+    /*kSecMatchIssuers only works for 10.13 or higher. For versions <10.12, this query will return multiple items */
     NSDictionary *query = @{ (__bridge id)kSecClass : (__bridge id)kSecClassIdentity,
                              (__bridge id)kSecReturnAttributes:(__bridge id)kCFBooleanTrue,
                              (__bridge id)kSecReturnRef :  (__bridge id)kCFBooleanTrue,
-                             (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitAll
+                             (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitAll,
+                             (__bridge id)kSecMatchIssuers : authorities
                              };
     
     CFArrayRef identityList = NULL;
@@ -171,13 +173,7 @@ _error:
             if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
             {
                 identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
-                if (identityList)
-                {
-                    CFRelease(identityList);
-                    identityList = NULL;
-                }
-                
-                return identityRef;
+                break;
             }
         }
     }
@@ -188,7 +184,7 @@ _error:
         identityList = NULL;
     }
     
-    return NULL;
+    return identityRef;
 }
 
 @end
