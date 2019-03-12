@@ -229,13 +229,13 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
         NSString *bundleId = wipeData[@"bundleId"];
         NSString *wipeTime = [ADHelpers stringFromDate:wipeData[@"wipeTime"]];
         
-        MSID_LOG_INFO_CORR(correlationId, @"Last wiped by %@ at %@", bundleId, wipeTime);
-        MSID_LOG_INFO_CORR_PII(correlationId, @"Last wiped by %@ at %@", bundleId, wipeTime);
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, correlationId, nil, @"Last wiped by %@ at %@", bundleId, wipeTime);
+        MSID_LOG_PII(MSIDLogLevelInfo, correlationId, nil, @"Last wiped by %@ at %@", bundleId, wipeTime);
     }
     else
     {
-        MSID_LOG_INFO_CORR(correlationId, @"Failed to get a wipe data or it does not exist");
-        MSID_LOG_INFO_CORR_PII(correlationId, @"Failed to get a wipe data or it does not exist for %@", _sharedGroup);
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, correlationId, nil, @"Failed to get a wipe data or it does not exist");
+        MSID_LOG_PII(MSIDLogLevelInfo, correlationId, nil, @"Failed to get a wipe data or it does not exist for %@", _sharedGroup);
     }
 }
 
@@ -259,13 +259,13 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     if (!items || [items count]<=0)
     {
         //if resource is nil, this request is intending to find MRRT
-        MSID_LOG_INFO_CORR(correlationId, @"No items were found for query");
-        MSID_LOG_INFO_CORR_PII(correlationId, @"No items were found for query %@", keyCtxStr);
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, correlationId, nil, @"No items were found for query");
+        MSID_LOG_PII(MSIDLogLevelInfo, correlationId, nil, @"No items were found for query %@", keyCtxStr);
     }
     else
     {
-        MSID_LOG_INFO_CORR(correlationId, @"Found %lu token(s) for query", (unsigned long)[items count]);
-        MSID_LOG_INFO_CORR_PII(correlationId, @"Found %lu token(s) for query %@ user <%@>", (unsigned long)[items count], keyCtxStr, userId);
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, correlationId, nil, @"Found %lu token(s) for query", (unsigned long)[items count]);
+        MSID_LOG_PII(MSIDLogLevelInfo, correlationId, nil, @"Found %lu token(s) for query %@ user <%@>", (unsigned long)[items count], keyCtxStr, userId);
     }
 }
 

@@ -333,8 +333,8 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
     
     if (!authHeaderParams)
     {
-        MSID_LOG_ERROR(_request, @"Unparseable wwwAuthHeader received");
-        MSID_LOG_ERROR_PII(_request, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, _request, @"Unparseable wwwAuthHeader received");
+        MSID_LOG_PII(MSIDLogLevelError, nil, _request, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
     }
     
     ADAuthenticationError* adError = nil;
@@ -394,9 +394,9 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
         {
             bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[body length]];
         }
-        
-        MSID_LOG_ERROR(_request, @"JSON deserialization error:");
-        MSID_LOG_ERROR_PII(_request, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
+          
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, _request, @"JSON deserialization error:");
+        MSID_LOG_PII(MSIDLogLevelError, nil, _request, @"JSON deserialization error: %@ - %@", jsonError.description, bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];
@@ -415,12 +415,12 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
         [_responseDictionary setObject:url forKey:@"url"];
     }
     
-    MSID_LOG_WARN(_request, @"System error while making request");
+    MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, _request, @"System error while making request, error domain %@, error code %ld", error.domain, (long)error.code);
     
     error = [error msidErrorWithFilteringOptions:MSIDErrorFilteringOptionRemoveUrlParameters];
     
-    MSID_LOG_WARN_PII(_request, @"System error while making request %@", error.description);
-
+    MSID_LOG_PII(MSIDLogLevelWarning, nil, _request, @"System error while making request %@", error.description);
+    
     // System error
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error
                                                                 errorDetails:error.localizedDescription

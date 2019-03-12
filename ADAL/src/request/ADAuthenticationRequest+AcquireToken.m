@@ -49,7 +49,7 @@
 #import "MSIDClientCapabilitiesUtil.h"
 
 #import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDAuthority+Internal.h"
@@ -85,21 +85,22 @@
         logMessagePII = [NSString stringWithFormat:@"%@ authority: %@", logMessagePII, _requestParams.authority];
     }
     
-    MSID_LOG_INFO(_requestParams, @"##### BEGIN acquireToken %@ #####", logMessage);
-    MSID_LOG_INFO_PII(_requestParams, @"##### BEGIN acquireToken %@ %@#####", logMessage, logMessagePII);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, _requestParams, @"##### BEGIN acquireToken %@ #####", logMessage);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, _requestParams, @"##### BEGIN acquireToken %@ %@#####", logMessage, logMessagePII);
     
     ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
     {
         if (result.status == AD_SUCCEEDED)
         {
-            MSID_LOG_INFO(_requestParams, @"##### END succeeded. %@ #####", logMessage);
-            MSID_LOG_INFO_PII(_requestParams, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, _requestParams, @"##### END succeeded. %@ #####", logMessage);
+            MSID_LOG_PII(MSIDLogLevelInfo, nil, _requestParams, @"##### END succeeded. %@ %@ #####", logMessage, logMessagePII);
         }
         else
         {
             ADAuthenticationError* error = result.error;
-            MSID_LOG_INFO(_requestParams, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
-            MSID_LOG_INFO_PII(_requestParams, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
+            
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, _requestParams, @"##### END failed { domain: %@ code: %ld protocolCode: %@ %@ #####", error.domain, (long)error.code, error.protocolCode, logMessage);
+            MSID_LOG_PII(MSIDLogLevelInfo, nil, _requestParams, @"#### END failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@ %@ %@ #####", error.domain, (long)error.code, error.protocolCode, error.errorDetails, logMessage, logMessagePII);
         }
 
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT
@@ -486,8 +487,8 @@
     
     [self ensureRequest];
     
-    MSID_LOG_VERBOSE(_requestParams, @"Requesting token by authorization code");
-    MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, _requestParams, @"Requesting token by authorization code");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, _requestParams, @"Requesting token by authorization code for resource: %@", _requestParams.resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *requestData = [@{MSID_OAUTH2_GRANT_TYPE: MSID_OAUTH2_AUTHORIZATION_CODE,
@@ -556,7 +557,7 @@
                telemetryEvent:(ADTelemetryAPIEvent *)event
             completionHandler:(ADAuthenticationCallback)completionHandler
 {
-    if (![response isKindOfClass:MSIDWebMSAuthResponse.class])
+    if (![response isKindOfClass:MSIDWebWPJResponse.class])
     {
         return NO;
     }
@@ -564,7 +565,7 @@
     [event setResultStatus:@"try to prompt to install broker"];
     [[MSIDTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
     
-    MSIDWebMSAuthResponse *authResponse = (MSIDWebMSAuthResponse *)response;
+    MSIDWebWPJResponse *authResponse = (MSIDWebWPJResponse *)response;
     
     ADAuthenticationError *error = nil;
     NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
@@ -600,7 +601,7 @@
     {
         MSID_LOG_INFO(nil, @"Opening a browser");
         MSID_LOG_INFO_PII(nil, @"Opening a browser - %@", browserURL);
-
+        
         [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
     }
     else

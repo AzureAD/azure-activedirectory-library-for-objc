@@ -87,7 +87,7 @@
          [expectation fulfill];
      }];
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -107,7 +107,7 @@
          [expectation fulfill];
      }];
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -122,7 +122,7 @@
          [expectation fulfill];
      }];
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -145,7 +145,7 @@
     
 #pragma clang diagnostic pop
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -173,7 +173,7 @@
     
 #pragma clang diagnostic pop
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -193,7 +193,7 @@
     
 #pragma clang diagnostic pop
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
@@ -226,7 +226,7 @@
      }];
     
     
-    [[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:@"message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"message"];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
