@@ -105,8 +105,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     if (!quiet)
     {
         NSString* codeStr = [self getStringForErrorCode:code domain:domain];
-        MSID_LOG_ERROR_CORR(correlationId, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\"", domain, codeStr, protocolCode);
-        MSID_LOG_ERROR_CORR_PII(correlationId, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\". Error details: %@", domain, codeStr, protocolCode, details);
+        MSID_LOG_NO_PII(MSIDLogLevelError, correlationId, nil, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\"", domain, codeStr, protocolCode);
+        MSID_LOG_PII(MSIDLogLevelError, correlationId, nil, @"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\". Error details: %@", domain, codeStr, protocolCode, details);
     }
     
     return self;
