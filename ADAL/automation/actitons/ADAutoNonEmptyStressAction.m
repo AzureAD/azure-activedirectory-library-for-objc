@@ -28,6 +28,7 @@
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
+#import <ADAL/ADAL.h>
 
 @implementation ADAutoNonEmptyStressAction
 
@@ -50,6 +51,8 @@
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
+    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
+    
     NSError *contextError = nil;
     ADAuthenticationContext *context = [self contextFromParameters:parameters error:&contextError];
 

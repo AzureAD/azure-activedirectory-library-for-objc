@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ADAutoEmptyStessTestAction : ADAutoBaseAction
+@interface ADAutoEmptyStressTestAction : ADAutoBaseAction
 
 @end
 

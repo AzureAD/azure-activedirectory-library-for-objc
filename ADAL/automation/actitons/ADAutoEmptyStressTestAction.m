@@ -21,19 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoEmptyStessTestAction.h"
+#import "ADAutoEmptyStressTestAction.h"
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomation.h"
 #import "MSIDAutomationMainViewController.h"
 #import "MSIDAutomationTestRequest.h"
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
+#import <ADAL/ADAL.h>
 
-@implementation ADAutoEmptyStessTestAction
+@implementation ADAutoEmptyStressTestAction
 
 + (void)load
 {
-    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoEmptyStessTestAction new]];
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADAutoEmptyStressTestAction new]];
 }
 
 - (NSString *)actionIdentifier
@@ -50,6 +51,8 @@
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
+    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self runStressTestImpl:parameters

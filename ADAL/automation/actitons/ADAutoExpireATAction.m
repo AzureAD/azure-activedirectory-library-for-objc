@@ -55,11 +55,11 @@
 
     NSError *cacheError = nil;
     
-    NSArray *cacheAliases = [self cacheAliasesWithParameters:parameters];
+    NSArray *cacheAuthorityAliases = [self cacheAliasesWithParameters:parameters];
     
     NSMutableArray *foundAccessTokens = [NSMutableArray new];
     
-    for (NSURL *cacheURL in cacheAliases)
+    for (NSURL *cacheURL in cacheAuthorityAliases)
     {
         ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:cacheURL.absoluteString
                                                         resource:parameters.requestResource
