@@ -78,8 +78,8 @@
 
     ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl context:nil];
     [request setIsGetRequest:YES];
-    MSID_LOG_VERBOSE(nil, @"Starting authorization challenge request.");
-    MSID_LOG_VERBOSE_PII(nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, nil, @"Starting authorization challenge request.");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {
         ADAuthenticationError* adError = nil;
@@ -121,8 +121,9 @@
         return nil;
     }
     
-    MSID_LOG_INFO(nil, @"Retrieved authenticate header");
-    MSID_LOG_INFO_PII(nil, @"Retrieved authenticate header: %@", authenticateHeader);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Retrieved authenticate header");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Retrieved authenticate header: %@", authenticateHeader);
+    
     return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 

@@ -177,8 +177,8 @@
     [webReq setRequestDictionary:request_data];
     [webReq setAppRequestMetadata:_requestParams.appRequestMetadata];
     
-    MSID_LOG_INFO(nil, @"Attempting to acquire an access token from refresh token");
-    MSID_LOG_INFO_PII(nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Attempting to acquire an access token from refresh token");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Attempting to acquire an access token from refresh token clientId: '%@', resource: '%@'", _requestParams.clientId, _requestParams.resource);
     
     [webReq sendRequest:^(ADAuthenticationError *error, NSDictionary *response)
      {
