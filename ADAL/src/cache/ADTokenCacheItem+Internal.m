@@ -88,11 +88,12 @@
         tokenMessage = [NSString stringWithFormat:@"%@ %@", message, tokenMessage];
     }
     
-    [[MSIDLogger sharedLogger] logLevel:level
-                                context:nil
-                          correlationId:correlationId
-                                  isPII:NO
-                                 format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
+    [[MSIDLogger sharedLogger] logWithLevel:level
+                                    context:nil
+                              correlationId:correlationId
+                                      isPII:NO
+                         ignoreIfPIIEnabled:NO
+                                     format:@"%@ {\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
      tokenMessage, _resource, _clientId, _authority, _userInformation.userId];
 }
 

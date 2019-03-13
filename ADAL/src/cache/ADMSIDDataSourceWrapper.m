@@ -237,8 +237,8 @@
 - (BOOL)removeAllForClientId:(NSString *)clientId
                        error:(ADAuthenticationError **)error
 {
-    MSID_LOG_WARN(nil, @"Removing all items for client");
-    MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
+    MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Removing all items for client");
+    MSID_LOG_PII(MSIDLogLevelWarning, nil, nil, @"Removing all items for client %@", clientId);
     
     return [self removeAllForUserIdImpl:nil clientId:clientId error:error];
 }
@@ -248,8 +248,8 @@
                   clientId:(NSString *)clientId
                      error:(ADAuthenticationError **)error
 {
-    MSID_LOG_WARN(nil, @"Removing all items for user");
-    MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
+    MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Removing all items for user");
+    MSID_LOG_PII(MSIDLogLevelWarning, nil, nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
     
     return [self removeAllForUserIdImpl:userId clientId:clientId error:error];
 }
@@ -257,8 +257,8 @@
 - (BOOL)wipeAllItemsForUserId:(NSString *)userId
                         error:(ADAuthenticationError **)error
 {
-    MSID_LOG_WARN(nil, @"Removing all items for user.");
-    MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
+    MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Removing all items for user.");
+    MSID_LOG_PII(MSIDLogLevelWarning, nil, nil, @"Removing all items for userId <%@>", userId);
     
     return [self removeAllForUserIdImpl:userId clientId:nil error:error];
 }

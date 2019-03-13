@@ -66,8 +66,8 @@
     
     if (!result)
     {
-        MSID_LOG_ERROR(nil, @"Failed to save tokens in cache, error code %ld, error domain %@, description %@", (long)msidError.code, msidError.domain, msidError.description);
-        MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, requestParams, @"Failed to save tokens in cache, error code %ld, error domain %@, description %@", (long)msidError.code, msidError.domain, msidError.description);
+        MSID_LOG_PII(MSIDLogLevelError, nil, requestParams, @"Failed to save tokens in cache, error %@", msidError);
     }
     
     MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:requestParams.msidConfig];
@@ -97,8 +97,8 @@
 
         if (!result)
         {
-            MSID_LOG_WARN(requestParams, @"Failed removing refresh token");
-            MSID_LOG_WARN_PII(requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
+            MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, requestParams, @"Failed removing refresh token");
+            MSID_LOG_PII(MSIDLogLevelWarning, nil, requestParams, @"Failed removing refresh token for account %@, token %@", requestParams.account, refreshToken);
         }
     }
 

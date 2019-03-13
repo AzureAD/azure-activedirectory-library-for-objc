@@ -54,9 +54,10 @@ static NSString *_resourcePath = nil;
     static dispatch_once_t predicate;
     dispatch_once( &predicate, ^{
         
-        NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-        MSID_LOG_VERBOSE(nil, @"Resources Loading - Attempting to load resources");
-        MSID_LOG_VERBOSE_PII(nil, @"Resources Loading - Attempting to load resources from: %@", mainBundlePath);
+        NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath]; 
+        MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, nil, @"Resources Loading - Attempting to load resources");
+        MSID_LOG_PII(MSIDLogLevelVerbose, nil, nil, @"Resources Loading - Attempting to load resources from: %@", mainBundlePath);
+        
         NSString* frameworkBundlePath = nil;
         
         if ( _resourcePath != nil )

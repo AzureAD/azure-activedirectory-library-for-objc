@@ -293,8 +293,9 @@
     NSString* scheme = url.scheme;
     if (![scheme isEqualToString:@"https"])
     {
-        MSID_LOG_WARN(nil, @"Non HTTPS protocol for the authority");
-        MSID_LOG_WARN_PII(nil, @"Non HTTPS protocol for the authority %@", authority);
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Non HTTPS protocol for the authority");
+        MSID_LOG_PII(MSIDLogLevelWarning, nil, nil, @"Non HTTPS protocol for the authority %@", authority);
+        
         return nil;
     }
     

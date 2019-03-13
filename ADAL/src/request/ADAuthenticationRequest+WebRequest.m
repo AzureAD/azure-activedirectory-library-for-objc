@@ -86,8 +86,8 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    MSID_LOG_VERBOSE(_requestParams, @"Requesting authorization code");
-    MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, _requestParams, @"Requesting authorization code");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, _requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
 
     [ADWebAuthController startWithRequest:_requestParams promptBehavior:_promptBehavior context:_context completion:^(MSIDWebviewResponse *response, NSError *error) {
         

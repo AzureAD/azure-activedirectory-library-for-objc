@@ -162,7 +162,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
         return NO;
     }
 
-    NSData *decodedData = [_claims.msidWWWFormURLDecode dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *decodedData = [_claims.msidURLDecode dataUsingEncoding:NSUTF8StringEncoding];
     NSError *jsonError = nil;
     NSDictionary *decodedDictionary = [NSDictionary msidDictionaryFromJsonData:decodedData error:&jsonError];
 
@@ -170,9 +170,9 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         if (error)
         {
-            MSID_LOG_WARN(_requestParams, @"JSON desiarliazation error %ld", (long)jsonError.code);
-            MSID_LOG_WARN_PII(_requestParams, @"JSON desiarliazation error %@ for claims %@", jsonError, claims);
-
+            MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, _requestParams, @"JSON desiarliazation error %ld", (long)jsonError.code);
+            MSID_LOG_PII(MSIDLogLevelWarning, nil, _requestParams, @"JSON desiarliazation error %@ for claims %@", jsonError, claims);
+            
             *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
                                                             protocolCode:nil
                                                             errorDetails:@"claims is not proper JSON. Please make sure it is correct JSON claims parameter."

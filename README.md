@@ -82,7 +82,7 @@ We recommend only syncing to specific release tags to make sure you're at a know
 
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
-    pod 'ADAL', '~> 2.7', :submodules => true
+    pod 'ADAL', '~> 4.0'
     
 You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
 
