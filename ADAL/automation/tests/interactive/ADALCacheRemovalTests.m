@@ -24,6 +24,7 @@
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCUIElement+CrossPlat.h"
+#import "MSIDAutomationActionConstants.h"
 
 @interface ADALCacheRemovalTests : ADALBaseUITest
 
@@ -31,240 +32,138 @@
 
 @implementation ADALCacheRemovalTests
 
-/* TODO: these tests need to be converted into integration tests */
-
-- (void)testRemoveAllForUserIdAndClientId_whenMultipleUsersAndClientsInCache
+- (void)setUp
 {
+    [super setUp];
+    
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
-
+    
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
+}
 
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
+/* TODO: these tests need to be converted into integration tests */
 
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    self.primaryAccount = self.testConfiguration.accounts[1];
-    [self loadPasswordForAccount:self.primaryAccount];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config2];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
+- (void)testRemoveAllForUserIdAndClientId_whenMultipleClientTokensInCache_shouldDeleteOnlyClientTokens
+{
+    [self runSharedMultiAppSignin];
 
     // Delete specific tokens
-    NSDictionary *removeConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": self.testConfiguration.clientId};
+    MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
+    firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self deleteTokens:[self configWithTestRequest:firstLabAppRequest]];
+    [self closeResultView];
 
-    [self deleteTokens:removeConfig];
-
-    NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": self.testConfiguration.clientId
-                                   };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    [self acquireTokenSilent:[self configWithTestRequest:firstLabAppRequest]];
     [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
 
-    silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
-                     };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
+    firstFociAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self acquireTokenSilent:[self configWithTestRequest:firstFociAppRequest]];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
 
 - (void)testRemoveAllForClientId_whenMultipleUsersAndClientsInCache
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = MSIDAppVersionV1;
-    [self loadTestConfiguration:configurationRequest];
-
-    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    self.primaryAccount = self.testConfiguration.accounts[1];
-    [self loadPasswordForAccount:self.primaryAccount];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config2];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
+    [self runSharedMultiUserSignin];
+    
     // Delete specific tokens
-    NSDictionary *removeConfig = @{@"client_id": self.testConfiguration.clientId};
+    MSIDAutomationTestRequest *deleteClientIdRequest = [MSIDAutomationTestRequest new];
+    deleteClientIdRequest.clientId = self.testConfiguration.clientId;
+    [self deleteTokens:deleteClientIdRequest.jsonDictionary];
+    [self closeResultView];
 
-    [self deleteTokens:removeConfig];
-
-    NSDictionary *silentConfig = @{@"client_id": self.testConfiguration.clientId};
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    // Silent for account 1, app 1
+    MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
+    firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self acquireTokenSilent:[self configWithTestRequest:firstLabAppRequest]];
     [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
-
-    silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
-                     };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    
+    // Silent for account 2, app 1
+    MSIDAutomationTestRequest *secondLabAppRequest = [self.class.confProvider defaultAppRequest];
+    secondLabAppRequest.legacyAccountIdentifier = [self.testConfiguration.accounts[1] account];
+    [self acquireTokenSilent:[self configWithTestRequest:secondLabAppRequest]];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self closeResultView];
+    
+    // Silent for account 1, app 2, should succeed
+    MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
+    firstFociAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self acquireTokenSilent:[self configWithTestRequest:firstFociAppRequest]];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
 
 - (void)testWipeAllForUserId_whenMultipleUsersAndClientsInCache
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
-    configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = MSIDAppVersionV1;
-    [self loadTestConfiguration:configurationRequest];
-
-    XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-               @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-               };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    self.primaryAccount = self.testConfiguration.accounts[1];
-    [self loadPasswordForAccount:self.primaryAccount];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireToken:config2];
-    [self aadEnterEmail];
-    [self aadEnterPassword];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
+    [self runSharedMultiUserSignin];
 
     // Delete specific tokens
-    NSDictionary *removeConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username]};
-    [self deleteTokens:removeConfig];
-
-    NSDictionary *silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                                   @"client_id": self.testConfiguration.clientId
-                                   };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    MSIDAutomationTestRequest *deleteRequest = [MSIDAutomationTestRequest new];
+    deleteRequest.legacyAccountIdentifier = [self.testConfiguration.accounts[0] username];
+    [self deleteTokens:deleteRequest.jsonDictionary];
+    [self closeResultView];
+    
+    // Silent for account 1, app 1
+    MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
+    firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self acquireTokenSilent:[self configWithTestRequest:firstLabAppRequest]];
     [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
     [self closeResultView];
-
-    silentConfig = @{@"user_identifier": [self.testConfiguration.accounts[0] username],
-                     @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c"
-                     };
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
-    [self closeResultView];
-
-    silentConfig = @{@"user_identifier": self.primaryAccount.username,
-                     @"client_id": self.testConfiguration.clientId
-                     };
-
-    [self acquireTokenSilent:[self.testConfiguration configWithAdditionalConfiguration:silentConfig]];
+    
+    // Silent for account 2, app 1
+    MSIDAutomationTestRequest *secondLabAppRequest = [self.class.confProvider defaultAppRequest];
+    secondLabAppRequest.legacyAccountIdentifier = [self.testConfiguration.accounts[1] account];
+    [self acquireTokenSilent:[self configWithTestRequest:secondLabAppRequest]];
     [self assertAccessTokenNotNil];
+    [self closeResultView];
+    
+    // Silent for account 1, app 2, should fail
+    MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
+    firstFociAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self acquireTokenSilent:[self configWithTestRequest:firstFociAppRequest]];
+    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self closeResultView];
+}
 
+- (void)runSharedMultiAppSignin
+{
+    // Sign account 1 into app 1
+    MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
+    firstLabAppRequest.promptBehavior = @"always";
+    firstLabAppRequest.loginHint = self.primaryAccount.account;
+    firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self runSharedAADLoginWithTestRequest:firstLabAppRequest];
+    
+    // Sign account 1 into app 2
+    MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
+    firstFociAppRequest.promptBehavior = @"always";
+    firstFociAppRequest.loginHint = self.primaryAccount.account;
+    firstFociAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self runSharedAADLoginWithTestRequest:firstFociAppRequest];
+}
+
+- (void)runSharedMultiUserSignin
+{
+    [self runSharedMultiAppSignin];
+    
+    // Sign account 2 into app 1
+    [self loadPasswordForAccount:self.primaryAccount];
+    MSIDAutomationTestRequest *secondLabAppRequest = [self.class.confProvider defaultAppRequest];
+    secondLabAppRequest.promptBehavior = @"always";
+    secondLabAppRequest.loginHint = [self.testConfiguration.accounts[1] account];
+    secondLabAppRequest.legacyAccountIdentifier = [self.testConfiguration.accounts[1] account];
+    [self runSharedAADLoginWithTestRequest:secondLabAppRequest];
 }
 
 - (void)deleteTokens:(NSDictionary *)config
 {
-    [self.testApp.buttons[@"Delete specific tokens"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:[config toJsonString] application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
-    [self closeResultView];
+    [self performAction:MSID_AUTO_REMOVE_ACCOUNT_ACTION_IDENTIFIER withConfig:config];
 }
 
 @end

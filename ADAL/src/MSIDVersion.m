@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDVersion.h"
+#import "ADAL_Internal.h"
 
 static NSMutableDictionary *s_adalId = nil;
 

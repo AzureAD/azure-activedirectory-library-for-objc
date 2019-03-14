@@ -21,11 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADALAutomation.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoResultViewController : ADAutoViewController
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) NSString *resultInfoString;
-@property (nonatomic) NSString *resultLogsString;
+@interface ADClearMacCacheTestAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

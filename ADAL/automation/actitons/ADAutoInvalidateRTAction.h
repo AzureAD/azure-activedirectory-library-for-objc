@@ -21,41 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoRequestViewController.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoRequestViewController ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (strong, nonatomic) IBOutlet UIButton *requestGo;
-
-@end
-
-@implementation ADAutoRequestViewController
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    self.requestInfo.text = nil;
-}
-
-- (IBAction)go:(id)sender
-{
-    self.requestInfo.editable = NO;
-    self.requestGo.enabled = NO;
-    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
-
-    NSError* error = nil;
-    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
-    if (!params)
-    {
-        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, (long)error.code, error.localizedDescription];
-        
-        params = @{ @"error" : errorString };
-    }
-    
-    [self dismissViewControllerAnimated:NO completion:^{
-        self.completionBlock(params);
-    }];
-}
+@interface ADAutoInvalidateRTAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

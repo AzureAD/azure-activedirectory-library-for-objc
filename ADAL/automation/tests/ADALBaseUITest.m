@@ -24,21 +24,25 @@
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "MSIDTestAutomationConfigurationRequest.h"
-#import "MSIDTestAccountsProvider.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "MSIDAADV1IdTokenClaims.h"
 #import "XCUIElement+CrossPlat.h"
+#import "MSIDAutomationErrorResult.h"
+#import "MSIDAutomationSuccessResult.h"
+#import "MSIDAADIdTokenClaimsFactory.h"
+#import "MSIDAutomationActionConstants.h"
 
-static MSIDTestAccountsProvider *s_accountsProvider;
+static MSIDTestConfigurationProvider *s_confProvider;
 
 @implementation ADALBaseUITest
 
 + (void)setUp
 {
     [super setUp];
+    MSIDTestAutomationConfiguration.defaultRegisteredScheme = @"x-msauth-adaltestapp-210";
     NSString *confPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"conf" ofType:@"json"];
-    self.class.accountsProvider = [[MSIDTestAccountsProvider alloc] initWithConfigurationPath:confPath];
+    self.class.confProvider = [[MSIDTestConfigurationProvider alloc] initWithConfigurationPath:confPath];
 }
 
 - (void)setUp
@@ -60,30 +64,70 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     [super tearDown];
 }
 
-+ (MSIDTestAccountsProvider *)accountsProvider
++ (MSIDTestConfigurationProvider *)confProvider
 {
-    return s_accountsProvider;
+    return s_confProvider;
 }
 
-+ (void)setAccountsProvider:(MSIDTestAccountsProvider *)accountsProvider
++ (void)setConfProvider:(MSIDTestConfigurationProvider *)confProvider
 {
-    s_accountsProvider = accountsProvider;
+    s_confProvider = confProvider;
+}
+
+#pragma mark - Result helpers
+
+- (MSIDAutomationErrorResult *)automationErrorResult
+{
+    MSIDAutomationErrorResult *result = [[MSIDAutomationErrorResult alloc] initWithJSONDictionary:[self automationResultDictionary] error:nil];
+    XCTAssertNotNil(result);
+    XCTAssertFalse(result.success);
+    return result;
+}
+
+- (MSIDAutomationSuccessResult *)automationSuccessResult
+{
+    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:[self automationResultDictionary] error:nil];
+    XCTAssertNotNil(result);
+    XCTAssertTrue(result.success);
+    return result;
+}
+
+- (NSDictionary *)automationResultDictionary
+{
+    XCUIElement *resultTextView = self.testApp.textViews[@"resultInfo"];
+    [self waitForElement:resultTextView];
+    
+    NSError *error = nil;
+    NSData *data = [resultTextView.value dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    return result;
+}
+
+#pragma mark - Action helpers
+
+- (void)performAction:(NSString *)action withConfig:(NSDictionary *)config
+{
+    NSString *jsonString = [config toJsonString];
+    [self.testApp.buttons[action] msidTap];
+    [self.testApp.textViews[@"requestInfo"] msidTap];
+    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
+    sleep(1);
+    [self.testApp.buttons[@"Go"] msidTap];
 }
 
 #pragma mark - Asserts
 
 - (void)assertRefreshTokenInvalidated
 {
-    NSDictionary *result = [self resultDictionary];
-    
-    XCTAssertTrue([result[@"invalidated_refresh_token_count"] intValue] == 1);
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
+    XCTAssertTrue(result.success);
 }
 
 - (void)assertAccessTokenExpired
 {
-    NSDictionary *result = [self resultDictionary];
-    
-    XCTAssertTrue([result[@"expired_access_token_count"] intValue] == 1);
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
+    XCTAssertTrue(result.success);
+    XCTAssertEqual(result.actionCount, 1);
 }
 
 - (void)assertAuthUIAppear
@@ -96,49 +140,51 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
 - (void)assertErrorCode:(NSString *)expectedErrorCode
 {
-    [self assertErrorContent:expectedErrorCode key:@"error_code"];
+    MSIDAutomationErrorResult *result = [self automationErrorResult];
+    NSString *actualErrorCode = result.errorName;
+    XCTAssertEqualObjects(expectedErrorCode, actualErrorCode);
 }
 
 - (void)assertErrorDescription:(NSString *)errorDescription
 {
-    NSDictionary *result = [self resultDictionary];
-    NSString *actualContent = result[@"error_description"];
+    MSIDAutomationErrorResult *result = [self automationErrorResult];
+    NSString *actualContent = result.errorDescription;
     XCTAssertNotEqual([actualContent length], 0);
     XCTAssertTrue([actualContent containsString:errorDescription]);
 }
 
-- (void)assertErrorContent:(NSString *)expectedContent key:(NSString *)key
+- (void)assertErrorSubcode:(NSString *)errorSubcode
 {
-    NSDictionary *result = [self resultDictionary];
-    NSString *actualContent = result[key];
-    XCTAssertNotEqual([actualContent length], 0);
-    XCTAssertEqualObjects(actualContent, expectedContent);
+    MSIDAutomationErrorResult *result = [self automationErrorResult];
+    NSString *actualSubCode = result.errorUserInfo[@"ADOAuthSubErrorKey"];
+    XCTAssertEqualObjects(errorSubcode, actualSubCode);
 }
 
 - (void)assertAccessTokenNotNil
 {
-    NSDictionary *result = [self resultDictionary];
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
     
-    XCTAssertTrue([result[@"access_token"] length] > 0);
-    XCTAssertEqual([result[@"error"] length], 0);
+    XCTAssertTrue([result.accessToken length] > 0);
+    XCTAssertTrue(result.success);
 }
 
 - (NSDictionary *)resultIDTokenClaims
 {
-    NSDictionary *result = [self resultDictionary];
-
-    NSString *idToken = result[@"id_token"];
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
+    
+    NSString *idToken = result.idToken;
     XCTAssertTrue([idToken length] > 0);
-
-    MSIDAADV1IdTokenClaims *idTokenWrapper = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:idToken error:nil];
-    return [idTokenWrapper jsonDictionary];
+    
+    MSIDIdTokenClaims *idTokenClaims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:nil];
+    return [idTokenClaims jsonDictionary];
 }
 
 - (void)assertRefreshTokenNotNil
 {
-    NSDictionary *result = [self resultDictionary];
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
     
-    XCTAssertTrue([result[@"refresh_token"] length] > 0);
+    XCTAssertTrue([result.refreshToken length] > 0);
+    XCTAssertTrue(result.success);
 }
 
 #pragma mark - API fetch
@@ -149,7 +195,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
 
-    [self.class.accountsProvider configurationWithRequest:request
+    [self.class.confProvider configurationWithRequest:request
                                         completionHandler:^(MSIDTestAutomationConfiguration *configuration) {
 
                                       testConfig = configuration;
@@ -174,7 +220,7 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
 
-    [self.class.accountsProvider passwordForAccount:account
+    [self.class.confProvider passwordForAccount:account
                                   completionHandler:^(NSString *password) {
                                 [expectation fulfill];
                             }];
@@ -188,6 +234,85 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 }
 
 #pragma mark - Actions
+
+- (void)aadEnterEmail
+{
+    [self aadEnterEmail:self.primaryAccount.account app:self.testApp];
+}
+
+- (void)aadEnterEmail:(NSString *)email app:(XCUIApplication *)app
+{
+    XCUIElement *emailTextField = [app.textFields elementBoundByIndex:0];
+    [self waitForElement:emailTextField];
+    if ([email isEqualToString:emailTextField.value])
+    {
+        return;
+    }
+    
+    [self tapElementAndWaitForKeyboardToAppear:emailTextField app:app];
+    [emailTextField selectTextWithApp:app];
+    NSString *emailString = [NSString stringWithFormat:@"%@\n", email];
+    [emailTextField typeText:emailString];
+}
+
+- (void)aadEnterPassword
+{
+    [self enterPassword:self.primaryAccount.password app:self.testApp];
+}
+
+- (void)enterPassword:(NSString *)password app:(XCUIApplication *)app
+{
+    // Enter password
+    XCUIElement *passwordTextField = app.secureTextFields.firstMatch;
+    [self waitForElement:passwordTextField];
+    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:app];
+    NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+    [passwordTextField typeText:passwordString];
+}
+
+- (void)closeResultView
+{
+    [self.testApp.buttons[@"Done"] msidTap];
+}
+
+- (void)invalidateRefreshToken:(NSDictionary *)config
+{
+    [self performAction:MSID_AUTO_INVALIDATE_RT_ACTION_IDENTIFIER withConfig:config];
+}
+
+- (void)expireAccessToken:(NSDictionary *)config
+{
+    [self performAction:MSID_AUTO_EXPIRE_AT_ACTION_IDENTIFIER withConfig:config];
+}
+
+- (void)acquireToken:(NSDictionary *)config
+{
+    [self performAction:MSID_AUTO_ACQUIRE_TOKEN_ACTION_IDENTIFIER withConfig:config];
+}
+
+- (void)acquireTokenSilent:(NSDictionary *)config
+{
+    [self performAction:MSID_AUTO_ACQUIRE_TOKEN_SILENT_ACTION_IDENTIFIER withConfig:config];
+}
+
+- (void)clearKeychain
+{
+    [self.testApp.buttons[MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER] msidTap];
+    [self waitForElement:self.testApp.buttons[@"Done"]];
+    [self.testApp.buttons[@"Done"] msidTap];
+}
+
+- (void)clearCookies
+{
+    [self.testApp.buttons[MSID_AUTO_CLEAR_COOKIES_ACTION_IDENTIFIER] msidTap];
+    [self waitForElement:self.testApp.buttons[@"Done"]];
+    [self.testApp.buttons[@"Done"] msidTap];
+}
+
+- (void)openURL:(NSDictionary *)config
+{
+    [self performAction:MSID_AUTO_OPEN_URL_ACTION_IDENTIFIER withConfig:config];
+}
 
 /*
  There seems to be some flakiness around sovereign user with login hint provided,
@@ -211,82 +336,6 @@ static MSIDTestAccountsProvider *s_accountsProvider;
     }
 }
 
-- (void)aadEnterEmail:(NSString *)email inApp:(XCUIApplication *)app
-{
-    XCUIElement *emailTextField = app.textFields[@"Enter your email, phone, or Skype."];
-    [self waitForElement:emailTextField];
-    if ([email isEqualToString:emailTextField.value])
-    {
-        return;
-    }
-
-    [self tapElementAndWaitForKeyboardToAppear:emailTextField app:app];
-    [emailTextField selectTextWithApp:app];
-    [emailTextField typeText:email];
-}
-
-- (void)aadEnterEmail:(NSString *)email
-{
-    [self aadEnterEmail:email inApp:self.testApp];
-}
-
-- (void)aadEnterEmail
-{
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account] inApp:self.testApp];
-}
-
-- (void)aadEnterEmailInApp:(XCUIApplication *)app
-{
-    [self aadEnterEmail:[NSString stringWithFormat:@"%@\n", self.primaryAccount.account] inApp:app];
-}
-
-- (void)aadEnterPassword
-{
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
-}
-
-- (void)aadEnterPasswordInApp:(XCUIApplication *)app
-{
-    [self aadEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password] testApp:app];
-}
-
-- (void)aadEnterPassword:(NSString *)password
-{
-    [self aadEnterPassword:password testApp:self.testApp];
-}
-
-- (void)aadEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
-{
-    // Enter password
-    XCUIElement *passwordTextField = testApp.secureTextFields.firstMatch;
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:testApp];
-    [passwordTextField typeText:password];
-}
-
-- (void)adfsEnterPassword
-{
-    [self adfsEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
-}
-
-- (void)adfsEnterPasswordInApp:(XCUIApplication *)app
-{
-    [self adfsEnterPassword:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password] testApp:app];
-}
-
-- (void)adfsEnterPassword:(NSString *)password
-{
-    [self adfsEnterPassword:password testApp:self.testApp];
-}
-
-- (void)adfsEnterPassword:(NSString *)password testApp:(XCUIApplication *)testApp
-{
-    XCUIElement *passwordTextField = testApp.secureTextFields[@"Password"];
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:testApp];
-    [passwordTextField typeText:password];
-}
-
 - (void)closeAuthUI
 {
 #if TARGET_OS_IPHONE
@@ -296,115 +345,106 @@ static MSIDTestAccountsProvider *s_accountsProvider;
 #endif
 }
 
-- (void)closeResultView
-{
-    [self.testApp.buttons[@"Done"] msidTap];
-}
-
-- (void)invalidateRefreshToken:(NSDictionary *)config
-{
-    NSString *jsonString = [config toJsonString];
-    [self.testApp.buttons[@"Invalidate Refresh Token"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
-}
-
-- (void)expireAccessToken:(NSDictionary *)config
-{
-    NSString *jsonString = [config toJsonString];
-    [self.testApp.buttons[@"Expire Access Token"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
-}
-
-- (void)acquireToken:(NSDictionary *)config
-{
-    NSString *jsonString = [config toJsonString];
-    [self waitForElement:self.testApp.buttons[@"Acquire Token"]];
-    [self.testApp.buttons[@"Acquire Token"] msidTap];
-    [self waitForElement:self.testApp.textViews[@"requestInfo"]];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
-}
-
 - (void)acquireTokenWithRefreshToken:(NSDictionary *)config
 {
-    NSString *jsonString = [config toJsonString];
-    [self.testApp.buttons[@"acquireTokenByRefreshToken"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
-}
-
-- (void)acquireTokenSilent:(NSDictionary *)config
-{
-    NSString *jsonString = [config toJsonString];
-    [self waitForElement:self.testApp.buttons[@"Acquire Token Silent"]];
-    [self.testApp.buttons[@"Acquire Token Silent"] msidTap];
-    [self waitForElement:self.testApp.textViews[@"requestInfo"]];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
-}
-
-- (void)clearCache
-{
-    [self.testApp.buttons[@"Clear Cache"] msidTap];
-    [self.testApp.buttons[@"Done"] msidTap];
-}
-
-- (void)clearKeychain
-{
-    [self.testApp.buttons[@"Clear keychain"] msidTap];
-    [self.testApp.buttons[@"Done"] msidTap];
-}
-
-- (void)clearCookies
-{
-    [self.testApp.buttons[@"Clear Cookies"] msidTap];
-    [self.testApp.buttons[@"Done"] msidTap];
-}
-
-- (void)openURL:(NSDictionary *)config
-{
-    NSString *jsonString = [config toJsonString];
-
-    XCUIElement *openURLButton = self.testApp.buttons[@"openUrlInSafari"];
-    [self waitForElement:openURLButton];
-    [openURLButton msidTap];
-
-    XCUIElement *requestInfoView = self.testApp.textViews[@"requestInfo"];
-    [self waitForElement:requestInfoView];
-
-    [requestInfoView msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
+    [self performAction:MSID_AUTO_ACQUIRE_TOKEN_WITH_RT_IDENTIFIER withConfig:config];
 }
 
 #pragma mark - Helpers
-
-- (NSDictionary *)resultDictionary
-{
-    XCUIElement *resultTextView = self.testApp.textViews[@"resultInfo"];
-    [self waitForElement:resultTextView];
-    
-    return [NSJSONSerialization JSONObjectWithData:[resultTextView.value dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
-}
 
 - (void)waitForElement:(id)object
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
     [self waitForExpectationsWithTimeout:60.0f handler:nil];
+}
+
+- (NSDictionary *)configWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    MSIDAutomationTestRequest *updatedRequest = [self.class.confProvider fillDefaultRequestParams:request config:self.testConfiguration account:self.primaryAccount];
+    return updatedRequest.jsonDictionary;
+}
+
+#pragma mark - Shared steps
+
+- (void)runSharedAuthUIAppearsStepWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self acquireToken:config];
+    
+    [self assertAuthUIAppear];
+    [self closeAuthUI];
+    
+    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
+    [self closeResultView];
+}
+
+- (NSString *)runSharedResultAssertionWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    [self assertAccessTokenNotNil];
+    
+    MSIDAutomationSuccessResult *result = [self automationSuccessResult];
+    XCTAssertNotNil(result.userInformation.legacyAccountId);
+    
+    if (request.testAccount)
+    {
+        NSString *resultTenantId = result.userInformation.tenantId;
+        
+        NSString *idToken = result.idToken;
+        XCTAssertNotNil(idToken);
+        
+        MSIDIdTokenClaims *claims = [MSIDAADIdTokenClaimsFactory claimsFromRawIdToken:idToken error:nil];
+        XCTAssertNotNil(idToken);
+        
+        NSString *idTokenTenantId = claims.jsonDictionary[@"tid"];
+        
+        XCTAssertEqualObjects(resultTenantId, request.testAccount.targetTenantId);
+        XCTAssertEqualObjects(resultTenantId, idTokenTenantId);
+    }
+    
+    return result.userInformation.legacyAccountId;
+}
+
+- (void)runSharedSilentLoginWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    NSDictionary *config = [self configWithTestRequest:request];
+    // Acquire token silently
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
+    
+    // Now expire access token
+    [self expireAccessToken:config];
+    [self assertAccessTokenExpired];
+    [self closeResultView];
+    
+    // Now do access token refresh
+    [self acquireTokenSilent:config];
+    [self assertAccessTokenNotNil];
+    [self runSharedResultAssertionWithTestRequest:request];
+    [self closeResultView];
+}
+
+- (NSString *)runSharedAADLoginWithTestRequest:(MSIDAutomationTestRequest *)request
+{
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self acquireToken:config];
+    [self assertAuthUIAppear];
+    
+    if (request.usePassedWebView)
+    {
+        XCTAssertTrue(self.testApp.staticTexts[@"PassedIN"]);
+    }
+    
+    if (!request.loginHint && !request.homeAccountIdentifier)
+    {
+        [self aadEnterEmail];
+    }
+    
+    [self aadEnterPassword];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:request];
+    [self closeResultView];
+    return userId;
 }
 
 @end

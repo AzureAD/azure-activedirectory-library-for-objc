@@ -21,39 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoResultViewController.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoResultViewController ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (strong, nonatomic) IBOutlet NSTextView *resultInfo;
-@property (strong, nonatomic) IBOutlet NSTextView *resultLogs;
-
-@end
-
-@implementation ADAutoResultViewController
-
-- (void)viewDidLoad
-{
-    _resultInfo.string = _resultInfoString ?: @"";
-    _resultLogs.string = _resultLogsString ?: @"";
-}
-
-- (void)setResultInfoString:(NSString *)resultInfoString
-{
-    _resultInfoString = resultInfoString;
-    _resultInfo.string = _resultInfoString ?: @"";
-}
-
-- (void)setResultLogsString:(NSString *)resultLogsString
-{
-    _resultLogsString = resultLogsString;
-    _resultLogs.string = _resultLogsString ?: @"";
-}
-
-- (IBAction)done:(__unused id)sender
-{
-    NSTabViewController *tabController = (NSTabViewController *) self.parentViewController;
-    tabController.selectedTabViewItemIndex = 0;
-}
+@interface ADAutoAcquireTokenSilentAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -21,34 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoPassedInWebViewController.h"
-#import "ADWebAuthController.h"
-#import <WebKit/WebKit.h>
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoPassedInWebViewController ()
-@property (weak, nonatomic) IBOutlet UIView *contentView;
-@end
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation ADAutoPassedInWebViewController
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    [self.contentView addSubview:self.passedInWebview];
-    self.passedInWebview.frame = CGRectMake(0, 0, self.contentView.frame.size.width, self.contentView.frame.size.height);
-}
-
-- (IBAction)cancelTapped:(id)sender {
-    
-    [self dismissViewControllerAnimated:YES completion:^{
-        [ADWebAuthController cancelCurrentWebAuthSession];
-    }];
-}
+@interface ADAutoInteractiveStressAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

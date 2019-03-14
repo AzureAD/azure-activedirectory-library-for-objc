@@ -26,7 +26,8 @@
 @interface ADALBaseiOSUITest : ADALBaseUITest
 
 - (XCUIApplication *)brokerApp;
-- (void)registerDeviceInAuthenticator;
+- (void)startDeviceRegistrationFlowInAuthenticator;
+- (void)registerDeviceInAuthenticatorAndCompleteAuth:(BOOL)enterEmail;
 - (void)unregisterDeviceInAuthenticator;
 - (XCUIApplication *)openDeviceRegistrationMenuInAuthenticator;
 - (void)openAppInstallURLForAppId:(NSString *)appId;
@@ -36,7 +37,6 @@
 - (XCUIApplication *)installAppWithIdWithSafariOpen:(NSString *)appId;
 - (void)removeAppWithId:(NSString *)appId;
 - (void)acceptAuthSessionDialog;
-- (void)guestEnterUsernameInApp:(XCUIApplication *)application;
-- (void)guestEnterPasswordInApp:(XCUIApplication *)application;
+- (void)acceptBrokerDialogs:(XCUIApplication *)brokerApp;
 
 @end

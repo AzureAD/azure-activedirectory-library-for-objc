@@ -21,28 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoRequestViewController.h"
+#import "ADAutoBaseAction.h"
 
-@implementation ADAutoRequestViewController
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)viewWillAppear
-{
-    [super viewWillAppear];
-    self.requestInfo.string = @"";
-}
-
-- (IBAction)go:(id)sender
-{
-    NSError *error = nil;
-    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.string dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
-    if (!params)
-    {
-        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, (long)error.code, error.localizedDescription];
-
-        params = @{ @"error" : errorString };
-    }
-
-    self.completionBlock(params);
-}
+@interface ADAutoAcquireTokenWithRTAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

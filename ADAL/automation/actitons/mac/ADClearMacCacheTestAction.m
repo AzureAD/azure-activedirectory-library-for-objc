@@ -21,14 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-typedef void (^ADAutoParamBlock)(NSDictionary<NSString *, NSString *> * parameters);
+#import "ADClearMacCacheTestAction.h"
+#import "MSIDAutomationActionManager.h"
+#import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationTestResult.h"
+#import "ADTestAppCache.h"
 
-#import <WebKit/WebKit.h>
+@implementation ADClearMacCacheTestAction
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-@compatibility_alias ADAutoViewController UIViewController;
-#else
-#import <Cocoa/Cocoa.h>
-@compatibility_alias ADAutoViewController NSViewController;
-#endif
++ (void)load
+{
+    [[MSIDAutomationActionManager sharedInstance] registerAction:[ADClearMacCacheTestAction new]];
+}
+
+- (NSString *)actionIdentifier
+{
+    return MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER;
+}
+
+- (BOOL)needsRequestParameters
+{
+    return NO;
+}
+
+- (void)performActionWithParameters:(NSDictionary *)parameters
+                containerController:(MSIDAutoViewController *)containerController
+                    completionBlock:(MSIDAutoCompletionBlock)completionBlock
+{
+    BOOL result = [[ADTestAppCache sharedCache] clearCacheWithError:nil];
+
+    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                    success:result
+                                                                             additionalInfo:nil];
+    
+    if (completionBlock)
+    {
+        completionBlock(testResult);
+    }
+}
+
+@end

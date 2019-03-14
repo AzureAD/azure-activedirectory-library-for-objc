@@ -45,14 +45,12 @@
 // #347620
 - (void)testInteractiveAndSilentAADLogin_withPromptAlways_noLoginHint_ADALWebView_andGuestUserInGuestTenantOnly
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params account:self.primaryAccount];
-
-    [self acquireToken:config];
+    MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
+    guestRequest.promptBehavior = @"always";
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
+    
+    NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
+    [self acquireToken:guestConfig];
     [self aadEnterEmail];
     [self guestEnterUsername];
     [self guestEnterPassword];
@@ -62,32 +60,28 @@
     [self closeResultView];
 
     // Now do silent #296725
-    NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account
-                                   };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams account:self.primaryAccount];
-    [self acquireTokenSilent:config];
+    guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentGuestConfig = [self configWithTestRequest:guestRequest];
+    [self acquireTokenSilent:silentGuestConfig];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
 
     // Now expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:silentGuestConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
     // Now do access token refresh
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:silentGuestConfig];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
 
     // Now do silent #296725 without providing user ID
-    silentParams = @{};
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams account:self.primaryAccount];
-    [self acquireTokenSilent:config];
+    guestRequest.legacyAccountIdentifier = nil;
+    NSDictionary *noIdSilentGuestConfig = [self configWithTestRequest:guestRequest];
+    [self acquireTokenSilent:noIdSilentGuestConfig];
     [self assertAccessTokenNotNil];
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
     [self closeResultView];
@@ -97,17 +91,12 @@
 - (void)testInteractiveAndSilentAADLogin_withPromptAlways_noLoginHint_ADALWebView_andGuestUserInHomeAndGuestTenant
 {
     // Sign in home tenant
-    NSDictionary *homeParams = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"authority": @"https://login.microsoftonline.com/common",
-                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
-                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                             };
-
-    homeParams = [self.testConfiguration configWithAdditionalConfiguration:homeParams account:self.primaryAccount];
-
-    [self acquireToken:homeParams];
+    MSIDAutomationTestRequest *homeRequest = [self.class.confProvider defaultAppRequest];
+    homeRequest.promptBehavior = @"always";
+    homeRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
+    
+    NSDictionary *homeConfig = [self configWithTestRequest:homeRequest];
+    [self acquireToken:homeConfig];
     [self aadEnterEmail];
     [self guestEnterUsername];
     [self guestEnterPassword];
@@ -119,15 +108,12 @@
     [self closeResultView];
 
     // Sign in into guest tenant
-    NSDictionary *guestParams = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
-                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                             };
-
-    guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
-    [self acquireToken:guestParams];
+    MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
+    guestRequest.promptBehavior = @"always";
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
+    
+    NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
+    [self acquireToken:guestConfig];
     [self aadEnterEmail];
     [self guestEnterUsername];
     [self guestEnterPassword];
@@ -139,32 +125,24 @@
     [self closeResultView];
 
     // Do silent for home tenant
-    NSDictionary *silentHomeParams = @{@"user_identifier": self.primaryAccount.account,
-                                       @"authority": @"https://login.microsoftonline.com/common",
-                                       @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
-                                       @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                                       };
-    silentHomeParams = [self.testConfiguration configWithAdditionalConfiguration:silentHomeParams account:self.primaryAccount];
-    [self expireAccessToken:silentHomeParams];
+    homeRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentHomeConfig = [self configWithTestRequest:homeRequest];
+    [self expireAccessToken:silentHomeConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
-    [self acquireTokenSilent:silentHomeParams];
+    [self acquireTokenSilent:silentHomeConfig];
     [self assertAccessTokenNotNil];
 
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.homeTenantId);
-
     [self closeResultView];
 
     // Do silent for guest tenant
-    NSDictionary *silentGuestParams = @{@"user_identifier": self.primaryAccount.account,
-                                        @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
-                                        @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                                        };
-    silentGuestParams = [self.testConfiguration configWithAdditionalConfiguration:silentGuestParams account:self.primaryAccount];
-    [self expireAccessToken:silentGuestParams];
+    guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentGuestConfig = [self configWithTestRequest:guestRequest];
+    [self expireAccessToken:silentGuestConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
-    [self acquireTokenSilent:silentGuestParams];
+    [self acquireTokenSilent:silentGuestConfig];
     [self assertAccessTokenNotNil];
 
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
@@ -173,17 +151,12 @@
 - (void)testInteractiveAndSilentAADLogin_withPromptAuto_noLoginHint_ADALWebView_andGuestUserInHomeAndGuestTenant
 {
     // Sign in home tenant
-    NSDictionary *homeParams = @{
-                                 @"prompt_behavior" : @"always",
-                                 @"validate_authority" : @YES,
-                                 @"authority": @"https://login.microsoftonline.com/common",
-                                 @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
-                                 @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                                 };
-
-    homeParams = [self.testConfiguration configWithAdditionalConfiguration:homeParams account:self.primaryAccount];
-
-    [self acquireToken:homeParams];
+    MSIDAutomationTestRequest *homeRequest = [self.class.confProvider defaultAppRequest];
+    homeRequest.promptBehavior = @"always";
+    homeRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
+    
+    NSDictionary *homeConfig = [self configWithTestRequest:homeRequest];
+    [self acquireToken:homeConfig];
     [self aadEnterEmail];
     [self guestEnterUsername];
     [self guestEnterPassword];
@@ -195,21 +168,16 @@
     [self closeResultView];
     [self clearCookies];
 
-    // Sign in into guest tenant
-    NSDictionary *guestParams = @{
-                                  @"user_identifier": self.primaryAccount.account,
-                                  @"prompt_behavior" : @"auto",
-                                  @"validate_authority" : @YES,
-                                  @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c", // TODO: the lab needs to add a multi-tenant app, otherwise this test cannot work
-                                  @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                                  };
-
-    guestParams = [self.testConfiguration configWithAdditionalConfiguration:guestParams account:self.primaryAccount];
-    [self acquireToken:guestParams];
+    // Sign in into guest tenant with prompt auto. Should sign in silently
+    MSIDAutomationTestRequest *guestRequest = [self.class.confProvider defaultAppRequest];
+    guestRequest.configurationAuthority = [self.testConfiguration authorityWithTenantId:self.primaryAccount.targetTenantId];
+    guestRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    
+    NSDictionary *guestConfig = [self configWithTestRequest:guestRequest];
+    [self acquireToken:guestConfig];
     [self assertAccessTokenNotNil];
 
     XCTAssertEqualObjects([self resultIDTokenClaims][@"tid"], self.primaryAccount.targetTenantId);
-
     [self closeResultView];
 }
 

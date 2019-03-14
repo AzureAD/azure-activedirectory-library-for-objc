@@ -21,10 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADALAutomation.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoPassedInWebViewController : ADAutoViewController
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, weak) WKWebView *passedInWebview;
+@interface ADAutoExpireATAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -24,12 +24,14 @@
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCUIElement+CrossPlat.h"
+#import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationSuccessResult.h"
 
-@interface ADALiOSStressTests : ADALBaseUITest
+@interface ADALStressUITests : ADALBaseUITest
 
 @end
 
-@implementation ADALiOSStressTests
+@implementation ADALStressUITests
 
 - (void)setUp
 {
@@ -37,15 +39,15 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
 - (void)testStressRun_withEmptyCache
 {
-    [self runStressTestWithConfig:[self.testConfiguration config] testType:@"emptyCacheStressTest"];
-
-    sleep(3600); // run stress test for one hour
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self performAction:MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER withConfig:config];
+    sleep(self.class.confProvider.stressTestInterval); // run stress test for the specified interval
 }
 
 /*
@@ -54,45 +56,36 @@
 
 - (void)testStressRun_withNonEmptyCache
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.promptBehavior = @"always";
+    
+    NSDictionary *config = [self configWithTestRequest:request];
+    
     [self acquireToken:config];
     [self aadEnterEmail];
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    [self runStressTestWithConfig:[self.testConfiguration config] testType:@"nonEmptyCacheStressTest"];
-
-    sleep(3600); // run stress tests for one hour
+    
+    [self performAction:MSID_AUTO_NON_EMPTY_STRESS_TEST_ACTION_IDENTIFIER withConfig:config];
+    sleep(self.class.confProvider.stressTestInterval); // run stress test for the specified interval
 }
 
 - (void)testStressRun_withInteractiveAndSilentPollingInBackground
 {
-    NSDictionary *config = [self.testConfiguration config];
-    [self runStressTestWithConfig:config testType:@"interactiveStressTest"];
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.promptBehavior = @"always";
+    
+    NSDictionary *config = [self configWithTestRequest:request];
+    [self performAction:MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER withConfig:config];
+    
     [self aadEnterEmail];
     [self aadEnterPassword];
 
-    NSDictionary *result = [self resultDictionary];
-    XCTAssertTrue([result[@"result"] boolValue]);
+    MSIDAutomationSuccessResult *successResult = [self automationSuccessResult];
+    XCTAssertNotNil(successResult);
     [self closeResultView];
-}
-
-- (void)runStressTestWithConfig:(NSDictionary *)config testType:(NSString *)testType
-{
-    NSString *jsonString = [config toJsonString];
-    [self.testApp.buttons[testType] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidTap];
-    [self.testApp.textViews[@"requestInfo"] msidPasteText:jsonString application:self.testApp];
-    sleep(1);
-    [self.testApp.buttons[@"Go"] msidTap];
 }
 
 @end

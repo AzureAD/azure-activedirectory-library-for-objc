@@ -31,22 +31,27 @@
 
 - (XCUIApplication *)brokerApp
 {
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"broker"];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:@"broker"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
     BOOL result = [brokerApp waitForState:XCUIApplicationStateRunningForeground timeout:30.0f];
     XCTAssertTrue(result);
 
-    if ([brokerApp.alerts.buttons[@"Ok"] exists])
-    {
-        [brokerApp.alerts.buttons[@"Ok"] tap];
-    }
+    [self acceptBrokerDialogs:brokerApp];
 
     return brokerApp;
 }
 
-- (void)registerDeviceInAuthenticator
+- (void)acceptBrokerDialogs:(XCUIApplication *)brokerApp
+{
+    if ([brokerApp.alerts.buttons[@"Ok"] exists])
+    {
+        [brokerApp.alerts.buttons[@"Ok"] tap];
+    }
+}
+
+- (void)startDeviceRegistrationFlowInAuthenticator
 {
     __auto_type brokerApp = [self openDeviceRegistrationMenuInAuthenticator];
 
@@ -57,6 +62,26 @@
 
     __auto_type registerButton = brokerApp.tables.buttons[@"Register device"];
     [registerButton tap];
+}
+
+- (void)registerDeviceInAuthenticatorAndCompleteAuth:(BOOL)enterEmail
+{
+    [self startDeviceRegistrationFlowInAuthenticator];
+    
+    XCUIApplication *brokerApp = [self brokerApp];
+    
+    // We expect auth UI to appear
+    XCUIElement *webView = [brokerApp.webViews elementBoundByIndex:0];
+    XCTAssertTrue([webView waitForExistenceWithTimeout:10]);
+    
+    if (enterEmail)
+    {
+        [self aadEnterEmail:self.primaryAccount.account app:brokerApp];
+    }
+    
+    [self enterPassword:self.primaryAccount.password app:brokerApp];
+    __auto_type unregisterButton = brokerApp.tables.buttons[@"Unregister device"];
+    [self waitForElement:unregisterButton];
 }
 
 - (void)unregisterDeviceInAuthenticator
@@ -74,7 +99,7 @@
 
 - (XCUIApplication *)openDeviceRegistrationMenuInAuthenticator
 {
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"broker"];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:@"broker"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
     XCUIApplication *brokerApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];
     [brokerApp terminate];
@@ -107,13 +132,14 @@
 {
     XCTAssertNotNil(appId);
 
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:appId];
     XCTAssertNotNil(appConfiguration);
 
     NSString *appInstallUrl = appConfiguration[@"install_url"];
-
-    NSDictionary *dictionary = @{@"safari_url": appInstallUrl};
-    [self openURL:dictionary];
+    
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    request.extraQueryParameters = @{@"url": appInstallUrl};
+    [self openURL:request.jsonDictionary];
 
     XCUIApplication *safariApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.mobilesafari"];
 
@@ -176,7 +202,7 @@
 
     sleep(3);
 
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:appId];
     NSString *appName = appConfiguration[@"app_name"];
 
     // take the first match if there are multiple matches, otherwise it may fail on calling tap
@@ -198,7 +224,7 @@
 {
     XCTAssertNotNil(appId);
 
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:appId];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:appId];
     XCTAssertNotNil(appConfiguration);
 
     XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
@@ -238,26 +264,6 @@
 
         [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
     }
-}
-
-#pragma mark - Guest users
-
-- (void)guestEnterUsernameInApp:(XCUIApplication *)application
-{
-    XCUIElement *usernameTextField = [application.textFields firstMatch];
-    [self waitForElement:usernameTextField];
-    [self tapElementAndWaitForKeyboardToAppear:usernameTextField app:application];
-    [usernameTextField activateTextField];
-    [usernameTextField typeText:self.primaryAccount.username];
-}
-
-- (void)guestEnterPasswordInApp:(XCUIApplication *)application
-{
-    XCUIElement *passwordTextField = [application.secureTextFields firstMatch];
-    [self waitForElement:passwordTextField];
-    [self tapElementAndWaitForKeyboardToAppear:passwordTextField app:application];
-    [passwordTextField activateTextField];
-    [passwordTextField typeText:[NSString stringWithFormat:@"%@\n", self.primaryAccount.password]];
 }
 
 @end

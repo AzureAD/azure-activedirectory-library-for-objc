@@ -21,8 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoBaseViewController.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoMainViewController : ADAutoBaseViewController
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ADAutoNonEmptyStressAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

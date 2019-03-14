@@ -38,7 +38,6 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
@@ -47,73 +46,43 @@
 // #290995 iteration 11
 - (void)testInteractiveADFSv3Login_withPromptAlways_noLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.validateAuthority = YES;
+    adfsRequest.promptBehavior = @"always";
     
+    NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];
     
     [self aadEnterEmail];
     [self enterADFSv3Password];
     
     [self assertAccessTokenNotNil];
+    NSString *userId = [self runSharedResultAssertionWithTestRequest:adfsRequest];
+    // ADFSv3 is not OIDC compliant, so we get no id token back and userId is therefore supposed to be empty
+    XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
     [self closeResultView];
     
     // Acquire token again.
-    [self acquireToken:config];
-    [self assertAuthUIAppear];
-    [self closeAuthUI];
-    [self closeResultView];
+    [self runSharedAuthUIAppearsStepWithTestRequest:adfsRequest];
 
     // Now do silent #296725
-    NSDictionary *silentParams = @{
-                                   @"user_identifier" : self.primaryAccount.account,
-                                   @"client_id" : self.testConfiguration.clientId,
-                                   @"authority" : self.testConfiguration.authority,
-                                   @"resource" : self.testConfiguration.resource
-                                   };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
-    // Now expire access token
-    [self expireAccessToken:config];
-    [self assertAccessTokenExpired];
-    [self closeResultView];
-
-    // Now do access token refresh
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
-
+    adfsRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    [self runSharedSilentLoginWithTestRequest:adfsRequest];
+    
     // Now do silent #296725 without providing user ID
-    silentParams = @{
-                     @"client_id" : self.testConfiguration.clientId,
-                     @"authority" : self.testConfiguration.authority,
-                     @"resource" : self.testConfiguration.resource
-                     };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
-    [self acquireTokenSilent:config];
-    [self assertAccessTokenNotNil];
-    [self closeResultView];
+    adfsRequest.legacyAccountIdentifier = nil;
+    [self runSharedSilentLoginWithTestRequest:adfsRequest];
 }
 
 // #290995 iteration 12
 - (void)testInteractiveADFSv3Login_withPromptAlways_withLoginHint_ADALWebView
 {
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"user_identifier" : self.primaryAccount.account,
-                             @"user_identifier_type" : @"optional_displayable"
-                             };
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
+    MSIDAutomationTestRequest *adfsRequest = [MSIDAutomationTestRequest new];
+    adfsRequest.validateAuthority = YES;
+    adfsRequest.promptBehavior = @"always";
+    adfsRequest.loginHint = self.primaryAccount.account;
     
+    NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];
     
     [self enterADFSv3Password];

@@ -21,26 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoPassedInWebViewController.h"
-#import <WebKit/WebKit.h>
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoPassedInWebViewController ()
-{
-    WKWebView *_webview;
-}
-@end
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation ADAutoPassedInWebViewController
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    _webview = [[WKWebView alloc] initWithFrame:self.view.bounds];
-    _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-     [self.view addSubview:_webview];
-    
-    self.passedInWebview = _webview;
-}
+@interface ADAutoEmptyStressTestAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

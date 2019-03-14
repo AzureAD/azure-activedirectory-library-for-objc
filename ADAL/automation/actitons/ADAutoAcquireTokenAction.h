@@ -21,17 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADALAutomation.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoRequestViewController : ADAutoViewController
+NS_ASSUME_NONNULL_BEGIN
 
-#if TARGET_OS_IPHONE
-@property (weak, nonatomic) IBOutlet UITextView *requestInfo;
-
-#else
-@property (strong, nonatomic) IBOutlet NSTextView *requestInfo;
-#endif
-
-@property ADAutoParamBlock completionBlock;
+@interface ADAutoAcquireTokenAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

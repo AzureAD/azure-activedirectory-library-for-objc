@@ -35,20 +35,16 @@
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
 - (void)testAuthorityMigration_withPublicCloud_whenAppUpdatingAuthorities
 {
-    NSDictionary *config = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @NO,
-                             @"authority": @"https://login.windows.net/common"
-                             };
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:config];
-
+    MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
+    request.promptBehavior = @"always";
+    request.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww-alias" tenantId:nil];
+    
+    NSDictionary *config = [self configWithTestRequest:request];
     [self acquireToken:config];
     [self aadEnterEmail];
     [self aadEnterPassword];
@@ -57,68 +53,52 @@
     [self closeResultView];
 
     [self clearCookies];
-
-    config = @{@"authority": @"https://login.microsoftonline.com/common",
-               @"prompt": @"auto"};
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:config];
+    
+    MSIDAutomationTestRequest *aliasRequest = [self.class.confProvider defaultAppRequest];
+    aliasRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww" tenantId:nil];
+    
+    NSDictionary *aliasConfig = [self configWithTestRequest:aliasRequest];
 
     // Acquire token again.
-    [self acquireToken:config];
+    [self acquireToken:aliasConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
     // Expire access token
-    config = @{@"authority": @"https://login.windows.net/common",
-               @"user_identifier" : self.primaryAccount.account};
-
-    config = [self.testConfiguration configWithAdditionalConfiguration:config];
-    [self expireAccessToken:config];
+    request.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentConfig = [self configWithTestRequest:request];
+    [self expireAccessToken:silentConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
-    config = @{@"authority": @"https://login.microsoftonline.com/common",
-               @"prompt": @"auto"};
-    config = [self.testConfiguration configWithAdditionalConfiguration:config];
-
     // Now refresh token
-    [self acquireTokenSilent:config];
+    aliasRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    NSDictionary *silentAliasConfig = [self configWithTestRequest:aliasRequest];
+    [self acquireTokenSilent:silentAliasConfig];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 }
 
 - (void)testAuthorityMigration_withPublicCloud_andFRT_whenAppsUsingDifferentAuthorities
 {
-    // TODO: add foci support to the lab API
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"always",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                             @"redirect_uri": @"urn:ietf:wg:oauth:2.0:oob",
-                             @"authority": @"https://login.microsoftonline.com/common"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
+    MSIDAutomationTestRequest *firstRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
+    firstRequest.promptBehavior = @"always";
+    firstRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww" tenantId:nil];
+    
+    NSDictionary *firstConfig = [self configWithTestRequest:firstRequest];
+    [self acquireToken:firstConfig];
 
     [self aadEnterEmail];
     [self aadEnterPassword];
 
     [self assertAccessTokenNotNil];
     [self closeResultView];
-
-    params = @{
-               @"prompt_behavior" : @"always",
-               @"validate_authority" : @YES,
-               @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-               @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive",
-               @"authority": @"https://login.windows.net/common"
-               };
-
-    NSDictionary *config2 = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireTokenSilent:config2];
+    
+    MSIDAutomationTestRequest *secondRequest = [self.class.confProvider defaultFociRequestWithBroker];
+    secondRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:@"ww-alias" tenantId:nil];
+    
+    NSDictionary *secondConfig = [self configWithTestRequest:secondRequest];
+    [self acquireTokenSilent:secondConfig];
     [self assertAccessTokenNotNil];
 }
 

@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "AppDelegate.h"
+#import <ADAL/ADLogger.h>
+#import "MSIDAutomationMainViewController.h"
 
 @interface AppDelegate ()
 
@@ -30,7 +32,10 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Insert code here to initialize your application
+    
+    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii) {
+        [MSIDAutomationMainViewController forwardIdentitySDKLog:message];
+    }];
 }
 
 

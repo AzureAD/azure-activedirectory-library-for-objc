@@ -48,7 +48,6 @@ static BOOL olderADALAppInstalled = NO;
 
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 }
 
@@ -65,37 +64,34 @@ static BOOL olderADALAppInstalled = NO;
     [userNameField typeText:self.primaryAccount.username];
     [olderApp.buttons[@"prompt always"] tap];
 
-    [self aadEnterPasswordInApp:olderApp];
+    [self enterPassword:self.primaryAccount.password app:olderApp];
     [self validateSuccessfulResultInApp:olderApp];
 
     [self.testApp activate];
     [olderApp terminate];
-
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-                             @"resource": @"https://graph.windows.net",
-                             @"authority": @"https://login.microsoftonline.com/common",
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-    [self acquireTokenSilent:config];
+    
+    MSIDAutomationTestRequest *newADALRequest = [self.class.confProvider defaultFociRequestWithBroker];
+    newADALRequest.promptBehavior = @"auto";
+    newADALRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
+    newADALRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    newADALRequest.brokerEnabled = NO;
+    
+    NSDictionary *newADALConfig = [self configWithTestRequest:newADALRequest];
+    [self acquireTokenSilent:newADALConfig];
     [self assertAccessTokenNotNil];
     [self assertRefreshTokenNotNil];
     [self closeResultView];
 
-    [self expireAccessToken:config];
+    [self expireAccessToken:newADALConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
-    [self acquireTokenSilent:config];
+    [self acquireTokenSilent:newADALConfig];
     [self assertRefreshTokenNotNil];
     [self closeResultView];
 
     // Before going to older app, expire access token
-    [self expireAccessToken:config];
+    [self expireAccessToken:newADALConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
@@ -115,25 +111,22 @@ static BOOL olderADALAppInstalled = NO;
 - (void)testCoexistenceWithADAL1_2_startSigninInNewADAL_andDoTokenRefresh
 {
     [self.testApp activate];
+    
+    MSIDAutomationTestRequest *newADALRequest = [self.class.confProvider defaultFociRequestWithBroker];
+    newADALRequest.promptBehavior = @"auto";
+    newADALRequest.requestResource = [self.class.confProvider resourceForEnvironment:nil type:@"aad_graph"];
+    newADALRequest.legacyAccountIdentifier = self.primaryAccount.account;
+    newADALRequest.brokerEnabled = NO;
+    newADALRequest.configurationAuthority = [self.class.confProvider defaultAuthorityForIdentifier:nil];
+    
+    NSDictionary *newADALConfig = [self configWithTestRequest:newADALRequest];
 
-    NSDictionary *params = @{
-                             @"prompt_behavior" : @"auto",
-                             @"validate_authority" : @YES,
-                             @"client_id": @"af124e86-4e96-495a-b70a-90f90ab96707",
-                             @"resource": @"https://graph.windows.net",
-                             @"authority": @"https://login.microsoftonline.com/common",
-                             @"redirect_uri": @"ms-onedrive://com.microsoft.skydrive"
-                             };
-
-    NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
-
-    [self acquireToken:config];
-    [self aadEnterEmail];
+    [self acquireToken:newADALConfig];
     [self aadEnterPassword];
     [self assertAccessTokenNotNil];
     [self closeResultView];
 
-    [self expireAccessToken:config];
+    [self expireAccessToken:newADALConfig];
     [self assertAccessTokenExpired];
     [self closeResultView];
 
@@ -169,7 +162,7 @@ static BOOL olderADALAppInstalled = NO;
 
 - (XCUIApplication *)olderADALApp
 {
-    NSDictionary *appConfiguration = [self.class.accountsProvider appInstallForConfiguration:@"adal_1_2_x"];
+    NSDictionary *appConfiguration = [self.class.confProvider appInstallForConfiguration:@"adal_1_2_x"];
     NSString *appBundleId = appConfiguration[@"app_bundle_id"];
 
     XCUIApplication *olderApp = [[XCUIApplication alloc] initWithBundleIdentifier:appBundleId];

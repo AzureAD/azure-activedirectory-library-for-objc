@@ -21,29 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAutoResultViewController.h"
+#import "ADAutoBaseAction.h"
 
-@interface ADAutoResultViewController ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (strong, nonatomic) IBOutlet UITextView *resultInfo;
-@property (strong, nonatomic) IBOutlet UITextView *resultLogs;
-
-@end
-
-@implementation ADAutoResultViewController
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    
-    self.resultInfo.text = self.resultInfoString;
-    self.resultLogs.text = self.resultLogsString;
-}
-
-- (IBAction)done:(id)sender {
-    (void)sender;
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
+@interface ADAutoRemoveAccountAction : ADAutoBaseAction
 
 @end
+
+NS_ASSUME_NONNULL_END

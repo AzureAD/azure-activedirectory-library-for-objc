@@ -21,24 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADALAutomation.h"
+#import <Foundation/Foundation.h>
+#import "MSIDAutomationTestAction.h"
 
-@class ADAutoRequestViewController;
-@class ADAutoPassedInWebViewController;
+@class MSIDAutomationTestRequest;
 @class ADAuthenticationContext;
-@protocol ADTokenCacheDataSource;
+@class ADAuthenticationResult;
+@class ADUserIdentifier;
 
-@interface ADAutoBaseViewController: ADAutoViewController
+@interface ADAutoBaseAction : NSObject <MSIDAutomationTestAction>
 
-@property (nonatomic) ADAutoRequestViewController *requestViewController;
-@property (nonatomic) WKWebView *webView;
+- (ADAuthenticationContext *)contextFromParameters:(MSIDAutomationTestRequest *)request
+                                             error:(NSError **)error;
 
-- (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
+- (MSIDAutomationTestResult *)testResultWithADALError:(NSError *)error;
+- (MSIDAutomationTestResult *)testResultWithADALResult:(ADAuthenticationResult *)adalResult;
+- (ADPromptBehavior)promptBehaviorForRequest:(MSIDAutomationTestRequest *)request;
+- (ADUserIdentifier *)userIdentifierForRequest:(MSIDAutomationTestRequest *)request;
+- (NSString *)extraQueryParamsForRequest:(MSIDAutomationTestRequest *)request;
 - (id<ADTokenCacheDataSource>)cacheDatasource;
-- (void)clearCache;
-- (void)clearKeychain;
-- (void)openURL:(NSURL *)url;
+- (NSString *)cacheUrlWithParameters:(MSIDAutomationTestRequest *)parameters;
+- (NSArray *)cacheAliasesWithParameters:(MSIDAutomationTestRequest *)parameters;
 
 @end
