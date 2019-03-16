@@ -61,7 +61,7 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testBasicBrokerLoginWithBlackforestAccount
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
     configurationRequest.needsMultipleUsers = NO;
     configurationRequest.accountFeatures = @[];
@@ -119,7 +119,7 @@ static BOOL brokerAppInstalled = NO;
 
 - (void)testAppTerminationDuringBrokeredLogin
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     [self loadTestConfiguration:configurationRequest];
     
@@ -161,7 +161,7 @@ static BOOL brokerAppInstalled = NO;
 - (void)testDeviceAuthInInteractiveFlow
 {
     // Load configuration
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
@@ -191,7 +191,7 @@ static BOOL brokerAppInstalled = NO;
 - (void)testDeviceAuthInSilentFlow
 {
     // Load configuration
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];
@@ -233,7 +233,7 @@ static BOOL brokerAppInstalled = NO;
 - (void)testSilentClaimsOnTheTokenEndpoint
 {
     // Load configuration
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMAMEnabled];
     [self loadTestConfiguration:configurationRequest];

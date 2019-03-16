@@ -50,7 +50,7 @@ static BOOL brokerAppInstalled = NO;
         [self closeResultView];
     }
 
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureGuestUser];
     [self loadTestConfiguration:configurationRequest];

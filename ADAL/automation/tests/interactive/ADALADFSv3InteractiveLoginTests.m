@@ -36,7 +36,7 @@
 {
     [super setUp];
 
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     [self loadTestConfiguration:configurationRequest];
 }
