@@ -50,11 +50,10 @@
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSString *certificateIssuer  = nil;
-    NSData *issuer = nil;
     OSStatus status = noErr;
     
     MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information");
-    identity = [self copyWPJIdentity:context issuer:&issuer certificateAuthorities:challenge.protectionSpace.distinguishedNames];
+    identity = [self copyWPJIdentity:context issuer:&certificateIssuer certificateAuthorities:challenge.protectionSpace.distinguishedNames];
     
     // If there's no identity in the keychain, return nil. adError won't be set if the
     // identity can't be found since this isn't considered an error condition.
@@ -77,11 +76,6 @@
     
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
-    
-    if (issuer)
-    {
-        certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSASCIIStringEncoding];
-    }
     
     // Get the private key
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
@@ -135,7 +129,7 @@ _error:
 }
 
 + (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
-                           issuer:(NSData **)issuer
+                           issuer:(NSString **)issuer
            certificateAuthorities:(NSArray<NSData *> *)authorities
 
 {
@@ -176,13 +170,16 @@ _error:
             currentIssuer = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
             currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:NSASCIIStringEncoding];
             
+            /* The issuer name returned from the certificate in keychain is capitalized but the issuer name returned from the TLS challenge is not.
+             Hence we need to do a caseInsenstitive compare to match the issuer.
+             */
             if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
             {
                 identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
                 
                 if (issuer)
                 {
-                    *issuer = currentIssuer;
+                    *issuer = currentIssuerName;
                 }
                 
                 break;

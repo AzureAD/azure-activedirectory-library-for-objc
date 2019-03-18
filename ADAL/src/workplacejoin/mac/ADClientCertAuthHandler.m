@@ -54,7 +54,6 @@
 
 + (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
 {
-    
     for (NSData *distinguishedName in distinguishedNames)
     {
         NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSASCIIStringEncoding] lowercaseString];
