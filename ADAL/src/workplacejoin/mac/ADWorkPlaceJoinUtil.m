@@ -61,7 +61,13 @@
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
         MSID_LOG_VERBOSE(context, @"Failed to retrieve WPJ identity.");
-        goto _error;
+        if (identity)
+        {
+            CFRelease(identity);
+            identity = NULL;
+        }
+        
+        return NULL;
     }
     
     // Get the wpj certificate
@@ -74,7 +80,7 @@
     
     if (issuer)
     {
-        certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
+        certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSASCIIStringEncoding];
     }
     
     // Get the private key
@@ -173,7 +179,12 @@ _error:
             if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
             {
                 identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
-                *issuer = currentIssuer;
+                
+                if (issuer)
+                {
+                    *issuer = currentIssuer;
+                }
+                
                 break;
             }
         }

@@ -57,7 +57,7 @@
     
     for (NSData *distinguishedName in distinguishedNames)
     {
-        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
+        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSASCIIStringEncoding] lowercaseString];
         if ([distinguishedNameString containsString:[kADALProtectionSpaceDistinguishedName lowercaseString]])
         {
             return YES;
