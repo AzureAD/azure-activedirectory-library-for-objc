@@ -57,7 +57,7 @@
     
     for (NSData *distinguishedName in distinguishedNames)
     {
-        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
+        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSASCIIStringEncoding] lowercaseString];
         if ([distinguishedNameString containsString:[kADALProtectionSpaceDistinguishedName lowercaseString]])
         {
             return YES;
@@ -72,7 +72,7 @@
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     ADAuthenticationError *adError = nil;
-    ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context error:&adError];
+    ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context urlChallenge:challenge error:&adError];
     if (!info || ![info isWorkPlaceJoined])
     {
         MSID_LOG_INFO(protocol.context, @"Device is not workplace joined");
