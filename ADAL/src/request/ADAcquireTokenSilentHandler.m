@@ -62,6 +62,7 @@
 
 + (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
                                         tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
+                                      verifyUserId:(BOOL)verifyUserId
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
     
@@ -71,6 +72,7 @@
     handler->_requestParams = requestParams;
     handler.tokenCache = tokenCache;
     handler.factory = [MSIDAADV1Oauth2Factory new];
+    handler->_verifyUserId = verifyUserId;
     
     return handler;
 }
@@ -203,7 +205,8 @@
          ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
                                                                          fromRefreshToken:cacheItem
                                                                                     cache:self.tokenCache
-                                                                                   params:_requestParams];
+                                                                                   params:_requestParams
+                                                                             verifyUserId:_verifyUserId];
          
          completionBlock(result);
          
