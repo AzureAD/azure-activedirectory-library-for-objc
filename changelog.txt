@@ -13,6 +13,10 @@ Version 4.0.0 (12.21.2018)
 * ADAL now supports iOS 10+ and macOS 10.11+ only
 * WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
 
+Version 2.7.8
+-----------
+* Hotfix to skip user Id matching check for an acquire token silent call.
+
 Version 2.7.7 (12.21.2018)
 -----------
 * Don't log ADAL version on load (#1359)
