@@ -250,4 +250,10 @@ static OnLoadBlock s_onLoadBlock = nil;
     [s_delegateCalls removeAllObjects];
 }
 
++ (void)reset
+{
+    s_onLoadBlock = nil;
+    [self clearDelegateCalls];
+}
+
 @end

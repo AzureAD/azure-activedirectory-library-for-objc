@@ -58,5 +58,6 @@ typedef void (^OnLoadBlock)(NSURLRequest *urlRequest, id<ADWebAuthDelegate> dele
 + (void)addDelegateCallWebAuthDidCompleteWithURL:(NSURL *)endURL;
 + (void)addDelegateCallWebAuthDidFailWithError:(NSError *)error;
 + (void)clearDelegateCalls;
++ (void)reset;
 
 @end
