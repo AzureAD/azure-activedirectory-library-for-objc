@@ -1,3 +1,8 @@
+Version 2.7.10
+-----------
+* Hotfix for Mac OS to have ability to turn off supporting Kerberos
+authentication via compiler flag.
+
 Version 2.7.9 (03.06.2018)
 -----------
 * Hotfix for Mac OS to query WPJ cert using issuers from authentication challenge.
