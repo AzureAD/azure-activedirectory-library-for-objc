@@ -178,20 +178,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         errorCode = [strErrorCode integerValue];
     }
 
-    
-
-    if (errorCode == AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED)
+    if ([response valueForKey:AUTH_SUBERROR])
     {
-        // For protection_policy_required error, add extra info for the app in the userInfo dictionary of the error
-        if ([response valueForKey:AUTH_SUBERROR])
-        {
-            [userInfo setValue:[response valueForKey:AUTH_SUBERROR] forKey:ADSuberrorKey];
-        }
-
-        if ([response valueForKey:@"user_id"])
-        {
-            [userInfo setValue:[response valueForKey:@"user_id"] forKey:ADUserIdKey];
-        }
+        [userInfo setValue:[response valueForKey:AUTH_SUBERROR] forKey:ADSuberrorKey];
+    }
+    
+    if ([response valueForKey:@"user_id"])
+    {
+        [userInfo setValue:[response valueForKey:@"user_id"] forKey:ADUserIdKey];
     }
 
     NSString* protocolCode = [response valueForKey:@"protocol_code"];

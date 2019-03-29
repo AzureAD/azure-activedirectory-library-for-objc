@@ -50,6 +50,7 @@
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
+                                   oauthSubError:(NSString *)suberror
                                    correlationId:(NSUUID *)correlationId
                                    requestParams:(NSDictionary *)requestParams;
 

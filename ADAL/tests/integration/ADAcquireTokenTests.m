@@ -960,6 +960,103 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(allItems[0], mrrtItem);
 }
 
+- (void)testAcquireTokenSilent_whenInteractionRequiredError_andSubError_shouldReturnSuberror
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* badFRTResponse =
+    [self adResponseBadRefreshToken:@"refresh token"
+                          authority:TEST_AUTHORITY
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+                         oauthError:@"interaction_required"
+                      oauthSubError:@"basic_action"
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+    
+    // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
+    [ADTestURLSession addResponse:badFRTResponse];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"basic_action");
+         XCTAssertNil(result.authority);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // The MRRT should still be in the cache
+    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
+- (void)testAcquireTokenSilent_whenUnauthorizedClientAndProtectionPoliciesRequired_shouldReturnIntuneError
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* badFRTResponse =
+    [self adResponseBadRefreshToken:@"refresh token"
+                          authority:TEST_AUTHORITY
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+                         oauthError:@"unauthorized_client"
+                      oauthSubError:@"protection_policy_required"
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+    
+    // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
+    [ADTestURLSession addResponse:badFRTResponse];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssertEqualObjects(result.error.protocolCode, @"unauthorized_client");
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"protection_policy_required");
+         XCTAssertNil(result.authority);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // The MRRT should still be in the cache
+    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
 - (void)testMRRTUnauthorizedClient
 {
     // Refresh tokens should only be deleted when the server returns a 'invalid_grant' error
@@ -1413,6 +1510,7 @@ const int sAsyncContextTimeout = 10;
                            resource:TEST_RESOURCE
                            clientId:TEST_CLIENT_ID
                          oauthError:@"invalid_grant"
+                      oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
                       requestParams:nil];
     
@@ -2420,6 +2518,7 @@ const int sAsyncContextTimeout = 10;
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
                                                        oauthError:@"interaction_required"
+                                                    oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
                                                     requestParams:@{OAUTH2_CLAIMS : decodedClaims}];
 
@@ -2471,6 +2570,7 @@ const int sAsyncContextTimeout = 10;
                            resource:TEST_RESOURCE
                            clientId:TEST_CLIENT_ID
                          oauthError:@"interaction_required"
+                      oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
                       requestParams:@{OAUTH2_CLAIMS : decodedClaims}];
 
@@ -2843,6 +2943,7 @@ const int sAsyncContextTimeout = 10;
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
                                                        oauthError:@"invalid_grant"
+                                                    oauthSubError:nil
                                                     correlationId:TEST_CORRELATION_ID
                                                     requestParams:nil];
     
