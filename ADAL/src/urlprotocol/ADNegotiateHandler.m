@@ -42,19 +42,19 @@
 #pragma unused(challenge)
 #pragma unused(session)
 #pragma unused(task)
-        
+    
+#ifndef DISABLE_KERBEROS
     if ([self hasValidKBRCredential:protocol])
     {
         // This means we have an unexpired credential, let system handle it
         MSID_LOG_INFO(protocol.context, @"Perform default system handling for Negotiate");
         completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        return YES;
     }
-    else
-    {
-        // This challenge is rejected and the next authentication protection space should be tried by OS
-        MSID_LOG_INFO(protocol.context, @"Reject protection space, so the next one can be tried");
-        completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
-    }
+#endif
+    // This challenge is rejected and the next authentication protection space should be tried by OS
+    MSID_LOG_INFO(protocol.context, @"Reject protection space, so the next one can be tried");
+    completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
     
     return YES;
 }
