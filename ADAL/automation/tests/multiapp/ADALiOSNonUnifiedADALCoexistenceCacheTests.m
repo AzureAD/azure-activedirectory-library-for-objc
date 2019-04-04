@@ -46,7 +46,7 @@ static BOOL adalAppInstalled = NO;
         [self closeResultView];
     }
     
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     [self loadTestConfiguration:configurationRequest];
 }
@@ -119,7 +119,7 @@ static BOOL adalAppInstalled = NO;
 
 - (void)testCoexistenceWithNonUnifiedADAL_startSigninInNewADAL_withADFSOnPremAccount_andDoTokenRefresh
 {
-    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
+    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];

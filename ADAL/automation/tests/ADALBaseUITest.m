@@ -23,7 +23,7 @@
 
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
-#import "MSIDTestAutomationConfigurationRequest.h"
+#import "MSIDAutomationConfigurationRequest.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "MSIDAADV1IdTokenClaims.h"
@@ -189,18 +189,20 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 #pragma mark - API fetch
 
-- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request
+- (void)loadTestConfiguration:(MSIDAutomationConfigurationRequest *)request
 {
     __block MSIDTestAutomationConfiguration *testConfig = nil;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
-
-    [self.class.confProvider configurationWithRequest:request
-                                        completionHandler:^(MSIDTestAutomationConfiguration *configuration) {
-
-                                      testConfig = configuration;
-                                      [expectation fulfill];
-                                  }];
+    
+    [self.class.confProvider.userAPIRequestHandler executeAPIRequest:request
+                                                   completionHandler:^(MSIDTestAutomationConfiguration *result, NSError *error) {
+        
+                                                       XCTAssertNotNil(result);
+                                                       XCTAssertNil(error);
+                                                       testConfig = result;
+                                                       [expectation fulfill];
+    }];
 
     [self waitForExpectationsWithTimeout:60 handler:nil];
 
@@ -219,11 +221,14 @@ static MSIDTestConfigurationProvider *s_confProvider;
 - (void)loadPasswordForAccount:(MSIDTestAccount *)account
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
-
-    [self.class.confProvider passwordForAccount:account
-                                  completionHandler:^(NSString *password) {
-                                [expectation fulfill];
-                            }];
+    
+    [self.class.confProvider.passwordRequestHandler loadPasswordForAccount:account
+                                                         completionHandler:^(NSString *password, NSError *error) {
+        
+                                                             XCTAssertNotNil(password);
+                                                             XCTAssertNil(error);
+                                                             [expectation fulfill];
+    }];
 
     [self waitForExpectationsWithTimeout:60 handler:nil];
 
