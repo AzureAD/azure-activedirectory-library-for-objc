@@ -27,5 +27,6 @@
 
 + (NSDictionary *)adURLFormDecode:(NSString *)string;
 - (NSString *)adURLFormEncode;
+- (NSString *)adStringForKey:(NSString *)dictKey;
 
 @end

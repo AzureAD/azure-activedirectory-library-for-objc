@@ -1008,6 +1008,54 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(allItems[0], mrrtItem);
 }
 
+- (void)testAcquireTokenSilent_whenSubErrorNull_shouldReturnMainError
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    ADTestURLResponse* badFRTResponse =
+    [self adResponseBadRefreshToken:@"refresh token"
+                          authority:TEST_AUTHORITY
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+                         oauthError:@"interaction_required"
+                      oauthSubError:[NSNull null]
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+
+    // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
+    [ADTestURLSession addResponse:badFRTResponse];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.error.userInfo[ADSuberrorKey]);
+         XCTAssertNil(result.authority);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    // The MRRT should still be in the cache
+    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
 - (void)testAcquireTokenSilent_whenUnauthorizedClientAndProtectionPoliciesRequired_shouldReturnIntuneError
 {
     ADAuthenticationError* error = nil;
