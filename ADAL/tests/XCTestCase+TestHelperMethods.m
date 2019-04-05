@@ -271,6 +271,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
+                                   oauthSubError:(id)suberror
                                    correlationId:(NSUUID *)correlationId
                                    requestParams:(NSDictionary *)requestParams
 {
@@ -295,6 +296,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
     [requestParamsBody addEntriesFromDictionary:requestParams];
     
+    NSMutableDictionary *responseDict = [NSMutableDictionary new];
+    responseDict[OAUTH2_ERROR] = oauthError;
+    responseDict[OAUTH2_ERROR_DESCRIPTION] = @"oauth error description";
+    responseDict[@"suberror"] = suberror;
+    
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:requestHeaders
@@ -302,8 +308,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
-                       dictionaryAsJSON:@{ OAUTH2_ERROR : oauthError,
-                                           OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
+                       dictionaryAsJSON:responseDict];
     
     return response;
 }
@@ -315,6 +320,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                   resource:TEST_RESOURCE
                                   clientId:TEST_CLIENT_ID
                                 oauthError:oauthError
+                             oauthSubError:nil
                              correlationId:TEST_CORRELATION_ID
                              requestParams:nil];
 

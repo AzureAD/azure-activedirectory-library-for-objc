@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
+#import "NSDictionary+ADExtensions.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -101,30 +102,27 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
-    NSString *serverOAuth2Error = [dictionary objectForKey:OAUTH2_ERROR];
-    if (![NSString adIsStringNilOrBlank:serverOAuth2Error])
+    NSString *serverOAuth2Error = [dictionary adStringForKey:OAUTH2_ERROR];
+    if (serverOAuth2Error)
     {
-        NSString *errorDetails = [dictionary objectForKey:OAUTH2_ERROR_DESCRIPTION];
-        // Error response from the server
-        NSUUID *correlationId = [dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
-                                [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
-                                nil;
+        NSString *responseCorrelationId = [dictionary adStringForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+        NSUUID *correlationId = responseCorrelationId ? [[NSUUID alloc] initWithUUIDString:responseCorrelationId] : nil;
 
         ADErrorCode code = errorCode;
-        NSString *suberror = [dictionary objectForKey:AUTH_SUBERROR];
-        NSMutableDictionary *userInfo = nil;
+        NSString *suberror = [dictionary adStringForKey:AUTH_SUBERROR];
+        NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        userInfo[ADSuberrorKey] = suberror;
+
         if (suberror && [suberror isEqualToString:AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
-            userInfo = [[NSMutableDictionary alloc] initWithCapacity:2];
-            [userInfo setObject:suberror forKey:ADSuberrorKey];
-
-            // check for additional user identifier
-            userInfo[ADUserIdKey] = [dictionary objectForKey:AUTH_ADDITIONAL_USER_IDENTIFIER];
         }
-        
+
+        userInfo[ADUserIdKey] = [dictionary adStringForKey:AUTH_ADDITIONAL_USER_IDENTIFIER];
+        NSString *errorDescription = [dictionary adStringForKey:OAUTH2_ERROR_DESCRIPTION];
+
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error
-                                           description:errorDetails
+                                           description:errorDescription
                                                   code:code
                                          correlationId:correlationId
                                               userInfo:userInfo];

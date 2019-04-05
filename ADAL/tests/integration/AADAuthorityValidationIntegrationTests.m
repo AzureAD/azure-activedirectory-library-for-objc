@@ -744,6 +744,7 @@ CreateAuthContext(NSString *authority,
                            clientId:TEST_CLIENT_ID
      // invalid_grant should result in ADAL tombstoning the token
                          oauthError:@"invalid_grant"
+                      oauthSubError:nil
                       correlationId:TEST_CORRELATION_ID
                       requestParams:nil];
     

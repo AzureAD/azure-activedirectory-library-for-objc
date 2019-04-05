@@ -84,4 +84,21 @@
     return parameters;
 }
 
+- (NSString *)adStringForKey:(NSString *)dictKey
+{
+    if (!dictKey)
+    {
+        return nil;
+    }
+
+    NSString *value = self[dictKey];
+
+    if (![NSString adIsStringNilOrBlank:value])
+    {
+        return value;
+    }
+
+    return nil;
+}
+
 @end

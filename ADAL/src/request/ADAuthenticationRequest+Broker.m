@@ -211,7 +211,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
             ADAuthenticationResult *intuneTokenResult = [[ADTokenCacheItem new] processTokenResponse:intuneTokenResponse
                                                                                     fromRefreshToken:nil
-                                                                                requestCorrelationId:intuneTokenResponse[OAUTH2_CORRELATION_ID_RESPONSE]];
+                                                                                requestCorrelationId:correlationId];
 
             if (!keychainGroup)
             {

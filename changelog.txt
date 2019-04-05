@@ -1,3 +1,7 @@
+Version 2.6.9 (04.05.2019)
+-----------
+* Fix issues when server returns "null" fields in the token response
+
 Version 2.6.8 (12.21.2018)
 -----------
 * Return user displayable ID for Intune app protection scenarios (#1358)
