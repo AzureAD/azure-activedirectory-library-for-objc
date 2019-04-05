@@ -482,6 +482,12 @@
                  [self requestTokenByCode:code
                           completionBlock:^(MSIDTokenResponse *response, ADAuthenticationError *error)
                   {
+                      if (error)
+                      {
+                          completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                          return;
+                      }
+                      
                       ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
                                                                                       fromRefreshToken:nil
                                                                                                  cache:self.tokenCache
