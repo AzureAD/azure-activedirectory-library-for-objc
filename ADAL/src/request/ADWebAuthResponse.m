@@ -337,21 +337,12 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
         MSID_LOG_ERROR_PII(_request, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
     }
     
-    ADAuthenticationError* adError = nil;
     NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[[_request URL] absoluteString]
                                                           challengeData:authHeaderParams
-                                                                context:_request
-                                                                  error:&adError];
-    
-    if (!authHeader)
-    {
-        [self handleADError:adError completionBlock:completionBlock];
-        return;
-    }
+                                                                context:_request];
     
     // Add Authorization response header to the headers of the request
     [_request setAuthorizationHeader:authHeader];
-    
     [_request resend];
 }
 
