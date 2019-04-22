@@ -44,7 +44,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
-#import "MSIDClientCapabilitiesUtil.h"
+#import "ADALClientCapabilitiesUtil.h"
 #import "MSIDConstants.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority+Internal.h"

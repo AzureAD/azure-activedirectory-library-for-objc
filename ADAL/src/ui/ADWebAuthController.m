@@ -35,7 +35,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDAADAuthority.h"
-#import "MSIDClientCapabilitiesUtil.h"
+#import "ADALClientCapabilitiesUtil.h"
 #import "MSIDAADEndpointProvider.h"
 #import "MSIDAuthority+Internal.h"
 
@@ -128,7 +128,7 @@ static ADAuthenticationResult *s_result = nil;
     
     webviewConfig.extraQueryParameters = [NSDictionary msidDictionaryFromURLEncodedString:requestParams.extraQueryParameters];
 
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:requestParams.clientCapabilities developerClaims:requestParams.decodedClaims];
+    NSString *claims = [ADALClientCapabilitiesUtil msidClaimsParameterFromCapabilities:requestParams.clientCapabilities developerClaims:requestParams.decodedClaims];
     
     if (![NSString msidIsStringNilOrBlank:claims])
     {

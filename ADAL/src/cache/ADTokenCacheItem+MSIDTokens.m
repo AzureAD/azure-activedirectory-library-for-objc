@@ -53,6 +53,13 @@
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
         _expiresOn = accessToken.expiresOn;
+        
+        if (accessToken.extendedExpiresOn)
+        {
+            NSMutableDictionary *additionalServer = [[NSMutableDictionary alloc] initWithDictionary:_additionalServer];
+            additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = accessToken.extendedExpiresOn;
+            _additionalServer = additionalServer;
+        }
     }
     
     [self calculateHash];
@@ -169,7 +176,19 @@
     cacheItem.realm = cacheItem.authority.msidTenant;
     cacheItem.homeAccountId = self.userInformation.homeAccountId;
     cacheItem.credentialType = [MSIDCredentialTypeHelpers credentialTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
-    cacheItem.additionalInfo = self.additionalServer;
+    
+    if (self.additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY])
+    {
+        cacheItem.extendedExpiresOn = self.additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+        NSMutableDictionary *additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalServer];
+        [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+        cacheItem.additionalInfo = additionalServer;
+    }
+    else
+    {
+        cacheItem.additionalInfo = self.additionalServer;
+    }
+    
     return cacheItem;
 }
 
