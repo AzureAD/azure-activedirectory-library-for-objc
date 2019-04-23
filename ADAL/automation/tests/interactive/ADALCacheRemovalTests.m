@@ -25,6 +25,7 @@
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCUIElement+CrossPlat.h"
 #import "MSIDAutomationActionConstants.h"
+#import "ADErrorCodes.h"
 
 @interface ADALCacheRemovalTests : ADALBaseUITest
 
@@ -36,7 +37,7 @@
 {
     [super setUp];
     
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
     [self loadTestConfiguration:configurationRequest];
@@ -57,7 +58,7 @@
     [self closeResultView];
 
     [self acquireTokenSilent:[self configWithTestRequest:firstLabAppRequest]];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
     [self closeResultView];
 
     MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
@@ -81,14 +82,14 @@
     MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
     firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
     [self acquireTokenSilent:[self configWithTestRequest:firstLabAppRequest]];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
     [self closeResultView];
     
     // Silent for account 2, app 1
     MSIDAutomationTestRequest *secondLabAppRequest = [self.class.confProvider defaultAppRequest];
     secondLabAppRequest.legacyAccountIdentifier = [self.testConfiguration.accounts[1] account];
     [self acquireTokenSilent:[self configWithTestRequest:secondLabAppRequest]];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
     [self closeResultView];
     
     // Silent for account 1, app 2, should succeed
@@ -113,7 +114,7 @@
     MSIDAutomationTestRequest *firstLabAppRequest = [self.class.confProvider defaultAppRequest];
     firstLabAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
     [self acquireTokenSilent:[self configWithTestRequest:firstLabAppRequest]];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
     [self closeResultView];
     
     // Silent for account 2, app 1
@@ -127,7 +128,7 @@
     MSIDAutomationTestRequest *firstFociAppRequest = [self.class.confProvider defaultFociRequestWithoutBroker];
     firstFociAppRequest.legacyAccountIdentifier = self.primaryAccount.account;
     [self acquireTokenSilent:[self configWithTestRequest:firstFociAppRequest]];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
     [self closeResultView];
 }
 

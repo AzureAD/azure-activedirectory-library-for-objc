@@ -24,6 +24,7 @@
 #import "ADALBaseUITest.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "MSIDAutomationSuccessResult.h"
+#import "ADErrorCodes.h"
 
 @interface ADALOnPremLoginTests : ADALBaseUITest
 
@@ -33,7 +34,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityFalse_loginHint_ADALWebView_ADFSv3
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
@@ -92,7 +93,7 @@
 
 - (void)testInteractiveOnpremLogin_withPromptAuto_ValidateAuthorityFalse_loginHint_ADALInWebView_ADFSv3
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
@@ -119,7 +120,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_noLoginHint_ADFSv3_shouldFailWithoutUPN
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
@@ -132,13 +133,13 @@
     
     NSDictionary *config = [self configWithTestRequest:adfsRequest];
     [self acquireToken:config];
-    [self assertErrorCode:@"AD_ERROR_DEVELOPER_INVALID_ARGUMENT"];
+    [self assertErrorCode:AD_ERROR_DEVELOPER_INVALID_ARGUMENT];
 }
 
 // TODO: re-enable once ADFSv3 authority validation is not broken anymore
 - (void)DISABLED_testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADFSv3
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv3;
     configurationRequest.accountFeatures = @[];
@@ -164,7 +165,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityTrue_loginHint_ADALWebView_ADFSv4
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;
@@ -194,7 +195,7 @@
 
 - (void)testInteractiveOnPremLogin_withPromptAlways_ValidateAuthorityFalse_loginHint_ADALWebView_ADFSv4
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.appVersion = MSIDAppVersionOnPrem;
     configurationRequest.accountProvider = MSIDTestAccountProviderADfsv4;

@@ -26,6 +26,7 @@
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "XCUIElement+CrossPlat.h"
+#import "ADErrorCodes.h"
 
 @interface ADALNTLMLoginTests : ADALBaseUITest
 
@@ -37,7 +38,7 @@
 {
     [super setUp];
 
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderNTLM;
     configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = NO;
@@ -111,7 +112,7 @@
     [self ntlmCancel];
     [self closeAuthUI];
     
-    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
+    [self assertErrorCode:AD_ERROR_UI_USER_CANCEL];
     
     [self closeResultView];
     
