@@ -1,3 +1,9 @@
+Version 2.7.10 (04.24.2018)
+-----------
+* Hotfix to add compiler flag to disable Kerberos (#1401)
+* Nullability fixes (#1404)
+* Better handle system errors at token redemption (#1400)
+
 Version 2.7.9 (03.06.2018)
 -----------
 * Hotfix for Mac OS to query WPJ cert using issuers from authentication challenge.
