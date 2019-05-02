@@ -139,7 +139,15 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     //otherwise just complete and return.
     if (_parentController)
     {
-        [_parentController dismissViewControllerAnimated:YES completion:completion];
+        if (_parentController.parentViewController && _parentController.presentedViewController)
+        {
+            [_parentController dismissViewControllerAnimated:YES completion:completion];
+        }
+        else
+        {
+            [_parentController dismissViewControllerAnimated:NO completion:nil];
+            completion();
+        }
     }
     else
     {
