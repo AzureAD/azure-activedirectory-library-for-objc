@@ -1,3 +1,9 @@
+Version 2.7.10 (04.24.2018)
+-----------
+* Hotfix to add compiler flag to disable Kerberos (#1401)
+* Nullability fixes (#1404)
+* Better handle system errors at token redemption (#1400)
+
 Version 2.7.9 (03.06.2018)
 -----------
 * Hotfix for Mac OS to query WPJ cert using issuers from authentication challenge.
@@ -26,6 +32,10 @@ Version 2.7.4 (10.30.2018)
 * Added support to send claims to the token endpoint (#1272)
 * Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
 * Improve co-existence with ADAL.NET
+
+Version 2.6.9 (04.05.2019)
+-----------
+* Fix issues when server returns "null" fields in the token response
 
 Version 2.6.8 (12.21.2018)
 -----------

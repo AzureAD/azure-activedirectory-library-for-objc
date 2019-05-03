@@ -307,12 +307,15 @@
         }
         else
         {
-            NSDictionary *underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-            ADAuthenticationError *error =
+            NSMutableDictionary *underlyingUserInfo = [NSMutableDictionary new];
+            [underlyingUserInfo addEntriesFromDictionary:_underlyingError.userInfo];
+            underlyingUserInfo[NSUnderlyingErrorKey] = _underlyingError;
+            
+            ADAuthenticationError* error =
             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                    protocolCode:nil
                                                    errorDetails:ADCredentialsNeeded
-                                                       userInfo:underlyingError
+                                                       userInfo:underlyingUserInfo
                                                   correlationId:correlationId];
             result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
@@ -482,6 +485,12 @@
                  [self requestTokenByCode:code
                           completionBlock:^(MSIDTokenResponse *response, ADAuthenticationError *error)
                   {
+                      if (error)
+                      {
+                          completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                          return;
+                      }
+                      
                       ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
                                                                                       fromRefreshToken:nil
                                                                                                  cache:self.tokenCache

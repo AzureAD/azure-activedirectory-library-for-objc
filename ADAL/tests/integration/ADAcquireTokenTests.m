@@ -88,6 +88,7 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     
     [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
+    [ADTestAuthenticationViewController reset];
     
 #if TARGET_OS_IPHONE
     [MSIDKeychainTokenCache reset];
@@ -949,6 +950,151 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(allItems[0], mrrtItem);
 }
 
+- (void)testAcquireTokenSilent_whenInteractionRequiredError_andSubError_shouldReturnSuberror
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [self.cacheDataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* badFRTResponse =
+    [self adResponseBadRefreshToken:@"refresh token"
+                          authority:TEST_AUTHORITY
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+                         oauthError:@"interaction_required"
+                      oauthSubError:@"basic_action"
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+    
+    // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
+    [ADTestURLSession addResponse:badFRTResponse];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"basic_action");
+         XCTAssertNil(result.authority);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // The MRRT should still be in the cache
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
+- (void)testAcquireTokenSilent_whenSubErrorNull_shouldReturnMainError
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [self.cacheDataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+
+    ADTestURLResponse* badFRTResponse =
+    [self adResponseBadRefreshToken:@"refresh token"
+                          authority:TEST_AUTHORITY
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+                         oauthError:@"interaction_required"
+                      oauthSubError:[NSNull null]
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+
+    // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
+    [ADTestURLSession addResponse:badFRTResponse];
+
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertNil(result.error.userInfo[ADSuberrorKey]);
+         XCTAssertNil(result.authority);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    // The MRRT should still be in the cache
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
+- (void)testAcquireTokenSilent_whenUnauthorizedClientAndProtectionPoliciesRequired_shouldReturnIntuneError
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [self.cacheDataSource addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* badFRTResponse =
+    [self adResponseBadRefreshToken:@"refresh token"
+                          authority:TEST_AUTHORITY
+                           resource:TEST_RESOURCE
+                           clientId:TEST_CLIENT_ID
+                         oauthError:@"unauthorized_client"
+                      oauthSubError:@"protection_policy_required"
+                      correlationId:TEST_CORRELATION_ID
+                      requestParams:nil];
+    
+    // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
+    [ADTestURLSession addResponse:badFRTResponse];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED);
+         XCTAssertEqualObjects(result.error.protocolCode, @"unauthorized_client");
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"protection_policy_required");
+         XCTAssertNil(result.authority);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    // The MRRT should still be in the cache
+    NSArray* allItems = [self.cacheDataSource allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
 - (void)testMRRTUnauthorizedClient
 {
     // Refresh tokens should only be deleted when the server returns a 'invalid_grant' error
@@ -1781,7 +1927,6 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testAcquireTokenInteractive_whenCapabilitiesAndClaimsPassed_shouldPassClaimsToServer
 {
-    NSString *authority = TEST_AUTHORITY;
     NSString *authCode = @"i_am_a_auth_code";
 
     // Setup response
@@ -1813,7 +1958,7 @@ const int sAsyncContextTimeout = 10;
 
     [ADTestURLSession addResponse:response];
 
-    ADAuthenticationContext *context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:nil];
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTAssertNotNil(context);
 
     __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
@@ -3385,6 +3530,62 @@ const int sAsyncContextTimeout = 10;
      }];
     
     [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testAcquireTokenInteractive_whenSystemErrorWhileAccessingTokenEndpoint_shouldSurfaceSystemError
+{
+    // Setup successful response at auth endpoint
+    NSString *authCode = @"i_am_a_auth_code";
+    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
+    [ADTestAuthenticationViewController onLoadRequest:^(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate) {
+        XCTAssertNotNil(urlRequest);
+
+        NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
+        [delegate webAuthDidCompleteWithURL:endURL];
+        [expectation1 fulfill];
+    }];
+
+    // Setup up system error response at token endpoint
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", TEST_AUTHORITY];
+    NSMutableDictionary* headers = [[ADTestURLResponse defaultHeaders] mutableCopy];
+    headers[@"client-request-id"] = [TEST_CORRELATION_ID UUIDString];
+
+    NSError *systemError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil];
+    NSURL *requestUrl = [NSURL URLWithString:requestUrlString];
+    ADTestURLResponse* response = [ADTestURLResponse request:requestUrl respondWithError:systemError];
+    [response setRequestHeaders:headers];
+    [response setUrlFormEncodedBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_AUTHORIZATION_CODE,
+                                       MSID_OAUTH2_CODE : authCode,
+                                       MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                       MSID_OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING,
+                                       MSID_OAUTH2_CLIENT_INFO: @"1"
+                                       }];
+
+    [ADTestURLSession addResponse:response];
+
+    // Acquire token should surface the system error
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    XCTAssertNotNil(context);
+    context.correlationId = TEST_CORRELATION_ID;
+
+    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"acquire token"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:nil
+                 extraQueryParameters:nil
+                               claims:nil
+                      completionBlock:^(ADAuthenticationResult *result) {
+
+                          XCTAssertNotNil(result);
+                          XCTAssertEqual(result.status, AD_FAILED);
+                          XCTAssertEqual(result.error.domain, NSURLErrorDomain);
+                          XCTAssertEqual(result.error.code, NSURLErrorNotConnectedToInternet);
+                          [expectation2 fulfill];
+                      }];
+
+    [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
 }
 
 @end

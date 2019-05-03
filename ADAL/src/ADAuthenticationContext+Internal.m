@@ -25,6 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -52,28 +53,27 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
-    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
-    if (![NSString msidIsStringNilOrBlank:serverOAuth2Error])
+    NSString *serverOAuth2Error = [dictionary msidStringForKey:MSID_OAUTH2_ERROR];
+    if (serverOAuth2Error)
     {
-        NSString *errorDetails = [dictionary objectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
-        // Error response from the server
-        NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
-                                [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:
-                                nil;
+        NSString *responseCorrelationId = [dictionary msidStringForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+        NSUUID *correlationId = responseCorrelationId ? [[NSUUID alloc] initWithUUIDString:responseCorrelationId] : nil;
 
         ADErrorCode code = errorCode;
-        NSString *suberror = [dictionary objectForKey:ADAL_AUTH_SUBERROR];
-        NSMutableDictionary *userInfo = nil;
+        NSString *suberror = [dictionary msidStringForKey:ADAL_AUTH_SUBERROR];
+        NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        userInfo[ADSuberrorKey] = suberror;
+
         if (suberror && [suberror isEqualToString:ADAL_AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
-            userInfo = [[NSMutableDictionary alloc] initWithCapacity:2];
-            userInfo[ADSuberrorKey] = suberror;
-            userInfo[ADUserIdKey] = dictionary[ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER];
         }
-        
+
+        userInfo[ADUserIdKey] = [dictionary msidStringForKey:ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER];
+        NSString *errorDescription = [dictionary msidStringForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error
-                                           description:errorDetails
+                                           description:errorDescription
                                                   code:code
                                          correlationId:correlationId
                                               userInfo:userInfo];
