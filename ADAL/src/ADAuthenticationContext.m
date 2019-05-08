@@ -35,6 +35,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem.h"
+#import "NSDictionary+ADExtensions.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -234,7 +235,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
 #endif
     
-    return response && isBroker;
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qp = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    
+    NSString *protocolVersion = queryParamsMap[@"msg_protocol_ver"];
+    BOOL isValidVersion = [protocolVersion isEqualToString:@"2"];
+    
+    return response && isBroker && isValidVersion;
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response

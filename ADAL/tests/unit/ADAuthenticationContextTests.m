@@ -132,4 +132,24 @@
     XCTAssertNil(error);
 }
 
+- (void)testIsResponseFromBroker_whenProtocolVersionIs2_shouldReturnYes
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext isResponseFromBroker:sourceApp response:url];
+    
+    XCTAssertTrue(result);
+}
+
+- (void)testIsResponseFromBroker_whenProtocolVersionIs3_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext isResponseFromBroker:sourceApp response:url];
+    
+    XCTAssertFalse(result);
+}
+
 @end
