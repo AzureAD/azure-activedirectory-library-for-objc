@@ -36,6 +36,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADAuthenticationRequest+Broker.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -242,7 +243,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     NSString *protocolVersion = queryParamsMap[@"msg_protocol_ver"];
     BOOL isValidVersion = [protocolVersion isEqualToString:@"2"];
     
-    return response && isBroker && isValidVersion;
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc];
+    
+    return response && isBroker && isValidVersion && isADALInitiatedRequest;
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response
