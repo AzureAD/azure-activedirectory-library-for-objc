@@ -237,17 +237,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
 #endif
     
-    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
-    NSString *qp = [components percentEncodedQuery];
-    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    
-    NSString *protocolVersion = queryParamsMap[BROKER_MESSAGE_VERSION];
-    BOOL isValidVersion = [protocolVersion isEqualToString:ADAL_BROKER_MESSAGE_VERSION];
-    
-    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
-    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc];
-    
-    return response && isBroker && isValidVersion && isADALInitiatedRequest;
+    return response && isBroker;
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response

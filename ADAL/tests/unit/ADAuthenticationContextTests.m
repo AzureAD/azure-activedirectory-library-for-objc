@@ -147,36 +147,36 @@
     XCTAssertTrue(result);
 }
 
-- (void)testIsResponseFromBroker_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdal_shouldReturnNo
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdal_shouldReturnNo
 {
     NSDictionary *resumeDictionary = @{kAdalSDKNameKey: @"msal-objc"};
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
     NSString *sourceApp = @"com.microsoft.azureauthenticator";
     
-    BOOL result = [ADAuthenticationContext isResponseFromBroker:sourceApp response:url];
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
     
     XCTAssertFalse(result);
 }
 
-- (void)testIsResponseFromBroker_whenProtocolVersionIs2AndNoResumeDictionary_shouldReturnNo
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndNoResumeDictionary_shouldReturnNo
 {
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
     NSString *sourceApp = @"com.microsoft.azureauthenticator";
     
-    BOOL result = [ADAuthenticationContext isResponseFromBroker:sourceApp response:url];
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
     
     XCTAssertFalse(result);
 }
 
-- (void)testIsResponseFromBroker_whenProtocolVersionIs3AndRequestIntiatedByAdal_shouldReturnNo
+- (void)testCanHandleResponse_whenProtocolVersionIs3AndRequestIntiatedByAdal_shouldReturnNo
 {
     NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
     NSString *sourceApp = @"com.microsoft.azureauthenticator";
     
-    BOOL result = [ADAuthenticationContext isResponseFromBroker:sourceApp response:url];
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
     
     XCTAssertFalse(result);
 }

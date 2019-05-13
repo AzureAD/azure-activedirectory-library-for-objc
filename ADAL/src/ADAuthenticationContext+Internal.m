@@ -226,4 +226,23 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     return result;
 }
 
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication
+{
+    BOOL isResponseFromBroker = [self isResponseFromBroker:sourceApplication response:response];
+    if (!isResponseFromBroker) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qp = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    
+    NSString *protocolVersion = queryParamsMap[BROKER_MESSAGE_VERSION];
+    BOOL isValidVersion = [protocolVersion isEqualToString:ADAL_BROKER_MESSAGE_VERSION];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc];
+    
+    return isValidVersion && isADALInitiatedRequest;
+}
+
 @end
