@@ -26,7 +26,9 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
 #import "NSDictionary+ADExtensions.h"
+#if TARGET_OS_IPHONE
 #import "ADBrokerNotificationManager.h"
+#endif
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
