@@ -27,18 +27,16 @@
 #import "ADAuthorityValidation.h"
 #import "ADErrorCodes.h"
 #import "ADHelpers.h"
-#import "ADLogger+Internal.h"
-#import "ADOAuth2Constants.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
-#import "ADTelemetryHttpEvent.h"
-#import "ADTelemetryEventStrings.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryHttpEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 #import "ADURLProtocol.h"
 #import "ADWebResponse.h"
-
-#import "NSURL+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
-
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDDeviceId.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority.h"
 
 @interface ADWebRequest ()
 
@@ -83,7 +81,7 @@
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)requestURL
-          context:(id<ADRequestContext>)context
+          context:(id<MSIDRequestContext>)context
 {
     if (!(self = [super init]))
     {
@@ -99,6 +97,8 @@
     _correlationId     = context.correlationId;
     
     _telemetryRequestId = context.telemetryRequestId;
+    
+    _logComponent       = context.logComponent;
     
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
@@ -138,12 +138,12 @@
 
 - (void)send
 {
-    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
-    [_requestHeaders addEntriesFromDictionary:[ADLogger adalMetadata]];
+    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_REQUEST];
+    [_requestHeaders addEntriesFromDictionary:[MSIDDeviceId deviceId]];
 
-    if (self.requestMetadata)
+    if (self.appRequestMetadata)
     {
-        [_requestHeaders addEntriesFromDictionary:self.requestMetadata];
+        [_requestHeaders addEntriesFromDictionary:self.appRequestMetadata];
     }
 
     //Correlation id:
@@ -151,17 +151,20 @@
     {
         [_requestHeaders addEntriesFromDictionary:
          @{
-           OAUTH2_CORRELATION_ID_REQUEST:@"true",
-           OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
+           MSID_OAUTH2_CORRELATION_ID_REQUEST:@"true",
+           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
-    // If there is request data, then set the Content-Length header
-    if ( _requestData != nil )
+
+    NSURL *requestURL = _requestURL;
+    __auto_type factory = [MSIDAuthorityFactory new];
+    __auto_type authority = [factory authorityFromUrl:requestURL context:self error:nil];
+    __auto_type authorityUrl = [authority networkUrlWithContext:self];
+    if (authorityUrl)
     {
-        [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
+        // Replace request's url with authority's network host.
+        requestURL = [requestURL msidURLForPreferredHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
     }
-    
-    NSURL *requestURL = [[ADAuthorityValidation sharedInstance] networkUrlForAuthority:_requestURL context:self];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData
@@ -239,7 +242,7 @@
     (void)task;
     
     NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.requestMetadata];
+    NSURL* modifiedURL = [ADHelpers addClientMetadataToURL:requestURL metadata:self.appRequestMetadata];
     
     if (modifiedURL == requestURL)
     {
@@ -257,11 +260,11 @@
 - (void)stopTelemetryEvent:(NSError *)error
                   response:(ADWebResponse *)response
 {
-    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST requestId:_telemetryRequestId correlationId:_correlationId];
+    MSIDTelemetryHttpEvent* event = [[MSIDTelemetryHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_REQUEST requestId:_telemetryRequestId correlationId:_correlationId];
     
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
-    [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
+    [event setHttpRequestIdHeader:[response.headers objectForKey:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
     if (error)
     {
         [event setHttpErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
@@ -272,12 +275,12 @@
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
     
-    [event setOAuthErrorCode:response];
+    [event setOAuthErrorCodeFromResponseData:response.body];
     [event setClientTelemetry:[response headers][ADAL_CLIENT_TELEMETRY]];
     
     [event setHttpRequestQueryParams:_requestURL.query];
     
-    [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
 }
 
 - (void)addToHeadersFromDictionary:(NSDictionary *)headers

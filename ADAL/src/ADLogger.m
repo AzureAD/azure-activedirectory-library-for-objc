@@ -21,61 +21,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAL_Internal.h"
-#import "ADOAuth2Constants.h"
-#import "ADLogger+Internal.h"
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/machine.h>
-#include <CommonCrypto/CommonDigest.h>
+#import "ADLogger.h"
+#import "MSIDLogger+Internal.h"
 
-@protocol LoggerContext <NSObject>
-
-- (NSString *)component;
-
-@end
-
-static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
-static BOOL s_piiEnabled = NO;
 static LogCallback s_OldCallback = nil;
 static ADLoggerCallback s_LoggerCallback = nil;
-static BOOL s_NSLogging = YES;
-static NSString* s_OSString = @"UnkOS";
 
 static NSMutableDictionary* s_adalFullMetadata = nil;
 
-static dispatch_once_t s_logOnce;
-
 @implementation ADLogger
 
-+ (void)initialize
-{
-#if TARGET_OS_IPHONE
-    UIDevice* device = [UIDevice currentDevice];
+#pragma mark - Log callback
 
-#if TARGET_OS_SIMULATOR
-    s_OSString = [NSString stringWithFormat:@"iOS Sim %@", device.systemVersion];
-#else
-    s_OSString = [NSString stringWithFormat:@"iOS %@", device.systemVersion];
-#endif
-#elif TARGET_OS_WATCH
-#error watchOS is not supported
-#elif TARGET_OS_TV
-#error tvOS is not supported
-#else
-    NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-    s_OSString = [NSString stringWithFormat:@"Mac %ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
-#endif
++ (void)load
+{
+    [self setupLogCallback];
 }
 
-+ (void)setLevel:(ADAL_LOG_LEVEL)logLevel
++ (void)setupLogCallback
 {
-    s_LogLevel = logLevel;
-}
-
-+ (ADAL_LOG_LEVEL)getLevel
-{
-    return s_LogLevel;
+    // Because ADAL theoretically allows changing log callbacks, ADLogger will register its own callback and forward logs
+    // We want the shared callback to be set as early as possible
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
+            
+            @synchronized (self) //Guard against thread-unsafe callback and modification of sLogCallback after the check
+            {
+                if (s_LoggerCallback)
+                {
+                    s_LoggerCallback((ADAL_LOG_LEVEL)level, message, containsPII);
+                }
+                else if (s_OldCallback)
+                {
+                    NSString *msg = containsPII ? @"PII message" : message;
+                    NSString *additionalMessage = containsPII ? message : nil;
+                    
+                    s_OldCallback((ADAL_LOG_LEVEL)level, msg, additionalMessage, 0, nil);
+                }
+            }
+        }];
+    });
 }
 
 + (void)setLogCallBack:(LogCallback)callback
@@ -94,242 +80,38 @@ static dispatch_once_t s_logOnce;
     }
 }
 
++ (void)setLevel:(ADAL_LOG_LEVEL)logLevel
+{
+    [MSIDLogger sharedLogger].level = (MSIDLogLevel)logLevel;
+}
+
++ (ADAL_LOG_LEVEL)getLevel
+{
+    return (ADAL_LOG_LEVEL)[MSIDLogger sharedLogger].level;
+}
+
+#pragma mark - NSLogging
+
 + (void)setNSLogging:(BOOL)nslogging
 {
-    s_NSLogging = nslogging;
+    [MSIDLogger sharedLogger].NSLoggingEnabled = nslogging;
 }
 
 + (BOOL)getNSLogging
 {
-    return s_NSLogging;
+    return [MSIDLogger sharedLogger].NSLoggingEnabled;
 }
+
+#pragma mark - Pii switch
 
 + (void)setPiiEnabled:(BOOL)piiEnabled
 {
-    s_piiEnabled = piiEnabled;
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = piiEnabled;
 }
 
 + (BOOL)getPiiEnabled
 {
-    return s_piiEnabled;
-}
-
-@end
-
-@implementation ADLogger (Internal)
-
-+ (NSString*)stringForLevel:(ADAL_LOG_LEVEL)level
-{
-    switch (level)
-    {
-        case ADAL_LOG_LEVEL_ERROR: return @"ERROR";
-        case ADAL_LOG_LEVEL_WARN: return @"WARNING";
-        case ADAL_LOG_LEVEL_INFO: return @"INFO";
-        case ADAL_LOG_LEVEL_VERBOSE: return @"VERBOSE";
-        case ADAL_LOG_LEVEL_NO_LOG: return @"NONE";
-    }
-}
-
-+ (void)log:(ADAL_LOG_LEVEL)level
-    context:(id)context
-correlationId:(NSUUID*)correlationId
- isPii:(BOOL)isPii
-     format:(NSString *)format, ...
-{
-    if (isPii && !s_piiEnabled)
-    {
-        return;
-    }
-    
-    if (!format)
-    {
-        return;
-    }
-    
-    va_list args;
-    va_start(args, format);
-    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
-    
-    static NSDateFormatter* s_dateFormatter = nil;
-    static dispatch_once_t s_dateOnce;
-    
-    dispatch_once(&s_dateOnce, ^{
-        s_dateFormatter = [[NSDateFormatter alloc] init];
-        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    });
-    
-    //Note that the logging should not throw, as logging is heavily used in error conditions.
-    //Hence, the checks below would rather swallow the error instead of throwing and changing the
-    //program logic.
-    if (level <= ADAL_LOG_LEVEL_NO_LOG)
-        return;
-    
-    @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
-    {
-        if (!(level <= s_LogLevel && (s_LoggerCallback || s_OldCallback || s_NSLogging)))
-        {
-            return;
-        }
-        
-        NSString* component = @"";
-        if ([context respondsToSelector:@selector(component)])
-        {
-            id compRet = [context component];
-            if ([compRet isKindOfClass:[NSString class]])
-            {
-                component = [NSString stringWithFormat:@" [%@]", compRet];
-            }
-        }
-        
-        NSString* correlationIdStr = @"";
-        if (correlationId)
-        {
-            correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
-        }
-        
-        NSString* dateString =  [s_dateFormatter stringFromDate:[NSDate date]];
-        if (s_NSLogging)
-        {
-            NSString* levelString = [self stringForLevel:level];
-            
-            NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@: %@", s_OSString, dateString, correlationIdStr,
-                             component, levelString, message];
-            
-            //NSLog is documented as thread-safe:
-            NSLog(@"%@", msg);
-        }
-        
-        NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
-        
-        if (s_LoggerCallback)
-        {
-            s_LoggerCallback(level, msg, isPii);
-        }
-        else if (s_OldCallback)
-        {
-            NSString *message = isPii ? @"PII message" : msg;
-            NSString *additionalMessage = isPii ? msg : nil;
-            
-            s_OldCallback(level, message, additionalMessage, 0, nil);
-        }
-    }
-}
-
-//Extracts the CPU information according to the constants defined in
-//machine.h file. The method prints minimal information - only if 32 or
-//64 bit CPU architecture is being used.
-+ (NSString*)getCPUInfo
-{
-    size_t structSize;
-    cpu_type_t cpuType;
-    structSize = sizeof(cpuType);
-    
-    //Extract the CPU type. E.g. x86. See machine.h for details
-    //See sysctl.h for details.
-    int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
-    if (result)
-    {
-        AD_LOG_WARN(nil, @"Cannot extract cpu type. Error: %d", result);
-        
-        return nil;
-    }
-    
-    return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
-}
-
-+ (NSDictionary*)adalMetadata
-{
-    dispatch_once(&s_logOnce, ^{
-
-        NSMutableDictionary *metadata = [NSMutableDictionary new];
-
-#if TARGET_OS_IPHONE
-        //iOS:
-        UIDevice* device = [UIDevice currentDevice];
-
-        metadata[ADAL_ID_PLATFORM] = @"iOS";
-        metadata[ADAL_ID_OS_VER] = device.systemVersion;
-        metadata[ADAL_ID_DEVICE_MODEL] = device.model;
-        metadata[ADAL_ID_VERSION] = ADAL_VERSION_NSSTRING;
-#else
-        NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-
-        metadata[ADAL_ID_PLATFORM] = @"OSX";
-        metadata[ADAL_ID_VERSION] = [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
-        metadata[ADAL_ID_OS_VER] = [NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
-#endif
-        NSString* CPUVer = [self getCPUInfo];
-        if (![NSString adIsStringNilOrBlank:CPUVer])
-        {
-            [metadata setObject:CPUVer forKey:ADAL_ID_CPU];
-        }
-        
-        s_adalFullMetadata = metadata;
-    });
-    
-    return s_adalFullMetadata;
-}
-
-+ (void)setAdalVersion:(NSString*)version
-{
-    [s_adalFullMetadata setObject:version forKey:ADAL_ID_VERSION];
-}
-
-+ (NSString*)getHash:(NSString*)input
-{
-    if (!input)
-    {
-        return nil;//Handle gracefully
-    }
-    const char* inputStr = [input UTF8String];
-    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
-    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
-    {
-        [toReturn appendFormat:@"%02x", hash[i]];
-    }
-    
-    // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
-    return [toReturn substringToIndex:7];
-}
-
-+ (NSString*)getAdalVersion
-{
-    return ADAL_VERSION_NSSTRING;
-}
-
-+ (void)logToken:(NSString *)token
-       tokenType:(NSString *)tokenType
-       expiresOn:(NSDate *)expiresOn
-         context:(NSString *)context
-   correlationId:(NSUUID *)correlationId
-{
-    NSMutableString* logString = nil;
-    
-    if (context)
-    {
-        [logString appendFormat:@"%@ ", context];
-    }
-    
-    [logString appendFormat:@"%@ (%@)", tokenType, [self getHash:token]];
-    
-    if (expiresOn)
-    {
-        [logString appendFormat:@" expires on %@", expiresOn];
-    }
-    
-    AD_LOG_INFO_PII(correlationId, @"%@", logString);
-}
-
-+ (void)setIdValue:(NSString*)value
-            forKey:(NSString*)key
-{
-    [self adalMetadata];
-    
-    [s_adalFullMetadata setObject:value forKey:key];
+    return [MSIDLogger sharedLogger].PiiLoggingEnabled;
 }
 
 @end

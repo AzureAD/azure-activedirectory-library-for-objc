@@ -25,7 +25,6 @@
 #import "ADKeychainUtil.h"
 #import "ADRegistrationInformation.h"
 #import "ADWorkPlaceJoinConstants.h"
-#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADAL_Internal.h"
 
@@ -52,8 +51,9 @@
 }
 
 
-+ (ADRegistrationInformation*)getRegistrationInformation:(id<ADRequestContext>)context
-                                                   error:(ADAuthenticationError * __autoreleasing *)error
++ (ADRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
+                                             urlChallenge:(NSURLAuthenticationChallenge *)challenge
+                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString* teamId = [ADKeychainUtil keychainTeamId:error];
 
@@ -74,8 +74,8 @@
     NSString* sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
 #endif
     
-    AD_LOG_VERBOSE(nil, @"Attempting to get registration information - shared access Group");
-    AD_LOG_VERBOSE_PII(nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
+    MSID_LOG_VERBOSE(nil, @"Attempting to get registration information - shared access Group");
+    MSID_LOG_VERBOSE_PII(nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
     
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;

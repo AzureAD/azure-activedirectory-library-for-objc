@@ -21,13 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAL_Internal.h"
 #import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
-#import "NSString+ADHelperMethods.h"
 
 @implementation ADAuthenticationParameters
 
@@ -80,9 +78,8 @@
 
     ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl context:nil];
     [request setIsGetRequest:YES];
-
-    AD_LOG_VERBOSE(nil, @"Starting authorization challenge request.");
-    AD_LOG_VERBOSE_PII(nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
+    MSID_LOG_VERBOSE(nil, @"Starting authorization challenge request.");
+    MSID_LOG_VERBOSE_PII(nil, @"Starting authorization challenge request. Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {
         ADAuthenticationError* adError = nil;
@@ -116,7 +113,7 @@
 {
     // Handle 401 Unauthorized using the OAuth2 Implicit Profile
     NSString  *authenticateHeader = [headers valueForKey:OAuth2_Authenticate_Header];
-    if ([NSString adIsStringNilOrBlank:authenticateHeader])
+    if ([NSString msidIsStringNilOrBlank:authenticateHeader])
     {
         NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
         [self raiseErrorWithCode:AD_ERROR_SERVER_MISSING_AUTHENTICATE_HEADER details:details error:error];
@@ -124,8 +121,8 @@
         return nil;
     }
     
-    AD_LOG_INFO(nil, @"Retrieved authenticate header");
-    AD_LOG_INFO_PII(nil, @"Retrieved authenticate header: %@", authenticateHeader);
+    MSID_LOG_INFO(nil, @"Retrieved authenticate header");
+    MSID_LOG_INFO_PII(nil, @"Retrieved authenticate header: %@", authenticateHeader);
     return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 

@@ -200,7 +200,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)\\s*=\\s*\"([^\"]*?)\
     }
     
     for (NSString *item in items) {
-        if ([NSString adIsStringNilOrBlank:item]) {
+        if ([NSString msidIsStringNilOrBlank:item]) {
             // Blank item found -- invalid header.
             return nil;
         }

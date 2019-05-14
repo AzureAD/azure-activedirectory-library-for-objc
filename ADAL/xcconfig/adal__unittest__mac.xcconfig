@@ -1,0 +1,8 @@
+//
+//  adal__unittest__mac.xcconfig
+//
+
+#include "adal__test__common__mac.xcconfig"
+#include "adal__unittest.xcconfig"
+
+INFOPLIST_FILE = tests/unit/mac/ADAL_Mac_UTs-Info.plist

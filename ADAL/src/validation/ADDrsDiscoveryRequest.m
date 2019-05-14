@@ -24,14 +24,12 @@
 
 #import "ADDrsDiscoveryRequest.h"
 #import "ADWebAuthRequest.h"
-#import "ADOAuth2Constants.h"
 
 @implementation ADDrsDiscoveryRequest
 
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
                             adfsType:(AdfsType)type
-                             context:(id<ADRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
+                             context:(id<MSIDRequestContext>)context
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
     NSURL *url = [self urlForDrsDiscoveryForDomain:domain adfsType:type];
@@ -39,7 +37,7 @@
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
     [webRequest setIsGetRequest:YES];
     [webRequest setAcceptOnlyOKResponse:YES];
-    [webRequest setRequestMetadata:metadata];
+    [webRequest setAppRequestMetadata:context.appRequestMetadata];
     
     [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {

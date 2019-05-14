@@ -27,11 +27,8 @@
 #import "ADAuthorityValidation.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "NSDictionary+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
-#import "NSURL+ADExtensions.h"
 #import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
+#import "MSIDTelemetry+Internal.h"
 #import "NSString+ADURLExtensions.h"
 
 #if TARGET_OS_IPHONE
@@ -46,11 +43,17 @@
 static ADAuthenticationRequest* s_modalRequest = nil;
 static dispatch_semaphore_t s_interactionLock = nil;
 
+@interface ADAuthenticationRequest()
+
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+
+@end
+
 @implementation ADAuthenticationRequest
 
 @synthesize logComponent = _logComponent;
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(nil, @#_X " must not be nil!"); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { MSID_LOG_ERROR(nil, @#_X " must not be nil!"); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
@@ -65,43 +68,23 @@ static dispatch_semaphore_t s_interactionLock = nil;
     s_interactionLock = dispatch_semaphore_create(1);
 }
 
-+ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
-{
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:NO error:nil];
-    
-    return [self requestWithContext:context];
-}
-
-+ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context
-{
-    ADAuthenticationRequest* request = [[ADAuthenticationRequest alloc] init];
-    if (!request)
-    {
-        return nil;
-    }
-    
-    request->_context = context;
-    ADRequestParameters *params = [ADRequestParameters new];
-    params.authority = context.authority;
-    params.tokenCache = context.tokenCacheStore;
-    request->_requestParams = params;
-    
-    return request;
-}
-
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
+                                    tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL([requestParams clientId]);
     
-    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context requestParams:requestParams];
+    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context
+                                                                          requestParams:requestParams
+                                                                             tokenCache:tokenCache];
     return request;
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
         requestParams:(ADRequestParameters*)requestParams
+           tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
 {
     RETURN_IF_NIL(context);
     RETURN_IF_NIL([requestParams clientId]);
@@ -111,6 +94,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     
     _context = context;
     _requestParams = requestParams;
+    _tokenCache = tokenCache;
     
     _promptBehavior = AD_PROMPT_AUTO;
     
@@ -125,14 +109,14 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 #define CHECK_REQUEST_STARTED { \
     if (_requestStarted) { \
-        AD_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__); \
+        MSID_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__); \
         return; \
     } \
 }
 
-- (void)setScope:(NSString *)scope
+- (void)setScopesString:(NSString *)scopesString
 {
-    _requestParams.scope = scope;
+    _requestParams.scopesString = scopesString;
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams
@@ -148,7 +132,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 - (BOOL)setClaims:(NSString *)claims error:(ADAuthenticationError **)error
 {
     if (_requestStarted) {
-        AD_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__);
+        MSID_LOG_WARN(nil, @"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__);
         return YES;
     }
     
@@ -157,9 +141,9 @@ static dispatch_semaphore_t s_interactionLock = nil;
         return YES;
     }
     
-    _claims = [claims.adTrimmedString copy];
+    _claims = [claims.msidTrimmedString copy];
     
-    if ([NSString adIsStringNilOrBlank:_claims])
+    if ([NSString msidIsStringNilOrBlank:_claims])
     {
         return YES;
     }
@@ -178,12 +162,18 @@ static dispatch_semaphore_t s_interactionLock = nil;
         }
         return NO;
     }
-    
-    NSDictionary *decodedDictionary = _claims.adUrlFormDecodedJson;
+
+    NSData *decodedData = [_claims.msidWWWFormURLDecode dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *jsonError = nil;
+    NSDictionary *decodedDictionary = [NSDictionary msidDictionaryFromJsonData:decodedData error:&jsonError];
+
     if (!decodedDictionary)
     {
         if (error)
         {
+            MSID_LOG_WARN(_requestParams, @"JSON desiarliazation error %ld", (long)jsonError.code);
+            MSID_LOG_WARN_PII(_requestParams, @"JSON desiarliazation error %@ for claims %@", jsonError, claims);
+
             *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
                                                             protocolCode:nil
                                                             errorDetails:@"claims is not proper JSON. Please make sure it is correct JSON claims parameter."
@@ -258,6 +248,8 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         _cloudAuthority = _context.authority;
     }
+    
+    _requestParams.cloudAuthority = _cloudAuthority;
 }
 
 #if AD_BROKER
@@ -348,7 +340,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 {
     if ([_requestParams telemetryRequestId] == nil)
     {
-        [_requestParams setTelemetryRequestId:[[ADTelemetry sharedInstance] registerNewRequest]];
+        [_requestParams setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     }
     
     return [_requestParams telemetryRequestId];
@@ -357,6 +349,11 @@ static dispatch_semaphore_t s_interactionLock = nil;
 - (ADRequestParameters*)requestParams
 {
     return _requestParams;
+}
+
+- (NSDictionary *)appRequestMetadata
+{
+    return _requestParams.appRequestMetadata;
 }
 
 /*!

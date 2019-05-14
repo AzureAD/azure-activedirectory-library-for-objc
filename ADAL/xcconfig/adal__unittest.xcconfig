@@ -1,0 +1,7 @@
+//
+//  adal__unittest.xcconfig
+//
+
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALUnitTests
+PRODUCT_NAME = ADAL-Unit-Tests
+WRAPPER_EXTENSION = xctest

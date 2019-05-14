@@ -25,7 +25,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
-#import "NSDictionary+ADExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 #if TARGET_OS_IPHONE
 #import "ADBrokerNotificationManager.h"
 #endif
@@ -38,60 +38,11 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
 @implementation ADAuthenticationContext (Internal)
 
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error
-{
-    API_ENTRY;
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
-    if (!extractedAuthority)
-    {
-        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    }
-    
-    _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _extendedLifetimeEnabled = NO;
-    [self setTokenCacheStore:tokenCache];
-    
-    return self;
-}
-
-/*! Verifies that the string parameter is not nil or empty. If it is,
- the method generates an error and set it to an authentication result.
- Then the method calls the callback with the result.
- The method returns if the argument is valid. If the method returns false,
- the calling method should return. */
-+ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
-                     argumentName:(NSString *)argumentName
-                    correlationId:(NSUUID *)correlationId
-                  completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
-    {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
-        completionBlock(result);//Call the callback to tell about the result
-        return NO;
-    }
-    else
-    {
-        return YES;
-    }
-}
-
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult
 {
-    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString msidIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:nil];
         *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
@@ -105,24 +56,24 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
-    NSString *serverOAuth2Error = [dictionary adStringForKey:OAUTH2_ERROR];
+    NSString *serverOAuth2Error = [dictionary msidStringForKey:MSID_OAUTH2_ERROR];
     if (serverOAuth2Error)
     {
-        NSString *responseCorrelationId = [dictionary adStringForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+        NSString *responseCorrelationId = [dictionary msidStringForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
         NSUUID *correlationId = responseCorrelationId ? [[NSUUID alloc] initWithUUIDString:responseCorrelationId] : nil;
 
         ADErrorCode code = errorCode;
-        NSString *suberror = [dictionary adStringForKey:AUTH_SUBERROR];
+        NSString *suberror = [dictionary msidStringForKey:ADAL_AUTH_SUBERROR];
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         userInfo[ADSuberrorKey] = suberror;
 
-        if (suberror && [suberror isEqualToString:AUTH_PROTECTION_POLICY_REQUIRED])
+        if (suberror && [suberror isEqualToString:ADAL_AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
         }
 
-        userInfo[ADUserIdKey] = [dictionary adStringForKey:AUTH_ADDITIONAL_USER_IDENTIFIER];
-        NSString *errorDescription = [dictionary adStringForKey:OAUTH2_ERROR_DESCRIPTION];
+        userInfo[ADUserIdKey] = [dictionary msidStringForKey:ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER];
+        NSString *errorDescription = [dictionary msidStringForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
 
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error
                                            description:errorDescription
@@ -181,16 +132,12 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     return [ADAuthenticationContext getPromptParameter:prompt] != nil;
 }
 
-- (BOOL)hasCacheStore
-{
-    return self.tokenCacheStore != nil;
-}
-
 //Used in the flows, where developer requested an explicit user. The method compares
 //the user for the obtained tokens (if provided by the server). If the user is different,
 //an error result is returned. Returns the same result, if no issues are found.
 + (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
                                  toUser:(ADUserIdentifier*)userId
+                           verifyUserId:(BOOL)verifyUserId
 {
     if (!result)
     {
@@ -202,7 +149,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
-    if (AD_SUCCEEDED != result.status || !userId || [NSString adIsStringNilOrBlank:userId.userId] || userId.type == OptionalDisplayableId)
+    if (AD_SUCCEEDED != result.status || !userId || [NSString msidIsStringNilOrBlank:userId.userId] || userId.type == OptionalDisplayableId)
     {
         //No user to compare - either no specific user id requested, or no specific userId obtained:
         return result;
@@ -216,7 +163,8 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         return result;
     }
     
-    if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
+    if (verifyUserId &&
+        (![ADUserIdentifier identifier:userId matchesInfo:userInfo]))
     {
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER
@@ -238,14 +186,14 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qp = [components percentEncodedQuery];
-    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
     
-    NSString *protocolVersion = queryParamsMap[BROKER_MESSAGE_VERSION];
-    BOOL isValidVersion = [protocolVersion isEqualToString:ADAL_BROKER_MESSAGE_VERSION];
+    NSString *protocolVersion = queryParamsMap[ADAL_BROKER_MESSAGE_VERSION];
+    BOOL isValidVersion = [protocolVersion isEqualToString:@"2"];
     
     NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
     
-    if (!resumeDictionary) AD_LOG_INFO(nil, @"No resume dictionary found.");
+    if (!resumeDictionary) MSID_LOG_INFO(nil, @"No resume dictionary found.");
     
     BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc] || [[ADBrokerNotificationManager sharedInstance] hasCallback];
     

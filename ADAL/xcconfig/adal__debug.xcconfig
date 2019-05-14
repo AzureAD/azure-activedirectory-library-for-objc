@@ -1,3 +1,6 @@
 //
 //  adal__debug.xcconfig
 //
+
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__debug.xcconfig"
+GCC_OPTIMIZATION_LEVEL = 0;

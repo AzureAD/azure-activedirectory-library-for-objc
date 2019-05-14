@@ -21,29 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-//A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
-#define HANDLE_ARGUMENT(ARG, CORRELATION_ID) \
-    if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
-                                               argumentName:TO_NSSTRING(#ARG) \
-                                              correlationId:CORRELATION_ID \
-                                            completionBlock:completionBlock]) \
-    { \
-    return; \
-    }
-
 #define CHECK_FOR_NIL(_val) \
     if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:[_requestParams correlationId]]]); return; }
 
 #import "ADAL_Internal.h"
 
 @class ADUserIdentifier;
-@class ADTokenCacheAccessor;
 @protocol ADTokenCacheDataSource;
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADOAuth2Constants.h"
-#import "ADTokenCacheAccessor.h"
+
+#import "MSIDOAuth2Constants.h"
 
 extern NSString* const ADUnknownError;
 extern NSString* const ADCredentialsNeeded;
@@ -53,11 +42,6 @@ extern NSString* const ADRedirectUriInvalidError;
 
 @interface ADAuthenticationContext (Internal)
 
-+ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
-                     argumentName:(NSString *)argumentName
-                    correlationId:(NSUUID *)correlationId
-                  completionBlock:(ADAuthenticationCallback)completionBlock;
-
 + (BOOL)handleNilOrEmptyAsResult:(NSObject *)argumentValue
                     argumentName:(NSString *)argumentName
             authenticationResult:(ADAuthenticationResult **)authenticationResult;
@@ -65,31 +49,19 @@ extern NSString* const ADRedirectUriInvalidError;
 + (ADAuthenticationError*)errorFromDictionary:(NSDictionary *)dictionary
                                     errorCode:(ADErrorCode)errorCode;
 
-
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error;
-
 + (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
 
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
-+ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult *)result
-                                 toUser:(ADUserIdentifier *)userId;
 
-- (BOOL)hasCacheStore;
++ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
+                                 toUser:(ADUserIdentifier*)userId
+                           verifyUserId:(BOOL)verifyUserId;
 
 + (BOOL)canHandleResponse:(NSURL *)response
         sourceApplication:(NSString *)sourceApplication;
 
 @end
 
-@interface ADAuthenticationContext (CacheStorage)
-
-- (void)setTokenCacheStore:(id<ADTokenCacheDataSource>)tokenCacheStore;
-- (ADTokenCacheAccessor *)tokenCacheStore;
-
-@end

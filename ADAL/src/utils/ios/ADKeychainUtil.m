@@ -36,7 +36,7 @@
         ADAuthenticationError* localError = nil;
         s_keychainTeamId = [self retrieveTeamIDFromKeychain:&localError];
         adError = localError;
-        AD_LOG_INFO_PII(nil, @"Using \"%@\" Team ID for Keychain.", s_keychainTeamId);
+        MSID_LOG_INFO_PII(nil, @"Using \"%@\" Team ID for Keychain.", s_keychainTeamId);
     });
     
     if (!s_keychainTeamId && error)
@@ -59,13 +59,13 @@
 
     if (readStatus == errSecInteractionNotAllowed)
     {
-        AD_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
+        MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
 
         OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
 
         if (deleteStatus != errSecSuccess)
         {
-            AD_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
+            MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %d", (int)deleteStatus);
 
             ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID deletion" status:deleteStatus correlationId:nil];
             if (error)
@@ -88,7 +88,7 @@
 
     if (status != errSecSuccess)
     {
-        AD_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
+        MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
 
         ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID" status:status correlationId:nil];
         if (error)

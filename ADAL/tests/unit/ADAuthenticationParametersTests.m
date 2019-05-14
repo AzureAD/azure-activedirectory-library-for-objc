@@ -93,7 +93,7 @@
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError __unused *error)
      {
          XCTAssertNotNil(error);
-         XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
+         XCTAssertFalse([NSString msidIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
          XCTAssertNil(parameters);
          
          [expectation fulfill];

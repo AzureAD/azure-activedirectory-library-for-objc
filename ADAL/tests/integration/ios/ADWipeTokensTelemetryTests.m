@@ -31,12 +31,29 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTokenCache.h"
 #import "ADAuthorityValidation.h"
+#import "ADAuthenticationContext+TestUtil.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
 @interface ADWipeTokensTelemetryTests : ADTestCase
 
 @end
 
 @implementation ADWipeTokensTelemetryTests
+
+- (void)setUp
+{
+    [super setUp];
+    
+    [MSIDKeychainTokenCache reset];
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+    
+    [MSIDKeychainTokenCache reset];
+}
 
 - (void)testWipeAllItemsForUserId_withOneItem_shouldGenerateTelemetry
 {
@@ -73,7 +90,7 @@
                                                                         validateAuthority:NO
                                                                                     error:nil];
     
-    [context setTokenCacheStore:store];
+//    context.tokenCache = [MSIDSharedTokenCache new];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
@@ -107,3 +124,4 @@
 }
 
 @end
+

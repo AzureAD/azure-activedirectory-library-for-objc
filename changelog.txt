@@ -1,6 +1,37 @@
-Version 2.6.10 (13.05.2019)
+Version 2.7.10 (04.24.2018)
 -----------
-* Fix issues when ADAL was trying to handle MSAL broker responses.
+* Hotfix to add compiler flag to disable Kerberos (#1401)
+* Nullability fixes (#1404)
+* Better handle system errors at token redemption (#1400)
+
+Version 2.7.9 (03.06.2018)
+-----------
+* Hotfix for Mac OS to query WPJ cert using issuers from authentication challenge.
+
+Version 2.7.8
+-----------
+* Hotfix to skip user Id matching check for an acquire token silent call.
+
+Version 2.7.7 (12.21.2018)
+-----------
+* Don't log ADAL version on load (#1359)
+* Fixed userId returned for ADFS onPrem scenarios (#1357)
+* Return user displayable ID for Intune app protection scenarios (#1358)
+
+Version 2.7.6 (29.11.2018)
+-----------
+* Don't dispatch ADAL callback to the main thread (#1350)
+* hanged teamIDHint to avoid conflicts with other SDKs
+
+Version 2.7.5 (11.02.2018)
+-----------
+* Don't fail acquireToken when saving to cache fails (#1338)
+
+Version 2.7.4 (10.30.2018)
+-----------
+* Added support to send claims to the token endpoint (#1272)
+* Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
+* Improve co-existence with ADAL.NET
 
 Version 2.6.9 (04.05.2019)
 -----------
@@ -17,12 +48,35 @@ Version 2.6.7 (11.29.2018)
 Version 2.6.6 (09.10.2018)
 ------------
 * Added support to send claims to the token endpoint (#1272)
+* Patch teamID when it was written with incorrect accessible type by other SDKs (#1328)
+* Improve co-existence with ADAL.NET
 
+Version 2.7.3
+------------
+* Fix occasional keychain util crash #1311
+
+Version 2.7.2 
+-------------
+* Fix issues with the iOS library compilation output.
+
+Version 2.7.1 
+-------------
+* Fix issues with the framework compilation and add correct bundle version to
+the framework
+
+Version 2.7.0 (07.23.2018)
+-------------
+* Add new API to skip access token in cache by passing a forceRefresh parameter (#1234)
+* Intune enrollment id support for MAM scenarios (#1232)
+* Cache co-existence with apps using MSAL Objective-C and MSAL .NET SDKs
+
+Version 2.6.6 (09.10.2018)
+------------
+* Added support to send claims to the token endpoint (#1272)
 
 Version 2.6.5 (08.01.2018)
 ------------
 * Skip tombstones in macOS token cache (#1258)
-
 
 Version 2.6.4 (07.13.2018)
 -------------

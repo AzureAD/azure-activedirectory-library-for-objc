@@ -50,8 +50,7 @@ typedef enum
  */
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
                             adfsType:(AdfsType)type
-                             context:(id<ADRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
+                             context:(id<MSIDRequestContext>)context
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
 // Fetches the corresponding URL for the request

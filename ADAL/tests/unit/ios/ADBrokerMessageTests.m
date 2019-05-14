@@ -28,7 +28,6 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "ADBrokerNotificationManager.h"
 #import "ADBrokerKeyHelper.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADPkeyAuthHelper.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
@@ -113,7 +112,7 @@
       @"hash" : hash,
       };
     
-    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSString* brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage msidWWWFormURLEncode]];
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];
@@ -151,7 +150,7 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
     
-    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage msidWWWFormURLEncode]];
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker no error domain."];
@@ -187,7 +186,7 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
 
-    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage msidWWWFormURLEncode]];
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
@@ -224,7 +223,7 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
     
-    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage msidWWWFormURLEncode]];
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker http error."];
@@ -261,7 +260,7 @@
       @"x-broker-app-ver" : @"2.1.0"
       };
     
-    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage adURLFormEncode]];
+    NSString *brokerUrlStr = [NSString stringWithFormat:@"ms-outlook://?%@", [brokerMessage msidWWWFormURLEncode]];
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];

@@ -23,9 +23,7 @@
 
 
 #import "ADAuthorityValidationRequest.h"
-#import "ADOAuth2Constants.h"
 #import "ADWebAuthRequest.h"
-#import "NSDictionary+ADExtensions.h"
 
 static NSString* const s_kApiVersionKey            = @"api-version";
 static NSString* const s_kApiVersion               = @AAD_AUTHORITY_VALIDATION_API_VERSION;
@@ -35,8 +33,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 + (void)requestMetadataWithAuthority:(NSString *)authority
                          trustedHost:(NSString *)trustedHost
-                             context:(id<ADRequestContext>)context
-                     requestMetadata:(NSDictionary *)metadata
+                             context:(id<MSIDRequestContext>)context
                      completionBlock:(void (^)(NSDictionary *response, ADAuthenticationError *error))completionBlock
 {
     NSURL *endpoint = [self urlForAuthorityValidation:authority trustedHost:trustedHost];
@@ -44,7 +41,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
                                                                  context:context];
     
     [webRequest setIsGetRequest:YES];
-    [webRequest setRequestMetadata:metadata];
+    [webRequest setAppRequestMetadata:context.appRequestMetadata];
 
     [webRequest sendRequest:^(ADAuthenticationError *error, NSMutableDictionary *response)
     {
@@ -63,11 +60,11 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedHost:(NSString *)trustedHost
 {
-    NSString *authorizationEndpoint = [authority.lowercaseString stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
+    NSString *authorizationEndpoint = [authority.lowercaseString stringByAppendingString:MSID_OAUTH2_AUTHORIZE_SUFFIX];
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};
     NSString *endpoint = [NSString stringWithFormat:@"https://%@/%@?%@",
-                          trustedHost, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
+                          trustedHost, MSID_OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data msidWWWFormURLEncode]];
     
     return [NSURL URLWithString:endpoint];
 }

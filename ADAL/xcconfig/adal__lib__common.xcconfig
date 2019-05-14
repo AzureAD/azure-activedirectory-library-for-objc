@@ -1,0 +1,10 @@
+//
+//  adal__lib__common.xcconfig
+//
+
+#include "../IdentityCore/IdentityCore/xcconfig/identitycore__lib__common.xcconfig"
+
+GCC_PREFIX_HEADER = src/ADAL.pch
+GCC_PRECOMPILE_PREFIX_HEADER = YES
+USER_HEADER_SEARCH_PATHS = $(inherited) $IDCORE_PATH/src/**
+PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO

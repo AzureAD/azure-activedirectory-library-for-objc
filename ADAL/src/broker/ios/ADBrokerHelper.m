@@ -23,11 +23,8 @@
 
 #import <objc/runtime.h>
 
-#import "NSDictionary+ADExtensions.h"
-
 #import "ADBrokerHelper.h"
 #import "ADBrokerNotificationManager.h"
-#import "ADOAuth2Constants.h"
 #import "ADWebAuthController+Internal.h"
 #import "ADAppExtensionUtil.h"
 #import "ADAuthenticationContext+Internal.h"
@@ -52,7 +49,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
         }
     }
     
-    AD_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
+    MSID_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
 
     // Fallback to original delegate if defined
     if (__original_ApplicationOpenURL)
@@ -88,7 +85,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
         }
     }
     
-    AD_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
+    MSID_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
 
     // Fallback to original delegate if defined
     if (__original_ApplicationOpenURLiOS9)
@@ -258,7 +255,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     }
     
     NSString* query = [redirectURL query];
-    NSDictionary* queryParams = [NSDictionary adURLFormDecode:query];
+    NSDictionary* queryParams = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:query];
     NSString* appURLString = [queryParams objectForKey:@"app_link"];
     __block NSURL* appURL = [NSURL URLWithString:appURLString];
                         

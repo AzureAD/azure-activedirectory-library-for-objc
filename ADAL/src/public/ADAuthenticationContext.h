@@ -103,7 +103,7 @@ typedef enum
 } ADCredentialsType;
 
 @class ADAuthenticationResult;
-@class ADTokenCacheAccessor;
+@class MSIDLegacyTokenCacheAccessor;
 
 /*!
     @class ADAuthenticationContext
@@ -116,7 +116,7 @@ typedef enum
  */
 @interface ADAuthenticationContext : NSObject
 {
-    ADTokenCacheAccessor* _tokenCacheStore;
+    MSIDLegacyTokenCacheAccessor *_tokenCache;
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
@@ -491,6 +491,23 @@ typedef enum
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
                          redirectUri:(NSURL *)redirectUri
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function will use the refresh token provided to get access token.
+ This method will not show UI for the user to reauthorize resource usage.
+ If the call fails, error will be included in the result.
+ @param refreshToken The refresh token provided in order to get acces token.
+ @param resource The resource whose token is needed.
+ @param clientId The client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param userId The user matching the refresh token provided. If there is a mismatch, error will be returned
+ @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenWithRefreshToken:(NSString *)refreshToken
+                            resource:(NSString *)resource
+                            clientId:(NSString *)clientId
+                         redirectUri:(NSURL *)redirectUri
+                              userId:(NSString *)userId
                      completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

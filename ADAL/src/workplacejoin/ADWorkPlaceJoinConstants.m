@@ -23,7 +23,7 @@
 
 #import "ADWorkPlaceJoinConstants.h"
 
-//NSString *const AD_TELEMETRY_EVENT_API_EVENT              = @"Microsoft.ADAL.api_event";
+//NSString *const MSID_TELEMETRY_EVENT_API_EVENT              = @"Microsoft.ADAL.api_event";
 
 NSString* const kADALDefaultSharedGroup                = @"com.microsoft.workplacejoin";
 NSString* const kADALPrivateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";

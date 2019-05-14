@@ -23,7 +23,6 @@
 
 #import "ADAL_Internal.h"
 #import "ADLogger.h"
-#import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationContext.h"
@@ -33,11 +32,21 @@
 #import <objc/runtime.h>
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADOAuth2Constants.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
-#import "NSDictionary+ADTestUtil.h"
+#import "ADUserInformation+Internal.h"
+#import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDLegacyAccessToken.h"
+#import "MSIDLegacySingleResourceToken.h"
+#import "MSIDLegacyRefreshToken.h"
+#import "MSIDTestIdentifiers.h"
+#import "MSIDTestIdTokenUtil.h"
+#import "MSIDConfiguration.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDTestUtil.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -60,7 +69,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertNotNil(error.domain, "Error domain is nil.");
     XCTAssertEqual(error.domain, ADAuthenticationErrorDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
-    XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
+    XCTAssertFalse([NSString msidIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
     BOOL found = [error.errorDetails containsString:argument];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
@@ -111,9 +120,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.refreshToken = TEST_REFRESH_TOKEN;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
-        item.userInformation = [self adCreateUserInformation:userId];
+        item.userInformation = [self adCreateUserInformation:userId homeAccountId:nil];
     }
     item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
     
@@ -137,7 +146,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.refreshToken = nil;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -146,17 +155,17 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem
+- (ADTokenCacheItem *)adCreateMRRTCacheItem
 {
     return [self adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
 }
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
 {
     return [self adCreateMRRTCacheItem:userId familyId:nil];
 }
 
-+ (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
                                    familyId:(NSString *)foci
 {
     // A MRRT item is just a refresh token, it doesn't have a specified resource
@@ -166,28 +175,12 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.clientId = TEST_CLIENT_ID;
     item.refreshToken = TEST_REFRESH_TOKEN;
     item.familyId = foci;
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
-        item.userInformation = [self adCreateUserInformation:userId];
+        item.userInformation = [self adCreateUserInformation:userId homeAccountId:nil];
     }
     
     return item;
-}
-
-- (ADTokenCacheItem *)adCreateMRRTCacheItem
-{
-    return [[self class] adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
-}
-
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
-{
-    return [[self class] adCreateMRRTCacheItem:userId familyId:nil];
-}
-
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
-                                   familyId:(NSString *)foci
-{
-    return [[self class] adCreateMRRTCacheItem:userId familyId:foci];
 }
 
 - (ADTokenCacheItem *)adCreateFRTCacheItem
@@ -205,7 +198,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.clientId = [NSString stringWithFormat:@"foci-%@", foci];
     item.familyId = foci;
     item.refreshToken = @"family refresh token";
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString msidIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
@@ -223,13 +216,23 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return key;
 }
 
-+ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId
 {
-    return [self adCreateUserInformation:userId tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"];
+    return [self adCreateUserInformation:userId
+                                tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
+                           homeAccountId:nil];
 }
 
-+ (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId
+{
+    return [self adCreateUserInformation:userId
+                                tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
+                           homeAccountId:homeAccountId];
+}
+
+- (ADUserInformation *)adCreateUserInformation:(NSString *)userId
                                       tenantId:(NSString *)tid
+                                 homeAccountId:(NSString *)homeAccountId
 {
     NSAssert(userId, @"userId cannot be nil!");
     NSDictionary* part1_claims = @{ @"typ" : @"JWT",
@@ -250,20 +253,17 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       @"given_name" : @"Eric"
                                       };
     
-    NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+    NSString* idtoken = [NSString stringWithFormat:@"%@.%@.",
+                         [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken
+                                                                  homeAccountId:homeAccountId
+                                                                          error:nil];
     
     // If you're hitting this you might as well fix it before trying to run other tests.
     NSAssert(userInfo, @"Failed to create a userinfo object from a static idtoken. Something must have horribly broke,");
     return userInfo;
-}
-
-- (ADUserInformation *)adCreateUserInformation:(NSString*)userId
-{
-    return [[self class] adCreateUserInformation:userId];
 }
 
 - (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken
@@ -271,7 +271,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
-                                   oauthSubError:(id)suberror
+                                   oauthSubError:(id)oauthSubError
                                    correlationId:(NSUUID *)correlationId
                                    requestParams:(NSDictionary *)requestParams
 {
@@ -289,18 +289,25 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         requestHeaders = [ADTestURLResponse defaultHeaders];
     }
 
-    NSMutableDictionary *requestParamsBody = [@{ OAUTH2_GRANT_TYPE : @"refresh_token",
-                                                OAUTH2_REFRESH_TOKEN : refreshToken,
-                                                OAUTH2_RESOURCE : resource,
-                                                OAUTH2_CLIENT_ID : clientId } mutableCopy];
+    NSMutableDictionary *jsonDictionary = [NSMutableDictionary new];
+    jsonDictionary[MSID_OAUTH2_ERROR] = oauthError;
+    jsonDictionary[MSID_OAUTH2_ERROR_DESCRIPTION] = @"oauth error description";
+
+    if (oauthSubError)
+    {
+        jsonDictionary[MSID_OAUTH2_SUB_ERROR] = oauthSubError;
+    }
+
+    NSMutableDictionary *requestParamsBody = [@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                                MSID_OAUTH2_REFRESH_TOKEN : refreshToken,
+                                                MSID_OAUTH2_RESOURCE : resource,
+                                                MSID_OAUTH2_CLIENT_INFO: @"1",
+                                                MSID_OAUTH2_CLIENT_ID : clientId,
+                                                MSID_OAUTH2_SCOPE: MSID_OAUTH2_SCOPE_OPENID_VALUE
+                                                 } mutableCopy];
 
     [requestParamsBody addEntriesFromDictionary:requestParams];
-    
-    NSMutableDictionary *responseDict = [NSMutableDictionary new];
-    responseDict[OAUTH2_ERROR] = oauthError;
-    responseDict[OAUTH2_ERROR_DESCRIPTION] = @"oauth error description";
-    responseDict[@"suberror"] = suberror;
-    
+
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:requestHeaders
@@ -308,7 +315,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{@"x-ms-clitelem" : @"1,7000,7,255.0643,I"}
-                       dictionaryAsJSON:responseDict];
+                       dictionaryAsJSON:jsonDictionary];
     
     return response;
 }
@@ -323,7 +330,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                              oauthSubError:nil
                              correlationId:TEST_CORRELATION_ID
                              requestParams:nil];
-
 }
 
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse
@@ -333,6 +339,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
                                     accessToken:(NSString *)newAccessToken
+                                     newIDToken:(NSString *)newIDToken
 {
     return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                               authority:TEST_AUTHORITY
@@ -340,7 +347,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                clientId:TEST_CLIENT_ID
                           correlationId:TEST_CORRELATION_ID
                         newRefreshToken:newRefreshToken
-                         newAccessToken:newAccessToken];
+                         newAccessToken:newAccessToken
+                             newIDToken:newIDToken];
 }
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -350,6 +358,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
 {
     return [self adResponseRefreshToken:oldRefreshToken
                               authority:authority
@@ -359,7 +368,32 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
+                             newIDToken:newIDToken
                        additionalFields:nil];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
+{
+    return [self adResponseRefreshToken:oldRefreshToken
+                              authority:authority
+                        requestResource:requestResource
+                       responseResource:responseResource
+                               clientId:clientId
+                         requestHeaders:nil
+                          correlationId:correlationId
+                        newRefreshToken:newRefreshToken
+                         newAccessToken:newAccessToken
+                             newIDToken:newIDToken
+                       additionalFields:nil
+                        responseHeaders:nil];
 }
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
@@ -369,6 +403,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
 {
     return [self adResponseRefreshToken:oldRefreshToken
@@ -379,6 +414,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
+                             newIDToken:newIDToken
                        additionalFields:additionalFields];
 }
 
@@ -390,34 +426,42 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
 {
     return [self adResponseRefreshToken:oldRefreshToken
                               authority:authority
-                               resource:resource
+                        requestResource:resource
+                       responseResource:resource
                                clientId:clientId
                          requestHeaders:requestHeaders
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
+                             newIDToken:newIDToken
                        additionalFields:additionalFields
                         responseHeaders:nil];
 }
 
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
-                                     resource:(NSString *)resource
+                              requestResource:(NSString *)requestResource
+                             responseResource:(NSString *)responseResource
                                      clientId:(NSString *)clientId
                                requestHeaders:(NSDictionary *)requestHeaders
                                 correlationId:(NSUUID *)correlationId
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
+                                   newIDToken:(NSString *)newIDToken
                              additionalFields:(NSDictionary *)additionalFields
                               responseHeaders:(NSDictionary *)responseHeaders
 {
-    NSDictionary* jsonBody = @{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
-                                OAUTH2_ACCESS_TOKEN : newAccessToken,
-                                OAUTH2_RESOURCE : resource };
+    NSMutableDictionary *jsonBody = [NSMutableDictionary dictionary];
+
+    if (newRefreshToken) jsonBody[MSID_OAUTH2_REFRESH_TOKEN] = newRefreshToken;
+    if (newAccessToken) jsonBody[MSID_OAUTH2_ACCESS_TOKEN] = newAccessToken;
+    if (newIDToken) jsonBody[MSID_OAUTH2_ID_TOKEN] = newIDToken;
+    if (responseResource) jsonBody[MSID_OAUTH2_RESOURCE] = responseResource;
     
     if (additionalFields)
     {
@@ -428,13 +472,14 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     
     return [self adResponseRefreshToken:oldRefreshToken
                               authority:authority
-                               resource:resource
+                               resource:requestResource
                                clientId:clientId
                          requestHeaders:requestHeaders
                           correlationId:correlationId
                            responseCode:400
                         responseHeaders:responseHeaders
                            responseJson:jsonBody
+                       useOpenidConnect:newIDToken != nil
                           requestParams:nil];
 }
 
@@ -451,6 +496,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                            responseCode:responseCode
                         responseHeaders:responseHeaders
                            responseJson:responseJson
+                       useOpenidConnect:YES
                           requestParams:nil];
 }
 
@@ -463,8 +509,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                  responseCode:(NSInteger)responseCode
                               responseHeaders:(NSDictionary *)responseHeaders
                                  responseJson:(NSDictionary *)responseJson
+                             useOpenidConnect:(BOOL)useOpenidConnect
                                 requestParams:(NSDictionary *)requestParams
-
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", authority];
     
@@ -475,17 +521,24 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         [headers addEntriesFromDictionary:requestHeaders];
     }
 
-    NSMutableDictionary *requestDict = [@{  OAUTH2_GRANT_TYPE : @"refresh_token",
-                                            OAUTH2_REFRESH_TOKEN : oldRefreshToken,
-                                            OAUTH2_RESOURCE : resource,
-                                            OAUTH2_CLIENT_ID : clientId } mutableCopy];
+    NSMutableDictionary *requestParamsBody = [@{ MSID_OAUTH2_GRANT_TYPE : @"refresh_token",
+                                                MSID_OAUTH2_REFRESH_TOKEN : oldRefreshToken,
+                                                MSID_OAUTH2_RESOURCE : resource,
+                                                MSID_OAUTH2_CLIENT_INFO: @"1",
+                                                MSID_OAUTH2_CLIENT_ID : clientId,
+                                                 } mutableCopy];
 
-    [requestDict addEntriesFromDictionary:requestParams];
+    if (useOpenidConnect)
+    {
+        requestParamsBody[MSID_OAUTH2_SCOPE] = MSID_OAUTH2_SCOPE_OPENID_VALUE;
+    }
+
+    [requestParamsBody addEntriesFromDictionary:requestParams];
 
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:requestDict
+                      requestParamsBody:requestParamsBody
                       responseURLString:@"https://contoso.com"
                            responseCode:responseCode
                        httpHeaderFields:responseHeaders ? responseHeaders : @{}
@@ -506,10 +559,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
                          requestHeaders:headers
-                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : OAUTH2_AUTHORIZATION_CODE,
-                                           OAUTH2_CODE : authCode,
-                                           OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
-                                           OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
+                      requestParamsBody:@{ MSID_OAUTH2_GRANT_TYPE : MSID_OAUTH2_AUTHORIZATION_CODE,
+                                           MSID_OAUTH2_CODE : authCode,
+                                           MSID_OAUTH2_CLIENT_ID : TEST_CLIENT_ID,
+                                           MSID_OAUTH2_CLIENT_INFO: @"1",
+                                           MSID_OAUTH2_REDIRECT_URI : TEST_REDIRECT_URL_STRING }
                       responseURLString:@"https://contoso.com"
                            responseCode:200
                        httpHeaderFields:@{}
@@ -522,5 +576,176 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return response;
 }
 
+- (NSString *)adDefaultIDToken
+{
+    return [MSIDTestIdTokenUtil idTokenWithName:@"Test name" upn:TEST_USER_ID tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048" additionalClaims:nil];
+}
+
+- (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem
+{
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [MSIDLegacyTokenCacheItem new];
+    tokenCacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
+    tokenCacheItem.refreshToken = nil;
+    tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
+                                                              upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                         tenantId:DEFAULT_TEST_UTID];
+    tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    tokenCacheItem.cachedAt = nil;
+    tokenCacheItem.familyId = nil;
+    tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
+    tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
+    tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
+    tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    tokenCacheItem.credentialType = MSIDAccessTokenType;
+
+    return tokenCacheItem;
+}
+
+- (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem
+{
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [MSIDLegacyTokenCacheItem new];
+    
+    tokenCacheItem.accessToken = nil;
+    tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
+    tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
+                                                              upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                         tenantId:DEFAULT_TEST_UTID];
+    tokenCacheItem.expiresOn = nil;
+    tokenCacheItem.cachedAt = nil;
+    tokenCacheItem.familyId = @"familyId value";
+    tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
+    tokenCacheItem.target = nil;
+    tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
+    tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    tokenCacheItem.credentialType = MSIDRefreshTokenType;
+
+    return tokenCacheItem;
+}
+
+- (MSIDLegacyTokenCacheItem *)adCreateLegacySingleResourceMSIDTokenCacheItem
+{
+    MSIDLegacyTokenCacheItem *tokenCacheItem = [MSIDLegacyTokenCacheItem new];
+    
+    tokenCacheItem.accessToken = DEFAULT_TEST_ACCESS_TOKEN;
+    tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
+    tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
+                                                              upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                         tenantId:DEFAULT_TEST_UTID];
+    tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    tokenCacheItem.cachedAt = nil;
+    tokenCacheItem.familyId = @"familyId value";
+    tokenCacheItem.additionalInfo = @{@"key2" : @"value2"};
+    tokenCacheItem.target = DEFAULT_TEST_RESOURCE;
+    tokenCacheItem.authority = [[NSURL alloc] initWithString:DEFAULT_TEST_AUTHORITY];
+    tokenCacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    tokenCacheItem.credentialType = MSIDLegacySingleResourceTokenType;
+
+    return tokenCacheItem;
+}
+
+- (MSIDClientInfo *)adCreateClientInfo
+{
+    NSString *clientInfoJsonString = @"{\"uid\":\"28f3807a-4fb0-45f2-a44a-236aa0cb3f97\",\"utid\":\"0284f963-1d72-4363-5e3a-5705c5b0f031\"}";
+    
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:[clientInfoJsonString msidBase64UrlEncode] error:nil];
+    
+    assert(clientInfo);
+    
+    return clientInfo;
+}
+
+- (MSIDLegacyAccessToken *)adCreateAccessToken
+{
+    MSIDLegacyAccessToken *accessToken = [MSIDLegacyAccessToken new];
+    [self fillBaseToken:accessToken];
+    [self fillAccessToken:accessToken];
+    
+    return accessToken;
+}
+
+- (MSIDLegacyRefreshToken *)adCreateRefreshToken
+{
+    MSIDLegacyRefreshToken *refreshToken = [MSIDLegacyRefreshToken new];
+    [self fillBaseToken:refreshToken];
+    
+    [refreshToken setValue:@"refresh token" forKey:@"refreshToken"];
+    [refreshToken setValue:@"family Id" forKey:@"familyId"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [refreshToken setValue:rawIdToken forKey:@"idToken"];
+    
+    return refreshToken;
+}
+
+- (MSIDLegacySingleResourceToken *)adCreateLegacySingleResourceToken
+{
+    MSIDLegacySingleResourceToken *legacySingleResourceToken = [MSIDLegacySingleResourceToken new];
+    [self fillBaseToken:legacySingleResourceToken];
+    [self fillAccessToken:legacySingleResourceToken];
+    
+    [legacySingleResourceToken setValue:@"refresh token" forKey:@"refreshToken"];
+    NSString *rawIdToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    [legacySingleResourceToken setValue:rawIdToken forKey:@"idToken"];
+    
+    return legacySingleResourceToken;
+}
+
+- (MSIDConfiguration *)adCreateV2DefaultConfiguration
+{
+    return [[MSIDConfiguration alloc] initWithAuthority:[TEST_AUTHORITY authority]
+                                            redirectUri:TEST_REDIRECT_URL_STRING
+                                               clientId:TEST_CLIENT_ID
+                                                 target:@"https://graph.microsoft.com/mail.read"];
+}
+
+- (MSIDAADV2TokenResponse *)adCreateV2TokenResponse
+{
+    NSDictionary *jsonDictionary = @{@"access_token" : TEST_ACCESS_TOKEN,
+                                     @"refresh_token" : TEST_REFRESH_TOKEN,
+                                     @"id_token" : [self adCreateV2IdToken],
+                                     @"token_type": @"Bearer",
+                                     @"expires_in": @"3600",
+                                     @"client_info": [self base64UrlFromJson:@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"}],
+                                     @"scope": @"https://graph.microsoft.com/mail.read"
+                                     };
+    
+    return [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonDictionary error:nil];
+}
+
+- (NSString *)adCreateV2IdToken
+{
+    NSString *idTokenp1 = [self base64UrlFromJson:@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"}];
+    NSString *idTokenp2 = [self base64UrlFromJson:@{ @"iss" : @"issuer",
+                                                     @"name" : @"Eric",
+                                                     @"preferred_username" : TEST_USER_ID,
+                                                     @"tid" : @"1234-5678-90abcdefg",
+                                                     @"oid" : @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97"}];
+    return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+}
+
+#pragma mark - Private
+
+- (void)fillBaseToken:(MSIDBaseToken *)baseToken
+{
+    baseToken.authority = [TEST_AUTHORITY authority];
+    baseToken.clientId = TEST_CLIENT_ID;
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"unique User Id"];
+    baseToken.additionalServerInfo = @{@"key2" : @"value2"};
+}
+
+- (void)fillAccessToken:(MSIDLegacyAccessToken *)accessToken
+{
+    accessToken.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    accessToken.cachedAt = [NSDate dateWithTimeIntervalSince1970:1100000000];
+    accessToken.accessToken = @"access token";
+    accessToken.accessTokenType = @"Bearer";
+    accessToken.idToken = [self adCreateUserInformation:TEST_USER_ID].rawIdToken;
+    accessToken.resource = TEST_RESOURCE;
+}
+
+- (NSString *)base64UrlFromJson:(NSDictionary *)json
+{
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
+    return [NSString msidBase64UrlEncodedStringFromData:jsonData];
+}
 
 @end

@@ -28,11 +28,10 @@
 #import "ADBrokerKeyHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
-#import "ADLogger+Internal.h"
 #import "ADPkeyAuthHelper.h"
-#import "NSDictionary+ADExtensions.h"
-#import "ADOAuth2Constants.h"
+#import "MSIDOAuth2Constants.h"
 #import "ADHelpers.h"
+#import "NSData+MSIDExtensions.h"
 
 static NSData* s_symmetricKeyOverride = nil;
 
@@ -81,7 +80,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     err = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
     if (err != errSecSuccess)
     {
-        AD_LOG_ERROR(nil, @"Failed to copy random bytes for broker key. Error code: %d", (int)err);
+        MSID_LOG_ERROR(nil, @"Failed to copy random bytes for broker key. Error code: %d", (int)err);
         
         UNEXPECTED_KEY_ERROR;
         free(symmetricKey);
@@ -288,20 +287,20 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 + (void)setSymmetricKey:(NSString *)base64Key
 {
-    s_symmetricKeyOverride = base64Key ? [NSString adBase64UrlDecodeData:base64Key] : nil;
+    s_symmetricKeyOverride = base64Key ? [NSData msidDataFromBase64UrlEncodedString:base64Key] : nil;
 }
 
 + (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response correlationId:(NSUUID *)correlationId error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSString* hash = [response valueForKey:BROKER_HASH_KEY];
+    NSString *hash = [response valueForKey:ADAL_BROKER_HASH_KEY];
     if (!hash)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_HASH_MISSING, @"Key hash is missing from the broker response", correlationId);
         return nil;
     }
 
-    NSString* encryptedBase64Response = [response valueForKey:BROKER_RESPONSE_KEY];
-    NSString* msgVer = [response valueForKey:BROKER_MESSAGE_VERSION];
+    NSString *encryptedBase64Response = [response valueForKey:ADAL_BROKER_RESPONSE_KEY];
+    NSString *msgVer = [response valueForKey:ADAL_BROKER_MESSAGE_VERSION];
     NSInteger protocolVersion = 1;
     if (msgVer)
     {
@@ -309,10 +308,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 
     //decrypt response first
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    ADAuthenticationError* decryptionError = nil;
-    NSData *encryptedResponse = [NSString adBase64UrlDecodeData:encryptedBase64Response ];
-    NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
+    ADBrokerKeyHelper *brokerHelper = [[ADBrokerKeyHelper alloc] init];
+    ADAuthenticationError *decryptionError = nil;
+    NSData *encryptedResponse = [NSData msidDataFromBase64UrlEncodedString:encryptedBase64Response];
+    NSData *decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
                                                     version:protocolVersion
                                                       error:&decryptionError];
 
@@ -322,8 +321,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         return nil;
     }
 
-
-    NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
+    NSString *decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
     if (!decryptedString)
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to initialize decrypted string", correlationId);
@@ -331,7 +329,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 
     //now compute the hash on the unencrypted data
-    NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
+    NSString *actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
     if(![hash isEqualToString:actualHash])
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);
@@ -339,7 +337,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 
     // create response from the decrypted payload
-    NSDictionary* decryptedResponse = [NSDictionary adURLFormDecode:decryptedString];
+    NSDictionary *decryptedResponse = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:decryptedString];
     [ADHelpers removeNullStringFrom:decryptedResponse];
 
     return decryptedResponse;

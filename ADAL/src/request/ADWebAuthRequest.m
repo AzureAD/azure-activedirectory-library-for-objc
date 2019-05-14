@@ -25,8 +25,6 @@
 #import "ADWebAuthResponse.h"
 #import "ADWorkplaceJoinConstants.h"
 #import "ADClientMetrics.h"
-#import "NSDictionary+ADExtensions.h"
-#import "ADOAuth2Constants.h"
 #import "ADWebResponse.h"
 #import "ADPkeyAuthHelper.h"
 
@@ -38,7 +36,7 @@
 @synthesize acceptOnlyOKResponse = _acceptOnlyOKResponse;
 
 - (id)initWithURL:(NSURL *)url
-          context:(id<ADRequestContext>)context
+          context:(id<MSIDRequestContext>)context
 {
     self = [super initWithURL:url context:context];
     if (!self)
@@ -63,12 +61,12 @@
 {
     if ([self isGetRequest] && [_requestDictionary allKeys].count > 0)
     {
-        NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
+        NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary msidWWWFormURLEncode]];
         _requestURL = [NSURL URLWithString:newURL];
     }
     else
     {
-        [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+        [self setBody:[[_requestDictionary msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding]];
     }
     
     _startTime = [NSDate new];

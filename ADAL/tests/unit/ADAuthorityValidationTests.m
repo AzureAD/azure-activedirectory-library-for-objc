@@ -33,8 +33,6 @@
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
 
-#import "NSURL+ADExtensions.h"
-
 #import "XCTestCase+TestHelperMethods.h"
 
 @interface ADAuthortyValidationTests : ADTestCase
