@@ -30,6 +30,9 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADAuthenticationRequest+Broker.h"
+#if TARGET_OS_IPHONE
+#import "ADBrokerNotificationManager.h"
+#endif
 
 @implementation ADAuthenticationContextTests
 
@@ -42,7 +45,10 @@
 {
     [super tearDown];
     
+#if TARGET_OS_IPHONE
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kAdalResumeDictionaryKey];
+    [[ADBrokerNotificationManager sharedInstance] copyAndClearCallback];
+#endif
 }
 
 #pragma mark - Initialization
@@ -135,6 +141,8 @@
     XCTAssertNil(error);
 }
 
+#if TARGET_OS_IPHONE
+
 - (void)testCanHandleResponse_whenProtocolVersionIs2AndRequestIntiatedByAdal_shouldReturnYes
 {
     NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
@@ -159,7 +167,7 @@
     XCTAssertFalse(result);
 }
 
-- (void)testCanHandleResponse_whenProtocolVersionIs2AndNoResumeDictionary_shouldReturnNo
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndThereIsNoCallbackAndNoResumeDictionary_shouldReturnNo
 {
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
     NSString *sourceApp = @"com.microsoft.azureauthenticator";
@@ -167,6 +175,17 @@
     BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
     
     XCTAssertFalse(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndThereIsCallbackAndNoResumeDictionary_shouldReturnYes
+{
+    [[ADBrokerNotificationManager sharedInstance] enableNotifications:^(__unused ADAuthenticationResult *result) { }];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertTrue(result);
 }
 
 - (void)testCanHandleResponse_whenProtocolVersionIs3AndRequestIntiatedByAdal_shouldReturnNo
@@ -180,5 +199,18 @@
     
     XCTAssertFalse(result);
 }
+#else
+
+- (void)testCanHandleResponse_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+#endif
 
 @end

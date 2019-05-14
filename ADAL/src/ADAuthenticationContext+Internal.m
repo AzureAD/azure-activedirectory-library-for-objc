@@ -26,6 +26,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADBrokerNotificationManager.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -229,6 +230,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 + (BOOL)canHandleResponse:(NSURL *)response
         sourceApplication:(NSString *)sourceApplication
 {
+#if TARGET_OS_IPHONE
     BOOL isResponseFromBroker = [self isResponseFromBroker:sourceApplication response:response];
     if (!isResponseFromBroker) { return NO; }
     
@@ -243,9 +245,14 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     
     if (!resumeDictionary) AD_LOG_INFO(nil, @"No resume dictionary found.");
     
-    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc];
+    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc] || [[ADBrokerNotificationManager sharedInstance] hasCallback];
     
     return isValidVersion && isADALInitiatedRequest;
+#else
+    (void)response;
+    (void)sourceApplication;
+    return NO;
+#endif
 }
 
 @end

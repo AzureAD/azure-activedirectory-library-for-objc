@@ -32,4 +32,6 @@
 
 - (ADAuthenticationCallback)copyAndClearCallback;
 
+- (BOOL)hasCallback;
+
 @end

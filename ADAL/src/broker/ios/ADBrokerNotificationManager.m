@@ -138,5 +138,9 @@
     }
 }
 
+- (BOOL)hasCallback
+{
+    return _callbackForBroker != nil;
+}
 
 @end
