@@ -60,5 +60,8 @@ extern NSString* const ADRedirectUriInvalidError;
                                  toUser:(ADUserIdentifier*)userId
                            verifyUserId:(BOOL)verifyUserId;
 
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication;
+
 @end
 
