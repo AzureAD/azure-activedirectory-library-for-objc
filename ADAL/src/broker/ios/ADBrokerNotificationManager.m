@@ -140,7 +140,13 @@
 
 - (BOOL)hasCallback
 {
-    return _callbackForBroker != nil;
+    BOOL result = NO;
+    @synchronized(self)
+    {
+        result = _callbackForBroker != nil;
+    }
+    
+    return result;
 }
 
 @end
