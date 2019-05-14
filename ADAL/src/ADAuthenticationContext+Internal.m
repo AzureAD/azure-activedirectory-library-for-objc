@@ -240,6 +240,9 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     BOOL isValidVersion = [protocolVersion isEqualToString:ADAL_BROKER_MESSAGE_VERSION];
     
     NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    
+    if (!resumeDictionary) AD_LOG_INFO(nil, @"No resume dictionary found.");
+    
     BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc];
     
     return isValidVersion && isADALInitiatedRequest;

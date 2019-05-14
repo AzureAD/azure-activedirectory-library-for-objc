@@ -51,6 +51,8 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
             return YES;
         }
     }
+    
+    AD_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
 
     // Fallback to original delegate if defined
     if (__original_ApplicationOpenURL)
@@ -84,8 +86,9 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
             // Successfully handled broker response
             return YES;
         }
-
     }
+    
+    AD_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
 
     // Fallback to original delegate if defined
     if (__original_ApplicationOpenURLiOS9)
