@@ -23,9 +23,11 @@
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
-extern NSString* kAdalResumeDictionaryKey;
-extern NSString* s_brokerAppVersion;
-extern NSString* s_brokerProtocolVersion;
+extern NSString *kAdalResumeDictionaryKey;
+extern NSString *s_brokerAppVersion;
+extern NSString *s_brokerProtocolVersion;
+extern NSString *kAdalSDKNameKey;
+extern NSString *kAdalSDKObjc;
 
 @interface ADAuthenticationRequest (Broker)
 

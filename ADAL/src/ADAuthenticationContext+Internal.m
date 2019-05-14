@@ -26,6 +26,9 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
 #import "NSDictionary+ADExtensions.h"
+#if TARGET_OS_IPHONE
+#import "ADBrokerNotificationManager.h"
+#endif
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -224,6 +227,34 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     }
     
     return result;
+}
+
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication
+{
+#if TARGET_OS_IPHONE
+    BOOL isResponseFromBroker = [self isResponseFromBroker:sourceApplication response:response];
+    if (!isResponseFromBroker) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qp = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    
+    NSString *protocolVersion = queryParamsMap[BROKER_MESSAGE_VERSION];
+    BOOL isValidVersion = [protocolVersion isEqualToString:ADAL_BROKER_MESSAGE_VERSION];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    
+    if (!resumeDictionary) AD_LOG_INFO(nil, @"No resume dictionary found.");
+    
+    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc] || [[ADBrokerNotificationManager sharedInstance] hasCallback];
+    
+    return isValidVersion && isADALInitiatedRequest;
+#else
+    (void)response;
+    (void)sourceApplication;
+    return NO;
+#endif
 }
 
 @end

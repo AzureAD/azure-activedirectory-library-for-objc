@@ -106,7 +106,8 @@ extern NSString *const AUTH_ADDITIONAL_USER_IDENTIFIER;
 
 extern NSString *const AD_MICROSOFT_ENROLLMENT_ID;
 
-extern NSString* const ADAL_BROKER_SCHEME;
-extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;
-extern NSString* const ADAL_BROKER_APP_BUNDLE_ID;
-extern NSString* const ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD;
+extern NSString *const ADAL_BROKER_SCHEME;
+extern NSString *const ADAL_BROKER_APP_REDIRECT_URI;
+extern NSString *const ADAL_BROKER_APP_BUNDLE_ID;
+extern NSString *const ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD;
+extern NSString *const ADAL_BROKER_MESSAGE_VERSION;

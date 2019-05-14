@@ -29,6 +29,10 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "ADAuthenticationRequest+Broker.h"
+#if TARGET_OS_IPHONE
+#import "ADBrokerNotificationManager.h"
+#endif
 
 @implementation ADAuthenticationContextTests
 
@@ -40,6 +44,11 @@
 - (void)tearDown
 {
     [super tearDown];
+    
+#if TARGET_OS_IPHONE
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kAdalResumeDictionaryKey];
+    [[ADBrokerNotificationManager sharedInstance] copyAndClearCallback];
+#endif
 }
 
 #pragma mark - Initialization
@@ -131,5 +140,77 @@
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
     XCTAssertNil(error);
 }
+
+#if TARGET_OS_IPHONE
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndRequestIntiatedByAdal_shouldReturnYes
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertTrue(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdal_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: @"msal-objc"};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndThereIsNoCallbackAndNoResumeDictionary_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndThereIsCallbackAndNoResumeDictionary_shouldReturnYes
+{
+    [[ADBrokerNotificationManager sharedInstance] enableNotifications:^(__unused ADAuthenticationResult *result) { }];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertTrue(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs3AndRequestIntiatedByAdal_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+#else
+
+- (void)testCanHandleResponse_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+#endif
 
 @end

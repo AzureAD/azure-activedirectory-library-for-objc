@@ -35,6 +35,9 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADAuthenticationRequest+Broker.h"
+#import "ADOAuth2Constants.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
