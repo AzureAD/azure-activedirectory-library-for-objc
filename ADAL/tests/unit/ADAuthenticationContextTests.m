@@ -29,6 +29,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "ADAuthenticationRequest+Broker.h"
 
 @implementation ADAuthenticationContextTests
 
@@ -40,6 +41,8 @@
 - (void)tearDown
 {
     [super tearDown];
+    
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kAdalResumeDictionaryKey];
 }
 
 #pragma mark - Initialization
@@ -130,6 +133,52 @@
     XCTAssertNotNil(context);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
     XCTAssertNil(error);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndRequestIntiatedByAdal_shouldReturnYes
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertTrue(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdal_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: @"msal-objc"};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs2AndNoResumeDictionary_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+- (void)testCanHandleResponse_whenProtocolVersionIs3AndRequestIntiatedByAdal_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.azureauthenticator";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
 }
 
 @end

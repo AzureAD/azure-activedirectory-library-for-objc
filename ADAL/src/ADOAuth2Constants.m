@@ -111,4 +111,5 @@ NSString* const ADAL_BROKER_SCHEME = @"msauth";
 NSString* const ADAL_BROKER_APP_REDIRECT_URI = @"urn:ietf:wg:oauth:2.0:oob";
 NSString* const ADAL_BROKER_APP_BUNDLE_ID = @"com.microsoft.azureauthenticator";
 NSString* const ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD = @"com.microsoft.azureauthenticator-df";
+NSString* const ADAL_BROKER_MESSAGE_VERSION = @"2";
 

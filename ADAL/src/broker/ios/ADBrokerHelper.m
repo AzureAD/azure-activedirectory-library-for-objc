@@ -30,6 +30,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADWebAuthController+Internal.h"
 #import "ADAppExtensionUtil.h"
+#import "ADAuthenticationContext+Internal.h"
 
 typedef BOOL (*applicationHandleOpenURLPtr)(id, SEL, UIApplication*, NSURL*);
 IMP __original_ApplicationHandleOpenURL = NULL;
@@ -39,7 +40,7 @@ IMP __original_ApplicationOpenURL = NULL;
 
 BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application, NSURL* url, NSString* sourceApplication, id annotation)
 {
-    if ([ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    if ([ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApplication])
     {
         // Attempt to handle response from broker
         BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
@@ -50,6 +51,8 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
             return YES;
         }
     }
+    
+    AD_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
 
     // Fallback to original delegate if defined
     if (__original_ApplicationOpenURL)
@@ -73,7 +76,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 {
     NSString* sourceApplication = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
 
-    if ([ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    if ([ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApplication])
     {
         // Attempt to handle response from broker
         BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
@@ -83,8 +86,9 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
             // Successfully handled broker response
             return YES;
         }
-
     }
+    
+    AD_LOG_INFO(nil, @"This url cannot be handled by ADAL. Skipping it.");
 
     // Fallback to original delegate if defined
     if (__original_ApplicationOpenURLiOS9)

@@ -50,10 +50,11 @@
 #import "ADKeychainUtil.h"
 #endif // TARGET_OS_IPHONE
 
-NSString* s_brokerAppVersion = nil;
-NSString* s_brokerProtocolVersion = nil;
-
-NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
+NSString *s_brokerAppVersion = nil;
+NSString *s_brokerProtocolVersion = nil;
+NSString *kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
+NSString *kAdalSDKNameKey = @"sdk_name";
+NSString *kAdalSDKObjc = @"adal-objc";
 
 @implementation ADAuthenticationRequest (Broker)
 
@@ -347,7 +348,14 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_app_version": clientMetadata[ADAL_ID_APP_VERSION]
       };
     
-    NSDictionary<NSString *, NSString *>* resumeDictionary = nil;
+    NSMutableDictionary *resumeDictionary = [@{
+                                               @"authority"        : _requestParams.authority,
+                                               @"resource"         : _requestParams.resource,
+                                               @"client_id"        : _requestParams.clientId,
+                                               @"redirect_uri"     : _requestParams.redirectUri,
+                                               @"correlation_id"   : _requestParams.correlationId.UUIDString,
+                                               kAdalSDKNameKey     : kAdalSDKObjc
+                                               } mutableCopy];
 #if TARGET_OS_IPHONE
     id<ADTokenCacheDataSource> dataSource = [_requestParams.tokenCache dataSource];
     if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
@@ -362,29 +370,11 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         {
             keychainGroup = [keychainGroup substringFromIndex:teamId.length + 1];
         }
-        resumeDictionary =
-        @{
-          @"authority"        : _requestParams.authority,
-          @"resource"         : _requestParams.resource,
-          @"client_id"        : _requestParams.clientId,
-          @"redirect_uri"     : _requestParams.redirectUri,
-          @"correlation_id"   : _requestParams.correlationId.UUIDString,
-          @"keychain_group"   : keychainGroup
-          };
-
+        
+        resumeDictionary[@"keychain_group"] = keychainGroup;
     }
-    else
 #endif
-    {
-        resumeDictionary =
-        @{
-          @"authority"        : _requestParams.authority,
-          @"resource"         : _requestParams.resource,
-          @"client_id"        : _requestParams.clientId,
-          @"redirect_uri"     : _requestParams.redirectUri,
-          @"correlation_id"   : _requestParams.correlationId.UUIDString,
-          };
-    }
+
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     

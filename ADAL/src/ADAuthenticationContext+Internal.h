@@ -82,6 +82,9 @@ extern NSString* const ADRedirectUriInvalidError;
 
 - (BOOL)hasCacheStore;
 
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication;
+
 @end
 
 @interface ADAuthenticationContext (CacheStorage)
