@@ -1,3 +1,7 @@
+Version 2.7.11 (05.14.2019)
+-----------
+* Fix issues when ADAL was trying to handle MSAL broker responses.
+
 Version 2.7.10 (04.24.2018)
 -----------
 * Hotfix to add compiler flag to disable Kerberos (#1401)
