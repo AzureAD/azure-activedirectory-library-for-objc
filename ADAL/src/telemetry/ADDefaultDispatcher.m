@@ -42,9 +42,9 @@
     return self;
 }
 
-- (BOOL)containsDispatcher:(id<ADDispatcher>)dispatcher
+- (BOOL)containsObserver:(id)observer
 {
-    return _dispatcher == dispatcher;
+    return _dispatcher == observer;
 }
 
 - (void)flush:(NSString*)requestId

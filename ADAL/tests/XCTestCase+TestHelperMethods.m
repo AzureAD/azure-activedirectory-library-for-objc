@@ -595,6 +595,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.refreshToken = nil;
     tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
                                                               upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                              oid:nil
                                                          tenantId:DEFAULT_TEST_UTID];
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
@@ -616,6 +617,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
                                                               upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                              oid:nil
                                                          tenantId:DEFAULT_TEST_UTID];
     tokenCacheItem.expiresOn = nil;
     tokenCacheItem.cachedAt = nil;
@@ -637,6 +639,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     tokenCacheItem.refreshToken = DEFAULT_TEST_REFRESH_TOKEN;
     tokenCacheItem.idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME
                                                               upn:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                              oid:nil
                                                          tenantId:DEFAULT_TEST_UTID];
     tokenCacheItem.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     tokenCacheItem.cachedAt = nil;
