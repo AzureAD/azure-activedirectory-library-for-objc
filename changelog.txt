@@ -1,3 +1,7 @@
+Version 2.7.12 (05.30.2019)
+----------
+* Make cache more resilient to corrupt data with nulls (#1419)
+
 Version 2.7.11 (05.14.2019)
 -----------
 * Fix issues when ADAL was trying to handle MSAL broker responses.
