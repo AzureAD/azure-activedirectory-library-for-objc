@@ -182,7 +182,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         errorDetails = @"Broker did not provide any details";
     }
 
-    userInfo[ADBrokerVersionKey] = [response msidStringForKey:ADAL_BROKER_APP_VERSION];
+    userInfo[ADBrokerVersionKey] = [response msidStringObjectForKey:ADAL_BROKER_APP_VERSION];
 
     NSString *strErrorCode = [response valueForKey:@"error_code"];
     NSInteger errorCode = AD_ERROR_TOKENBROKER_UNKNOWN;
@@ -191,8 +191,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         errorCode = [strErrorCode integerValue];
     }
 
-    userInfo[ADSuberrorKey] = [response msidStringForKey:ADAL_AUTH_SUBERROR];
-    userInfo[ADUserIdKey] = [response msidStringForKey:@"user_id"];
+    userInfo[ADSuberrorKey] = [response msidStringObjectForKey:ADAL_AUTH_SUBERROR];
+    userInfo[ADUserIdKey] = [response msidStringObjectForKey:@"user_id"];
 
     NSString *protocolCode = [response valueForKey:@"protocol_code"];
     if (!protocolCode)
