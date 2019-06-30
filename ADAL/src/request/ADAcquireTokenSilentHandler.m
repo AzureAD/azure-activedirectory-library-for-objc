@@ -48,11 +48,13 @@
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDConfiguration.h"
 
 @interface ADAcquireTokenSilentHandler()
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 @property (nonatomic) MSIDAADV1Oauth2Factory *factory;
+@property (nonatomic) MSIDConfiguration *configuration;
 
 @end
 
@@ -73,6 +75,28 @@
     handler->_verifyUserId = verifyUserId;
     
     return handler;
+}
+
+- (MSIDConfiguration *)silentRequestConfiguration
+{
+    if (_configuration)
+    {
+        return _configuration;
+    }
+    
+    if ([self isCapableForMAMCA])
+    {
+        _configuration = [_requestParams.msidConfig copy];
+        _configuration.applicationIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+        _configuration.enrollmentId = [self enrollmentIDForHomeAccountID:_requestParams.account.homeAccountId
+                                                            legacyUserID:_requestParams.account.legacyAccountId];
+    }
+    else
+    {
+        _configuration = _requestParams.msidConfig;
+    }
+    
+    return _configuration;
 }
 
 - (void)getToken:(ADAuthenticationCallback)completionBlock
@@ -150,25 +174,15 @@
         request_data[MSID_OAUTH2_CLAIMS] = claims;
     }
     
-    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
-
-    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
-
-    BOOL isADFSInstance = adfsAuthority != nil;
-
-    if (!isADFSInstance)
+    NSString *userId = (cacheItem.accountIdentifier.legacyAccountId ?: _requestParams.identifier.userId);
+    NSString *enrollmentId = [self enrollmentIDForHomeAccountID:cacheItem.accountIdentifier.homeAccountId legacyUserID:userId];
+    
+    if (![NSString msidIsStringNilOrBlank:enrollmentId])
     {
-        NSString *legacyAccountId = cacheItem.accountIdentifier.legacyAccountId;
-        NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
-        ADAuthenticationError *error = nil;
-        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
-                                                                          userID:userId
-                                                                           error:&error];
-        
-        if (enrollId)
-            [request_data setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
+        [request_data setObject:enrollmentId forKey:ADAL_MS_ENROLLMENT_ID];
     }
-
+    
+    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
 
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
@@ -204,6 +218,7 @@
                                                                          fromRefreshToken:cacheItem
                                                                                     cache:self.tokenCache
                                                                                    params:_requestParams
+                                                                            configuration:[self silentRequestConfiguration]
                                                                              verifyUserId:_verifyUserId];
          
          completionBlock(result);
@@ -311,9 +326,11 @@
     NSUUID* correlationId = [_requestParams correlationId];
 
     NSError *msidError = nil;
+    
+    MSIDConfiguration *configuration = [self silentRequestConfiguration];
 
     MSIDLegacySingleResourceToken *item = [self.tokenCache getSingleResourceTokenForAccount:_requestParams.account
-                                                                              configuration:_requestParams.msidConfig
+                                                                              configuration:configuration
                                                                                     context:_requestParams
                                                                                       error:&msidError];
     
@@ -331,7 +348,7 @@
         MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"" homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
-                                                   configuration:_requestParams.msidConfig
+                                                   configuration:configuration
                                                          context:_requestParams
                                                            error:&msidError];
         
@@ -349,9 +366,20 @@
             return;
         }
     }
+    
+    BOOL enrollmentIdMatch = YES;
+    
+    // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
+    if ([self isCapableForMAMCA] && ![NSString msidIsStringNilOrBlank:item.enrollmentId])
+    {
+        enrollmentIdMatch = configuration.enrollmentId && [configuration.enrollmentId isEqualToString:item.enrollmentId];
+    }
 
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer] && !_requestParams.forceRefresh)
+    if (item.accessToken
+        && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer]
+        && !_requestParams.forceRefresh
+        && enrollmentIdMatch)
     {
         [[MSIDLogger sharedLogger] logToken:item.accessToken
                                   tokenType:@"AT"
@@ -370,7 +398,10 @@
     }
 
     // If the access token is good in terms of extended lifetime then store it for later use
-    if (item.accessToken && item.isExtendedLifetimeValid && !_requestParams.forceRefresh)
+    if (item.accessToken
+        && item.isExtendedLifetimeValid
+        && !_requestParams.forceRefresh
+        && enrollmentIdMatch)
     {
         _extendedLifetimeAccessTokenItem = item;
     }
@@ -434,7 +465,7 @@
 
         MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                             familyId:nil
-                                                                       configuration:_requestParams.msidConfig
+                                                                       configuration:[self silentRequestConfiguration]
                                                                              context:_requestParams
                                                                                error:&msidError];
         
@@ -504,7 +535,7 @@
 
     MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                         familyId:familyId
-                                                                   configuration:_requestParams.msidConfig
+                                                                   configuration:[self silentRequestConfiguration]
                                                                          context:_requestParams
                                                                            error:&msidError];
     
@@ -556,6 +587,44 @@
     }
     
     return ([result.error code] >= 500 && [result.error code] <= 599);
+}
+
+#pragma mark - Enrollment ID
+
+- (BOOL)isCapableForMAMCA
+{
+    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
+    
+    BOOL isADFSInstance = adfsAuthority != nil;
+    
+    if (!isADFSInstance)
+    {
+        return ![NSString msidIsStringNilOrBlank:[ADEnrollmentGateway allIntuneMAMResourcesJSON]];
+    }
+    
+    return NO;
+}
+
+- (NSString *)enrollmentIDForHomeAccountID:(NSString *)homeAccountId
+                              legacyUserID:(NSString *)legacyUserID
+{
+    if (![self isCapableForMAMCA])
+    {
+        return nil;
+    }
+    
+    ADAuthenticationError *error = nil;
+    NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:homeAccountId
+                                                                    userID:legacyUserID
+                                                                     error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_ERROR_PII(_requestParams, @"Error looking up enrollment ID %@", error);
+    }
+    
+    return enrollId;
 }
 
 @end

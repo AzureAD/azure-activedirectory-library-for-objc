@@ -286,6 +286,7 @@
                                                                             fromRefreshToken:nil
                                                                                        cache:self.tokenCache
                                                                                       params:_requestParams
+                                                                               configuration:_requestParams.msidConfig
                                                                                 verifyUserId:YES];
             completionBlock(result);
         }];
@@ -495,6 +496,7 @@
                                                                                       fromRefreshToken:nil
                                                                                                  cache:self.tokenCache
                                                                                                 params:_requestParams
+                                                                                         configuration:_requestParams.msidConfig
                                                                                           verifyUserId:!_silent];
                       
                       [result setCloudAuthority:_cloudAuthority];

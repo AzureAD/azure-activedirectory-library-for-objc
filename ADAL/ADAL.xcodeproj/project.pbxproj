@@ -4258,6 +4258,7 @@
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -4267,6 +4268,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
@@ -4289,6 +4291,7 @@
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -4296,6 +4299,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
@@ -4583,6 +4587,7 @@
 			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -4590,6 +4595,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
