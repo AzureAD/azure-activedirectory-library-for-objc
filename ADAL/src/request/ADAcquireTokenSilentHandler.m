@@ -370,6 +370,7 @@
     BOOL enrollmentIdMatch = YES;
     
     // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
+    // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
     if ([self isCapableForMAMCA] && ![NSString msidIsStringNilOrBlank:item.enrollmentId])
     {
         enrollmentIdMatch = configuration.enrollmentId && [configuration.enrollmentId isEqualToString:item.enrollmentId];
