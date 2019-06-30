@@ -612,6 +612,8 @@ const int sAsyncContextTimeout = 10;
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+#if TARGET_OS_IPHONE
+
 - (void)testAcquireTokenSilent_whenAccessTokenCached_andEnrollmentIdRequired_andCorrectEnrollmentIdPassed_shouldReturnToken
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
@@ -763,6 +765,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     XCTAssertEqual(allItems.count, 0);
 }
+#endif
 
 - (void)testSilentExpiredItemCached
 {
