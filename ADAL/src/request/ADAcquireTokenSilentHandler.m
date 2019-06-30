@@ -594,6 +594,7 @@
 
 - (BOOL)isCapableForMAMCA
 {
+#if TARGET_OS_IPHONE
     NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
     
@@ -605,6 +606,9 @@
     }
     
     return NO;
+#else
+    return NO;
+#endif
 }
 
 - (NSString *)enrollmentIDForHomeAccountID:(NSString *)homeAccountId

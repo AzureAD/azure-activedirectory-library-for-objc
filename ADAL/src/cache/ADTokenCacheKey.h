@@ -36,6 +36,8 @@
     NSString* _clientId;
 }
 
+
+
 /*! Creates a key
  @param authority Required. The authentication authority used.
  @param resource Optional. The resource used for the token. Multi-resource refresh token items can be extracted by specifying nil.
@@ -46,6 +48,13 @@
                              clientId:(NSString *)clientId
                                 error:(ADAuthenticationError * __autoreleasing *)error;
 
+/*! Creates a key with optional application identifier */
++ (ADTokenCacheKey *)keyWithAuthority:(NSString *)authority
+                             resource:(NSString *)resource
+                             clientId:(NSString *)clientId
+                        appIdentifier:(NSString *)appIdentifier
+                                error:(ADAuthenticationError * __autoreleasing *)error;
+
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;
 
@@ -54,6 +63,9 @@
 
 /*! The application client identifier */
 @property (readonly) NSString* clientId;
+
+/*! Application identifier */
+@property (readonly) NSString *applicationIdentifier;
 
 - (ADTokenCacheKey *)mrrtKey;
 
