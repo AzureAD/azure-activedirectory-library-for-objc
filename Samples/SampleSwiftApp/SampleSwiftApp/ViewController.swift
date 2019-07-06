@@ -44,40 +44,45 @@ class ViewController: UIViewController {
     }
     
     @IBAction func acquireToken(_ sender:UIButton) {
-        let authContext = ADAuthenticationContext(authority: "https://login.microsoftonline.com/common",
-                                                  error: nil)
         
-        authContext!.acquireToken(withResource: "https://graph.windows.net",
-                                             clientId: "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
-                                             redirectUri: URL(string: "urn:ietf:wg:oauth:2.0:oob"))
+        guard let authContext = ADAuthenticationContext(authority: "https://login.microsoftonline.com/common", error: nil) else {
+            
+            print("Failed to create auth context")
+            return
+        }
+        
+        authContext.acquireToken(withResource: "https://graph.windows.net",
+                                 clientId: "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+                                 redirectUri: URL(string: "urn:ietf:wg:oauth:2.0:oob")!)
         {
             (result) in
             
-            if (result!.status != AD_SUCCEEDED)
-            {
-                if result!.error.domain == ADAuthenticationErrorDomain
-                    && result!.error.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
+            guard result.status == AD_SUCCEEDED else {
+                
+                if result.error!.domain == ADAuthenticationErrorDomain
+                    && result.error!.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
                     
-                    self.updateStatusField("Unexpected internal error occured");
-                    
-                } else {
-                    
-                    self.updateStatusField(result!.error.description)
+                    self.updateStatusField("Unexpected internal error occured")
+                }
+                else {
+                    self.updateStatusField(result.error!.description)
                 }
                 
-                return;
+                return
             }
             
             var expiresOnString = "(nil)"
             
-            if let expiresOn = result!.tokenCacheItem.expiresOn {
-                expiresOnString = String(describing: expiresOn)
+            guard let tokenCacheItem = result.tokenCacheItem else {
+                self.updateStatusField("No token cache item returned")
+                return
             }
             
-            let status = String(format: "Access token: %@\nexpiration:%@", result!.accessToken, expiresOnString)
+            expiresOnString = String(describing: tokenCacheItem.expiresOn)
+            
+            let status = String(format: "Access token: %@\nexpiration:%@", result.accessToken!, expiresOnString)
             self.updateStatusField(status)
         }
     }
-
 }
 

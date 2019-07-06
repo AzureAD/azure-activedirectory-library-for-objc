@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9453C3CB1C583E07006B9E79"
                BuildableName = "ADAL.framework"
-               BlueprintName = "ADAL"
+               BlueprintName = "ADAL iOS"
                ReferencedContainer = "container:../../ADAL/ADAL.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
