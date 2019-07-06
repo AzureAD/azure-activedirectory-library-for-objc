@@ -37,62 +37,62 @@
 /*! Factory method to extract user information from the AAD id_token parameter.
  @param idToken The contents of the id_token parameter, as passed by the server.
  */
-+ (ADUserInformation *)userInformationWithIdToken:(NSString *)idToken
-                                            error:(ADAuthenticationError * __autoreleasing *)error;
++ (nullable ADUserInformation *)userInformationWithIdToken:(nonnull NSString *)idToken
+                                                     error:(ADAuthenticationError * __autoreleasing _Nullable * _Nullable)error;
 
 /* This is the only unique property, as it is used in the key generation for the cache.user
  Two ADUserInformation objects are considered the same if this property is the same. Using RequiredDisplayableId
  will validate against this property. */
-@property (readonly) NSString *userId;
+@property (readonly, nonnull) NSString *userId;
 
 /*! Unique AAD account identifier across tenants based on user's home OID/home tenantId. */
-@property (readonly) NSString *homeAccountId;
+@property (readonly, nullable) NSString *homeAccountId;
 
 /*! Determines whether userId is displayable */
 @property (readonly) BOOL userIdDisplayable;
 
 /*! This property will be the userObjectId if it exists, or the subject if it does not. It is typically a GUID
     and not displayable. Using UniqueId as the ADUserIdentifierType will validate against this property. */
-@property (readonly) NSString *uniqueId;
+@property (readonly, nullable) NSString *uniqueId;
 
 /*! May be null */
-@property (readonly) NSString *givenName;
+@property (readonly, nullable) NSString *givenName;
 
 /*! May be null */
-@property (readonly) NSString *familyName;
+@property (readonly, nullable) NSString *familyName;
 
 /*! May be null */
-@property (readonly) NSString *identityProvider;
+@property (readonly, nullable) NSString *identityProvider;
 
 /*! May be null */
-@property (readonly) NSString *eMail;
+@property (readonly, nullable) NSString *eMail;
 
 /*! May be null */
-@property (readonly) NSString *uniqueName;
+@property (readonly, nullable) NSString *uniqueName;
 
 /*! May be null */
-@property (readonly) NSString *upn;
+@property (readonly, nullable) NSString *upn;
 
 /*! May be null */
-@property (readonly) NSString *tenantId;
+@property (readonly, nullable) NSString *tenantId;
 
 /*! May be null */
-@property (readonly) NSString *subject;
+@property (readonly, nullable) NSString *subject;
 
 /*! Unique object id that identifies the user. Internal user representation. May be null. " */
-@property (readonly) NSString *userObjectId;
+@property (readonly, nullable) NSString *userObjectId;
 
 /*! Internal representation for guest users to the tenants. May be null. */
-@property (readonly) NSString *guestId;
+@property (readonly, nullable) NSString *guestId;
 
 /*! The raw id_token claim string. */
-@property (readonly) NSString *rawIdToken;
+@property (readonly, nonnull) NSString *rawIdToken;
 
 /*! Contains all claims that had been read from the id_token. May be null, if the object was not created from a real id_token. */
-@property (readonly) NSDictionary *allClaims;
+@property (readonly, nullable) NSDictionary *allClaims;
 
 /* A helper method to normalize userId, e.g. remove white spaces, lowercase. 
  Returns nil if userId is nil or empty. */
-+ (NSString *)normalizeUserId:(NSString *)userId;
++ (nullable NSString *)normalizeUserId:(nonnull NSString *)userId;
 
 @end
