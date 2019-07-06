@@ -31,12 +31,6 @@
 #import "ADEnrollmentGateway.h"
 #import "MSIDADFSAuthority.h"
 
-@interface ADRequestParameters()
-
-@property (nonatomic) MSIDConfiguration *mamCAConfiguration;
-
-@end
-
 @implementation ADRequestParameters
 
 @synthesize authority = _authority;
