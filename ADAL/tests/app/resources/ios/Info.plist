@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>ADALOutlook</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
@@ -28,6 +30,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>x-msauth-adaltestapp-210</string>
+				<string>x-msauth-outlook-prod</string>
 			</array>
 		</dict>
 	</array>

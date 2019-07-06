@@ -77,28 +77,6 @@
     return handler;
 }
 
-- (MSIDConfiguration *)silentRequestConfiguration
-{
-    if (_configuration)
-    {
-        return _configuration;
-    }
-    
-    if ([self isCapableForMAMCA])
-    {
-        _configuration = [_requestParams.msidConfig copy];
-        _configuration.applicationIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-        _configuration.enrollmentId = [self enrollmentIDForHomeAccountID:_requestParams.account.homeAccountId
-                                                            legacyUserID:_requestParams.account.legacyAccountId];
-    }
-    else
-    {
-        _configuration = _requestParams.msidConfig;
-    }
-    
-    return _configuration;
-}
-
 - (void)getToken:(ADAuthenticationCallback)completionBlock
 {
     [self getAccessToken:^(ADAuthenticationResult *result)
@@ -175,7 +153,7 @@
     }
     
     NSString *userId = (cacheItem.accountIdentifier.legacyAccountId ?: _requestParams.identifier.userId);
-    NSString *enrollmentId = [self enrollmentIDForHomeAccountID:cacheItem.accountIdentifier.homeAccountId legacyUserID:userId];
+    NSString *enrollmentId = [_requestParams enrollmentIDForHomeAccountID:cacheItem.accountIdentifier.homeAccountId legacyUserID:userId];
     
     if (![NSString msidIsStringNilOrBlank:enrollmentId])
     {
@@ -218,7 +196,7 @@
                                                                          fromRefreshToken:cacheItem
                                                                                     cache:self.tokenCache
                                                                                    params:_requestParams
-                                                                            configuration:[self silentRequestConfiguration]
+                                                                            configuration:_requestParams.msidConfig
                                                                              verifyUserId:_verifyUserId];
          
          completionBlock(result);
@@ -327,7 +305,7 @@
 
     NSError *msidError = nil;
     
-    MSIDConfiguration *configuration = [self silentRequestConfiguration];
+    MSIDConfiguration *configuration = _requestParams.msidConfig;
 
     MSIDLegacySingleResourceToken *item = [self.tokenCache getSingleResourceTokenForAccount:_requestParams.account
                                                                               configuration:configuration
@@ -371,7 +349,7 @@
     
     // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
     // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
-    if ([self isCapableForMAMCA] && ![NSString msidIsStringNilOrBlank:item.enrollmentId])
+    if ([_requestParams isCapableForMAMCA] && ![NSString msidIsStringNilOrBlank:item.enrollmentId])
     {
         enrollmentIdMatch = configuration.enrollmentId && [configuration.enrollmentId isEqualToString:item.enrollmentId];
     }
@@ -466,7 +444,7 @@
 
         MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                             familyId:nil
-                                                                       configuration:[self silentRequestConfiguration]
+                                                                       configuration:_requestParams.msidConfig
                                                                              context:_requestParams
                                                                                error:&msidError];
         
@@ -536,7 +514,7 @@
 
     MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
                                                                         familyId:familyId
-                                                                   configuration:[self silentRequestConfiguration]
+                                                                   configuration:_requestParams.msidConfig
                                                                          context:_requestParams
                                                                            error:&msidError];
     
@@ -588,48 +566,6 @@
     }
     
     return ([result.error code] >= 500 && [result.error code] <= 599);
-}
-
-#pragma mark - Enrollment ID
-
-- (BOOL)isCapableForMAMCA
-{
-#if TARGET_OS_IPHONE
-    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
-    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
-    
-    BOOL isADFSInstance = adfsAuthority != nil;
-    
-    if (!isADFSInstance)
-    {
-        return ![NSString msidIsStringNilOrBlank:[ADEnrollmentGateway allIntuneMAMResourcesJSON]];
-    }
-    
-    return NO;
-#else
-    return NO;
-#endif
-}
-
-- (NSString *)enrollmentIDForHomeAccountID:(NSString *)homeAccountId
-                              legacyUserID:(NSString *)legacyUserID
-{
-    if (![self isCapableForMAMCA])
-    {
-        return nil;
-    }
-    
-    ADAuthenticationError *error = nil;
-    NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:homeAccountId
-                                                                    userID:legacyUserID
-                                                                     error:&error];
-    
-    if (error)
-    {
-        MSID_LOG_ERROR_PII(_requestParams, @"Error looking up enrollment ID %@", error);
-    }
-    
-    return enrollId;
 }
 
 @end
