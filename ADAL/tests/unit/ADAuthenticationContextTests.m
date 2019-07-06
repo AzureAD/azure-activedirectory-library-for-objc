@@ -70,7 +70,8 @@
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
+    NSString *authority = nil;
+    context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
     
     XCTAssertNil(context);
     XCTAssertNotNil(error);
@@ -83,7 +84,8 @@
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
+    NSString *authority = nil;
+    context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);

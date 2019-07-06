@@ -133,14 +133,16 @@ const int sAsyncContextTimeout = 10;
 - (void)testBadCompletionBlock
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    ADAssertThrowsArgument([context acquireTokenWithResource:TEST_RESOURCE clientId:TEST_CLIENT_ID redirectUri:TEST_REDIRECT_URL completionBlock:nil]);
+    ADAuthenticationCallback callback = nil;
+    ADAssertThrowsArgument([context acquireTokenWithResource:TEST_RESOURCE clientId:TEST_CLIENT_ID redirectUri:TEST_REDIRECT_URL completionBlock:callback]);
 }
 
 - (void)testBadResource
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireToken without resource should return error."];
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    [context acquireTokenWithResource:nil
+    NSString *resource = nil;
+    [context acquireTokenWithResource:resource
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
                       completionBlock:^(ADAuthenticationResult *result)
@@ -179,8 +181,9 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireToken without clientId should return error."];
+    NSString *clientId = nil;
     [context acquireTokenWithResource:TEST_RESOURCE
-                             clientId:nil
+                             clientId:clientId
                           redirectUri:TEST_REDIRECT_URL
                       completionBlock:^(ADAuthenticationResult *result)
      {
@@ -268,7 +271,8 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenForAssertion with bad assertion."];
-    [context acquireTokenForAssertion:nil
+    NSString *assertion = nil;
+    [context acquireTokenForAssertion:assertion
                         assertionType:AD_SAML1_1
                              resource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
@@ -503,10 +507,11 @@ const int sAsyncContextTimeout = 10;
 
     // Because there's only one user in the cache calling acquire token with nil userId should
     // return this one item.
+    NSString *userId = nil;
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
-                               userId:nil
+                               userId:userId
                       completionBlock:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
@@ -2821,7 +2826,8 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
 
-    [context acquireTokenWithRefreshToken:nil
+    NSString *refreshToken = nil;
+    [context acquireTokenWithRefreshToken:refreshToken
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL
@@ -3019,7 +3025,8 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
     
-    [context acquireTokenWithRefreshToken:nil
+    NSString *refreshToken = nil;
+    [context acquireTokenWithRefreshToken:refreshToken
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL

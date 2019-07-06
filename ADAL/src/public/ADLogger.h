@@ -77,7 +77,7 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
  
     @param callback     The block log messages are sent to. See the documentation for LogCallback for more information.
  */
-+ (void)setLogCallBack:(nonnull LogCallback)callback __attribute((deprecated("Use the setLoggerCallback: method instead.")));
++ (void)setLogCallBack:(nullable LogCallback)callback __attribute((deprecated("Use the setLoggerCallback: method instead.")));
 
 
 /*!
@@ -91,7 +91,7 @@ typedef void (^ADLoggerCallback)(ADAL_LOG_LEVEL logLevel,
                                  NSString * _Nonnull message,
                                  BOOL containsPii);
 
-+ (void)setLoggerCallback:(nonnull ADLoggerCallback)callback;
++ (void)setLoggerCallback:(nullable ADLoggerCallback)callback;
 
 /*!
     Turns on or off ADAL printing log messages to the console via NSLog. On by default.
