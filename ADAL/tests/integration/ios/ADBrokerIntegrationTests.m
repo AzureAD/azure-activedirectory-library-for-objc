@@ -46,6 +46,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADEnrollmentGateway.h"
 #import "ADEnrollmentGateway+TestUtil.h"
+#import "ADTokenCacheKey.h"
 
 @interface ADEnrollmentGateway ()
 
@@ -754,7 +755,9 @@
 
     ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
-    XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
+    ADTokenCacheKey *accessTokenCacheKey = [ADTokenCacheKey keyWithAuthority:authority resource:TEST_RESOURCE clientId:TEST_CLIENT_ID appIdentifier:@"com.microsoft.unittesthost" error:nil];
+    ADTokenCacheItem *accessTokenCacheItem = [tokenCache getItemWithKey:accessTokenCacheKey userId:TEST_USER_ID correlationId:nil error:nil];
+    XCTAssertEqualObjects(accessTokenCacheItem.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
     [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
