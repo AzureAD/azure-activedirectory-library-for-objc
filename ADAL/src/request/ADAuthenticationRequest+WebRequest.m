@@ -37,7 +37,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "ADAuthenticationErrorConverter.h"
-#import "MSIDClientCapabilitiesUtil.h"
+#import "ADALClientCapabilitiesUtil.h"
 
 
 @implementation ADAuthenticationRequest (WebRequest)

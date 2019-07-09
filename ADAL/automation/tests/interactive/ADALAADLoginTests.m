@@ -27,6 +27,7 @@
 #import "XCTestCase+TextFieldTap.h"
 #import "XCUIElement+CrossPlat.h"
 #import "MSIDAutomationSuccessResult.h"
+#import "ADErrorCodes.h"
 
 @interface ADALAADInteractiveLoginTests : ADALBaseUITest
 
@@ -39,7 +40,7 @@
     [super setUp];
     
     // Load accounts
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     [self loadTestConfiguration:configurationRequest];
 }
@@ -89,7 +90,7 @@
 // TODO: re-enable this test once we have reasonable test environment for MFA
 - (void)DISABLED_testInteractiveAndSilentAADMFALogin_withPromptAlways_noLoginHint_ADALWebView
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMFAEnabled];
     [self loadTestConfiguration:configurationRequest];
@@ -151,7 +152,7 @@
     [self acquireToken:config];
     [self aadEnterEmail];
     [self closeAuthUI];
-    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
+    [self assertErrorCode:AD_ERROR_UI_USER_CANCEL];
 }
 
 // #290995 iteration 2
@@ -267,7 +268,7 @@
 // #296753: Login Multiple Accounts
 - (void)testAADLogin_withPromptAlways_LoginHint_loginMultipleAccounts
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
     [self loadTestConfiguration:configurationRequest];
@@ -309,7 +310,7 @@
 // #296758: Different ADUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
     [self loadTestConfiguration:configurationRequest];
@@ -363,7 +364,7 @@
     [self aadEnterPassword];
 
     // Should fail
-    [self assertErrorCode:@"AD_ERROR_SERVER_WRONG_USER"];
+    [self assertErrorCode:AD_ERROR_SERVER_WRONG_USER];
     [self closeResultView];
     
     // RequiredDisplayableId and not changing the user
@@ -375,7 +376,7 @@
 // 296732: Company Portal Install Prompt
 - (void)test_companyPortalInstallPrompt
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMDMEnabled];
     [self loadTestConfiguration:configurationRequest];
@@ -419,12 +420,12 @@
     
     NSDictionary *config = [self configWithTestRequest:silentRequest];
     [self acquireTokenSilent:config];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
 }
 
 - (void)testSilentAADLogin_withNoUserProvided_multipleUsersInCache
 {
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
     configurationRequest.appVersion = MSIDAppVersionV1;
@@ -448,7 +449,7 @@
     firstRequest.loginHint = nil;
     NSDictionary *config = [self configWithTestRequest:firstRequest];
     [self acquireTokenSilent:config];
-    [self assertErrorCode:@"AD_ERROR_CACHE_MULTIPLE_USERS"];
+    [self assertErrorCode:AD_ERROR_CACHE_MULTIPLE_USERS];
 }
 
 - (void)testAcquireTokenByRefreshToken_withAADRefreshToken

@@ -23,7 +23,7 @@
 
 #import "ADALBaseUITest.h"
 #import "NSDictionary+ADALiOSUITests.h"
-#import "MSIDAutomationConfigurationRequest.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "NSDictionary+ADALiOSUITests.h"
 #import "MSIDAADV1IdTokenClaims.h"
@@ -32,6 +32,7 @@
 #import "MSIDAutomationSuccessResult.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDAutomationActionConstants.h"
+#import "ADErrorCodes.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
 
@@ -138,11 +139,10 @@ static MSIDTestConfigurationProvider *s_confProvider;
     XCTAssertTrue(result);
 }
 
-- (void)assertErrorCode:(NSString *)expectedErrorCode
+- (void)assertErrorCode:(NSInteger)expectedErrorCode
 {
     MSIDAutomationErrorResult *result = [self automationErrorResult];
-    NSString *actualErrorCode = result.errorName;
-    XCTAssertEqualObjects(expectedErrorCode, actualErrorCode);
+    XCTAssertEqual(expectedErrorCode, result.errorCode);
 }
 
 - (void)assertErrorDescription:(NSString *)errorDescription
@@ -189,19 +189,18 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 #pragma mark - API fetch
 
-- (void)loadTestConfiguration:(MSIDAutomationConfigurationRequest *)request
+- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request
 {
     __block MSIDTestAutomationConfiguration *testConfig = nil;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
     
-    [self.class.confProvider.userAPIRequestHandler executeAPIRequest:request
-                                                   completionHandler:^(MSIDTestAutomationConfiguration *result, NSError *error) {
-        
-                                                       XCTAssertNotNil(result);
-                                                       XCTAssertNil(error);
-                                                       testConfig = result;
-                                                       [expectation fulfill];
+    [self.class.confProvider configurationWithRequest:request
+                                    completionHandler:^(MSIDTestAutomationConfiguration *configuration)
+     {
+         XCTAssertNotNil(configuration);
+         testConfig = configuration;
+         [expectation fulfill];
     }];
 
     [self waitForExpectationsWithTimeout:60 handler:nil];
@@ -222,13 +221,12 @@ static MSIDTestConfigurationProvider *s_confProvider;
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get password"];
     
-    [self.class.confProvider.passwordRequestHandler loadPasswordForAccount:account
-                                                         completionHandler:^(NSString *password, NSError *error) {
-        
-                                                             XCTAssertNotNil(password);
-                                                             XCTAssertNil(error);
-                                                             [expectation fulfill];
-    }];
+    [self.class.confProvider passwordForAccount:account
+                              completionHandler:^(NSString *password)
+     {
+         XCTAssertNotNil(password);
+         [expectation fulfill];
+     }];
 
     [self waitForExpectationsWithTimeout:60 handler:nil];
 
@@ -380,7 +378,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
     [self assertAuthUIAppear];
     [self closeAuthUI];
     
-    [self assertErrorCode:@"AD_ERROR_UI_USER_CANCEL"];
+    [self assertErrorCode:AD_ERROR_UI_USER_CANCEL];
     [self closeResultView];
 }
 

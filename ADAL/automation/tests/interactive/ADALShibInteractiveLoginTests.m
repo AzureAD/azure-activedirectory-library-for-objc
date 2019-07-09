@@ -37,7 +37,7 @@
 {
     [super setUp];
 
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderShibboleth;
     [self loadTestConfiguration:configurationRequest];
 }

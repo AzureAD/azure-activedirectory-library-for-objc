@@ -25,7 +25,7 @@
 #import "MSIDTestConfigurationProvider.h"
 #import "XCUIElement+ADALiOSUITests.h"
 #import "MSIDTestAutomationConfiguration.h"
-#import "MSIDAutomationConfigurationRequest.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 
 @class MSIDAutomationErrorResult;
 @class MSIDAutomationSuccessResult;
@@ -47,7 +47,7 @@
 - (void)assertRefreshTokenInvalidated;
 - (void)assertAccessTokenExpired;
 - (void)assertAuthUIAppear;
-- (void)assertErrorCode:(NSString *)expectedErrorCode;
+- (void)assertErrorCode:(NSInteger)expectedErrorCode;
 - (void)assertErrorDescription:(NSString *)errorDescription;
 - (void)assertErrorSubcode:(NSString *)errorSubcode;
 - (void)assertAccessTokenNotNil;
@@ -73,7 +73,7 @@
 
 // Helpers
 - (void)waitForElement:(id)object;
-- (void)loadTestConfiguration:(MSIDAutomationConfigurationRequest *)request;
+- (void)loadTestConfiguration:(MSIDTestAutomationConfigurationRequest *)request;
 - (void)loadPasswordForAccount:(MSIDTestAccount *)account;
 - (NSDictionary *)configWithTestRequest:(MSIDAutomationTestRequest *)request;
 

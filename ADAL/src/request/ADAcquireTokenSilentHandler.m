@@ -49,7 +49,7 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSData+MSIDExtensions.h"
-#import "MSIDClientCapabilitiesUtil.h"
+#import "ADALClientCapabilitiesUtil.h"
 #import "MSIDAuthority+Internal.h"
 
 @interface ADAcquireTokenSilentHandler()
@@ -91,7 +91,7 @@
                                          context:_requestParams];
              
              ADTokenCacheItem *cacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:_extendedLifetimeAccessTokenItem];
-             cacheItem.expiresOn = _extendedLifetimeAccessTokenItem.extendedExpireTime;
+             cacheItem.expiresOn = _extendedLifetimeAccessTokenItem.extendedExpiresOn;
              
              result = [ADAuthenticationResult resultFromTokenCacheItem:cacheItem
                                              multiResourceRefreshToken:NO
@@ -143,7 +143,7 @@
         request_data[MSID_OAUTH2_SCOPE] = _requestParams.scopesString;
     }
 
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+    NSString *claims = [ADALClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
                                                                        developerClaims:_requestParams.decodedClaims];
 
     if (![NSString msidIsStringNilOrBlank:claims])

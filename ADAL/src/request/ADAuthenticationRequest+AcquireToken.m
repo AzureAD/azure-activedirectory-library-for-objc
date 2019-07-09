@@ -46,7 +46,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDAuthorityFactory.h"
-#import "MSIDClientCapabilitiesUtil.h"
+#import "ADALClientCapabilitiesUtil.h"
 
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebWPJResponse.h"
@@ -518,7 +518,7 @@
         }
     }
 
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
+    NSString *claims = [ADALClientCapabilitiesUtil msidClaimsParameterFromCapabilities:_requestParams.clientCapabilities
                                                                        developerClaims:_requestParams.decodedClaims];
 
     if (![NSString msidIsStringNilOrBlank:claims])

@@ -72,7 +72,7 @@
 
 - (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher
 {
-    [[MSIDTelemetry sharedInstance] findAndRemoveDispatcher:dispatcher];
+    [[MSIDTelemetry sharedInstance] removeDispatcherByObserver:dispatcher];
 }
 
 - (void)removeAllDispatchers

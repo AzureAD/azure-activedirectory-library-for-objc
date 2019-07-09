@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADALBaseUITest.h"
+#import "MSIDTestAutomationConfigurationRequest.h"
 
 @interface ADALClaimsChallengeTests : ADALBaseUITest
 
@@ -33,7 +34,7 @@
 {
     [super setUp];
     
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     [self loadTestConfiguration:configurationRequest];
 }

@@ -26,6 +26,7 @@
 #import "NSDictionary+ADALiOSUITests.h"
 #import "XCTestCase+TextFieldTap.h"
 #import "XCUIElement+CrossPlat.h"
+#import "ADErrorCodes.h"
 
 @interface ADALSovereignLoginTests : ADALBaseUITest
 
@@ -37,7 +38,7 @@
 {
     [super setUp];
 
-    MSIDAutomationConfigurationRequest *configurationRequest = [MSIDAutomationConfigurationRequest new];
+    MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderBlackForest;
     configurationRequest.needsMultipleUsers = NO;
     configurationRequest.accountFeatures = @[];
@@ -75,7 +76,7 @@
     request.legacyAccountIdentifier = userId;
     NSDictionary *silentWWConfig = [self configWithTestRequest:request];
     [self acquireTokenSilent:silentWWConfig];
-    [self assertErrorCode:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"];
+    [self assertErrorCode:AD_ERROR_SERVER_USER_INPUT_NEEDED];
     [self closeResultView];
 
     // Now try silent with correct blackforest authority - #296889
