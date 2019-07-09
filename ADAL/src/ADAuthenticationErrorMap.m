@@ -141,7 +141,7 @@ static NSDictionary *s_userInfoKeyMapping;
     NSNumber *mappedErrorCode = s_errorCodeMapping[adDomain][@(msidError.code)];
     if (!mappedErrorCode)
     {
-        MSID_LOG_WARN(nil, @"ADAuthenticationErrorMap - could not find the error code mapping entry for domain (%@) + error code (%ld).", adDomain, (long)msidError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"ADAuthenticationErrorMap - could not find the error code mapping entry for domain (%@) + error code (%ld).", adDomain, (long)msidError.code);
         return AD_ERROR_UNEXPECTED;
     }
     
