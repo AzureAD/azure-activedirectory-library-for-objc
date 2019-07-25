@@ -43,7 +43,7 @@ class ViewController: UIViewController {
         guard Thread.isMainThread else {
             
             DispatchQueue.main.async {
-                updateStatusField(text)
+                self.updateStatusField(text)
             }
             
             return
@@ -66,17 +66,17 @@ class ViewController: UIViewController {
         {
             [weak self] (result) in
             
-            guard self = self else { return }
+            guard let weakself = self else { return }
             
             guard result.status == AD_SUCCEEDED else {
                 
                 if result.error!.domain == ADAuthenticationErrorDomain
                     && result.error!.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
                     
-                    self.updateStatusField("Unexpected internal error occured")
+                    weakself.updateStatusField("Unexpected internal error occured")
                 }
                 else {
-                    self.updateStatusField(result.error!.description)
+                    weakself.updateStatusField(result.error!.description)
                 }
                 
                 return
@@ -85,14 +85,14 @@ class ViewController: UIViewController {
             var expiresOnString = "(nil)"
             
             guard let tokenCacheItem = result.tokenCacheItem else {
-                self.updateStatusField("No token cache item returned")
+                weakself.updateStatusField("No token cache item returned")
                 return
             }
             
             expiresOnString = String(describing: tokenCacheItem.expiresOn)
             
             let status = String(format: "Access token: %@\nexpiration:%@", result.accessToken!, expiresOnString)
-            self.updateStatusField(status)
+            weakself.updateStatusField(status)
         }
     }
 }
