@@ -70,4 +70,10 @@
      telemetryRequestId:(NSString *)telemetryRequestId
            logComponent:(NSString *)logComponent;
 
+- (BOOL)isCapableForMAMCA;
++ (NSString *)applicationIdentifierWithAuthority:(NSString *)authority;
+
+- (NSString *)enrollmentIDForHomeAccountID:(NSString *)homeAccountId
+                              legacyUserID:(NSString *)legacyUserID;
+
 @end

@@ -22,20 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "ADEnrollmentGateway.h"
 
-@class MSIDTokenResponse;
-@class MSIDLegacyTokenCacheAccessor;
-@class ADRequestParameters;
-@class MSIDBaseToken;
-@protocol MSIDRefreshableToken;
+@interface ADEnrollmentGateway ()
 
-@interface ADResponseCacheHandler : NSObject
-
-+ (ADAuthenticationResult *)processAndCacheResponse:(MSIDTokenResponse *)response
-                                   fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                                              cache:(MSIDLegacyTokenCacheAccessor *)cache
-                                             params:(ADRequestParameters *)requestParams
-                                      configuration:(MSIDConfiguration *)configuration
-                                       verifyUserId:(BOOL)verifyUserId;
++ (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
++ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
 
 @end

@@ -249,6 +249,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
                     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
                     BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
+                                                            appIdentifier:[ADRequestParameters applicationIdentifierWithAuthority:intuneTokenResponse.authority]
                                                          saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid
                                                                   context:nil
                                                                     error:&tokenResponseError];
@@ -311,6 +312,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
         MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
         BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                                appIdentifier:[ADRequestParameters applicationIdentifierWithAuthority:brokerResponse.authority]
                                              saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
                                                       context:nil
                                                         error:&msidError];

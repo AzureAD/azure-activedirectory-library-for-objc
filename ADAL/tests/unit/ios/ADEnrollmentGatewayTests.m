@@ -25,13 +25,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADEnrollmentGateway.h"
 #import "ADEnrollmentGateway+TestUtil.h"
-
-@interface ADEnrollmentGateway ()
-
-+ (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
-+ (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
-
-@end
+#import "ADEnrollmentGateway+UnitTests.h"
 
 @interface ADEnrollmentGatewayTests : ADTestCase
 @end
