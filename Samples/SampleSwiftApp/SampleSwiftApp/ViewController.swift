@@ -40,6 +40,15 @@ class ViewController: UIViewController {
 
     func updateStatusField(_ text: String)
     {
+        guard Thread.isMainThread else {
+            
+            DispatchQueue.main.async {
+                updateStatusField(text)
+            }
+            
+            return
+        }
+        
         statusTextField?.text = text;
     }
     
@@ -55,7 +64,9 @@ class ViewController: UIViewController {
                                  clientId: "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
                                  redirectUri: URL(string: "urn:ietf:wg:oauth:2.0:oob")!)
         {
-            (result) in
+            [weak self] (result) in
+            
+            guard self = self else { return }
             
             guard result.status == AD_SUCCEEDED else {
                 

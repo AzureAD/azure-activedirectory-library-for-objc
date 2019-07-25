@@ -243,7 +243,7 @@ typedef enum
 + (BOOL)handleBrokerResponse:(nonnull NSURL*)response;
 
 /*! Represents the authority used by the context. */
-@property (readonly, nullable) NSString* authority;
+@property (readonly, nonnull) NSString* authority;
 
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
