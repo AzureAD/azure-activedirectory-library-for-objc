@@ -45,7 +45,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -109,7 +108,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -157,7 +155,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.accountFeatures = @[MSIDTestAccountFeatureMFAEnabled];
     [self loadTestConfiguration:configurationRequest];
 
@@ -173,7 +170,7 @@
     [self aadEnterEmail];
     [self aadEnterPassword];
 
-    __auto_type mfaTitle = self.testApp.staticTexts[@"Enter code"];
+    __auto_type mfaTitle = self.testApp.staticTexts[@"Approve sign in request"];
     [self waitForElement:mfaTitle];
 
     [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
@@ -181,11 +178,9 @@
     sleep(5);
 
     [self.testApp activate];
-    __auto_type signinButton = self.testApp.links[@"Sign in another way"];
-    [signinButton msidTap];
-
-    __auto_type verifyTitle = self.testApp.staticTexts[@"Verify your identity"];
-    [self waitForElement:verifyTitle];
+    
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 #endif
 
@@ -193,7 +188,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -214,7 +208,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -242,7 +235,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -273,7 +265,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -303,7 +294,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     // TODO: add foci support to the lab API
@@ -342,7 +332,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     // TODO: add foci support to the lab API
@@ -398,7 +387,6 @@
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
@@ -457,7 +445,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     configurationRequest.needsMultipleUsers = YES;
     [self loadTestConfiguration:configurationRequest];
 
@@ -570,7 +557,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *silentParams = @{
@@ -590,7 +576,6 @@
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
@@ -640,7 +625,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -673,7 +657,6 @@
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     NSDictionary *params = @{
@@ -718,6 +701,7 @@
 {
     XCUIElement *signIn = self.testApp.staticTexts[@"Sign in with another account"];
     [self waitForElement:signIn];
+    sleep(1);
     [signIn msidTap];
 }
 

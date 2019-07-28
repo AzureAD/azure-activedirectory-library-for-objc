@@ -56,10 +56,11 @@
 #import "MSIDBrokerResponse+ADAL.h"
 #endif // TARGET_OS_IPHONE
 
-NSString* s_brokerAppVersion = nil;
-NSString* s_brokerProtocolVersion = nil;
-
-NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
+NSString *s_brokerAppVersion = nil;
+NSString *s_brokerProtocolVersion = nil;
+NSString *kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
+NSString *kAdalSDKNameKey = @"sdk_name";
+NSString *kAdalSDKObjc = @"adal-objc";
 
 @implementation ADAuthenticationRequest (Broker)
 
@@ -247,6 +248,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
                     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
                     BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
+                                                            appIdentifier:[ADRequestParameters applicationIdentifierWithAuthority:intuneTokenResponse.authority]
                                                          saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid
                                                                   context:nil
                                                                     error:&tokenResponseError];
@@ -309,6 +311,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
         BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                                appIdentifier:[ADRequestParameters applicationIdentifierWithAuthority:brokerResponse.authority]
                                              saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
                                                       context:nil
                                                         error:&msidError];
@@ -408,29 +411,19 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_app_version": clientMetadata[MSID_APP_VER_KEY]
       };
     
-    NSDictionary<NSString *, NSString *> *resumeDictionary = nil;
+    NSMutableDictionary *resumeDictionary = [@{
+                                               @"authority"        : _requestParams.authority,
+                                               @"resource"         : _requestParams.resource,
+                                               @"client_id"        : _requestParams.clientId,
+                                               @"redirect_uri"     : _requestParams.redirectUri,
+                                               @"correlation_id"   : _requestParams.correlationId.UUIDString,
+                                               kAdalSDKNameKey     : kAdalSDKObjc
+                                               } mutableCopy];
 #if TARGET_OS_IPHONE
-        NSString *sharedGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
-    
-    resumeDictionary =
-    @{
-      @"authority"        : _requestParams.authority,
-      @"resource"         : _requestParams.resource,
-      @"client_id"        : _requestParams.clientId,
-      @"redirect_uri"     : _requestParams.redirectUri,
-      @"correlation_id"   : _requestParams.correlationId.UUIDString,
-      @"keychain_group"   : sharedGroup
-      };
-#else
-    resumeDictionary =
-    @{
-      @"authority"        : _requestParams.authority,
-      @"resource"         : _requestParams.resource,
-      @"client_id"        : _requestParams.clientId,
-      @"redirect_uri"     : _requestParams.redirectUri,
-      @"correlation_id"   : _requestParams.correlationId.UUIDString,
-      };
+    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    resumeDictionary[@"keychain_group"] = keychainGroup;
 #endif
+
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     

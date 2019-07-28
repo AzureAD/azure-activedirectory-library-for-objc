@@ -26,6 +26,10 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADHelpers.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "NSDictionary+MSIDExtensions.h"
+#if TARGET_OS_IPHONE
+#import "ADBrokerNotificationManager.h"
+#endif
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -53,28 +57,27 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
                                     errorCode:(ADErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
-    NSString *serverOAuth2Error = [dictionary objectForKey:MSID_OAUTH2_ERROR];
-    if (![NSString msidIsStringNilOrBlank:serverOAuth2Error])
+    NSString *serverOAuth2Error = [dictionary msidStringObjectForKey:MSID_OAUTH2_ERROR];
+    if (serverOAuth2Error)
     {
-        NSString *errorDetails = [dictionary objectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
-        // Error response from the server
-        NSUUID *correlationId = [dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
-                                [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:
-                                nil;
+        NSString *responseCorrelationId = [dictionary msidStringObjectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+        NSUUID *correlationId = responseCorrelationId ? [[NSUUID alloc] initWithUUIDString:responseCorrelationId] : nil;
 
         ADErrorCode code = errorCode;
-        NSString *suberror = [dictionary objectForKey:ADAL_AUTH_SUBERROR];
-        NSMutableDictionary *userInfo = nil;
+        NSString *suberror = [dictionary msidStringObjectForKey:ADAL_AUTH_SUBERROR];
+        NSMutableDictionary *userInfo = [NSMutableDictionary new];
+        userInfo[ADSuberrorKey] = suberror;
+
         if (suberror && [suberror isEqualToString:ADAL_AUTH_PROTECTION_POLICY_REQUIRED])
         {
             code = AD_ERROR_SERVER_PROTECTION_POLICY_REQUIRED;
-            userInfo = [[NSMutableDictionary alloc] initWithCapacity:2];
-            userInfo[ADSuberrorKey] = suberror;
-            userInfo[ADUserIdKey] = dictionary[ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER];
         }
-        
+
+        userInfo[ADUserIdKey] = [dictionary msidStringObjectForKey:ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER];
+        NSString *errorDescription = [dictionary msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error
-                                           description:errorDetails
+                                           description:errorDescription
                                                   code:code
                                          correlationId:correlationId
                                               userInfo:userInfo];
@@ -187,5 +190,33 @@ static MSIDAADV1Oauth2Factory *s_oauthFactory;
     return s_oauthFactory;
 }
 
+
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication
+{
+#if TARGET_OS_IPHONE
+    BOOL isResponseFromBroker = [self isResponseFromBroker:sourceApplication response:response];
+    if (!isResponseFromBroker) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qp = [components percentEncodedQuery];
+    NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
+    
+    NSString *protocolVersion = queryParamsMap[ADAL_BROKER_MESSAGE_VERSION];
+    BOOL isValidVersion = [protocolVersion isEqualToString:@"2"];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
+    
+    if (!resumeDictionary) MSID_LOG_INFO(nil, @"No resume dictionary found.");
+    
+    BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc] || [[ADBrokerNotificationManager sharedInstance] hasCallback];
+    
+    return isValidVersion && isADALInitiatedRequest;
+#else
+    (void)response;
+    (void)sourceApplication;
+    return NO;
+#endif
+}
 
 @end

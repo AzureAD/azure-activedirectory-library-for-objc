@@ -40,46 +40,60 @@ class ViewController: UIViewController {
 
     func updateStatusField(_ text: String)
     {
-        DispatchQueue.main.async {
-                self.statusTextField?.text = text;
+        guard Thread.isMainThread else {
+            
+            DispatchQueue.main.async {
+                self.updateStatusField(text)
+            }
+            
+            return
         }
+        
+        statusTextField?.text = text;
     }
     
     @IBAction func acquireToken(_ sender:UIButton) {
-        let authContext = ADAuthenticationContext(authority: "https://login.microsoftonline.com/common",
-                                                  error: nil)
         
-        authContext!.acquireToken(withResource: "https://graph.windows.net",
-                                             clientId: "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
-                                             redirectUri: URL(string: "urn:ietf:wg:oauth:2.0:oob"))
-        {
-            (result) in
+        guard let authContext = ADAuthenticationContext(authority: "https://login.microsoftonline.com/common", error: nil) else {
             
-            if (result!.status != AD_SUCCEEDED)
-            {
-                if result!.error.domain == ADAuthenticationErrorDomain
-                    && result!.error.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
+            print("Failed to create auth context")
+            return
+        }
+        
+        authContext.acquireToken(withResource: "https://graph.windows.net",
+                                 clientId: "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+                                 redirectUri: URL(string: "urn:ietf:wg:oauth:2.0:oob")!)
+        {
+            [weak self] (result) in
+            
+            guard let weakself = self else { return }
+            
+            guard result.status == AD_SUCCEEDED else {
+                
+                if result.error!.domain == ADAuthenticationErrorDomain
+                    && result.error!.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
                     
-                    self.updateStatusField("Unexpected internal error occured");
-                    
-                } else {
-                    
-                    self.updateStatusField(result!.error.description)
+                    weakself.updateStatusField("Unexpected internal error occured")
+                }
+                else {
+                    weakself.updateStatusField(result.error!.description)
                 }
                 
-                return;
+                return
             }
             
             var expiresOnString = "(nil)"
             
-            if let expiresOn = result!.tokenCacheItem.expiresOn {
-                expiresOnString = String(describing: expiresOn)
+            guard let tokenCacheItem = result.tokenCacheItem else {
+                weakself.updateStatusField("No token cache item returned")
+                return
             }
             
-            let status = String(format: "Access token: %@\nexpiration:%@", result!.accessToken, expiresOnString)
-            self.updateStatusField(status)
+            expiresOnString = String(describing: tokenCacheItem.expiresOn)
+            
+            let status = String(format: "Access token: %@\nexpiration:%@", result.accessToken!, expiresOnString)
+            weakself.updateStatusField(status)
         }
     }
-
 }
 
