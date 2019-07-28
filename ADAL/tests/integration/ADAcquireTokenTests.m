@@ -58,6 +58,7 @@
 #import "ADUserInformation.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "ADEnrollmentGateway+UnitTests.h"
+#import "ADTestWebAuthController.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -76,7 +77,6 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
 
     [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
-    [ADTestAuthenticationViewController reset];
     
 #if TARGET_OS_IPHONE
     [MSIDKeychainTokenCache reset];
@@ -3065,14 +3065,9 @@ const int sAsyncContextTimeout = 10;
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithRefreshToken"];
-<<<<<<< HEAD
-
-    [context acquireTokenWithRefreshToken:nil
-=======
     
     NSString *refreshToken = nil;
     [context acquireTokenWithRefreshToken:refreshToken
->>>>>>> origin/oldalton/nullability
                                  resource:TEST_RESOURCE
                                  clientId:TEST_CLIENT_ID
                               redirectUri:TEST_REDIRECT_URL
@@ -3589,14 +3584,10 @@ const int sAsyncContextTimeout = 10;
 {
     // Setup successful response at auth endpoint
     NSString *authCode = @"i_am_a_auth_code";
-    __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"onLoadRequest"];
-    [ADTestAuthenticationViewController onLoadRequest:^(NSURLRequest *urlRequest, id<ADWebAuthDelegate> delegate) {
-        XCTAssertNotNil(urlRequest);
-
-        NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
-        [delegate webAuthDidCompleteWithURL:endURL];
-        [expectation1 fulfill];
-    }];
+    
+    NSURL *endURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?code=%@", TEST_REDIRECT_URL_STRING, authCode]];
+    MSIDWebviewResponse *aadResponse = [[MSIDWebAADAuthResponse alloc] initWithURL:endURL context:nil error:nil];
+    [ADTestWebAuthController setResponse:aadResponse];
 
     // Setup up system error response at token endpoint
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token", TEST_AUTHORITY];
@@ -3638,7 +3629,7 @@ const int sAsyncContextTimeout = 10;
                           [expectation2 fulfill];
                       }];
 
-    [self waitForExpectations:@[expectation1, expectation2] timeout:1.0];
+    [self waitForExpectations:@[expectation2] timeout:1.0];
     
 }
 

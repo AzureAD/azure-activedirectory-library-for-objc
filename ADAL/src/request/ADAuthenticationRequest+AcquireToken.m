@@ -667,7 +667,7 @@
          {
              if (error)
              {
-                 completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                 completionHandler([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
                  return;
              }
              
