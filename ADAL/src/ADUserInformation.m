@@ -31,7 +31,7 @@
 -(NSString*) property \
 { \
     id property = [self.allClaims objectForKey:claimName]; \
-    return [property isKindOfClass:[NSString class]] ? property : nil; \
+    return ([property isKindOfClass:[NSString class]] ? (NSString *)property : nil); \
 }
 
 @implementation ADUserInformation
