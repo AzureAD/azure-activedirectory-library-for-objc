@@ -313,13 +313,15 @@ NSString *kAdalSDKObjc = @"adal-objc";
         MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
         MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
         
-        NSString *userId = [[[result tokenCacheItem] userInformation] userId];
+        NSString *userId = result.tokenCacheItem.userInformation.userId;
         NSString *applicationidentifier = [ADRequestParameters applicationIdentifierWithAuthority:brokerResponse.authority];
         NSString *enrollmentId = nil;
         
         if (applicationidentifier)
         {
-            enrollmentId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:nil userID:userId error:nil];
+            enrollmentId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:result.tokenCacheItem.userInformation.homeAccountId
+                                                                      userID:userId
+                                                                       error:nil];
         }
 
         BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
