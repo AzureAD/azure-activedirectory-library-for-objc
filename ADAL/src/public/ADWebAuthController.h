@@ -29,23 +29,23 @@
 #import "ADAuthenticationContext.h"
 
 /*! Fired at the start of a resource load in the webview. The URL of the load, if available, will be in the @"url" key in the userInfo dictionary */
-extern NSString* ADWebAuthDidStartLoadNotification;
+extern NSString* _Nonnull ADWebAuthDidStartLoadNotification;
 
 /*! Fired when a resource finishes loading in the webview. */
-extern NSString* ADWebAuthDidFinishLoadNotification;
+extern NSString* _Nonnull ADWebAuthDidFinishLoadNotification;
 
 /*! Fired when web authentication fails due to reasons originating from the network. Look at the @"error" key in the userInfo dictionary for more details.*/
-extern NSString* ADWebAuthDidFailNotification;
+extern NSString* _Nonnull ADWebAuthDidFailNotification;
 
 /*! Fired when authentication finishes */
-extern NSString* ADWebAuthDidCompleteNotification;
+extern NSString* _Nonnull ADWebAuthDidCompleteNotification;
 
 /*! Fired before ADAL invokes the broker app */
-extern NSString* ADWebAuthWillSwitchToBrokerApp;
+extern NSString* _Nonnull ADWebAuthWillSwitchToBrokerApp;
 
 /*! Fired when the application receives a response from the broker. Look at the @"response"
     key in the userInfo dictionary for the broker response */
-extern NSString* ADWebAuthDidReceieveResponseFromBroker;
+extern NSString* _Nonnull ADWebAuthDidReceieveResponseFromBroker;
 
 @interface ADWebAuthController : NSObject
 {
@@ -63,7 +63,7 @@ extern NSString* ADWebAuthDidReceieveResponseFromBroker;
     ADRequestParameters* _requestParams;
     MSIDTelemetryUIEvent* _telemetryEvent;
     
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
+    void (^_completionBlock)( ADAuthenticationError * _Nullable , NSURL * _Nullable );
 }
 
 //Cancel the web authentication session which might be happening right now
@@ -77,7 +77,7 @@ extern NSString* ADWebAuthDidReceieveResponseFromBroker;
  application can use this API to retrieve a response that was received from the
  broker but we no longer had an active completion block to hand it to.
  */
-+ (ADAuthenticationResult *)responseFromInterruptedBrokerSession;
++ (nullable ADAuthenticationResult *)responseFromInterruptedBrokerSession;
 #endif
 
 @end

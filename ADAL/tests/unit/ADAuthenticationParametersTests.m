@@ -63,7 +63,8 @@
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"parametersFromResourceUrl: with nil resource should return error."];
     
-    [ADAuthenticationParameters parametersFromResourceUrl:nil completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError *error)
+    NSURL *resource = nil;
+    [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters *parameters, ADAuthenticationError *error)
      {
          XCTAssertNotNil(error);
          ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
@@ -81,7 +82,8 @@
 {
     NSURL *resource = [[NSURL alloc] initWithString:@"https://mytodolist.com"];
     
-    XCTAssertThrowsSpecificNamed([ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:nil], NSException, NSInvalidArgumentException);
+    ADParametersCompletion completion = nil;
+    XCTAssertThrowsSpecificNamed([ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:completion], NSException, NSInvalidArgumentException);
 }
 
 - (void)testParametersFromResourceUrl_whenResourceUrlIsNotExist_shouldReturnErrorAndNilParameters
@@ -156,7 +158,8 @@
 {
     ADAuthenticationError *error;
     
-    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:nil error:&error];
+    NSHTTPURLResponse *response = nil;
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
 
     XCTAssertNotNil(error);
     ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
@@ -167,7 +170,8 @@
 
 - (void)testParametersFromResponse_whenResponseNilErrorPointerNil_shouldReturnNilParameters
 {
-    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:nil error:nil];
+    NSHTTPURLResponse *response = nil;
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponse:response error:nil];
     
     XCTAssertNil(parameters);
 }
@@ -240,7 +244,8 @@
 {
     ADAuthenticationError *error;
     
-    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:&error];
+    NSString *authHeader = nil;
+    ADAuthenticationParameters *parameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:authHeader error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertNil(parameters);

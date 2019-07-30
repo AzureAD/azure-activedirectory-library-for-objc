@@ -24,32 +24,32 @@
 #import <Foundation/Foundation.h>
 
 /*! Errors originating from ADAL locally. Use ADErrorCodes.h to determine the error. */
-extern NSString* const ADAuthenticationErrorDomain;
+extern NSString* _Nonnull const ADAuthenticationErrorDomain;
 /*! Error returned by Broker, uses the same error codes as ADAuthenticationErrorDomain. */
-extern NSString* const ADBrokerResponseErrorDomain;
+extern NSString* _Nonnull const ADBrokerResponseErrorDomain;
 /*! Error domain for keychain errors. */
-extern NSString* const ADKeychainErrorDomain;
+extern NSString* _Nonnull const ADKeychainErrorDomain;
 /*! HTTP Error Codes */
-extern NSString* const ADHTTPErrorCodeDomain;
+extern NSString* _Nonnull const ADHTTPErrorCodeDomain;
 /*! OAuth Server Errors */
-extern NSString* const ADOAuthServerErrorDomain;
+extern NSString* _Nonnull const ADOAuthServerErrorDomain;
 
 /*!
  Contains all http headers returned from the http error response
  */
-extern NSString* const ADHTTPHeadersKey;
+extern NSString* _Nonnull const ADHTTPHeadersKey;
 /*!
 Contains the suberror code returned by the server
  */
-extern NSString* const ADSuberrorKey;
+extern NSString* _Nonnull const ADSuberrorKey;
 /*!
 Contains the broker version for an error returned by the broker
  */
-extern NSString* const ADBrokerVersionKey;
+extern NSString* _Nonnull const ADBrokerVersionKey;
 /*!
  Contains the UserID for which the error was generated
  */
-extern NSString* const ADUserIdKey;
+extern NSString* _Nonnull const ADUserIdKey;
 
 @interface ADAuthenticationError : NSError
 {
@@ -58,9 +58,9 @@ extern NSString* const ADUserIdKey;
 }
 
 /*! The error code, returned by the server. Can be null. */
-@property (readonly) NSString* protocolCode;
+@property (readonly, nullable) NSString* protocolCode;
 
 /*! The full details of the error. Can contain details from an inner error. */
-@property (readonly) NSString* errorDetails;
+@property (readonly, nullable) NSString* errorDetails;
 
 @end

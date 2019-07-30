@@ -45,7 +45,7 @@ typedef WebView   WebViewType;
 @class ADAuthenticationResult;
 
 /*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
+typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* _Nonnull result);
 
 #import <ADAL/ADAuthenticationContext.h>
 #import <ADAL/ADAuthenticationError.h>

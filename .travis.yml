@@ -1,6 +1,6 @@
 #dist: trusty
 language: objective-c
-osx_image: xcode10
+osx_image: xcode10.2
 
 # set up SonarCube
 #addons:
