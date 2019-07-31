@@ -47,6 +47,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDConstants.h"
+#import "ADEnrollmentGateway.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -249,6 +250,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
                     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
 
                     BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
+                                                            appIdentifier:[ADRequestParameters applicationIdentifierWithAuthority:intuneTokenResponse.authority]
+                                                             enrollmentId:nil
                                                          saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid
                                                                   context:nil
                                                                     error:&tokenResponseError];
@@ -309,8 +312,21 @@ NSString *kAdalSDKObjc = @"adal-objc";
         MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
         MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
         MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
+        
+        NSString *userId = result.tokenCacheItem.userInformation.userId;
+        NSString *applicationidentifier = [ADRequestParameters applicationIdentifierWithAuthority:brokerResponse.authority];
+        NSString *enrollmentId = nil;
+        
+        if (applicationidentifier)
+        {
+            enrollmentId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:result.tokenCacheItem.userInformation.homeAccountId
+                                                                      userID:userId
+                                                                       error:nil];
+        }
 
         BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                                appIdentifier:applicationidentifier
+                                                 enrollmentId:enrollmentId
                                              saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
                                                       context:nil
                                                         error:&msidError];
@@ -321,7 +337,6 @@ NSString *kAdalSDKObjc = @"adal-objc";
             MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
-        NSString *userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]
                                  verifyUserId:YES];

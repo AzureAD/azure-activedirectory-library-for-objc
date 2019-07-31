@@ -53,6 +53,8 @@
         _accessToken = accessToken.accessToken;
         _resource = accessToken.resource;
         _expiresOn = accessToken.expiresOn;
+        _enrollmentId = accessToken.enrollmentId;
+        _applicationIdentifier = accessToken.applicationIdentifier;
     }
     
     [self calculateHash];
@@ -148,6 +150,8 @@
                                                                              clientId:self.clientId
                                                                              resource:self.resource
                                                                          legacyUserId:self.userInformation.userId];
+    
+    key.applicationIdentifier = self.applicationIdentifier;
     return key;
 }
 
@@ -170,6 +174,8 @@
     cacheItem.homeAccountId = self.userInformation.homeAccountId;
     cacheItem.credentialType = [MSIDCredentialTypeHelpers credentialTypeWithRefreshToken:self.refreshToken accessToken:self.accessToken];
     cacheItem.additionalInfo = self.additionalServer;
+    cacheItem.enrollmentId = self.enrollmentId;
+    cacheItem.applicationIdentifier = self.applicationIdentifier;
     return cacheItem;
 }
 

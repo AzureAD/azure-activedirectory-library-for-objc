@@ -129,7 +129,8 @@
     XCTAssertNil(userInfo);
     
     error = nil;
-    userInfo = [ADUserInformation userInformationWithIdToken:nil
+    NSString *idToken = nil;
+    userInfo = [ADUserInformation userInformationWithIdToken:idToken
                                                        error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);

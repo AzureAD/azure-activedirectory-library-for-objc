@@ -27,6 +27,12 @@
 #import "ADHelpers.h"
 #import "ADTokenCacheKey.h"
 
+@interface ADTokenCacheKey()
+
+@property (readwrite) NSString *applicationIdentifier;
+
+@end
+
 @implementation ADTokenCacheKey
 
 @synthesize authority = _authority;
@@ -57,9 +63,22 @@
     return self;
 }
 
++ (ADTokenCacheKey *)keyWithAuthority:(NSString *)authority
+                             resource:(NSString *)resource
+                             clientId:(NSString *)clientId
+                                error:(ADAuthenticationError * __autoreleasing *)error
+{
+    return [ADTokenCacheKey keyWithAuthority:authority
+                                    resource:resource
+                                    clientId:clientId
+                               appIdentifier:nil
+                                       error:error];
+}
+
 + (id)keyWithAuthority:(NSString *)authority
               resource:(NSString *)resource
               clientId:(NSString *)clientId
+         appIdentifier:(NSString *)appIdentifier
                  error:(ADAuthenticationError * __autoreleasing *)error
 {
     API_ENTRY;
@@ -73,6 +92,7 @@
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
     ADTokenCacheKey* key = [[ADTokenCacheKey alloc] initWithAuthority:authority resource:resource clientId:clientId];
+    key.applicationIdentifier = appIdentifier;
     return key;
 }
 
@@ -156,7 +176,7 @@
 
 - (ADTokenCacheKey *)mrrtKey
 {
-    return [[self class] keyWithAuthority:_authority resource:nil clientId:_clientId error:nil];
+    return [[self class] keyWithAuthority:_authority resource:nil clientId:_clientId appIdentifier:nil error:nil];
 }
 
 @end
