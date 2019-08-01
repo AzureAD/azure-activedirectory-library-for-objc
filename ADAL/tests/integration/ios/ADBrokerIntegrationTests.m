@@ -48,6 +48,7 @@
 #import "ADEnrollmentGateway+TestUtil.h"
 #import "NSData+MSIDExtensions.h"
 #import "ADTokenCacheKey.h"
+#import "ADTokenCacheItem+Internal.h"
 
 @interface ADEnrollmentGateway ()
 
@@ -758,6 +759,7 @@
 
     ADTokenCacheKey *accessTokenCacheKey = [ADTokenCacheKey keyWithAuthority:authority resource:TEST_RESOURCE clientId:TEST_CLIENT_ID appIdentifier:@"com.microsoft.unittesthost" error:nil];
     ADTokenCacheItem *accessTokenCacheItem = [tokenCache getItemWithKey:accessTokenCacheKey userId:TEST_USER_ID correlationId:nil error:nil];
+    XCTAssertEqualObjects(accessTokenCacheItem.enrollmentId, @"adf79e3f-mike-454d-9f0f-2299e76dbfd5");
     XCTAssertEqualObjects(accessTokenCacheItem.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
