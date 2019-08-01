@@ -63,5 +63,8 @@ extern NSString* const ADRedirectUriInvalidError;
 
 @property (readonly) MSIDOauth2Factory *oauthFactory;
 
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication;
+
 @end
 

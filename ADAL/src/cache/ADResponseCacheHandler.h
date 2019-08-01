@@ -35,6 +35,7 @@
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                                               cache:(MSIDLegacyTokenCacheAccessor *)cache
                                              params:(ADRequestParameters *)requestParams
+                                      configuration:(MSIDConfiguration *)configuration
                                        verifyUserId:(BOOL)verifyUserId;
 
 @end

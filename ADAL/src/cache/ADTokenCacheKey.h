@@ -46,6 +46,13 @@
                              clientId:(NSString *)clientId
                                 error:(ADAuthenticationError * __autoreleasing *)error;
 
+/*! Creates a key with optional application identifier */
++ (ADTokenCacheKey *)keyWithAuthority:(NSString *)authority
+                             resource:(NSString *)resource
+                             clientId:(NSString *)clientId
+                        appIdentifier:(NSString *)appIdentifier
+                                error:(ADAuthenticationError * __autoreleasing *)error;
+
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;
 
@@ -54,6 +61,9 @@
 
 /*! The application client identifier */
 @property (readonly) NSString* clientId;
+
+/*! Application identifier */
+@property (readonly) NSString *applicationIdentifier;
 
 - (ADTokenCacheKey *)mrrtKey;
 
