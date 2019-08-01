@@ -31,6 +31,12 @@
 
 @property (readonly) NSDictionary * additionalServer;
 
+// Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
+@property (nonatomic) NSString *enrollmentId;
+
+// Unique app identifier used for cases when access token storage needs to be partitioned per application
+@property (nonatomic) NSString *applicationIdentifier;
+
 @end
 
 @interface ADTokenCacheItem ()

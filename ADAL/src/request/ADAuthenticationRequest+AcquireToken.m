@@ -273,7 +273,9 @@
 {
     [[MSIDTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
     ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
-                                                                               tokenCache:self.tokenCache];
+                                                                               tokenCache:self.tokenCache
+                                                                             verifyUserId:!_silent];
+    
     [request getToken:^(ADAuthenticationResult *result)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
@@ -295,7 +297,9 @@
             ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:response
                                                                             fromRefreshToken:nil
                                                                                        cache:self.tokenCache
-                                                                                      params:_requestParams];
+                                                                                      params:_requestParams
+                                                                               configuration:_requestParams.msidConfig
+                                                                                verifyUserId:YES];
             completionBlock(result);
         }];
         return;
@@ -316,12 +320,15 @@
         }
         else
         {
-            NSDictionary *underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-            ADAuthenticationError *error =
+            NSMutableDictionary *underlyingUserInfo = [NSMutableDictionary new];
+            [underlyingUserInfo addEntriesFromDictionary:_underlyingError.userInfo];
+            underlyingUserInfo[NSUnderlyingErrorKey] = _underlyingError;
+            
+            ADAuthenticationError* error =
             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                    protocolCode:nil
                                                    errorDetails:ADCredentialsNeeded
-                                                       userInfo:underlyingError
+                                                       userInfo:underlyingUserInfo
                                                   correlationId:correlationId];
             result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
@@ -456,7 +463,6 @@
             return;
         }
 #endif
-        
         if ([self processOpenBrowserResponse:response telemetryEvent:event completionHandler:completionBlock])
         {
             return;
@@ -532,7 +538,8 @@
 - (void)tryRefreshToken:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler *request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams
-                                                                               tokenCache:self.tokenCache];
+                                                                               tokenCache:self.tokenCache
+                                                                             verifyUserId:!_silent];
     
     // Construct a refresh token object to wrap up the refresh token provided by developer
     MSIDLegacyRefreshToken *refreshTokenItem = [[MSIDLegacyRefreshToken alloc] init];
@@ -658,10 +665,18 @@
         [self requestTokenByCode:oauthResponse.authorizationCode
                  completionBlock:^(MSIDTokenResponse *tokenResponse, ADAuthenticationError *error)
          {
+             if (error)
+             {
+                 completionHandler([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                 return;
+             }
+             
              ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
                                                                              fromRefreshToken:nil
                                                                                         cache:self.tokenCache
-                                                                                       params:_requestParams];
+                                                                                       params:_requestParams
+                                                                                configuration:_requestParams.msidConfig
+                                                                                 verifyUserId:!_silent];
              
              [result setCloudAuthority:_cloudAuthority];
              

@@ -56,10 +56,15 @@ extern NSString* const ADRedirectUriInvalidError;
 
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
-+ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult *)result
-                                 toUser:(ADUserIdentifier *)userId;
+
++ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
+                                 toUser:(ADUserIdentifier*)userId
+                           verifyUserId:(BOOL)verifyUserId;
 
 @property (readonly) MSIDOauth2Factory *oauthFactory;
+
++ (BOOL)canHandleResponse:(NSURL *)response
+        sourceApplication:(NSString *)sourceApplication;
 
 @end
 

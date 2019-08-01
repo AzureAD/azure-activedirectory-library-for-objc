@@ -39,6 +39,8 @@
                                    fromRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                                               cache:(MSIDLegacyTokenCacheAccessor *)cache
                                              params:(ADRequestParameters *)requestParams
+                                      configuration:(MSIDConfiguration *)configuration
+                                       verifyUserId:(BOOL)verifyUserId
 {
     NSError *msidError = nil;
 
@@ -58,7 +60,7 @@
                           params:requestParams];
     }
     
-    result = [cache saveTokensWithConfiguration:requestParams.msidConfig
+    result = [cache saveTokensWithConfiguration:configuration
                                        response:response
                                         context:requestParams
                                           error:&msidError];
@@ -69,7 +71,7 @@
         MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
     }
     
-    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:requestParams.msidConfig];
+    MSIDLegacySingleResourceToken *resultToken = [factory legacyTokenFromResponse:response configuration:configuration];
     
     ADTokenCacheItem *adTokenCacheItem = [[ADTokenCacheItem alloc] initWithLegacySingleResourceToken:resultToken];
     
@@ -77,7 +79,7 @@
                                                               multiResourceRefreshToken:response.isMultiResource
                                                                           correlationId:requestParams.correlationId];
     
-    return [ADAuthenticationContext updateResult:adResult toUser:[requestParams identifier]]; //Verify the user
+    return [ADAuthenticationContext updateResult:adResult toUser:[requestParams identifier] verifyUserId:verifyUserId]; //Verify the user
 }
 
 + (ADAuthenticationResult *)handleError:(NSError *)msidError

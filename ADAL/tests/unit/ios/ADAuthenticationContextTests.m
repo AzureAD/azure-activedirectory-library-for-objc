@@ -43,7 +43,8 @@
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil sharedGroup:nil error:&error];
+    NSString *authority = nil;
+    context = [ADAuthenticationContext authenticationContextWithAuthority:authority sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
@@ -56,7 +57,8 @@
     ADAuthenticationContext *context = nil;
     ADAuthenticationError *error = nil;
     
-    context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO sharedGroup:nil error:&error];
+    NSString *authority = nil;
+    context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO sharedGroup:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);

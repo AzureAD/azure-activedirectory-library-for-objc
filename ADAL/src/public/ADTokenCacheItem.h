@@ -42,6 +42,8 @@
     NSString* _refreshToken;
     NSData* _sessionKey;
     NSDate* _expiresOn;
+    NSString* _enrollmentId;
+    NSString* _applicationIdentifier;
     ADUserInformation* _userInformation;
     
     // Any extra properties that have been added to ADTokenCacheItem since 2.2,

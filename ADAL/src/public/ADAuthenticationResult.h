@@ -61,19 +61,19 @@ typedef enum
 /*! A valid access token, if the results indicates success. The property is 
  calculated from the tokenCacheItem one. The property is nil, in 
  case of error.*/
-@property (readonly) NSString* accessToken;
+@property (readonly, nullable) NSString* accessToken;
 
-@property (readonly) ADTokenCacheItem* tokenCacheItem;
+@property (readonly, nullable) ADTokenCacheItem* tokenCacheItem;
 
 /*! The error that occurred or nil, if the operation was successful */
-@property (readonly) ADAuthenticationError* error;
+@property (readonly, nullable) ADAuthenticationError* error;
 
 /*! Set to YES, if part of the result contains a refresh token, which is a multi-resource
  refresh token. */
 @property (readonly) BOOL multiResourceRefreshToken;
 
 /*! The correlation ID of the request(s) that get this result. */
-@property (readonly) NSUUID* correlationId;
+@property (readonly, nullable) NSUUID* correlationId;
 
 /*! Some access tokens have extended lifetime when server is in an unavailable state.
  This property indicates whether the access token is returned in such a state. */
@@ -84,7 +84,7 @@ typedef enum
  This authority should be used for subsequent silent requests. 
  It will be different from the authority provided by developer for sovereign cloud scenarios.
  */
-@property (readonly) NSString* authority;
+@property (readonly, nullable) NSString* authority;
 
 @end
 

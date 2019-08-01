@@ -53,7 +53,7 @@
 
 - (void)calculateHash
 {
-    _hash = [[NSString stringWithFormat:@"%@%@%@%@", _resource, _authority, _clientId, _userInformation.userId] hash];
+    _hash = [[NSString stringWithFormat:@"%@%@%@%@%@", _resource, _authority, _clientId, _userInformation.userId, _applicationIdentifier] hash];
 }
 
 //Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
@@ -93,12 +93,14 @@
         return [ADTokenCacheKey keyWithAuthority:_storageAuthority
                                         resource:_resource
                                         clientId:_clientId
+                                   appIdentifier:_applicationIdentifier
                                            error:error];
     }
     
     return [ADTokenCacheKey keyWithAuthority:_authority
                                     resource:_resource
                                     clientId:_clientId
+                               appIdentifier:_applicationIdentifier
                                        error:error];
 }
 
@@ -139,6 +141,8 @@
     [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:_userInformation forKey:@"userInformation"];
     [aCoder encodeObject:_additionalServer forKey:@"additionalServer"];
+    [aCoder encodeObject:_enrollmentId forKey:@"enrollmentId"];
+    [aCoder encodeObject:_applicationIdentifier forKey:@"applicationIdentifier"];
 }
 
 //Deserializer:
@@ -162,6 +166,8 @@
     _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
     _additionalServer = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
+    _enrollmentId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"enrollmentId"];
+    _applicationIdentifier = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"applicationIdentifier"];
     
     [self calculateHash];
     
@@ -200,6 +206,8 @@
     result &= [self.userInformation isEqual:rhs.userInformation]  || (self.userInformation == rhs.userInformation);
     result &= [self.sessionKey isEqualToData:rhs.sessionKey] || (self.sessionKey == rhs.sessionKey);
     result &= [self.additionalServer isEqualToDictionary:rhs.additionalServer] || (self.additionalServer == rhs.additionalServer);
+    result &= [self.enrollmentId isEqualToString:rhs.enrollmentId] || (self.enrollmentId == rhs.enrollmentId);
+    result &= [self.applicationIdentifier isEqualToString:rhs.applicationIdentifier] || (self.applicationIdentifier == rhs.applicationIdentifier);
 
     return result;
 }
