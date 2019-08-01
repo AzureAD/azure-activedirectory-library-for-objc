@@ -48,6 +48,7 @@
 #import "MSIDConstants.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority+Internal.h"
+#import "ADEnrollmentGateway.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -58,10 +59,11 @@
 #import "MSIDBrokerResponse+ADAL.h"
 #endif // TARGET_OS_IPHONE
 
-NSString* s_brokerAppVersion = nil;
-NSString* s_brokerProtocolVersion = nil;
-
-NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
+NSString *s_brokerAppVersion = nil;
+NSString *s_brokerProtocolVersion = nil;
+NSString *kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
+NSString *kAdalSDKNameKey = @"sdk_name";
+NSString *kAdalSDKObjc = @"adal-objc";
 
 @implementation ADAuthenticationRequest (Broker)
 
@@ -248,8 +250,12 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
                     MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
                     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
 
-                    NSError *saveError = nil;
-                    BOOL saveResult = [self saveBrokerResponse:intuneTokenResponse cache:cache factory:factory error:&saveError];
+                    BOOL saveResult = [cache saveTokensWithBrokerResponse:intuneTokenResponse
+                                                            appIdentifier:[ADRequestParameters applicationIdentifierWithAuthority:intuneTokenResponse.authority]
+                                                             enrollmentId:nil
+                                                         saveSSOStateOnly:intuneTokenResponse.isAccessTokenInvalid
+                                                                  context:nil
+                                                                    error:&tokenResponseError];
 
                     if (!saveResult)
                     {
@@ -305,21 +311,35 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     {
         MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
         MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
-        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
-
-        NSError *saveError = nil;
-        BOOL saveResult = [self saveBrokerResponse:brokerResponse cache:cache factory:factory error:&saveError];
+        MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil factory:factory];
+        MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor] factory:factory];
         
+        NSString *userId = result.tokenCacheItem.userInformation.userId;
+        NSString *applicationidentifier = [ADRequestParameters applicationIdentifierWithAuthority:brokerResponse.authority];
+        NSString *enrollmentId = nil;
+        
+        if (applicationidentifier)
+        {
+            enrollmentId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:result.tokenCacheItem.userInformation.homeAccountId
+                                                                      userID:userId
+                                                                       error:nil];
+        }
+
+        BOOL saveResult = [cache saveTokensWithBrokerResponse:brokerResponse
+                                                appIdentifier:applicationidentifier
+                                                 enrollmentId:enrollmentId
+                                             saveSSOStateOnly:brokerResponse.isAccessTokenInvalid
+                                                      context:nil
+                                                        error:&msidError];        
         if (!saveResult)
         {
             MSID_LOG_NO_PII(MSIDLogLevelError, nil, nil, @"Failed to save tokens in cache, error code %ld, error domain %@, description %@", (long)msidError.code, msidError.domain, msidError.description);
             MSID_LOG_PII(MSIDLogLevelError, nil, nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
-        NSString *userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
-                                       toUser:[ADUserIdentifier identifierWithId:userId]];
+                                       toUser:[ADUserIdentifier identifierWithId:userId]
+                                 verifyUserId:YES];
     }
     
     return result;
@@ -434,29 +454,19 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_app_version": clientMetadata[MSID_APP_VER_KEY]
       };
     
-    NSDictionary<NSString *, NSString *> *resumeDictionary = nil;
+    NSMutableDictionary *resumeDictionary = [@{
+                                               @"authority"        : _requestParams.authority,
+                                               @"resource"         : _requestParams.resource,
+                                               @"client_id"        : _requestParams.clientId,
+                                               @"redirect_uri"     : _requestParams.redirectUri,
+                                               @"correlation_id"   : _requestParams.correlationId.UUIDString,
+                                               kAdalSDKNameKey     : kAdalSDKObjc
+                                               } mutableCopy];
 #if TARGET_OS_IPHONE
-        NSString *sharedGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
-    
-    resumeDictionary =
-    @{
-      @"authority"        : _requestParams.authority,
-      @"resource"         : _requestParams.resource,
-      @"client_id"        : _requestParams.clientId,
-      @"redirect_uri"     : _requestParams.redirectUri,
-      @"correlation_id"   : _requestParams.correlationId.UUIDString,
-      @"keychain_group"   : sharedGroup
-      };
-#else
-    resumeDictionary =
-    @{
-      @"authority"        : _requestParams.authority,
-      @"resource"         : _requestParams.resource,
-      @"client_id"        : _requestParams.clientId,
-      @"redirect_uri"     : _requestParams.redirectUri,
-      @"correlation_id"   : _requestParams.correlationId.UUIDString,
-      };
+    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    resumeDictionary[@"keychain_group"] = keychainGroup;
 #endif
+
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     

@@ -340,18 +340,10 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
     ADAuthenticationError* adError = nil;
     NSString* authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:_request.URL
                                                           challengeData:authHeaderParams
-                                                                context:_request
-                                                                  error:&adError];
-    
-    if (!authHeader)
-    {
-        [self handleADError:adError completionBlock:completionBlock];
-        return;
-    }
+                                                                context:_request];
     
     // Add Authorization response header to the headers of the request
     [_request setAuthorizationHeader:authHeader];
-    
     [_request resend];
 }
 

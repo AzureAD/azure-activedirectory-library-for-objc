@@ -30,7 +30,8 @@
 #define ID_TOKEN_PROPERTY_GETTER(property, claimName) \
 -(NSString*) property \
 { \
-return [self.allClaims objectForKey:claimName]; \
+    id property = [self.allClaims objectForKey:claimName]; \
+    return ([property isKindOfClass:[NSString class]] ? (NSString *)property : nil); \
 }
 
 @implementation ADUserInformation

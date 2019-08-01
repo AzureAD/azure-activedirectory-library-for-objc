@@ -51,11 +51,14 @@
 #import "NSData+MSIDExtensions.h"
 #import "ADALClientCapabilitiesUtil.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDConfiguration.h"
 
 @interface ADAcquireTokenSilentHandler()
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
 @property (nonatomic) MSIDAADV1Oauth2Factory *factory;
+@property (nonatomic) MSIDConfiguration *configuration;
 
 @end
 
@@ -63,6 +66,7 @@
 
 + (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters *)requestParams
                                         tokenCache:(MSIDLegacyTokenCacheAccessor *)tokenCache
+                                      verifyUserId:(BOOL)verifyUserId
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
     
@@ -72,6 +76,7 @@
     handler->_requestParams = requestParams;
     handler.tokenCache = tokenCache;
     handler.factory = [MSIDAADV1Oauth2Factory new];
+    handler->_verifyUserId = verifyUserId;
     
     return handler;
 }
@@ -151,25 +156,15 @@
         request_data[MSID_OAUTH2_CLAIMS] = claims;
     }
     
-    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
-
-    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
-
-    BOOL isADFSInstance = adfsAuthority != nil;
-
-    if (!isADFSInstance)
+    NSString *userId = (cacheItem.accountIdentifier.legacyAccountId ?: _requestParams.identifier.userId);
+    NSString *enrollmentId = [_requestParams enrollmentIDForHomeAccountID:cacheItem.accountIdentifier.homeAccountId legacyUserID:userId];
+    
+    if (![NSString msidIsStringNilOrBlank:enrollmentId])
     {
-        NSString *legacyAccountId = cacheItem.accountIdentifier.displayableId;
-        NSString *userId = (legacyAccountId ? legacyAccountId : _requestParams.identifier.userId);
-        ADAuthenticationError *error = nil;
-        NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:cacheItem.accountIdentifier.homeAccountId
-                                                                          userID:userId
-                                                                           error:&error];
-        
-        if (enrollId)
-            [request_data setObject:enrollId forKey:ADAL_MS_ENROLLMENT_ID];
+        [request_data setObject:enrollmentId forKey:ADAL_MS_ENROLLMENT_ID];
     }
-
+    
+    NSString *authority = _requestParams.cloudAuthority ? _requestParams.cloudAuthority : _requestParams.authority;
 
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[authority stringByAppendingString:MSID_OAUTH2_TOKEN_SUFFIX]]
@@ -204,7 +199,9 @@
          ADAuthenticationResult *result = [ADResponseCacheHandler processAndCacheResponse:tokenResponse
                                                                          fromRefreshToken:cacheItem
                                                                                     cache:self.tokenCache
-                                                                                   params:_requestParams];
+                                                                                   params:_requestParams
+                                                                            configuration:_requestParams.msidConfig
+                                                                             verifyUserId:_verifyUserId];
          
          completionBlock(result);
          
@@ -310,9 +307,11 @@
     NSUUID* correlationId = [_requestParams correlationId];
 
     NSError *msidError = nil;
+    
+    MSIDConfiguration *configuration = _requestParams.msidConfig;
 
     MSIDLegacySingleResourceToken *item = [self.tokenCache getSingleResourceTokenForAccount:_requestParams.account
-                                                                              configuration:_requestParams.msidConfig
+                                                                              configuration:configuration
                                                                                     context:_requestParams
                                                                                       error:&msidError];
     
@@ -330,7 +329,7 @@
         MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:nil];
 
         item = [self.tokenCache getSingleResourceTokenForAccount:account
-                                                   configuration:_requestParams.msidConfig
+                                                   configuration:configuration
                                                          context:_requestParams
                                                            error:&msidError];
         
@@ -348,9 +347,21 @@
             return;
         }
     }
+    
+    BOOL enrollmentIdMatch = YES;
+    
+    // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
+    // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
+    if ([_requestParams isCapableForMAMCA] && ![NSString msidIsStringNilOrBlank:item.enrollmentId])
+    {
+        enrollmentIdMatch = configuration.enrollmentId && [configuration.enrollmentId isEqualToString:item.enrollmentId];
+    }
 
     // If we have a good (non-expired) access token then return it right away
-    if (item.accessToken && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer] && !_requestParams.forceRefresh)
+    if (item.accessToken
+        && ![item isExpiredWithExpiryBuffer:[ADAuthenticationSettings sharedInstance].expirationBuffer]
+        && !_requestParams.forceRefresh
+        && enrollmentIdMatch)
     {
         [[MSIDLogger sharedLogger] logToken:item.accessToken
                                   tokenType:@"AT"
@@ -369,7 +380,10 @@
     }
 
     // If the access token is good in terms of extended lifetime then store it for later use
-    if (item.accessToken && item.isExtendedLifetimeValid && !_requestParams.forceRefresh)
+    if (item.accessToken
+        && item.isExtendedLifetimeValid
+        && !_requestParams.forceRefresh
+        && enrollmentIdMatch)
     {
         _extendedLifetimeAccessTokenItem = item;
     }

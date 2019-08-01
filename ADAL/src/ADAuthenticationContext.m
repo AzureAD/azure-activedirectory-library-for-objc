@@ -36,6 +36,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem.h"
+#import "ADAuthenticationRequest+Broker.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "ADHelpers.h"
 #import "MSIDMacTokenCache.h"

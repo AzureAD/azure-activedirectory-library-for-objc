@@ -39,7 +39,7 @@
 }
 
 /*! The static instance of the singleton settings class*/
-+(ADAuthenticationSettings*) sharedInstance;
++(nonnull ADAuthenticationSettings*) sharedInstance;
 
 /*! The timeout used for any of the web requests. Specified in seconds. */
 @property int requestTimeOut;
@@ -61,7 +61,7 @@
 #endif //TARGET_OS_IPHONE
 
 #if !TARGET_OS_IPHONE
-@property (copy) id<ADTokenCacheDelegate> defaultStorageDelegate;
+@property (copy, nullable) id<ADTokenCacheDelegate> defaultStorageDelegate;
 #endif
 
 #if TARGET_OS_IPHONE
@@ -77,8 +77,8 @@
  group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
  this value cannot be changed. Doing so will throw an exception.
  */
-- (NSString*)defaultKeychainGroup;
-- (void)setDefaultKeychainGroup:(NSString*)keychainGroup;
+- (nonnull NSString*)defaultKeychainGroup;
+- (void)setDefaultKeychainGroup:(nonnull NSString*)keychainGroup;
 #endif // TARGET_OS_IPHONE
 
 @end

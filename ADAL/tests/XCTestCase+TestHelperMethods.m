@@ -271,7 +271,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                       oauthError:(NSString *)oauthError
-                                   oauthSubError:(NSString *)oauthSubError
+                                   oauthSubError:(id)oauthSubError
                                    correlationId:(NSUUID *)correlationId
                         additionalResponseParams:(NSDictionary *)additionalResponse
                                    requestParams:(NSDictionary *)requestParams

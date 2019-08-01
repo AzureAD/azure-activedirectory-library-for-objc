@@ -405,6 +405,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     ADTokenCacheKey* key = [item extractKey:error];
+
     if (!key)
     {
         return NO;
@@ -497,8 +498,15 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     //The key contains all of the ADAL cache key elements plus the version of the
     //library. The latter is required to ensure that SecItemAdd won't break on collisions
     //with items left over from the previous versions of the library.
+    
+    NSString *servicePrefix = s_libraryString;
+    if (![NSString msidIsStringNilOrBlank:itemKey.applicationIdentifier])
+    {
+        servicePrefix = [servicePrefix stringByAppendingFormat:@"-%@", [itemKey.applicationIdentifier msidBase64UrlEncode]];
+    }
+    
     return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
-            s_libraryString, s_delimiter,
+            servicePrefix, s_delimiter,
             [itemKey.authority msidBase64UrlEncode], s_delimiter,
             [self.class getAttributeName:itemKey.resource], s_delimiter,
             [itemKey.clientId msidBase64UrlEncode]

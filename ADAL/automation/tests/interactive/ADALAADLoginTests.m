@@ -111,11 +111,9 @@
     sleep(5);
 
     [self.testApp activate];
-    __auto_type signinButton = self.testApp.links[@"Sign in another way"];
-    [signinButton msidTap];
-
-    __auto_type verifyTitle = self.testApp.staticTexts[@"Verify your identity"];
-    [self waitForElement:verifyTitle];
+    
+    [self assertAccessTokenNotNil];
+    [self closeResultView];
 }
 
 - (void)testInteractiveAADLogin_whenAppSentToBackground_ADALWebView_shouldSuccessfullyCompleteAuth
@@ -161,7 +159,6 @@
     MSIDAutomationTestRequest *request = [self.class.confProvider defaultAppRequest];
     request.promptBehavior = @"always";
     request.loginHint = self.primaryAccount.account;
-    
     NSString *userId = [self runSharedAADLoginWithTestRequest:request];
     XCTAssertNotNil(userId);
     XCTAssertEqualObjects(userId, self.primaryAccount.account.lowercaseString);
@@ -428,7 +425,6 @@
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];
     configurationRequest.accountProvider = MSIDTestAccountProviderWW;
     configurationRequest.needsMultipleUsers = YES;
-    configurationRequest.appVersion = MSIDAppVersionV1;
     [self loadTestConfiguration:configurationRequest];
 
     XCTAssertTrue([self.testConfiguration.accounts count] >= 2);
@@ -488,6 +484,7 @@
 {
     XCUIElement *signIn = self.testApp.links[@"Sign in with another account"];
     [self waitForElement:signIn];
+    sleep(1);
     [signIn msidTap];
 }
 

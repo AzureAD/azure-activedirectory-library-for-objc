@@ -28,6 +28,8 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDConstants.h"
+#import "ADEnrollmentGateway.h"
+#import "MSIDADFSAuthority.h"
 
 @implementation ADRequestParameters
 
@@ -139,7 +141,66 @@
                                                                     clientId:self.clientId
                                                                       target:self.resource];
     
+    if ([self isCapableForMAMCA])
+    {
+        config.applicationIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+        config.enrollmentId = [self enrollmentIDForHomeAccountID:self.account.homeAccountId
+                                                    legacyUserID:self.account.legacyAccountId];
+    }
+    
     return config;
+}
+
+#pragma mark - Enrollment ID
+
+- (BOOL)isCapableForMAMCA
+{
+    NSString *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
+    return [self.class isCapableForMAMCA:authority];
+}
+
++ (BOOL)isCapableForMAMCA:(NSString *)authority
+{
+#if TARGET_OS_IPHONE
+    __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:authority] context:nil error:nil];
+    
+    BOOL isADFSInstance = adfsAuthority != nil;
+    
+    if (!isADFSInstance)
+    {
+        return ![NSString msidIsStringNilOrBlank:[ADEnrollmentGateway allIntuneMAMResourcesJSON]];
+    }
+    
+    return NO;
+#else
+    return NO;
+#endif
+}
+
++ (NSString *)applicationIdentifierWithAuthority:(NSString *)authority
+{
+    return [self isCapableForMAMCA:authority] ? [[NSBundle mainBundle] bundleIdentifier] : nil;
+}
+
+- (NSString *)enrollmentIDForHomeAccountID:(NSString *)homeAccountId
+                              legacyUserID:(NSString *)legacyUserID
+{
+    if (![self isCapableForMAMCA])
+    {
+        return nil;
+    }
+    
+    ADAuthenticationError *error = nil;
+    NSString *enrollId = [ADEnrollmentGateway enrollmentIDForHomeAccountId:homeAccountId
+                                                                    userID:legacyUserID
+                                                                     error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_ERROR_PII(self, @"Error looking up enrollment ID %@", error);
+    }
+    
+    return enrollId;
 }
 
 @end

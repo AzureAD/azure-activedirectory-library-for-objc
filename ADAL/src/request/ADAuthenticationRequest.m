@@ -164,9 +164,9 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
     NSData *decodedData = [_claims.msidURLDecode dataUsingEncoding:NSUTF8StringEncoding];
     NSError *jsonError = nil;
-    NSDictionary *decodedDictionary = [NSDictionary msidDictionaryFromJsonData:decodedData error:&jsonError];
+    NSDictionary *decodedDictionary = [NSJSONSerialization JSONObjectWithData:decodedData options:0 error:&jsonError];
 
-    if (!decodedDictionary)
+    if (!decodedDictionary || ![decodedDictionary isKindOfClass:[NSDictionary class]])
     {
         if (error)
         {

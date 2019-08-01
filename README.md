@@ -12,9 +12,14 @@ We recommend remaining up-to-date with the latest version of ADAL. The best plac
 The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
 NOTE:
-- To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
+- To work with iOS 10 you must have at least version 2.2.5.
+
+- To work with iOS 11.3+ you must have at least version 2.6.3.
+
+- ADAL supports iOS 10+ and macOS 10.11+. iOS 9 and macOS 10.10 support was dropped in ADAL 4.0.0 release.
+
 - WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
-=====================================
+  =====================================
 
 
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
@@ -75,15 +80,20 @@ We've made it easy for you to have multiple options to use this library in your 
     git add adal
     git commit -m "Use ADAL git submodule at <latest_release_tag>"
     git push
-    
+
 We recommend only syncing to specific release tags to make sure you're at a known good point. We will not support versions of ADAL between release tags.
 
 ### Option 2: Cocoapods
 
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
+<<<<<<< HEAD
     pod 'ADAL', '~> 4.0'
     
+=======
+    pod 'ADAL', '~> 2.7', :submodules => true
+
+>>>>>>> origin/hotfix/4.0.1
 You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
@@ -307,8 +317,8 @@ To set the logging level in your application call +[ADLogger setLevel:]
 
 ```Objective-C
 [ADLogger setLevel:ADAL_LOG_LEVEL_INFO]
- ```
- 
+```
+
 #### Network Traces
 
 You can use various tools to capture the HTTP traffic that ADAL generates.  This is most

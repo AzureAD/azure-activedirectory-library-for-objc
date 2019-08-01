@@ -47,6 +47,8 @@
 #import "ADEnrollmentGateway.h"
 #import "ADEnrollmentGateway+TestUtil.h"
 #import "NSData+MSIDExtensions.h"
+#import "ADTokenCacheKey.h"
+#import "ADTokenCacheItem+Internal.h"
 
 @interface ADEnrollmentGateway ()
 
@@ -269,6 +271,85 @@
     XCTAssertEqualObjects([tokenCache getMRRTItem:cacheAuthority].userInformation.tenantId, correctTid);
     XCTAssertEqualObjects([tokenCache getFRT:cacheAuthority], updatedRT);
     XCTAssertEqualObjects([tokenCache getFRTItem:cacheAuthority].userInformation.tenantId, correctTid);
+}
+
+- (void)testBroker_whenFailWithInvalidGrantAndSuberror_shouldReturnSubError
+{
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+
+    [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        (void)options;
+
+        NSDictionary *expectedParams =
+        @{
+          @"authority" : authority,
+          @"resource" : TEST_RESOURCE,
+          @"username_type" : @"",
+          @"max_protocol_ver" : @"2",
+          @"broker_key" : brokerKey,
+          @"client_version" : ADAL_VERSION_NSSTRING,
+          @"force" : @"NO",
+          @"redirect_uri" : redirectUri,
+          @"username" : @"",
+          @"client_id" : TEST_CLIENT_ID,
+          @"correlation_id" : TEST_CORRELATION_ID,
+          @"skip_cache" : @"NO",
+          @"extra_qp" : @"",
+          @"claims" : @"",
+          @"intune_enrollment_ids" : @"",
+          @"intune_mam_resource" : @"",
+          @"client_capabilities" : @"",
+          @"client_app_name": @"UnitTestHost",
+          @"client_app_version": @"1.0"
+          };
+
+        NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
+        NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+        XCTAssertTrue([expectedURL matchesURL:url]);
+
+
+        NSMutableDictionary *responseParams =
+        [[NSMutableDictionary alloc] initWithDictionary:@{
+                                                          @"error_code" : @"200",
+                                                          @"error_description" : @"Invalid grant",
+                                                          @"error" : @"invalid_grant",
+                                                          @"suberror" : @"my_suberror",
+                                                          ADAL_BROKER_APP_VERSION : @"2"
+                                                          }];
+
+        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri]];
+        return YES;
+    }];
+
+    NSArray *metadata = @[ @{ @"preferred_network" : @"login.microsoftonline.com",
+                              @"preferred_cache" : @"login.windows.net",
+                              @"aliases" : @[ @"login.windows.net", @"login.microsoftonline.com"] } ];
+    ADTestURLResponse *validationResponse =
+    [ADTestAuthorityValidationResponse validAuthority:authority
+                                          trustedHost:@"login.windows.net"
+                                         withMetadata:metadata];
+    [ADTestURLSession addResponses:@[validationResponse]];
+
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         XCTAssertEqualObjects(result.error.userInfo[ADSuberrorKey], @"my_suberror");
+         XCTAssertEqualObjects(result.error.userInfo[ADBrokerVersionKey], @"2");
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
 - (void)testBroker_whenClaimsChallengePassed_shouldSucceedAndPassSkipCacheYES
@@ -676,7 +757,10 @@
 
     ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
-    XCTAssertEqualObjects([tokenCache getAT:authority], @"i-am-a-access-token");
+    ADTokenCacheKey *accessTokenCacheKey = [ADTokenCacheKey keyWithAuthority:authority resource:TEST_RESOURCE clientId:TEST_CLIENT_ID appIdentifier:@"com.microsoft.unittesthost" error:nil];
+    ADTokenCacheItem *accessTokenCacheItem = [tokenCache getItemWithKey:accessTokenCacheKey userId:TEST_USER_ID correlationId:nil error:nil];
+    XCTAssertEqualObjects(accessTokenCacheItem.enrollmentId, @"adf79e3f-mike-454d-9f0f-2299e76dbfd5");
+    XCTAssertEqualObjects(accessTokenCacheItem.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
     [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];

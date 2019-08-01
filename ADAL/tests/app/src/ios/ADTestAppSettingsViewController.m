@@ -136,7 +136,7 @@ static NSArray* s_deviceRows = nil;
 - (void)viewWillAppear:(BOOL)animated
 {
     MSIDRegistrationInformation *regInfo =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:nil error:nil];
+    [MSIDWorkPlaceJoinUtil getRegistrationInformation:nil urlChallenge:nil];
     
     NSString* wpjLabel = @"No WPJ Registration Found";
     

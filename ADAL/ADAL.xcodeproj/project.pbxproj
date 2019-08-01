@@ -1178,8 +1178,14 @@
 		B258487B20747998007FAD22 /* KeyVaultClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVaultClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B258488020747A54007FAD22 /* KeyVault.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = KeyVault.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B258488220747B01007FAD22 /* KeyVaultClient.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeyVaultClient.xcodeproj; path = ../KeyVaultClient/KeyVaultClient.xcodeproj; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		B2649E1021F6747600CAD2D9 /* ADClearMacCacheTestAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADClearMacCacheTestAction.h; sourceTree = "<group>"; };
 		B2649E1121F6747600CAD2D9 /* ADClearMacCacheTestAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADClearMacCacheTestAction.m; sourceTree = "<group>"; };
+=======
+		B26207E022C872DA00F867D9 /* ADEnrollmentGateway+UnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADEnrollmentGateway+UnitTests.h"; sourceTree = "<group>"; };
+		B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNegotiateHandler.h; sourceTree = "<group>"; };
+		B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNegotiateHandler.m; sourceTree = "<group>"; };
+>>>>>>> origin/hotfix/4.0.1
 		B2822A2C2055D67200390B6E /* ADLegacyMacTokenCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADLegacyMacTokenCache.h; sourceTree = "<group>"; };
 		B2822A2D2055D67200390B6E /* ADLegacyMacTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLegacyMacTokenCache.m; sourceTree = "<group>"; };
 		B2822A312055DBF800390B6E /* ADLegacyKeychainTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLegacyKeychainTokenCache.m; sourceTree = "<group>"; };
@@ -2150,6 +2156,7 @@
 		B20DC5D51F0D97C600957806 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				B26207E022C872DA00F867D9 /* ADEnrollmentGateway+UnitTests.h */,
 				A521AB7020EED85C0005735B /* ADEnrollmentGatewayTests.m */,
 				234F3CE51F35159500DE4AA4 /* ADAuthenticationContextTests.m */,
 				B20DC5D61F0D97C600957806 /* ADAL_iOS_UTs-Info.plist */,
@@ -2991,6 +2998,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -4121,7 +4129,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks @executable_path/Frameworks $(inherited)";
 				MACH_O_TYPE = mh_bundle;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -4139,7 +4147,7 @@
 				MACH_O_TYPE = mh_bundle;
 				ONLY_ACTIVE_ARCH = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
@@ -4201,7 +4209,11 @@
 			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = UBF8T346G9;
+=======
+				DEVELOPMENT_TEAM = "";
+>>>>>>> origin/hotfix/4.0.1
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -4213,7 +4225,11 @@
 			baseConfigurationReference = D6CF4EB01FC370BF00CD70C5 /* adal__framework__ios.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = UBF8T346G9;
+=======
+				DEVELOPMENT_TEAM = "";
+>>>>>>> origin/hotfix/4.0.1
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -4259,6 +4275,7 @@
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -4266,6 +4283,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
@@ -4557,6 +4575,7 @@
 			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -4564,6 +4583,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
@@ -5029,7 +5049,11 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+<<<<<<< HEAD
 				PROVISIONING_PROFILE_SPECIFIER = "";
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
+>>>>>>> origin/hotfix/4.0.1
 			};
 			name = Debug;
 		};
@@ -5042,7 +5066,11 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+<<<<<<< HEAD
 				PROVISIONING_PROFILE_SPECIFIER = "";
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
+>>>>>>> origin/hotfix/4.0.1
 			};
 			name = Release;
 		};

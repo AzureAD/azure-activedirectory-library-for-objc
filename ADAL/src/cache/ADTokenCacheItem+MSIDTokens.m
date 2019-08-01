@@ -60,6 +60,8 @@
             additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = accessToken.extendedExpiresOn;
             _additionalServer = additionalServer;
         }
+        _enrollmentId = accessToken.enrollmentId;
+        _applicationIdentifier = accessToken.applicationIdentifier;
     }
     
     [self calculateHash];
@@ -155,6 +157,8 @@
                                                                              clientId:self.clientId
                                                                              resource:self.resource
                                                                          legacyUserId:self.userInformation.userId];
+    
+    key.applicationIdentifier = self.applicationIdentifier;
     return key;
 }
 
@@ -189,6 +193,9 @@
         cacheItem.additionalInfo = self.additionalServer;
     }
     
+    cacheItem.additionalInfo = self.additionalServer;
+    cacheItem.enrollmentId = self.enrollmentId;
+    cacheItem.applicationIdentifier = self.applicationIdentifier;
     return cacheItem;
 }
 
