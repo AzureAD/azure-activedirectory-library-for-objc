@@ -40,7 +40,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     if ([ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApplication])
     {
         // Attempt to handle response from broker
-        BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
+        BOOL result = [ADAuthenticationContext handleBrokerResponse:url sourceApplication:sourceApplication];
 
         if (result)
         {
@@ -76,7 +76,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     if ([ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApplication])
     {
         // Attempt to handle response from broker
-        BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
+        BOOL result = [ADAuthenticationContext handleBrokerResponse:url sourceApplication:sourceApplication];
 
         if (result)
         {

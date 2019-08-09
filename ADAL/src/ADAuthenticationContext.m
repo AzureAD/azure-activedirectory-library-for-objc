@@ -273,9 +273,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     return response && isBroker;
 }
 
-+ (BOOL)handleBrokerResponse:(NSURL*)response
++ (BOOL)handleBrokerResponse:(NSURL*)response sourceApplication:(nullable NSString *)sourceApplication;
 {
-    return [ADAuthenticationRequest internalHandleBrokerResponse:response];
+    return [ADAuthenticationRequest internalHandleBrokerResponse:response sourceApplication:sourceApplication];
 }
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \

@@ -113,13 +113,14 @@ NSString *kAdalSDKObjc = @"adal-objc";
  
     @return YES if the URL was a properly decoded broker response
  */
-+ (BOOL)internalHandleBrokerResponse:(NSURL *)response
++ (BOOL)internalHandleBrokerResponse:(NSURL *)response sourceApplication:(NSString *)sourceApplication
 {
 #if TARGET_OS_IPHONE
     __block ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
     
     ADAuthenticationError* error = nil;
     ADAuthenticationResult* result = [self processBrokerResponse:response
+                                               sourceApplication:sourceApplication
                                                            error:&error];
     BOOL fReturn = YES;
     
@@ -164,6 +165,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
     @return The result contained in the broker response, nil if the URL could not be processed
  */
 + (ADAuthenticationResult *)processBrokerResponse:(NSURL *)response
+                                sourceApplication:(NSString *)sourceApplication
                                             error:(ADAuthenticationError * __autoreleasing *)error
 {
 #if TARGET_OS_IPHONE
@@ -181,6 +183,12 @@ NSString *kAdalSDKObjc = @"adal-objc";
     }
     
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
+    NSString *nonce = [resumeDictionary objectForKey:@"broker_nonce"];
+    if (!nonce)
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_BAD_RESUME_STATE, @"Resume state is missing the nonce!", correlationId);
+        return nil;
+    }
     NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
     if (!redirectUri)
     {
@@ -205,6 +213,12 @@ NSString *kAdalSDKObjc = @"adal-objc";
     
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
+        if (![self checkNonce:nonce sourceApplication:sourceApplication queryParams:queryParamsMap])
+        {
+            AUTH_ERROR(AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE, @"Nonce in broker response does not match!", correlationId);
+            return nil;
+        }
+        
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
         NSMutableDictionary *brokerResponse = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
         if (queryParamsMap[ADAL_BROKER_INTUNE_HASH_KEY] && queryParamsMap[ADAL_BROKER_INTUNE_RESPONSE_KEY])
@@ -294,6 +308,12 @@ NSString *kAdalSDKObjc = @"adal-objc";
         return nil;
     }
     
+    if (![self checkNonce:nonce sourceApplication:sourceApplication queryParams:queryParamsMap])
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE, @"Nonce in broker response does not match!", correlationId);
+        return nil;
+    }
+    
     NSError *msidError = nil;
     MSIDBrokerResponse *brokerResponse = [[MSIDBrokerResponse alloc] initWithDictionary:queryParamsMap error:&msidError];
     
@@ -350,6 +370,19 @@ NSString *kAdalSDKObjc = @"adal-objc";
 #endif
 }
 
++ (BOOL)checkNonce:(NSString *)nonce
+ sourceApplication:(NSString *)sourceApplication
+       queryParams:(NSDictionary *)queryParams
+{
+    // only verify nonce if sourceApplication is nil
+    if (!sourceApplication)
+    {
+        return [nonce isEqualToString:queryParams[ADAL_BROKER_NONCE_KEY]];
+    }
+    
+    return YES;
+}
+
 - (BOOL)canUseBroker
 {
     __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:[NSURL URLWithString:_requestParams.authority] context:nil error:nil];
@@ -400,6 +433,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
     {
         skipCacheValue = @"YES";
     }
+    
+    NSString *nonce = [[NSUUID new] UUIDString];
 
     NSDictionary *queryDictionary =
     @{
@@ -423,7 +458,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
       @"intune_mam_resource" : mamResource,
       @"client_capabilities": capabilities ? capabilities : @"",
       @"client_app_name": clientMetadata[MSID_APP_NAME_KEY],
-      @"client_app_version": clientMetadata[MSID_APP_VER_KEY]
+      @"client_app_version": clientMetadata[MSID_APP_VER_KEY],
+      @"broker_nonce"   : nonce
       };
     
     NSMutableDictionary *resumeDictionary = [@{
@@ -432,6 +468,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
                                                @"client_id"        : _requestParams.clientId,
                                                @"redirect_uri"     : _requestParams.redirectUri,
                                                @"correlation_id"   : _requestParams.correlationId.UUIDString,
+                                               @"broker_nonce"     : nonce,
                                                kAdalSDKNameKey     : kAdalSDKObjc
                                                } mutableCopy];
 #if TARGET_OS_IPHONE

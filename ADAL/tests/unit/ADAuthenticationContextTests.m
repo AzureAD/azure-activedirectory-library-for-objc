@@ -201,6 +201,31 @@
     
     XCTAssertFalse(result);
 }
+
+- (void)testCanHandleResponse_whenNotFromBroker_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    NSString *sourceApp = @"com.microsoft.notbroker";
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
+- (void)testCanHandleResponse_whenSourceApplicationNil_shouldStillReturnYes
+{
+    NSDictionary *resumeDictionary = @{kAdalSDKNameKey: kAdalSDKObjc};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    NSString *sourceApp = nil;
+    
+    BOOL result = [ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApp];
+    
+    XCTAssertFalse(result);
+}
+
 #else
 
 - (void)testCanHandleResponse_shouldReturnNo

@@ -181,8 +181,9 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         sourceApplication:(NSString *)sourceApplication
 {
 #if TARGET_OS_IPHONE
-    BOOL isResponseFromBroker = [self isResponseFromBroker:sourceApplication response:response];
-    if (!isResponseFromBroker) { return NO; }
+    // sourceApplication could be nil, we want to return early if we know for sure response is not from broker
+    BOOL responseNotFromBroker = sourceApplication && ![self isResponseFromBroker:sourceApplication response:response];
+    if (responseNotFromBroker) { return NO; }
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qp = [components percentEncodedQuery];
