@@ -46,6 +46,7 @@ extern NSString *const ADAL_AUTH_PROTECTION_POLICY_REQUIRED;
 extern NSString *const ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER;
 
 extern NSString* const ADAL_BROKER_SCHEME;
+extern NSString* const ADAL_BROKER_NONCE_SCHEME;
 extern NSString* const ADAL_BROKER_APP_REDIRECT_URI;
 extern NSString* const ADAL_BROKER_APP_BUNDLE_ID;
 
