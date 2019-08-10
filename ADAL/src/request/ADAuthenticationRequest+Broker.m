@@ -56,6 +56,7 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADKeychainUtil.h"
 #import "MSIDBrokerResponse+ADAL.h"
+#import "ADBrokerApplicationTokenHelper.h"
 #endif // TARGET_OS_IPHONE
 
 NSString *s_brokerAppVersion = nil;
@@ -203,6 +204,18 @@ NSString *kAdalSDKObjc = @"adal-objc";
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
     
+    if (![NSString msidIsStringNilOrBlank:queryParamsMap[@"application_token"]])
+    {
+        ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+        BOOL appTokenSaveResult = [tokenHelper saveApplicationBrokerToken:queryParamsMap[@"application_token"] clientId:queryParamsMap[@"client_id"]];
+        
+        if (!appTokenSaveResult)
+        {
+            // TODO: add error? Reason for failure?
+            MSID_LOG_ERROR(nil, @"Failed to save application token");
+        }
+    }
+
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
@@ -382,6 +395,11 @@ NSString *kAdalSDKObjc = @"adal-objc";
     AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _requestParams.correlationId);
     NSString* base64UrlKey = [base64Key msidWWWFormURLEncode];
     AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _requestParams.correlationId);
+    
+    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+    NSString *applicationToken = [tokenHelper getApplicationBrokerTokenForClientId:_requestParams.clientId];
+    
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
     NSString* adalVersion = ADAL_VERSION_NSSTRING;
@@ -414,6 +432,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
       @"correlation_id" : _requestParams.correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
       @"broker_key"     : base64UrlKey,
+      @"application_token": applicationToken ? applicationToken : @"",
 #endif // TARGET_OS_IPHONE Broker Message Encryption
       @"client_version" : adalVersion,
       ADAL_BROKER_MAX_PROTOCOL_VERSION : @"2",
@@ -435,7 +454,6 @@ NSString *kAdalSDKObjc = @"adal-objc";
                                                kAdalSDKNameKey     : kAdalSDKObjc
                                                } mutableCopy];
 #if TARGET_OS_IPHONE
-    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
     resumeDictionary[@"keychain_group"] = keychainGroup;
 #endif
 
