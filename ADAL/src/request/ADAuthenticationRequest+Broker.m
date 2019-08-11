@@ -357,6 +357,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
 #endif
 }
 
+#if TARGET_OS_IPHONE
 + (void)saveApplicationToken:(NSString *)applicationToken
                keychainGroup:(NSString *)keychainGroup
                     clientId:(NSString *)clientId
@@ -372,6 +373,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
         }
     }
 }
+#endif
 
 - (BOOL)canUseBroker
 {
