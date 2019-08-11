@@ -106,7 +106,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -202,7 +203,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -302,7 +304,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -381,7 +384,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -474,7 +478,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -585,7 +590,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
         
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -703,7 +709,8 @@
           @"intune_mam_resource" : intuneResource,
           @"client_capabilities" : @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -796,7 +803,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities": @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -899,7 +907,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities": @"",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
@@ -1054,7 +1063,8 @@
           @"intune_mam_resource" : @"",
           @"client_capabilities": @"llt",
           @"client_app_name": @"UnitTestHost",
-          @"client_app_version": @"1.0"
+          @"client_app_version": @"1.0",
+          @"application_token": @""
           };
 
         NSString *expectedUrlString = [NSString stringWithFormat:@"msauth://broker?%@", [expectedParams msidWWWFormURLEncode]];
