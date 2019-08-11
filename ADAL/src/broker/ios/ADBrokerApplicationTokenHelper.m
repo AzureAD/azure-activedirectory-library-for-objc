@@ -69,7 +69,7 @@
     
     OSStatus err = SecItemUpdate((CFDictionaryRef)keyQuery, (CFDictionaryRef)updateAttributes);
     
-    MSID_LOG_INFO(nil, @"Updating application token");
+    MSID_LOG_INFO(nil, @"Updating application token for clientId %@", clientId);
     
     if (err == errSecItemNotFound)
     {
@@ -84,7 +84,7 @@
     
     if (err != errSecSuccess)
     {
-        MSID_LOG_ERROR(nil, @"Failed to write application token. Application will not have SSO in broker, error %ld", (long)err);
+        MSID_LOG_ERROR(nil, @"Failed to write application token. Application will not have SSO in broker for the next request, write error %ld", (long)err);
         return NO;
     }
     

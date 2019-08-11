@@ -211,7 +211,6 @@ NSString *kAdalSDKObjc = @"adal-objc";
         
         if (!appTokenSaveResult)
         {
-            // TODO: add error? Reason for failure?
             MSID_LOG_ERROR(nil, @"Failed to save application token");
         }
     }

@@ -27,12 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ADBrokerApplicationTokenHelper : NSObject
 
-- (instancetype)initWithAccessGroup:(NSString *)accessGroup;
+- (nullable instancetype)initWithAccessGroup:(NSString *)accessGroup;
 
 - (BOOL)saveApplicationBrokerToken:(NSString *)token
                           clientId:(NSString *)clientId;
 
-- (NSString *)getApplicationBrokerTokenForClientId:(NSString *)clientId;
+- (nullable NSString *)getApplicationBrokerTokenForClientId:(NSString *)clientId;
 
 @end
 
