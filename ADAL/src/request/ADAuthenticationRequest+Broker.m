@@ -203,17 +203,6 @@ NSString *kAdalSDKObjc = @"adal-objc";
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
-    
-    if (![NSString msidIsStringNilOrBlank:queryParamsMap[@"application_token"]])
-    {
-        ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
-        BOOL appTokenSaveResult = [tokenHelper saveApplicationBrokerToken:queryParamsMap[@"application_token"] clientId:queryParamsMap[@"client_id"]];
-        
-        if (!appTokenSaveResult)
-        {
-            MSID_LOG_ERROR(nil, @"Failed to save application token");
-        }
-    }
 
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
@@ -272,6 +261,10 @@ NSString *kAdalSDKObjc = @"adal-objc";
                     {
                         MSID_LOG_WARN(nil, @"Failed to save Intune token");
                     }
+                    
+                    [self saveApplicationToken:decryptedIntuneTokenResponse[@"application_token"]
+                                 keychainGroup:keychainGroup
+                                      clientId:decryptedIntuneTokenResponse[@"client_id"]];
                 }
             }
         }
@@ -349,6 +342,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
             MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
+        [self saveApplicationToken:queryParamsMap[@"application_token"] keychainGroup:keychainGroup clientId:queryParamsMap[@"client_id"]];
+        
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]
                                  verifyUserId:YES];
@@ -360,6 +355,22 @@ NSString *kAdalSDKObjc = @"adal-objc";
     AUTH_ERROR(AD_ERROR_UNEXPECTED, @"broker response parsing not supported on Mac", nil);
     return nil;
 #endif
+}
+
++ (void)saveApplicationToken:(NSString *)applicationToken
+               keychainGroup:(NSString *)keychainGroup
+                    clientId:(NSString *)clientId
+{
+    if (![NSString msidIsStringNilOrBlank:applicationToken])
+    {
+        ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+        BOOL appTokenSaveResult = [tokenHelper saveApplicationBrokerToken:applicationToken clientId:clientId];
+        
+        if (!appTokenSaveResult)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to save application token");
+        }
+    }
 }
 
 - (BOOL)canUseBroker

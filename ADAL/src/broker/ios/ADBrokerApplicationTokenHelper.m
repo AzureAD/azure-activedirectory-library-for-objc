@@ -78,6 +78,7 @@
         NSMutableDictionary *mutableKeyQuery = [keyQuery mutableCopy];
         mutableKeyQuery[(id)kSecAttrAccessible] = (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
         mutableKeyQuery[(id)kSecAttrAccessGroup] = self.keychainAccessGroup;
+        mutableKeyQuery[(id)kSecValueData] = [token dataUsingEncoding:NSUTF8StringEncoding];
         
         err = SecItemAdd((CFDictionaryRef)mutableKeyQuery, NULL);
     }
@@ -88,13 +89,14 @@
         return NO;
     }
     
-    return NO;
+    return YES;
 }
 
 - (NSString *)getApplicationBrokerTokenForClientId:(NSString *)clientId
 {
     OSStatus err = noErr;
-    NSDictionary *keyQuery = [self applicationTokenQueryWithClientId:clientId];
+    NSMutableDictionary *keyQuery = [[self applicationTokenQueryWithClientId:clientId] mutableCopy];
+    keyQuery[(id)kSecReturnData] = @YES;
     
     // Get the key bits.
     CFDataRef key = nil;
@@ -102,12 +104,11 @@
     if (err == errSecSuccess)
     {
         MSID_LOG_INFO(nil, @"Found a valid application token");
-        NSData *result = (__bridge NSData*)key;
-        CFRelease(key);
+        NSData *result = (__bridge_transfer NSData*)key;
         return [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
     }
     
-    MSID_LOG_INFO(nil, @"Didn't find any valid application tokens");
+    MSID_LOG_INFO(nil, @"Didn't find any valid application tokens with result %ld", (long)err);
     
     return nil;
 }
@@ -117,14 +118,13 @@
     return @{
              (id)kSecClass : (id)kSecClassKey,
              (id)kSecAttrApplicationTag : [self applicationTokenTagWithClientId:clientId],
-             (id)kSecReturnData : @(YES),
              (id)kSecAttrAccessGroup : self.keychainAccessGroup
              };
 }
 
 - (NSData *)applicationTokenTagWithClientId:(NSString *)clientId
 {
-    return [[NSString stringWithFormat:@"msauth-application-token-%@", clientId] dataUsingEncoding:NSUTF8StringEncoding];
+    return [[NSString stringWithFormat:@"broker-application-token-%@", clientId] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 @end
