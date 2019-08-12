@@ -206,4 +206,21 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 #endif
 }
 
++ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
+                    response:(NSURL *)response
+{
+    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
+    
+#ifdef DOGFOOD_BROKER
+    isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
+#endif
+    
+    return response && isBroker;
+}
+
++ (BOOL)handleBrokerResponse:(NSURL*)response sourceApplication:(nullable NSString *)sourceApplication;
+{
+    return [ADAuthenticationRequest internalHandleBrokerResponse:response sourceApplication:sourceApplication];
+}
+
 @end

@@ -261,23 +261,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 #endif // TARGET_OS_IPHONE
 
-+ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
-                    response:(NSURL *)response
-{
-    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
-    
-#ifdef DOGFOOD_BROKER
-    isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
-#endif
-    
-    return response && isBroker;
-}
-
-+ (BOOL)handleBrokerResponse:(NSURL*)response sourceApplication:(nullable NSString *)sourceApplication;
-{
-    return [ADAuthenticationRequest internalHandleBrokerResponse:response sourceApplication:sourceApplication];
-}
-
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
     THROW_ON_NIL_ARGUMENT(completionBlock) \
     CHECK_STRING_ARG_BLOCK(_clientId) \

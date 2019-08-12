@@ -233,15 +233,6 @@ typedef enum
                                                                   error:(ADAuthenticationError* __autoreleasing _Nullable * _Nullable)error;
 #endif
 
-/*!
- */
-+ (BOOL)isResponseFromBroker:(nonnull NSString*)sourceApplication
-                    response:(nonnull NSURL*)response;
-
-/*!
- */
-+ (BOOL)handleBrokerResponse:(nonnull NSURL*)response sourceApplication:(nullable NSString *)sourceApplication;
-
 /*! Represents the authority used by the context. */
 @property (readonly, nonnull) NSString* authority;
 

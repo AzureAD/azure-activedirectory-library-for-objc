@@ -32,6 +32,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheItem.h"
+#import "ADAuthenticationContext+Internal.h"
 
 @interface ADBrokerMessageTests : ADTestCase
 
