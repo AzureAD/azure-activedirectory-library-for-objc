@@ -48,6 +48,7 @@ NSString *const ADAL_AUTH_ADDITIONAL_USER_IDENTIFIER  = @"adi";
 
 //application constants
 NSString* const ADAL_BROKER_SCHEME = @"msauth";
+NSString* const ADAL_BROKER_NONCE_SCHEME = @"msauthv3";
 NSString* const ADAL_BROKER_APP_REDIRECT_URI = @"urn:ietf:wg:oauth:2.0:oob";
 NSString* const ADAL_BROKER_APP_BUNDLE_ID = @"com.microsoft.azureauthenticator";
 
