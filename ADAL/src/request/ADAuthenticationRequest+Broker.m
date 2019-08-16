@@ -56,6 +56,7 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADKeychainUtil.h"
 #import "MSIDBrokerResponse+ADAL.h"
+#import "ADBrokerApplicationTokenHelper.h"
 #endif // TARGET_OS_IPHONE
 
 NSString *s_brokerAppVersion = nil;
@@ -210,7 +211,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
-    
+
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
         if (![self checkNonce:nonce sourceApplication:sourceApplication queryParams:queryParamsMap])
@@ -274,6 +275,10 @@ NSString *kAdalSDKObjc = @"adal-objc";
                     {
                         MSID_LOG_WARN(nil, @"Failed to save Intune token");
                     }
+                    
+                    [self saveApplicationToken:decryptedIntuneTokenResponse[@"application_token"]
+                                 keychainGroup:keychainGroup
+                                      clientId:decryptedIntuneTokenResponse[@"client_id"]];
                 }
             }
         }
@@ -357,6 +362,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
             MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
+        [self saveApplicationToken:queryParamsMap[@"application_token"] keychainGroup:keychainGroup clientId:queryParamsMap[@"client_id"]];
+        
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]
                                  verifyUserId:YES];
@@ -382,6 +389,24 @@ NSString *kAdalSDKObjc = @"adal-objc";
     
     return YES;
 }
+
+#if TARGET_OS_IPHONE
++ (void)saveApplicationToken:(NSString *)applicationToken
+               keychainGroup:(NSString *)keychainGroup
+                    clientId:(NSString *)clientId
+{
+    if (![NSString msidIsStringNilOrBlank:applicationToken])
+    {
+        ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+        BOOL appTokenSaveResult = [tokenHelper saveApplicationBrokerToken:applicationToken clientId:clientId];
+        
+        if (!appTokenSaveResult)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to save application token");
+        }
+    }
+}
+#endif
 
 - (BOOL)canUseBroker
 {
@@ -415,6 +440,11 @@ NSString *kAdalSDKObjc = @"adal-objc";
     AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _requestParams.correlationId);
     NSString* base64UrlKey = [base64Key msidWWWFormURLEncode];
     AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _requestParams.correlationId);
+    
+    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+    NSString *applicationToken = [tokenHelper getApplicationBrokerTokenForClientId:_requestParams.clientId];
+    
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
     NSString* adalVersion = ADAL_VERSION_NSSTRING;
@@ -449,6 +479,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
       @"correlation_id" : _requestParams.correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
       @"broker_key"     : base64UrlKey,
+      @"application_token": applicationToken ? applicationToken : @"",
 #endif // TARGET_OS_IPHONE Broker Message Encryption
       @"client_version" : adalVersion,
       ADAL_BROKER_MAX_PROTOCOL_VERSION : @"2",
@@ -472,7 +503,6 @@ NSString *kAdalSDKObjc = @"adal-objc";
                                                kAdalSDKNameKey     : kAdalSDKObjc
                                                } mutableCopy];
 #if TARGET_OS_IPHONE
-    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
     resumeDictionary[@"keychain_group"] = keychainGroup;
 #endif
 

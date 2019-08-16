@@ -201,8 +201,15 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     
     if (![ADAppExtensionUtil isExecutingInAppExtension])
     {
+        NSString *checkScheme = ADAL_BROKER_SCHEME;
+        
+        if (@available(iOS 13.0, *))
+        {
+            checkScheme = ADAL_BROKER_NONCE_SCHEME;
+        }
+        
         // Verify broker app url can be opened
-        return [[ADAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
+        return [[ADAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", checkScheme]]];
     }
     else
     {

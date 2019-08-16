@@ -36,6 +36,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>msauth</string>
+		<string>msauthv3</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
