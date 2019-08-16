@@ -124,7 +124,7 @@
 
 - (NSData *)applicationTokenTagWithClientId:(NSString *)clientId
 {
-    return [[NSString stringWithFormat:@"broker-application-token-%@", clientId] dataUsingEncoding:NSUTF8StringEncoding];
+    return [[NSString stringWithFormat:@"com.microsoft.adBrokerAppToken-%@", clientId] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 @end
