@@ -197,8 +197,10 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     if (!resumeDictionary) MSID_LOG_INFO(nil, @"No resume dictionary found.");
     
     NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
-    BOOL notMatchRedirectUri = redirectUri && ![response.absoluteString.lowercaseString hasPrefix:redirectUri.lowercaseString];
-    if (notMatchRedirectUri) return NO;
+    if (redirectUri && ![response.absoluteString.lowercaseString hasPrefix:redirectUri.lowercaseString])
+    {
+        return NO;
+    }
     
     BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc] || [[ADBrokerNotificationManager sharedInstance] hasCallback];
     
