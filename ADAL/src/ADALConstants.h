@@ -28,6 +28,7 @@ extern NSString *const ADAL_BROKER_MESSAGE_VERSION;
 extern NSString *const ADAL_BROKER_APP_VERSION;
 extern NSString *const ADAL_BROKER_RESPONSE_KEY;
 extern NSString *const ADAL_BROKER_HASH_KEY;
+extern NSString *const ADAL_BROKER_NONCE_KEY;
 extern NSString *const ADAL_BROKER_INTUNE_RESPONSE_KEY;
 extern NSString *const ADAL_BROKER_INTUNE_HASH_KEY;
 extern NSString *const ADAL_MS_ENROLLMENT_ID;

@@ -31,6 +31,7 @@ NSString *const ADAL_BROKER_RESPONSE_KEY             = @"response";
 NSString *const ADAL_BROKER_HASH_KEY                 = @"hash";
 NSString *const ADAL_BROKER_INTUNE_RESPONSE_KEY      = @"intune_mam_token";
 NSString *const ADAL_BROKER_INTUNE_HASH_KEY          = @"intune_mam_token_hash";
+NSString *const ADAL_BROKER_NONCE_KEY                = @"broker_nonce";
 NSString *const ADAL_MS_ENROLLMENT_ID                = @"microsoft_enrollment_id";
 
 NSString *const ADAL_CLIENT_TELEMETRY           = @"x-ms-clitelem";

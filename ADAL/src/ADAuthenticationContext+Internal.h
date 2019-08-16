@@ -63,5 +63,10 @@ extern NSString* const ADRedirectUriInvalidError;
 + (BOOL)canHandleResponse:(NSURL *)response
         sourceApplication:(NSString *)sourceApplication;
 
++ (BOOL)isResponseFromBroker:(NSString*)sourceApplication
+                    response:(NSURL*)response;
+
++ (BOOL)handleBrokerResponse:(NSURL*)response sourceApplication:(NSString *)sourceApplication;
+
 @end
 
