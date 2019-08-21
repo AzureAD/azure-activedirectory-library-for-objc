@@ -24,8 +24,19 @@
 #import "ADApplicationTestUtil.h"
 
 BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
+static NSArray *s_allowedURLSchemes = nil;
 
 @implementation ADApplicationTestUtil
+
++ (void)setAllowedSchemes:(NSArray *)allowedSchemes
+{
+    s_allowedURLSchemes = allowedSchemes;
+}
+
++ (NSArray *)allowedSchemes
+{
+    return s_allowedURLSchemes;
+}
 
 + (void)onOpenURL:(BOOL (^)(NSURL *url, NSDictionary<NSString *, id> *options))openUrlBlock
 {
@@ -61,7 +72,11 @@ BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
 
 - (BOOL)canOpenURL:(NSURL *)url
 {
-    (void)url;
+    if (s_allowedURLSchemes)
+    {
+        return [s_allowedURLSchemes containsObject:url.scheme];
+    }
+    
     return YES;
 }
 
