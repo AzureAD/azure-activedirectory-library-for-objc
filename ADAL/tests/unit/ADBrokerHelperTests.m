@@ -74,7 +74,7 @@
     }
 }
 
-- (void)testCanUseBroker_wheniOS13AndNewBrokerInstalled_shouldReturnFalse
+- (void)testCanUseBroker_wheniOS13AndNewBrokerInstalled_shouldReturnTrue
 {
     if (@available(iOS 13.0, *))
     {
