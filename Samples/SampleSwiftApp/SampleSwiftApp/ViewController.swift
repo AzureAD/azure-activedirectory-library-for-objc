@@ -24,24 +24,14 @@
 import UIKit
 import ADAL
 
-class ViewController: UIViewController {
-    
+class ViewController: UIViewController
+{
     @IBOutlet weak var statusTextField: UITextView?
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
 
     func updateStatusField(_ text: String)
     {
         DispatchQueue.main.async {
-                self.statusTextField?.text = text;
+            self.statusTextField?.text = text;
         }
     }
     
@@ -80,6 +70,4 @@ class ViewController: UIViewController {
             self.updateStatusField(status)
         }
     }
-
 }
-
