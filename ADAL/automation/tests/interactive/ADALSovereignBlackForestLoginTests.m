@@ -31,7 +31,7 @@
 
 @end
 
-static const NSString *kAADGraphResourceGUID = @"00000002-0000-0000-c000-000000000000";
+static const NSString *kAADGraphResourceGUID = @"00000002-0000-0000-c000-000000000000";
 
 @implementation ADALSovereignLoginTests
 
