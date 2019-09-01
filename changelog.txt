@@ -1,3 +1,7 @@
+Version 4.0.2 (09.04.2019)
+--------
+* Support new iOS 13 capable broker
+
 Version 4.0.1
 ------------
 * Apply hotfix 2.7.8 to skip user Id matching check for an acquire token
@@ -14,6 +18,10 @@ Version 4.0.0 (12.21.2018)
 * Pass claims challenge to the token endpoint (#1274)
 * ADAL now supports iOS 10+ and macOS 10.11+ only
 * WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
+
+Version 2.7.14 (08.13.2019)
+--------
+* Support new iOS 13 capable broker
 
 Version 2.7.13 (07.31.2019)
 ---------

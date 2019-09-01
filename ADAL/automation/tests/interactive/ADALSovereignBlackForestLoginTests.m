@@ -31,6 +31,8 @@
 
 @end
 
+static const NSString *kAADGraphResourceGUID = @"00000002-0000-0000-c000-000000000000";
+
 @implementation ADALSovereignLoginTests
 
 - (void)setUp
@@ -57,7 +59,8 @@
                              @"user_identifier" : self.primaryAccount.account,
                              @"user_identifier_type" : @"optional_displayable",
                              @"extra_qp": @"instance_aware=true",
-                             @"authority" : @"https://login.microsoftonline.com/common"
+                             @"authority" : @"https://login.microsoftonline.com/common",
+                             @"resource": kAADGraphResourceGUID
                              };
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
@@ -84,7 +87,7 @@
     NSDictionary *silentParams = @{
                                 @"user_identifier" : self.primaryAccount.account,
                                 @"client_id" : self.testConfiguration.clientId,
-                                @"resource" : self.testConfiguration.resource,
+                                @"resource" : kAADGraphResourceGUID,
                                 @"authority" : @"https://login.microsoftonline.com/common"
                                 };
 
@@ -99,7 +102,7 @@
                      @"user_identifier" : self.primaryAccount.account,
                      @"client_id" : self.testConfiguration.clientId,
                      @"authority" : self.testConfiguration.authority,
-                     @"resource" : self.testConfiguration.resource
+                     @"resource" : kAADGraphResourceGUID
                      };
 
     config = [self.testConfiguration configWithAdditionalConfiguration:silentParams];
@@ -124,7 +127,8 @@
                              @"prompt_behavior" : @"always",
                              @"validate_authority" : @YES,
                              @"extra_qp": @"instance_aware=true",
-                             @"authority" : @"https://login.microsoftonline.com/common"
+                             @"authority" : @"https://login.microsoftonline.com/common",
+                             @"resource": kAADGraphResourceGUID
                              };
     NSDictionary *config = [self.testConfiguration configWithAdditionalConfiguration:params];
     
