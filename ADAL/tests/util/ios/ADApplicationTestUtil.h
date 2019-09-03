@@ -26,6 +26,8 @@
 
 @interface ADApplicationTestUtil : NSObject
 
+@property (nonatomic, class) NSArray *allowedSchemes;
+
 + (void)onOpenURL:(BOOL (^)(NSURL *url, NSDictionary<NSString *, id> *options))openUrlBlock;
 + (void)reset;
 

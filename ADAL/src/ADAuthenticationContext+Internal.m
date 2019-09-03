@@ -181,8 +181,9 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         sourceApplication:(NSString *)sourceApplication
 {
 #if TARGET_OS_IPHONE
-    BOOL isResponseFromBroker = [self isResponseFromBroker:sourceApplication response:response];
-    if (!isResponseFromBroker) { return NO; }
+    // sourceApplication could be nil, we want to return early if we know for sure response is not from broker
+    BOOL responseNotFromBroker = sourceApplication && ![self isResponseFromBroker:sourceApplication response:response];
+    if (responseNotFromBroker) { return NO; }
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qp = [components percentEncodedQuery];
@@ -195,6 +196,12 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     
     if (!resumeDictionary) MSID_LOG_INFO(nil, @"No resume dictionary found.");
     
+    NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
+    if (redirectUri && ![response.absoluteString.lowercaseString hasPrefix:redirectUri.lowercaseString])
+    {
+        return NO;
+    }
+    
     BOOL isADALInitiatedRequest = [resumeDictionary[kAdalSDKNameKey] isEqualToString:kAdalSDKObjc] || [[ADBrokerNotificationManager sharedInstance] hasCallback];
     
     return isValidVersion && isADALInitiatedRequest;
@@ -203,6 +210,23 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     (void)sourceApplication;
     return NO;
 #endif
+}
+
++ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
+                    response:(NSURL *)response
+{
+    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
+    
+#ifdef DOGFOOD_BROKER
+    isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
+#endif
+    
+    return response && isBroker;
+}
+
++ (BOOL)handleBrokerResponse:(NSURL*)response sourceApplication:(nullable NSString *)sourceApplication;
+{
+    return [ADAuthenticationRequest internalHandleBrokerResponse:response sourceApplication:sourceApplication];
 }
 
 @end

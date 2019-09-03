@@ -27,7 +27,7 @@
 // through build script. Don't change its format unless changing build script as well.)
 #define ADAL_VER_HIGH       2
 #define ADAL_VER_LOW        7
-#define ADAL_VER_PATCH      13
+#define ADAL_VER_PATCH      14
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

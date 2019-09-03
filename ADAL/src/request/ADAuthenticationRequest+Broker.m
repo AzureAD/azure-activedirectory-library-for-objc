@@ -56,6 +56,7 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADKeychainUtil.h"
 #import "MSIDBrokerResponse+ADAL.h"
+#import "ADBrokerApplicationTokenHelper.h"
 #endif // TARGET_OS_IPHONE
 
 NSString *s_brokerAppVersion = nil;
@@ -113,13 +114,14 @@ NSString *kAdalSDKObjc = @"adal-objc";
  
     @return YES if the URL was a properly decoded broker response
  */
-+ (BOOL)internalHandleBrokerResponse:(NSURL *)response
++ (BOOL)internalHandleBrokerResponse:(NSURL *)response sourceApplication:(NSString *)sourceApplication
 {
 #if TARGET_OS_IPHONE
     __block ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
     
     ADAuthenticationError* error = nil;
     ADAuthenticationResult* result = [self processBrokerResponse:response
+                                               sourceApplication:sourceApplication
                                                            error:&error];
     BOOL fReturn = YES;
     
@@ -164,6 +166,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
     @return The result contained in the broker response, nil if the URL could not be processed
  */
 + (ADAuthenticationResult *)processBrokerResponse:(NSURL *)response
+                                sourceApplication:(NSString *)sourceApplication
                                             error:(ADAuthenticationError * __autoreleasing *)error
 {
 #if TARGET_OS_IPHONE
@@ -181,6 +184,12 @@ NSString *kAdalSDKObjc = @"adal-objc";
     }
     
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
+    NSString *nonce = [resumeDictionary objectForKey:@"broker_nonce"];
+    if (!nonce)
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_BAD_RESUME_STATE, @"Resume state is missing the nonce!", correlationId);
+        return nil;
+    }
     NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
     if (!redirectUri)
     {
@@ -202,9 +211,15 @@ NSString *kAdalSDKObjc = @"adal-objc";
     NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
-    
+
     if ([queryParamsMap valueForKey:MSID_OAUTH2_ERROR_DESCRIPTION])
     {
+        if (![self checkNonce:nonce sourceApplication:sourceApplication queryParams:queryParamsMap])
+        {
+            AUTH_ERROR(AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE, @"Nonce in broker response does not match!", correlationId);
+            return nil;
+        }
+        
         // In the case where Intune App Protection Policies are required, the broker may send back the Intune MAM Resource token
         NSMutableDictionary *brokerResponse = [[NSMutableDictionary alloc] initWithDictionary:queryParamsMap];
         if (queryParamsMap[ADAL_BROKER_INTUNE_HASH_KEY] && queryParamsMap[ADAL_BROKER_INTUNE_RESPONSE_KEY])
@@ -260,6 +275,10 @@ NSString *kAdalSDKObjc = @"adal-objc";
                     {
                         MSID_LOG_WARN(nil, @"Failed to save Intune token");
                     }
+                    
+                    [self saveApplicationToken:decryptedIntuneTokenResponse[@"application_token"]
+                                 keychainGroup:keychainGroup
+                                      clientId:decryptedIntuneTokenResponse[@"client_id"]];
                 }
             }
         }
@@ -291,6 +310,12 @@ NSString *kAdalSDKObjc = @"adal-objc";
         {
             (*error) = decryptionError;
         }
+        return nil;
+    }
+    
+    if (![self checkNonce:nonce sourceApplication:sourceApplication queryParams:queryParamsMap])
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE, @"Nonce in broker response does not match!", correlationId);
         return nil;
     }
     
@@ -337,6 +362,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
             MSID_LOG_ERROR_PII(nil, @"Failed to save tokens in cache, error %@", msidError);
         }
         
+        [self saveApplicationToken:queryParamsMap[@"application_token"] keychainGroup:keychainGroup clientId:queryParamsMap[@"client_id"]];
+        
         [ADAuthenticationContext updateResult:result
                                        toUser:[ADUserIdentifier identifierWithId:userId]
                                  verifyUserId:YES];
@@ -349,6 +376,37 @@ NSString *kAdalSDKObjc = @"adal-objc";
     return nil;
 #endif
 }
+
++ (BOOL)checkNonce:(NSString *)nonce
+ sourceApplication:(NSString *)sourceApplication
+       queryParams:(NSDictionary *)queryParams
+{
+    // only verify nonce if sourceApplication is nil
+    if (!sourceApplication)
+    {
+        return [nonce isEqualToString:queryParams[ADAL_BROKER_NONCE_KEY]];
+    }
+    
+    return YES;
+}
+
+#if TARGET_OS_IPHONE
++ (void)saveApplicationToken:(NSString *)applicationToken
+               keychainGroup:(NSString *)keychainGroup
+                    clientId:(NSString *)clientId
+{
+    if (![NSString msidIsStringNilOrBlank:applicationToken])
+    {
+        ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+        BOOL appTokenSaveResult = [tokenHelper saveApplicationBrokerToken:applicationToken clientId:clientId];
+        
+        if (!appTokenSaveResult)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to save application token");
+        }
+    }
+}
+#endif
 
 - (BOOL)canUseBroker
 {
@@ -382,6 +440,11 @@ NSString *kAdalSDKObjc = @"adal-objc";
     AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _requestParams.correlationId);
     NSString* base64UrlKey = [base64Key msidWWWFormURLEncode];
     AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _requestParams.correlationId);
+    
+    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
+    ADBrokerApplicationTokenHelper *tokenHelper = [[ADBrokerApplicationTokenHelper alloc] initWithAccessGroup:keychainGroup];
+    NSString *applicationToken = [tokenHelper getApplicationBrokerTokenForClientId:_requestParams.clientId];
+    
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
     NSString* adalVersion = ADAL_VERSION_NSSTRING;
@@ -400,6 +463,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
     {
         skipCacheValue = @"YES";
     }
+    
+    NSString *nonce = [[NSUUID new] UUIDString];
 
     NSDictionary *queryDictionary =
     @{
@@ -414,6 +479,7 @@ NSString *kAdalSDKObjc = @"adal-objc";
       @"correlation_id" : _requestParams.correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
       @"broker_key"     : base64UrlKey,
+      @"application_token": applicationToken ? applicationToken : @"",
 #endif // TARGET_OS_IPHONE Broker Message Encryption
       @"client_version" : adalVersion,
       ADAL_BROKER_MAX_PROTOCOL_VERSION : @"2",
@@ -423,7 +489,8 @@ NSString *kAdalSDKObjc = @"adal-objc";
       @"intune_mam_resource" : mamResource,
       @"client_capabilities": capabilities ? capabilities : @"",
       @"client_app_name": clientMetadata[MSID_APP_NAME_KEY],
-      @"client_app_version": clientMetadata[MSID_APP_VER_KEY]
+      @"client_app_version": clientMetadata[MSID_APP_VER_KEY],
+      @"broker_nonce"   : nonce
       };
     
     NSMutableDictionary *resumeDictionary = [@{
@@ -432,10 +499,10 @@ NSString *kAdalSDKObjc = @"adal-objc";
                                                @"client_id"        : _requestParams.clientId,
                                                @"redirect_uri"     : _requestParams.redirectUri,
                                                @"correlation_id"   : _requestParams.correlationId.UUIDString,
+                                               @"broker_nonce"     : nonce,
                                                kAdalSDKNameKey     : kAdalSDKObjc
                                                } mutableCopy];
 #if TARGET_OS_IPHONE
-    NSString *keychainGroup = self.sharedGroup ? self.sharedGroup : MSIDKeychainTokenCache.defaultKeychainGroup;
     resumeDictionary[@"keychain_group"] = keychainGroup;
 #endif
 

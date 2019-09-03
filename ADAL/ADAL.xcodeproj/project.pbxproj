@@ -345,6 +345,7 @@
 		B2A02CE820F5AEEB0048792D /* ADALAADLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791CE2012B7A9008D4BD2 /* ADALAADLoginTests.m */; };
 		B2A02CE920F5AEF20048792D /* ADALADFSv4InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2AACE0420DF2CFF00AC88E2 /* ADALADFSv4InteractiveLoginTests.m */; };
 		B2A02CEA20F5AEF50048792D /* ADALADFSv3InteractiveLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791D42012C0D6008D4BD2 /* ADALADFSv3InteractiveLoginTests.m */; };
+		B2A17EA422FFCA300051637E /* ADBrokerApplicationTokenHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2775F7522FE7FC200D7DEB9 /* ADBrokerApplicationTokenHelper.m */; };
 		B2A409D620D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A409D520D36524004AA9B7 /* ADALiOSMSALCoexistenceCacheTests.m */; };
 		B2A409E220D36545004AA9B7 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FFC81FBD1B1300EE4487 /* libIdentityCore.a */; };
 		B2A409E320D3654B004AA9B7 /* libIdentityAutomation iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27552182082BEB900AA7A38 /* libIdentityAutomation iOS.a */; };
@@ -1163,6 +1164,8 @@
 		B26207E022C872DA00F867D9 /* ADEnrollmentGateway+UnitTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADEnrollmentGateway+UnitTests.h"; sourceTree = "<group>"; };
 		B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNegotiateHandler.h; sourceTree = "<group>"; };
 		B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNegotiateHandler.m; sourceTree = "<group>"; };
+		B2775F7422FE7FC200D7DEB9 /* ADBrokerApplicationTokenHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADBrokerApplicationTokenHelper.h; sourceTree = "<group>"; };
+		B2775F7522FE7FC200D7DEB9 /* ADBrokerApplicationTokenHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADBrokerApplicationTokenHelper.m; sourceTree = "<group>"; };
 		B2822A2C2055D67200390B6E /* ADLegacyMacTokenCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADLegacyMacTokenCache.h; sourceTree = "<group>"; };
 		B2822A2D2055D67200390B6E /* ADLegacyMacTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLegacyMacTokenCache.m; sourceTree = "<group>"; };
 		B2822A312055DBF800390B6E /* ADLegacyKeychainTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLegacyKeychainTokenCache.m; sourceTree = "<group>"; };
@@ -1924,6 +1927,8 @@
 				9453C37A1C5801CB006B9E79 /* ADBrokerKeyHelper.m */,
 				9453C37B1C5801CB006B9E79 /* ADBrokerNotificationManager.h */,
 				9453C37C1C5801CB006B9E79 /* ADBrokerNotificationManager.m */,
+				B2775F7422FE7FC200D7DEB9 /* ADBrokerApplicationTokenHelper.h */,
+				B2775F7522FE7FC200D7DEB9 /* ADBrokerApplicationTokenHelper.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -3875,6 +3880,7 @@
 				D664F1A91D302B9C0017B799 /* ADPkeyAuthHelper.m in Sources */,
 				B299FF1A1F22BE32004A2CB9 /* NSString+ADURLExtensions.m in Sources */,
 				D664F1AA1D302B9C0017B799 /* ADAuthenticationParameters+Internal.m in Sources */,
+				B2A17EA422FFCA300051637E /* ADBrokerApplicationTokenHelper.m in Sources */,
 				D664F1AB1D302B9C0017B799 /* ADBrokerNotificationManager.m in Sources */,
 				D664F1AC1D302B9C0017B799 /* ADAuthenticationResult.m in Sources */,
 				E0A4E9701EA8080E008472FF /* ADWorkPlaceJoinConstants.m in Sources */,
