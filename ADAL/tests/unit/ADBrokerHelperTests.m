@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADBrokerHelper.h"
 #import "ADAppExtensionUtil.h"
+#import "ADApplicationTestUtil.h"
 
 @interface ADBrokerHelperTests : XCTestCase
 
@@ -38,6 +39,7 @@
 
 - (void)tearDown
 {
+    ADApplicationTestUtil.allowedSchemes = nil;
     [super tearDown];
 }
 
@@ -59,6 +61,28 @@
     });
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testCanUseBroker_wheniOS13AndOldBrokerInstalled_shouldReturnFalse
+{
+    if (@available(iOS 13.0, *))
+    {
+        ADApplicationTestUtil.allowedSchemes = @[@"msauth"];
+        
+        BOOL result = [ADBrokerHelper canUseBroker];
+        XCTAssertFalse(result);
+    }
+}
+
+- (void)testCanUseBroker_wheniOS13AndNewBrokerInstalled_shouldReturnTrue
+{
+    if (@available(iOS 13.0, *))
+    {
+        ADApplicationTestUtil.allowedSchemes = @[@"msauth", @"msauthv3"];
+        
+        BOOL result = [ADBrokerHelper canUseBroker];
+        XCTAssertTrue(result);
+    }
 }
 
 @end
