@@ -1,6 +1,6 @@
 Version 4.0.2 (09.04.2019)
 --------
-* Support new iOS 13 capable broker
+* Support new iOS 13 capable broker 
 
 Version 4.0.1
 ------------
