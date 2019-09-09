@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^ADAuthorizationCodeCallback)(NSString *, ADAuthenticationError *);
 
 extern NSString *kAdalResumeDictionaryKey;
 extern NSString *s_brokerAppVersion;
@@ -31,12 +31,12 @@ extern NSString *kAdalSDKObjc;
 
 @interface ADAuthenticationRequest (Broker)
 
-+ (BOOL)internalHandleBrokerResponse:(NSURL*)response;
++ (BOOL)internalHandleBrokerResponse:(NSURL *)response sourceApplication:(NSString *)sourceApplication;
 
-+ (BOOL)validBrokerRedirectUri:(NSString*)url;
++ (BOOL)validBrokerRedirectUri:(NSString *)url;
 
 - (BOOL)canUseBroker;
 
-- (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error;
+- (NSURL *)composeBrokerRequest:(ADAuthenticationError * __autoreleasing *)error;
 
 @end

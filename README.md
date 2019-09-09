@@ -12,9 +12,9 @@ We recommend remaining up-to-date with the latest version of ADAL. The best plac
 The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
 NOTE:
-- To work with iOS 10 you must have at least version 2.2.5.
-
-- To work with iOS 11.3+ you must have at least version 2.6.3.
+- To work with iOS 10-11.3 you must have at least version 2.2.5.
+- To work with iOS 11.3-12.4 you must have at least version 2.6.3.
+- To work with iOS 13+ (when built with Xcode 11) you must have at least version 2.7.14 or 4.0.2
 
 - ADAL supports iOS 10+ and macOS 10.11+. iOS 9 and macOS 10.10 support was dropped in ADAL 4.0.0 release.
 
@@ -223,12 +223,13 @@ ADAL uses URLs to invoke the broker and then return back to your app. To finish 
 ```
 
 #### LSApplicationQueriesSchemes
-ADAL uses –canOpenURL: to check if the broker is installed on the device. in iOS 9 Apple locked down what schemes an application can query for. You will need to add “msauth” to the LSApplicationQueriesSchemes section of your info.plist file.
+ADAL uses –canOpenURL: to check if the broker is installed on the device. in iOS 9 Apple locked down what schemes an application can query for. You will need to add “msauth” and "msauthv3" to the LSApplicationQueriesSchemes section of your info.plist file. Note that "msauthv3" scheme is needed when compiling with Xcode 11+. 
 
 ```
 <key>LSApplicationQueriesSchemes</key>
 <array>
      <string>msauth</string>
+     <string>msauthv3</string>
 </array>
 ````
 

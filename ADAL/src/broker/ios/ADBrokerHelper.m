@@ -40,7 +40,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     if ([ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApplication])
     {
         // Attempt to handle response from broker
-        BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
+        BOOL result = [ADAuthenticationContext handleBrokerResponse:url sourceApplication:sourceApplication];
 
         if (result)
         {
@@ -76,7 +76,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     if ([ADAuthenticationContext canHandleResponse:url sourceApplication:sourceApplication])
     {
         // Attempt to handle response from broker
-        BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
+        BOOL result = [ADAuthenticationContext handleBrokerResponse:url sourceApplication:sourceApplication];
 
         if (result)
         {
@@ -201,8 +201,27 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     
     if (![ADAppExtensionUtil isExecutingInAppExtension])
     {
-        // Verify broker app url can be opened
-        return [[ADAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
+        BOOL brokerPresent = [[ADAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
+        
+        if (!brokerPresent)
+        {
+            MSID_LOG_INFO(nil, @"No broker is present on device");
+            return NO;
+        }
+        
+        if (@available(iOS 13.0, *))
+        {
+            BOOL newBrokerPresent = [[ADAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_NONCE_SCHEME]]];
+            
+            if (!newBrokerPresent)
+            {
+                MSID_LOG_INFO(nil, @"Broker is present on the device, but it doesn't satisfy minimum required version");
+            }
+            
+            return newBrokerPresent;
+        }
+        
+        return YES;
     }
     else
     {
