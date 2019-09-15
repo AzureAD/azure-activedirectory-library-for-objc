@@ -244,6 +244,27 @@ msauth://code/<broker-redirect-uri-in-url-encoded-form>
 ex: msauth://code/x-msauth-mytestiosapp%3A%2F%2Fcom.microsoft.mytestiosapp
 ```
 
+#### iOS 13 support
+
+**If you adopted UISceneDelegate, you must also add ADAL callback in the scene:openURLContexts: method**.
+
+This is needed so that ADAL can get a response from the Microsoft Authenticator application. 
+
+For example:
+
+```objc
+ - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+ {
+     UIOpenURLContext *context = URLContexts.anyObject;
+     NSURL *url = context.URL;
+     NSString *sourceApplication = context.options.sourceApplication;
+     
+     [ADAuthenticationContext handleADALResponse:url sourceApplication:sourceApplication];
+ }
+```
+
+If you're not using UISceneDelegate functionality yet, you can ignore this step. 
+
 ### Caching
 
 ####
