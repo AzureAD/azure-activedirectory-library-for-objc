@@ -229,6 +229,28 @@ typedef enum
                                                                   error:(ADAuthenticationError* __autoreleasing _Nullable * _Nullable)error;
 #endif
 
+/*!
+ Ask ADAL to handle URL response. You MUST implement this API in following cases:
+ 1. Your application is using brokered authentication (ADCredentialsType is set to AD_CREDENTIALS_AUTO and you have configured your application to use broker), AND
+ 2. You're using iOS 13 multiple window feature and your code implements UISceneDelegate instead of UIApplicationDelegate
+ 
+ You should call this API from your UISceneDelegate implementation, for example:
+ 
+ - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+ {
+     UIOpenURLContext *context = URLContexts.anyObject;
+     NSURL *url = context.URL;
+     NSString *sourceApplication = context.options.sourceApplication;
+     
+     [ADAuthenticationContext handleADALResponse:url sourceApplication:sourceApplication];
+ }
+ 
+ Calling this API ensures that ADAL can receive tokens from the Microsoft Authenticator application.
+ @return    YES if it is ADAL response and it was handled
+            NO if it is not ADAL response or there was a failure in handling.
+ */
++ (BOOL)handleADALResponse:(nonnull NSURL *)response sourceApplication:(nullable NSString *)sourceApplication;
+
 /*! Represents the authority used by the context. */
 @property (readonly, nonnull) NSString* authority;
 
