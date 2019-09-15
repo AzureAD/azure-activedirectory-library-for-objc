@@ -231,7 +231,6 @@ typedef enum
                                                       validateAuthority:(BOOL)validate
                                                             sharedGroup:(nullable NSString*)sharedGroup
                                                                   error:(ADAuthenticationError* __autoreleasing _Nullable * _Nullable)error;
-#endif
 
 /*!
  Ask ADAL to handle URL response. You MUST implement this API in following cases:
@@ -254,6 +253,8 @@ typedef enum
             NO if it is not ADAL response or there was a failure in handling.
  */
 + (BOOL)handleADALResponse:(nonnull NSURL *)response sourceApplication:(nullable NSString *)sourceApplication;
+
+#endif
 
 /*! Represents the authority used by the context. */
 @property (readonly, nonnull) NSString* authority;
