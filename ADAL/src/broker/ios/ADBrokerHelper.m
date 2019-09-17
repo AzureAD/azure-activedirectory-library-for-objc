@@ -28,6 +28,7 @@
 #import "ADWebAuthController+Internal.h"
 #import "ADAppExtensionUtil.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "MSIDMainThreadUtil.h"
 
 typedef BOOL (*applicationHandleOpenURLPtr)(id, SEL, UIApplication*, NSURL*);
 IMP __original_ApplicationHandleOpenURL = NULL;
@@ -246,11 +247,10 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthWillSwitchToBrokerApp object:nil];
-        
         [ADAppExtensionUtil sharedApplicationOpenURL:brokerURL];
-    });
+    }];
 }
 
 + (void)saveToPasteBoard:(NSURL*) url
@@ -288,9 +288,10 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     [self saveToPasteBoard:brokerRequest];
-    dispatch_async(dispatch_get_main_queue(), ^{
+    
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [ADAppExtensionUtil sharedApplicationOpenURL:appInstallLink];
-    });
+    }];
 }
 
 + (ADAuthenticationCallback)copyAndClearCompletionBlock
