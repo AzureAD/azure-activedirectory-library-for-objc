@@ -259,6 +259,17 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
                                sharedGroup:sharedGroup
                                      error:error];
 }
+
++ (BOOL)handleADALResponse:(nonnull NSURL *)response sourceApplication:(nullable NSString *)sourceApplication
+{
+    if ([ADAuthenticationContext canHandleResponse:response sourceApplication:sourceApplication])
+    {
+        return [ADAuthenticationContext handleBrokerResponse:response sourceApplication:sourceApplication];
+    }
+    
+    return NO;
+}
+
 #endif // TARGET_OS_IPHONE
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \

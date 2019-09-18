@@ -1,3 +1,9 @@
+Version 2.7.15 (09.17.2019)
+--------
+* Added support brokered authentication with UISceneDelegate on iOS 13
+* Updated readme
+* Fixed nullability for keychainGroup setting
+
 Version 2.7.14 (08.13.2019)
 --------
 * Support new iOS 13 capable broker

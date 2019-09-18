@@ -73,7 +73,7 @@
  this value cannot be changed. Doing so will throw an exception.
  */
 - (nonnull NSString*)defaultKeychainGroup;
-- (void)setDefaultKeychainGroup:(nonnull NSString*)keychainGroup;
+- (void)setDefaultKeychainGroup:(nullable NSString*)keychainGroup;
 #endif // TARGET_OS_IPHONE
 
 @end

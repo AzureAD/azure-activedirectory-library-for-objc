@@ -11,12 +11,13 @@ We recommend remaining up-to-date with the latest version of ADAL. The best plac
 
 The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
-NOTE: To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
+NOTE:
 
-NOTE: To work with iOS 13 you must have at least version 2.7.14 or 4.0.2
+* To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
+* To work with iOS 11.3-12.4 you must have at least version 2.6.3.
+* To work with iOS 13+ (when built with Xcode 11) you must have at least version 2.7.14 or 4.0.2
 
 =====================================
-
 
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
 
@@ -83,9 +84,16 @@ We recommend only syncing to specific release tags to make sure you're at a know
 
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
-    pod 'ADAL', '~> 2.7', :submodules => true
+    pod 'ADAL', '~> 2.7'
 
 You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
+
+ADAL is using submodules, so if you're using a specific branch of ADAL in your Podfile, you need to enable submodules, e.g.
+
+```
+pod 'ADAL', :git => 'https://github.com/AzureAD/azure-activedirectory-library-for-objc', :branch => 'branch-name', :submodules => true
+
+```
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
 
@@ -107,11 +115,10 @@ Click on your project in the Navigator pane in Xcode. Click on your application 
 then the "Capabilities" tab. Scroll down to "Keychain Sharing" and flip the switch on. Add
 "com.microsoft.adalcache" to that list.
 
-Alternatively you can disable keychain sharing by setting the keychain sharing group to nil.
-your application's bundle id.
+Alternatively you can disable keychain sharing by setting the keychain sharing group to nil or your application's bundle id.
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
+    [[ADAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
 ```
 
 ##### Inspecting the Cache
@@ -244,9 +251,26 @@ msauth://code/<broker-redirect-uri-in-url-encoded-form>
 ex: msauth://code/x-msauth-mytestiosapp%3A%2F%2Fcom.microsoft.mytestiosapp
 ```
 
-### Caching
+#### iOS 13 support
 
-####
+**If you adopted UISceneDelegate, you must also add an ADAL callback into the `scene:openURLContexts:` method**.
+
+This is needed so that ADAL can get a response from the Microsoft Authenticator application. 
+
+For example:
+
+```objc
+ - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+ {
+     UIOpenURLContext *context = URLContexts.anyObject;
+     NSURL *url = context.URL;
+     NSString *sourceApplication = context.options.sourceApplication;
+     
+     [ADAuthenticationContext handleADALResponse:url sourceApplication:sourceApplication];
+ }
+```
+
+If you're not using UISceneDelegate functionality yet, you can ignore this step. 
 
 
 ### Diagnostics
@@ -350,7 +374,7 @@ your application, or disable keychain sharing by passing in your application's b
 in ADAuthenticationSettings:
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
+    [[ADAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
 ```
 
 **ADAL keeps returning SSL errors in iOS 9 and later**
