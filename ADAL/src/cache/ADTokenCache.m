@@ -57,6 +57,7 @@
 
 @property (nonatomic, nullable) MSIDMacTokenCache *macTokenCache;
 @property (nonatomic, nullable) ADMSIDDataSourceWrapper *msidDataSourceWrapper;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
@@ -86,42 +87,37 @@
     self.msidDataSourceWrapper = [[ADMSIDDataSourceWrapper alloc] initWithMSIDDataSource:self.macTokenCache
                                                                               serializer:[MSIDKeyedArchiverSerializer new]];
     
-    pthread_rwlock_init(&_lock, NULL);
+    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmactokencache-%@", [NSUUID UUID].UUIDString];
+    self.synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     
     return self;
 }
 
-- (void)dealloc
-{
-    pthread_rwlock_destroy(&_lock);
-}
-
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
 {
-    if (_delegate == delegate)
-    {
-        return;
-    }
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        
+        if (_delegate == delegate)
+        {
+            return;
+        }
+        
+        _delegate = delegate;
+        [self.macTokenCache clear];
+        
+    });
     
-    int err = pthread_rwlock_wrlock(&_lock);
-    if (err != 0)
-    {
-        MSID_LOG_ERROR(nil, @"pthread_rwlock_wrlock failed in setDelegate");
-        return;
-    }
-    
-    _delegate = delegate;
-    [self.macTokenCache clear];
-    
-    pthread_rwlock_unlock(&_lock);
-    
-    if (!delegate)
-    {
-        return;
-    }
-    
-    [_delegate willAccessCache:self];
-    [_delegate didAccessCache:self];
+    dispatch_sync(self.synchronizationQueue, ^{
+        
+        if (!delegate)
+        {
+            return;
+        }
+        
+        [_delegate willAccessCache:self];
+        [_delegate didAccessCache:self];
+        
+    });
 }
 
 - (nullable NSData *)serialize
@@ -204,22 +200,30 @@
 
 - (void)willAccessCache:(nonnull MSIDMacTokenCache *)cache
 {
-    [_delegate willAccessCache:self];
+    dispatch_sync(self.synchronizationQueue, ^{
+        [_delegate willAccessCache:self];
+    });
 }
 
 - (void)didAccessCache:(nonnull MSIDMacTokenCache *)cache
 {
-    [_delegate didAccessCache:self];
+    dispatch_sync(self.synchronizationQueue, ^{
+        [_delegate didAccessCache:self];
+    });
 }
 
 - (void)willWriteCache:(nonnull MSIDMacTokenCache *)cache
 {
-    [_delegate willWriteCache:self];
+    dispatch_sync(self.synchronizationQueue, ^{
+        [_delegate willWriteCache:self];
+    });
 }
 
 - (void)didWriteCache:(nonnull MSIDMacTokenCache *)cache
 {
-    [_delegate didWriteCache:self];
+    dispatch_sync(self.synchronizationQueue, ^{
+        [_delegate didWriteCache:self];
+    });
 }
 
 #pragma mark - Internal
