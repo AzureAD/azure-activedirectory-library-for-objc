@@ -33,6 +33,7 @@
 @interface ADLegacyMacTokenCache : ADTokenCache <ADTokenCacheDataSource>
 {
     NSMutableDictionary* _cache;
+    pthread_rwlock_t _lock;
 }
 
 /*! Returns the default cache object using the ADTokenCacheDelegate set in
