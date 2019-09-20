@@ -42,7 +42,6 @@
 @interface ADTokenCache : NSObject
 {
     id<ADTokenCacheDelegate> _delegate;
-    pthread_rwlock_t _lock;
 }
 
 /*! Returns the default cache object using the ADTokenCacheDelegate set in

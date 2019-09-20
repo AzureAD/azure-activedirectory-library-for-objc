@@ -21,7 +21,6 @@ NOTE:
 - WKWebView drops network connection if device got locked on iOS 12. It is by design and not configurable.
   =====================================
 
-
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
 
 The ADAL SDK for iOS and macOS gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
@@ -87,9 +86,16 @@ We recommend only syncing to specific release tags to make sure you're at a know
 
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
-    pod 'ADAL', '~> 2.7', :submodules => true
+    pod 'ADAL', '~> 2.7'
 
 You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
+
+ADAL is using submodules, so if you're using a specific branch of ADAL in your Podfile, you need to enable submodules, e.g.
+
+```
+pod 'ADAL', :git => 'https://github.com/AzureAD/azure-activedirectory-library-for-objc', :branch => 'branch-name', :submodules => true
+
+```
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
 
@@ -111,11 +117,10 @@ Click on your project in the Navigator pane in Xcode. Click on your application 
 then the "Capabilities" tab. Scroll down to "Keychain Sharing" and flip the switch on. Add
 "com.microsoft.adalcache" to that list.
 
-Alternatively you can disable keychain sharing by setting the keychain sharing group to nil.
-your application's bundle id.
+Alternatively you can disable keychain sharing by setting the keychain sharing group to nil or your application's bundle id.
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
+    [[ADAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
 ```
 
 ##### Inspecting the Cache
@@ -248,9 +253,26 @@ msauth://code/<broker-redirect-uri-in-url-encoded-form>
 ex: msauth://code/x-msauth-mytestiosapp%3A%2F%2Fcom.microsoft.mytestiosapp
 ```
 
-### Caching
+#### iOS 13 support
 
-####
+**If you adopted UISceneDelegate, you must also add an ADAL callback into the `scene:openURLContexts:` method**.
+
+This is needed so that ADAL can get a response from the Microsoft Authenticator application. 
+
+For example:
+
+```objc
+ - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+ {
+     UIOpenURLContext *context = URLContexts.anyObject;
+     NSURL *url = context.URL;
+     NSString *sourceApplication = context.options.sourceApplication;
+     
+     [ADAuthenticationContext handleADALResponse:url sourceApplication:sourceApplication];
+ }
+```
+
+If you're not using UISceneDelegate functionality yet, you can ignore this step. 
 
 
 ### Diagnostics
@@ -354,7 +376,7 @@ your application, or disable keychain sharing by passing in your application's b
 in ADAuthenticationSettings:
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
+    [[ADAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
 ```
 
 **ADAL keeps returning SSL errors in iOS 9 and later**
