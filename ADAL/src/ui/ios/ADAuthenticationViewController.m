@@ -171,6 +171,13 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     else
     {
         [navController setModalPresentationStyle:UIModalPresentationFormSheet];
+        
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        if (@available(iOS 13.0, *))
+        {
+            [navController setModalInPresentation:YES];
+        }
+#endif
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
