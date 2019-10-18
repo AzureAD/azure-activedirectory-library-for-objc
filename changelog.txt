@@ -1,3 +1,9 @@
+Version 2.7.16 (10.18.2019)
+-------
+* Fix ADAL failure on PkeyAuth request when there's no WPJ entitlement
+* Prevent auth controller dismissal by swiping down on iOS 13
+* Support removing RT from other accessors
+
 Version 2.7.15 (09.17.2019)
 --------
 * Added support brokered authentication with UISceneDelegate on iOS 13
