@@ -75,18 +75,9 @@
     
     if (!info && adError)
     {
-        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
-        // the rest of the code, but if there was no error, we still create a response header, even if we
-        // don't have registration info
-        MSID_LOG_ERROR(context, @"Failed to create PKeyAuth request");
-        
-        if (error)
-        {
-            *error = adError;
-        }
-        return nil;
+        // If we got an error, we log it and proceed with an empty response header so that user could recover
+        MSID_LOG_ERROR(context, @"Failed to create PKeyAuth request with error %@, %ld", adError.domain, (long)adError.code);
     }
-    
     
     if (!challengeData)
     {

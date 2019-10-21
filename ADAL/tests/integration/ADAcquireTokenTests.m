@@ -45,6 +45,7 @@
 #import "ADTokenCacheKey.h"
 #import "MSIDBaseToken.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDRefreshToken.h"
 #import "ADEnrollmentGateway+TestUtil.h"
 
 #if TARGET_OS_IPHONE
