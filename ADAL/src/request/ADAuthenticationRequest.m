@@ -364,7 +364,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     if (dispatch_semaphore_wait(s_interactionLock, DISPATCH_TIME_NOW) != 0)
     {
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTILPLE_INTERACTIVE_REQUESTS
                                                                               protocolCode:nil
                                                                               errorDetails:message
                                                                              correlationId:_requestParams.correlationId];

@@ -127,7 +127,7 @@ typedef NS_ENUM(NSInteger, ADErrorCode)
     
     /*! ADAL only supports a single interactive auth session at a time. The calling app should never ask for
      interactive auth when ADAL is in the middle of an interactive request */
-    AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS = 400,
+    AD_ERROR_UI_MULTILPLE_INTERACTIVE_REQUESTS = 400,
     
     /*! Failed to extract the main view controller of the application. Make sure that the application
      has UI elements.*/

@@ -76,7 +76,7 @@ static NSDictionary *s_userInfoKeyMapping;
             @(MSIDErrorUserCancel): @(AD_ERROR_UI_USER_CANCEL),
             @(MSIDErrorSessionCanceledProgrammatically): @(AD_ERROR_UI_USER_CANCEL),
             @(MSIDErrorInteractiveSessionStartFailure): @(AD_ERROR_UNEXPECTED),
-            @(MSIDErrorInteractiveSessionAlreadyRunning): @(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS),
+            @(MSIDErrorInteractiveSessionAlreadyRunning): @(AD_ERROR_UI_MULTILPLE_INTERACTIVE_REQUESTS),
             @(MSIDErrorNoMainViewController): @(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER),
             @(MSIDErrorAttemptToOpenURLFromExtension): @(AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION),
             @(MSIDErrorUINotSupportedInExtension): @(AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION),
