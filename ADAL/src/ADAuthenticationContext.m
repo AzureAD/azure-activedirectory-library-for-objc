@@ -513,6 +513,33 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:@"137" completionBlock:completionBlock];
 }
 
+- (void)acquireTokenInteractiveWithResource:(NSString *)resource
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSURL *)redirectUri
+                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  userIdentifier:(ADUserIdentifier *)userId
+            extraQueryParameters:(NSString *)queryParams
+                          claims:(NSString *)claims
+                 completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+
+    [request setPromptBehavior:promptBehavior];
+    [request setUserIdentifier:userId];
+    [request setExtraQueryParameters:queryParams];
+    [request setSkipCache:YES];
+
+    ADAuthenticationError *claimsError;
+    if (![request setClaims:claims error:&claimsError])
+    {
+        completionBlock([ADAuthenticationResult resultFromError:claimsError correlationId:_correlationId]);
+        return;
+    }
+
+    [request acquireToken:@"138" completionBlock:completionBlock];
+}
+
 #pragma mark - Private
 
 #if TARGET_OS_IPHONE

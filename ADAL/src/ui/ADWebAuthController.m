@@ -54,6 +54,10 @@ NSString* ADWebAuthDidReceieveResponseFromBroker = @"ADWebAuthDidReceiveResponse
 
 NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
+NSString* ADWebAuthIgnoreSSOHeader = @"x-ms-sso-Ignore-SSO";
+
+NSString* ADWebAuthRefreshTokenHeader = @"x-ms-sso-RefreshToken";
+
 // Private interface declaration
 @interface ADWebAuthController ()
 @end
@@ -94,6 +98,7 @@ static ADAuthenticationResult *s_result = nil;
 
 + (void)startWithRequest:(ADRequestParameters *)requestParams
           promptBehavior:(ADPromptBehavior)promptBehavior
+            refreshToken:(NSString*)refreshToken
                  context:(ADAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
@@ -138,6 +143,15 @@ static ADAuthenticationResult *s_result = nil;
     webviewConfig.parentController = context.parentController;
     webviewConfig.presentationType = ADAuthenticationSettings.sharedInstance.webviewPresentationStyle;
 #endif
+
+    if ([context useRefreshTokenForWebview])
+    {
+        [[webviewConfig customHeaders] setObject:@"1" forKey:ADWebAuthIgnoreSSOHeader];
+        if (![NSString msidIsStringNilOrBlank:refreshToken])
+        {
+            [[webviewConfig customHeaders] setObject:refreshToken forKey:ADWebAuthRefreshTokenHeader];
+        }
+    }
 
     [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:webviewConfig
                                                           oauth2Factory:context.oauthFactory

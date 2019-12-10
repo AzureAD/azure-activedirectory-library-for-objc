@@ -36,6 +36,8 @@
 #import "NSString+ADURLExtensions.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDRefreshToken.h"
 #import "ADAuthenticationErrorConverter.h"
 #import "MSIDClientCapabilitiesUtil.h"
 
@@ -80,6 +82,45 @@
      }];
 }
 
+- (NSString *)getRefreshTokenForRequest
+{
+    if (![NSString msidIsStringNilOrBlank:_refreshToken])
+    {
+        return _refreshToken;
+    }
+    else
+    {
+        NSError *refreshTokenError = nil;
+        MSIDRefreshToken *refreshTokenItem = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
+                                                                            familyId:nil
+                                                                       configuration:_requestParams.msidConfig
+                                                                             context:_requestParams
+                                                                               error:&refreshTokenError];
+
+         // FRT is more likely to be valid as it gets refreshed if any app in the family uses it, so try to use the FRT instead
+        if (!refreshTokenItem || ![NSString msidIsStringNilOrBlank:[refreshTokenItem familyId]])
+        {
+            NSError *msidFRTError = nil;
+            NSString *familyId = [NSString msidIsStringNilOrBlank:[refreshTokenItem familyId]] ? @"1" : [refreshTokenItem familyId];
+            MSIDRefreshToken *frtItem = [self.tokenCache getRefreshTokenWithAccount:_requestParams.account
+                                                                                familyId:familyId
+                                                                           configuration:_requestParams.msidConfig
+                                                                                 context:_requestParams
+                                                                                   error:&msidFRTError];
+            if (frtItem && !msidFRTError)
+            {
+                refreshTokenItem = frtItem;
+                refreshTokenError = nil;
+            }
+        }
+
+        MSID_LOG_VERBOSE(_requestParams, @"Retrieve refresh token from cache for web view: %@, error code: %ld", _PII_NULLIFY(refreshTokenItem), refreshTokenError.code);
+        return [refreshTokenItem refreshToken];
+    }
+
+    return nil;
+}
+
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(MSIDAuthorizationCodeCallback)completionBlock
 {
@@ -89,7 +130,13 @@
     MSID_LOG_VERBOSE(_requestParams, @"Requesting authorization code");
     MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
 
-    [ADWebAuthController startWithRequest:_requestParams promptBehavior:_promptBehavior context:_context completion:^(MSIDWebviewResponse *response, NSError *error) {
+    NSString *refreshToken = nil;
+    if (_promptBehavior != AD_FORCE_PROMPT && _promptBehavior != AD_PROMPT_ALWAYS && [_context useRefreshTokenForWebview])
+    {
+        refreshToken = [self getRefreshTokenForRequest];
+    }
+
+    [ADWebAuthController startWithRequest:_requestParams promptBehavior:_promptBehavior refreshToken:refreshToken context:_context completion:^(MSIDWebviewResponse *response, NSError *error) {
         
         if (error)
         {
