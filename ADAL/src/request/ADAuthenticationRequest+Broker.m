@@ -109,6 +109,33 @@ NSString *kAdalSDKObjc = @"adal-objc";
     return NO;
 }
 
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(NSError **)error
+                                       correlationID:(NSUUID *)correlationID
+{
+    NSArray *querySchemes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LSApplicationQueriesSchemes"];
+    
+    BOOL containsRequiredSchemes = [querySchemes containsObject:ADAL_BROKER_SCHEME];
+    
+#ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    containsRequiredSchemes &= [querySchemes containsObject:ADAL_BROKER_NONCE_SCHEME];
+#endif
+#endif
+
+     if (!containsRequiredSchemes)
+    {
+        if (error)
+        {
+            NSString *message = @"The required query schemes \"msauth\" and \"msauthv3\" are not registered in the app's info.plist file. Please add \"msauth\" and \"msauthv3\" into Info.plist under LSApplicationQueriesSchemes without any whitespaces.";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, correlationID, nil);
+        }
+
+         return NO;
+    }
+
+     return YES;
+}
+
 /*!
     Process the broker response and call the completion block, if it is available.
  
