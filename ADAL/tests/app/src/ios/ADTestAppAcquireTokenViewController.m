@@ -644,6 +644,7 @@
                                                                         validateAuthority:validateAuthority
                                                                                     error:&error];
     context.clientCapabilities = capabilities;
+    context.parentController = self;
 
     if (!context)
     {
