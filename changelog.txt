@@ -1,4 +1,4 @@
-Version 2.7.17 (01.15.2019)
+Version 2.7.17 (01.20.2019)
 ------
 * Verify broker schemes are correctly registered (#1497)
 * Enable dogfood authenticator support by default (#1498)
