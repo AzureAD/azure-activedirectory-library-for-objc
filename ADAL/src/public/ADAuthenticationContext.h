@@ -277,7 +277,17 @@ typedef enum
 #endif
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
- when needed, leveraging the parentController property. */
+    when needed, leveraging the parentController property.
+ 
+ Note that on iOS and iPadOS devices it is recommended to configure WKWebView to use mobile content mode to guarantee consistent experience across all mobile apps.
+ 
+ When creating your WKWebView, please configure it in the following way:
+ 
+ WKWebViewConfiguration *config = [WKWebViewConfiguration new];
+ config.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile; // This sets up WKWebView to display UI as mobile
+     
+ WKWebView *webView = [[WKWebView alloc] initWithFrame:your_frame configuration:config];
+ */
 @property (weak, nullable) WKWebView* webView;
 
 /*! Enable to return access token with extended lifetime during server outage. */
