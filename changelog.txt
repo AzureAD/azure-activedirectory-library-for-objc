@@ -1,4 +1,4 @@
-Version 4.0.5 (01.20.2019)
+Version 4.0.5 (01.20.2020)
 ------
 * Verify broker schemes are correctly registered (#1497)
 * Enable dogfood authenticator support by default (#1498)
