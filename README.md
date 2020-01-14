@@ -75,7 +75,7 @@ We've made it easy for you to have multiple options to use this library in your 
     git add adal
     git commit -m "Use ADAL git submodule at <latest_release_tag>"
     git push
-    
+
 We recommend only syncing to specific release tags to make sure you're at a known good point. We will not support versions of ADAL between release tags.
 
 ### Option 2: Cocoapods
@@ -83,7 +83,7 @@ We recommend only syncing to specific release tags to make sure you're at a know
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
     pod 'ADAL', '~> 4.0'
-    
+
 You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
@@ -218,12 +218,13 @@ ADAL uses URLs to invoke the broker and then return back to your app. To finish 
 ```
 
 #### LSApplicationQueriesSchemes
-ADAL uses –canOpenURL: to check if the broker is installed on the device. in iOS 9 Apple locked down what schemes an application can query for. You will need to add “msauth” to the LSApplicationQueriesSchemes section of your info.plist file.
+ADAL uses –canOpenURL: to check if the broker is installed on the device. in iOS 9 Apple locked down what schemes an application can query for. You will need to add “msauth” and "msauthv3" to the LSApplicationQueriesSchemes section of your info.plist file. Note that "msauthv3" scheme is needed when compiling with Xcode 11+.
 
 ```
 <key>LSApplicationQueriesSchemes</key>
 <array>
      <string>msauth</string>
+     <string>msauthv3</string>
 </array>
 ````
 
@@ -307,8 +308,8 @@ To set the logging level in your application call +[ADLogger setLevel:]
 
 ```Objective-C
 [ADLogger setLevel:ADAL_LOG_LEVEL_INFO]
- ```
- 
+```
+
 #### Network Traces
 
 You can use various tools to capture the HTTP traffic that ADAL generates.  This is most
