@@ -5,6 +5,16 @@
 | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
 | --- | --- | --- |
 
+## Note
+
+ In the near future, ADAL will be deprecated in favor of MSAL. At the current point, we are only adding new features to MSAL library, and only providing security fixes for ADAL. 
+
+- If you're building a new app, we strongly recommend to adopt MSAL directly.
+- If you have an existing app, please plan to migrate to MSAL shortly. 
+
+Please open an issue and/or feature request in MSAL, if there's anything that would block you from migrating to MSAL.
+MSAL library repository: [https://github.com/AzureAD/microsoft-authentication-library-for-objc](https://github.com/AzureAD/microsoft-authentication-library-for-objc)
+
 ## Release Versions
 
 We recommend remaining up-to-date with the latest version of ADAL. The best place to check what the most recent version is is the [releases page](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases) on GitHub, you can also subscribe the the [Atom Feed](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases.atom) from GitHub, or use a 3rd party tool like [Sibbell](https://sibbell.com/about/) to receive emails when a new version is released.
