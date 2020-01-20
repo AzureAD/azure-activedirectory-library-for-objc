@@ -1,3 +1,9 @@
+Version 2.7.17 (01.20.2020)
+------
+* Verify broker schemes are correctly registered (#1497)
+* Enable dogfood authenticator support by default (#1498)
+* Fix an ADAL presentation bug when providing but webView and parentController resulted in an empty screen (#1499)
+
 Version 2.7.16 (10.18.2019)
 -------
 * Fix ADAL failure on PkeyAuth request when there's no WPJ entitlement
