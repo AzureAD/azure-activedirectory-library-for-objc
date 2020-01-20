@@ -7,7 +7,7 @@
 
 ## Note
 
- In the near future, ADAL will be deprecated in favor of MSAL. At the current point, we are only adding new features to MSAL library, and only providing security fixes for ADAL. 
+In the near future, ADAL will be deprecated in favor of MSAL. At the current point, we are only adding new features to MSAL library, and only providing security fixes for ADAL. 
 
 - If you're building a new app, we strongly recommend to adopt MSAL directly.
 - If you have an existing app, please plan to migrate to MSAL shortly. 
