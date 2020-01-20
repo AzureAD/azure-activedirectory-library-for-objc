@@ -50,6 +50,7 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "ADBrokerApplicationTokenHelper.h"
+#import "ADTestBundle.h"
 
 @interface ADEnrollmentGateway ()
 
@@ -69,6 +70,8 @@
     [super setUp];
     
     [MSIDKeychainTokenCache reset];
+    NSArray *urlSchemes = @[@"msauth", @"msauthv3"];
+    [ADTestBundle overrideObject:urlSchemes forKey:@"LSApplicationQueriesSchemes"];
 }
 
 - (void)tearDown
@@ -77,6 +80,40 @@
 }
 
 #pragma mark - Tests
+
+- (void)testBroker_whenMSAuthV3SchemeIsNotRegistered_shouldReturnError_andNotInvokeBroker
+{
+    XCTestExpectation *openURLExpectation = [self expectationWithDescription:@"Open URL"];
+    openURLExpectation.inverted = YES;
+    
+    [ADApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        [openURLExpectation fulfill];
+        return YES;
+    }];
+    
+    NSArray *urlSchemes = @[@"msauth-wrong", @"msauthv3"];
+    [ADTestBundle overrideObject:urlSchemes forKey:@"LSApplicationQueriesSchemes"];
+    
+    NSString *authority = @"https://login.windows.net/common";
+    NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
+    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.status, AD_FAILED);
+        
+        XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
+        XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation, openURLExpectation] timeout:1.0];
+}
 
 - (void)testBroker_whenSimpleAcquireToken_andSourceApplicationNonNil_andNonceMissingInBrokerResponse_shouldSucceed
 {
