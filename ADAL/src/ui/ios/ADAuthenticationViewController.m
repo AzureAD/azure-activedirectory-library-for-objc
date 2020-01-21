@@ -39,6 +39,8 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     id _foregroundObserver;
 }
 
+@property (nonatomic) BOOL presentInParentController;
+
 @end
 
 @implementation ADAuthenticationViewController
@@ -62,6 +64,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     // hijack the delegate on the webview.
     if (_webView)
     {
+        self.presentInParentController = NO;
         _webView.delegate = self;
         return YES;
     }
@@ -107,6 +110,8 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
                                                                                   target:self
                                                                                   action:@selector(onCancel:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
+    
+    self.presentInParentController = YES;
 
     return YES;
 }
@@ -137,7 +142,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
-    if (_parentController)
+    if (_parentController && self.presentInParentController)
     {
         if (_parentController.parentViewController && _parentController.presentedViewController)
         {
@@ -161,6 +166,8 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)startRequest:(NSURLRequest *)request
 {
     [self loadRequest:request];
+    
+    if (!self.presentInParentController) return;
 
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
 
