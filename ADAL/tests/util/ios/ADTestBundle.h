@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,31 +17,36 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-typedef void(^ADAuthorizationCodeCallback)(NSString *, ADAuthenticationError *);
+#import <Foundation/Foundation.h>
 
-extern NSString *kAdalResumeDictionaryKey;
-extern NSString *s_brokerAppVersion;
-extern NSString *s_brokerProtocolVersion;
-extern NSString *kAdalSDKNameKey;
-extern NSString *kAdalSDKObjc;
+/*!
+    This class allows tests to override values returned by various NSBundle
+    methods. It is automatically reset at the beginning of each test case in
+    subclasses of MSALTestCase.
+ */
+ 
+@interface ADTestBundle : NSObject
 
-@interface ADAuthenticationRequest (Broker)
++ (void)reset;
 
-+ (BOOL)internalHandleBrokerResponse:(NSURL *)response sourceApplication:(NSString *)sourceApplication;
+/*!
+    Objects set with this method will override values returned by -[NSBundle
+    objectForInfoDictionaryKey:]
+ */
++ (void)overrideObject:(id)object
+                forKey:(NSString *)key;
 
-+ (BOOL)validBrokerRedirectUri:(NSString *)url;
-
-+ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(NSError **)error
-                                       correlationID:(NSUUID *)correlationID;
-
-- (BOOL)canUseBroker;
-
-- (NSURL *)composeBrokerRequest:(ADAuthenticationError * __autoreleasing *)error;
+/*!
+    Overrides the string returned by -[NSBundle bundleIdentifier]
+ */
++ (void)overrideBundleId:(NSString *)bundleId;
 
 @end

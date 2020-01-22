@@ -229,11 +229,8 @@ static MSIDAADV1Oauth2Factory *s_oauthFactory;
 + (BOOL)isResponseFromBroker:(NSString *)sourceApplication
                     response:(NSURL *)response
 {
-    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
-    
-#ifdef DOGFOOD_BROKER
-    isBroker = isBroker || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
-#endif
+    BOOL isBroker = [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID]
+                    || [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID_DOGFOOD];
     
     return response && isBroker;
 }
