@@ -47,6 +47,7 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDClientCapabilitiesUtil.h"
+#import "ADAuthenticationErrorConverter.h"
 
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebMSAuthResponse.h"
@@ -162,15 +163,26 @@
         return;
     }
     
-    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
+    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO)
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
-                                               protocolCode:nil
-                                               errorDetails:ADRedirectUriInvalidError
-                                              correlationId:_requestParams.correlationId];
-        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
-        return;
+        if (![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
+        {
+            ADAuthenticationError* error =
+            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
+                                                   protocolCode:nil
+                                                   errorDetails:ADRedirectUriInvalidError
+                                                  correlationId:_requestParams.correlationId];
+            wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+            return;
+        }
+        
+        NSError *msidError;
+        if (![ADAuthenticationRequest verifyAdditionalRequiredSchemesAreRegistered:&msidError correlationID:_requestParams.correlationId])
+        {
+            ADAuthenticationError *error = [ADAuthenticationErrorConverter ADAuthenticationErrorFromMSIDError:msidError];
+            wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+            return;
+        }
     }
     
     [[MSIDTelemetry sharedInstance] startEvent:telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];

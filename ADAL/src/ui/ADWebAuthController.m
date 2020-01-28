@@ -125,7 +125,7 @@ static ADAuthenticationResult *s_result = nil;
     webviewConfig.loginHint = requestParams.identifier.userId;
     webviewConfig.promptBehavior = [ADAuthenticationContext getPromptParameter:promptBehavior];
     
-    webviewConfig.extraQueryParameters = [self.class dictionaryFromQueryString:requestParams.extraQueryParameters];
+    webviewConfig.extraQueryParameters = [self.class dictionaryFromQueryString:requestParams.extraQueryParameters.msidWWWFormURLDecode];
 
     NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:requestParams.clientCapabilities developerClaims:requestParams.decodedClaims];
     
