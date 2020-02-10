@@ -131,7 +131,7 @@
     MSID_LOG_VERBOSE_PII(_requestParams, @"Requesting authorization code for resource: %@", _requestParams.resource);
 
     NSString *refreshToken = nil;
-    if (_promptBehavior != AD_FORCE_PROMPT && _promptBehavior != AD_PROMPT_ALWAYS && [_context useRefreshTokenForWebview])
+    if (_promptBehavior == AD_PROMPT_AUTO && [_context useRefreshTokenForWebview])
     {
         refreshToken = [self getRefreshTokenForRequest];
     }
