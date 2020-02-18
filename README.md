@@ -6,7 +6,7 @@ This library, ADAL for iOS and macOS, will no longer receive new feature improve
 * If you are starting a new project, you can get started with the
   [MSAL for iOS and macOS docs](https://github.com/AzureAD/microsoft-authentication-library-for-objc/wiki)
   for details about the scenarios, usage, and relevant concepts.
-* If your application is using the previous ADAL JavaScript library, you can follow this
+* If your application is using the previous ADAL for iOS and macOS library, you can follow this
   [migration guide](https://docs.microsoft.com/azure/active-directory/develop/migrate-objc-adal-msal)
   to update to MSAL for iOS and macOS.
 * Existing applications relying on ADAL for iOS and macOS will continue to work.
