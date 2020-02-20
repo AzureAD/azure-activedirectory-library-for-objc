@@ -293,6 +293,9 @@ typedef enum
 /*! Enable to return access token with extended lifetime during server outage. */
 @property BOOL extendedLifetimeEnabled;
 
+/*! Enables sending refresh token to the webview when consenting to new scopes without re-entering password.
+ This also causes the auth provider to ignore SSO cookies in the webview and instead use the cached refresh token. */
+@property BOOL useRefreshTokenForWebview;
 /*!
     List of additional ESTS features that client handles.
  */
@@ -529,6 +532,26 @@ typedef enum
                          redirectUri:(nonnull NSURL *)redirectUri
                               userId:(nonnull NSString *)userId
                      completionBlock:(nonnull ADAuthenticationCallback)completionBlock;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to authorization endpoint. ADAL will ignore cache and will not attempt
+ to silently acquire token or return access token from cache. It will get the token through webview.
+ @param resource The resource for whom token is needed.
+ @param clientId The client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param promptBehavior Controls if any credentials UI will be shown.
+ @param userId An ADUserIdentifier object describing the user being authenticated
+ @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil. It should be URL-encoded.
+ @param claims The claims parameter that needs to be sent to authorization endpoint. It should be URL-encoded.
+ @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenInteractiveWithResource:(nonnull NSString *)resource
+                        clientId:(nonnull NSString *)clientId
+                     redirectUri:(nonnull NSURL *)redirectUri
+                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  userIdentifier:(nullable ADUserIdentifier *)userId
+            extraQueryParameters:(nullable NSString *)queryParams
+                          claims:(nullable NSString *)claims
+                 completionBlock:(nonnull ADAuthenticationCallback)completionBlock;
 
 @end
 

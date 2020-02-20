@@ -35,6 +35,7 @@
 // the authentication process.
 + (void)startWithRequest:(ADRequestParameters *)requestParams
           promptBehavior:(ADPromptBehavior)promptBehavior
+            refreshToken:(NSString*)refreshToken
                  context:(ADAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
