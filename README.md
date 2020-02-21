@@ -1,19 +1,22 @@
+---
 
+This library, ADAL for iOS and macOS, will no longer receive new feature improvements. Instead, use the new library
+[MSAL for iOS and macOS](https://github.com/AzureAD/microsoft-authentication-library-for-objc).
+
+* If you are starting a new project, you can get started with the
+  [MSAL for iOS and macOS docs](https://github.com/AzureAD/microsoft-authentication-library-for-objc/wiki)
+  for details about the scenarios, usage, and relevant concepts.
+* If your application is using the previous ADAL for iOS and macOS library, you can follow this
+  [migration guide](https://docs.microsoft.com/azure/active-directory/develop/migrate-objc-adal-msal)
+  to update to MSAL for iOS and macOS.
+* Existing applications relying on ADAL for iOS and macOS will continue to work.
+
+---
 # Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and macOS
 =====================================
 
 | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
 | --- | --- | --- |
-
-## Note
-
-In the near future, ADAL will be deprecated in favor of MSAL. At the current point, we are only adding new features to MSAL library, and only providing security fixes for ADAL. 
-
-- If you're building a new app, we strongly recommend to adopt MSAL directly.
-- If you have an existing app, please plan to migrate to MSAL shortly. 
-
-Please open an issue and/or feature request in MSAL, if there's anything that would block you from migrating to MSAL.
-MSAL library repository: [https://github.com/AzureAD/microsoft-authentication-library-for-objc](https://github.com/AzureAD/microsoft-authentication-library-for-objc)
 
 ## Release Versions
 
