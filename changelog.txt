@@ -1,3 +1,8 @@
+Version 4.0.6 (02.21.2020)
+------
+* Support passing refresh token in the header to avoid extra prompts (#1495)
+* Added ADAL migration info to readme (#1518)
+
 Version 4.0.5 (01.20.2020)
 ------
 * Verify broker schemes are correctly registered (#1497)

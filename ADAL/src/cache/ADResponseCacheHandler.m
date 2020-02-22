@@ -88,7 +88,8 @@
                                   cache:(MSIDLegacyTokenCacheAccessor *)cache
                                  params:(ADRequestParameters *)requestParams
 {
-    if (response.oauthErrorCode == MSIDErrorServerInvalidGrant && refreshToken)
+    NSString *subError = [[msidError userInfo] objectForKey:MSIDOAuthSubErrorKey];
+    if (response.oauthErrorCode == MSIDErrorServerInvalidGrant && refreshToken && (subError == nil || [subError caseInsensitiveCompare:@"consent_required"] != NSOrderedSame))
     {
         NSError *removeError = nil;
 
