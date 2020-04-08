@@ -22,11 +22,13 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationSettings.h"
-#import "ADTokenCache+Internal.h"
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #import "MSIDKeychainTokenCache.h"
+#else
+#import "ADTokenCache.h"
+#import "ADTokenCache+Internal.h"
 #endif 
 
 #import "ADAuthenticationContext+Internal.h"
@@ -42,7 +44,6 @@
 #import "MSIDMacTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
-#import "ADTokenCache.h"
 #import "MSIDAADV1Oauth2Factory.h"
 
 // This variable is purposefully a global so that way we can more easily pull it out of the
@@ -53,8 +54,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @interface ADAuthenticationContext()
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
+#if !TARGET_OS_IPHONE
 // It is used only for delegate proxy purposes between legacy mac delegate and msdi mac delegate.
 @property (nonatomic) ADTokenCache *legacyMacCache;
+#endif
 // iOS keychain group.
 @property (nonatomic) NSString *sharedGroup;
 
