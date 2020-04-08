@@ -114,7 +114,7 @@
             }
         }
 
-        MSID_LOG_VERBOSE(_requestParams, @"Retrieve refresh token from cache for web view: %@, error code: %ld", _PII_NULLIFY(refreshTokenItem), refreshTokenError.code);
+        MSID_LOG_VERBOSE(_requestParams, @"Retrieve refresh token from cache for web view: %@, error code: %ld", _PII_NULLIFY(refreshTokenItem), (long)refreshTokenError.code);
         return [refreshTokenItem refreshToken];
     }
 
