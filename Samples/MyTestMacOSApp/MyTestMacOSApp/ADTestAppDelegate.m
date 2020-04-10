@@ -52,7 +52,7 @@
 
 - (IBAction)showConsoleLog:(id)sender
 {
-    
+    [ADTestAppAcquireTokenWindowController uploadLogs];
 }
 
 - (IBAction)showCacheViewer:(id)sender

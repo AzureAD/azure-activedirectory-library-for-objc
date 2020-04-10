@@ -54,5 +54,6 @@
 }
 
 + (void)showWindow;
++ (void)uploadLogs;
 
 @end

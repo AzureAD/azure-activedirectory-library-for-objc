@@ -30,6 +30,7 @@
 #import "ADWebAuthController.h"
 #import "ADTestAppCache.h"
 
+static NSString *s_logOutput;
 
 @interface ADTestAppAcquireTokenWindowController ()
 
@@ -44,12 +45,31 @@
     static dispatch_once_t once;
     
     dispatch_once(&once, ^{
+        s_logOutput = @"";
         controller = [[ADTestAppAcquireTokenWindowController alloc] init];
         
+        [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
+        [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+        {
+            s_logOutput = [s_logOutput stringByAppendingFormat:@"%@\n", message];
+        }];
         
     });
     
     [controller showWindow:nil];
+}
+
++ (void)uploadLogs
+{
+    NSString *fileName = [NSString stringWithFormat:@"adal_wpj_log_%@.log", [NSDate date]];
+    NSString *filePath = [NSHomeDirectory() stringByAppendingPathComponent:fileName];
+    NSError *error;
+    BOOL result = [s_logOutput writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    s_logOutput = @"";
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = [NSString stringWithFormat:@"Wrote log to %@ with success %d", filePath, (int)result];
+    [alert runModal];
 }
 
 - (id)init

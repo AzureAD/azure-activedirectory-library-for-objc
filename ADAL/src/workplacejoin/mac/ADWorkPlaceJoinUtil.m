@@ -223,6 +223,8 @@ _error:
 + (SecCertificateRef)copyWPJCertificateRef:(id<ADRequestContext>)context
                                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
+    AD_LOG_INFO(context.correlationId, @"[Trace] Starting copy WPJ certificate");
+    
     OSStatus status= noErr;
     SecCertificateRef certRef = NULL;
     NSData *issuerTag = [self wpjCertIssuerTag];
@@ -234,6 +236,11 @@ _error:
     
     // Get the certificate. If the certificate is not found, this is not considered an error.
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryCert, (CFTypeRef*)&certRef);
+    
+    AD_LOG_INFO(context.correlationId, @"[Trace] WPJ certificate copy matching result %d", (int)status);
+    
+    [self logAllKeychainCerts];
+    
     if (status == errSecItemNotFound)
     {
         return NULL;
@@ -245,6 +252,75 @@ _error:
     
 _error:
     return NULL;
+}
+
++ (void)logAllKeychainCerts
+{
+    NSDictionary *queryAllCerts = @{ (__bridge id)kSecClass : (__bridge id)kSecClassCertificate,
+                                            (__bridge id)kSecMatchLimit: (__bridge id)kSecMatchLimitAll,
+                                            (__bridge id)kSecReturnAttributes: @YES
+    };
+           
+    CFTypeRef allCertOutput = NULL;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)queryAllCerts, &allCertOutput);
+    
+    if (status != noErr)
+    {
+        AD_LOG_INFO(nil, @"[Trace] Failed to read all certs from keychain with status %d", (int)status);
+        return;
+    }
+    
+    NSArray *allCerts = (__bridge id)allCertOutput;
+    
+    for (NSDictionary *certDict in allCerts)
+    {
+        NSMutableDictionary *printableDict = [NSMutableDictionary new];
+        NSString *label = certDict[(id)kSecAttrLabel];
+        printableDict[@"label"] = label;
+        
+        if (certDict[@"issr"])
+        {
+            printableDict[@"issuer"] = [[NSString alloc] initWithData:certDict[@"issr"] encoding:NSASCIIStringEncoding];
+        }
+        else
+        {
+            printableDict[@"issuer"] = @"Missing issuer";
+        }
+        
+        if (certDict[@"subj"])
+        {
+            printableDict[@"subject"] = [[NSString alloc] initWithData:certDict[@"subj"] encoding:NSASCIIStringEncoding];
+        }
+        else
+        {
+            printableDict[@"subject"] = @"Missing subject";
+        }
+        
+        AD_LOG_INFO(nil, @"[Trace] Certificate output: %@", printableDict);
+                
+        if ([[printableDict[@"issuer"] lowercaseString] containsString:@"MS-Organization-Access".lowercaseString])
+        {
+            AD_LOG_INFO(nil, @"[Trace] Found WPJ certificate");
+            
+            NSDictionary *identityQuery = @{ (__bridge id)kSecClass : (__bridge id)kSecClassIdentity,
+                                             (__bridge id)kSecReturnRef : (__bridge id)kCFBooleanTrue,
+                                             (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
+                                             (__bridge id)kSecAttrKeyClass : (__bridge id)kSecAttrKeyClassPrivate,
+                                             (__bridge id)kSecAttrPublicKeyHash : certDict[@"pkhh"]
+                                         };
+            
+            CFTypeRef wpjIdentity = NULL;
+            status = SecItemCopyMatching((__bridge CFDictionaryRef)identityQuery, (CFTypeRef*)&wpjIdentity);
+            
+            if (status != noErr)
+            {
+                AD_LOG_INFO(nil, @"[Trace] WPJ identity not found, error %d", (int)status);
+                return;
+            }
+            
+            AD_LOG_INFO(nil, @"[Trace] WPJ identify found successfully!");
+        }
+    }
 }
 
 + (NSData *)wpjCertIssuerTag
