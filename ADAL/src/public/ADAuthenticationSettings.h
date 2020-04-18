@@ -23,7 +23,9 @@
 
 #import <Foundation/Foundation.h>
 
+#if !TARGET_OS_IPHONE
 @protocol ADTokenCacheDelegate;
+#endif
 
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector

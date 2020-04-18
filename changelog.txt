@@ -1,3 +1,8 @@
+Version 4.0.7 (04.17.2020)
+------
+* Remove ADTokenCache.h dependency from iOS library since that header only exists on macOS (#1526)
+* Remove ADAL SHA-1 dependency (#1525)
+
 Version 4.0.6 (02.21.2020)
 ------
 * Support passing refresh token in the header to avoid extra prompts (#1495)

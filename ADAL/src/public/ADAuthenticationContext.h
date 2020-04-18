@@ -29,10 +29,10 @@
 @class ADUserInformation;
 @class ADUserIdentifier;
 @class UIViewController;
-@class ADTokenCache;
 @class WKWebView;
 
 #if !TARGET_OS_IPHONE
+@class ADTokenCache;
 @protocol ADTokenCacheDelegate;
 #endif
 
