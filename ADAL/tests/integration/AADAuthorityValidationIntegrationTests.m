@@ -162,7 +162,7 @@
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
 
-    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority validationEnabled:YES]];
 
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
     [authorityValidation checkAuthority:requestParams
@@ -194,7 +194,7 @@
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
 
-    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority validationEnabled:NO]];
 
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
     [authorityValidation checkAuthority:requestParams
@@ -228,7 +228,7 @@
     XCTAssertNotNil(context);
     XCTAssertNil(error);
 
-    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestAuthorityValidationResponse invalidAuthority:authority validationEnabled:YES]];
 
     XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithResource: with invalid authority."];
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -284,7 +284,7 @@
                   newAccessToken:updatedAT
                       newIDToken:[self adDefaultIDToken]
                 additionalFields:@{ @"foci" : @"1" }];
-    [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:authority],
+    [ADTestURLSession addResponses:@[[ADTestAuthorityValidationResponse invalidAuthority:authority validationEnabled:NO],
                                      tokenResponse]];
 
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token"];
@@ -510,7 +510,7 @@
     NSArray *metadata = @[ @{ @"preferred_network" : @"login.contoso.net",
                               @"preferred_cache" : @"login.contoso.com",
                               @"aliases" : @[ @"login.contoso.net", @"login.contoso.com"] } ];
-    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority withMetadata:metadata];
+    ADTestURLResponse *validationResponse = [ADTestAuthorityValidationResponse validAuthority:authority trustedHost:@"login.contoso.com" withMetadata:metadata];
     ADTestURLResponse *tokenResponse = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                           authority:preferredAuthority
                                                            resource:TEST_RESOURCE
