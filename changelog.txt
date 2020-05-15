@@ -1,3 +1,7 @@
+Version 2.7.18 (05.20.2020)
+-----
+* Fixed authority aliases for custom authorities (#1529)
+
 Version 2.7.17 (01.20.2020)
 ------
 * Verify broker schemes are correctly registered (#1497)
