@@ -63,9 +63,10 @@
     return response;
 }
 
-+ (ADTestURLResponse *)invalidAuthority:(NSString *)authority
++ (ADTestURLResponse *)invalidAuthority:(NSString *)authority validationEnabled:(BOOL)validationEnabled
 {
-    return [self invalidAuthority:authority trustedHost:DEFAULT_TRUSTED_HOST];
+    NSString *trustedHost = validationEnabled ? DEFAULT_TRUSTED_HOST : [NSURL URLWithString:authority].host;
+    return [self invalidAuthority:authority trustedHost:trustedHost];
 }
 
 + (ADTestURLResponse*)invalidAuthority:(NSString *)authority
