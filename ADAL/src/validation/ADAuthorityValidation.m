@@ -185,6 +185,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     {
         // Validate AAD authority
         [self validateAADAuthority:authorityURL
+           shouldValidateAuthority:validateAuthority
                      requestParams:requestParams
                    completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
@@ -203,6 +204,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 // If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
 // The method should be executed on a thread that is guarranteed to exist upon completion, e.g. the UI thread.
 - (void)validateAADAuthority:(NSURL *)authority
+     shouldValidateAuthority:(BOOL)shouldValidateAuthority
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
@@ -224,6 +226,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
         __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
         
         [self requestAADValidation:authority
+           shouldValidateAuthority:shouldValidateAuthority
                      requestParams:requestParams
                    completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
@@ -254,6 +257,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
 }
 
 - (void)requestAADValidation:(NSURL *)authorityUrl
+     shouldValidateAuthority:(BOOL)shouldValidateAuthority
                requestParams:(ADRequestParameters *)requestParams
              completionBlock:(ADAuthorityValidationCallback)completionBlock
 {
@@ -277,7 +281,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     
     NSString *trustedHost = ADTrustedAuthorityWorldWide;
     
-    if ([ADAuthorityUtils isKnownHost:authority.url])
+    if ([ADAuthorityUtils isKnownHost:authority.url] || !shouldValidateAuthority)
     {
         trustedHost = authority.environment;
     }
