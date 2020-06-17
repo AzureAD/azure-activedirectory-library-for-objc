@@ -25,7 +25,6 @@
 #import "ADWebAuthResponse.h"
 #import "ADWebResponse.h"
 #import "ADWebAuthRequest.h"
-#import "ADClientMetrics.h"
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDPkeyAuthHelper.h"
@@ -348,11 +347,6 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
 
 - (void)handleSuccess:(ADWebResponseCallback)completionBlock
 {
-    [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
-                                                startTime:[_request startTime]
-                                            correlationId:_request.correlationId
-                                             errorDetails:nil];
-    
     completionBlock(nil, _responseDictionary);
 }
 
@@ -422,12 +416,7 @@ static NSString *const kPKeyAuthName = @"PKeyAuth";
 
 - (void)handleADError:(ADAuthenticationError*)adError
       completionBlock:(ADWebResponseCallback)completionBlock
-{
-    [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
-                                                startTime:[_request startTime]
-                                            correlationId:_request.correlationId
-                                             errorDetails:[adError errorDetails]];
-    
+{    
     completionBlock(adError, _responseDictionary);
 }
 

@@ -39,7 +39,7 @@ extern NSString* _Nonnull const ADOAuthServerErrorDomain;
  */
 extern NSString* _Nonnull const ADHTTPHeadersKey;
 /*!
-Contains the suberror code returned by the server
+Contains the suberror code returned by the server 
  */
 extern NSString* _Nonnull const ADSuberrorKey;
 /*!

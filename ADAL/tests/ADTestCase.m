@@ -27,7 +27,6 @@
 
 
 #import "ADTestCase.h"
-#import "ADClientMetrics.h"
 #import "ADAuthorityValidation+TestUtil.h"
 #import "ADTestWebAuthController.h"
 #import "ADLogger.h"
@@ -48,7 +47,6 @@
 {
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
-    [[ADClientMetrics getInstance] clearMetrics];
     [ADAuthorityValidation clearAadCache];
     
 #if TARGET_OS_IPHONE
