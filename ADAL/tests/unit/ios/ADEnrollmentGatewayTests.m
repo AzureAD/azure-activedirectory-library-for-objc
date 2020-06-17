@@ -112,32 +112,32 @@
     XCTAssertNotNil(error);
 }
 
-- (void)testEnrollmentIDForUserId_whenJSONIsEmptyString_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForUserId_whenJSONIsEmptyString_shouldReturnNil
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@""]];
     ADAuthenticationError *error = nil;
 
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserId:@"mike@contoso.com" error:&error]);
-    XCTAssertNotNil(error);
+    XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIDForUserObjectId_whenJSONIsEmptyString_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForUserObjectId_whenJSONIsEmptyString_shouldReturnNil
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@""]];
     ADAuthenticationError *error = nil;
 
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForUserObjectId:@"d3444455-mike-4271-b6ea-e499cc0cab46" tenantId:@"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1" error:&error]);
-    XCTAssertNotNil(error);
+    XCTAssertNil(error);
 
 }
 
-- (void)testEnrollmentIDForHomeAccountId_whenJSONIsEmptyString_shouldReturnNilAndPopulateError
+- (void)testEnrollmentIDForHomeAccountId_whenJSONIsEmptyString_shouldReturnNil
 {
     [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[NSString stringWithFormat:@""]];
     ADAuthenticationError *error = nil;
 
     XCTAssertNil([ADEnrollmentGateway enrollmentIdForHomeAccountId:@"60406d5d-mike-41e1-aa70-e97501076a22" error:&error]);
-    XCTAssertNotNil(error);
+    XCTAssertNil(error);
 
 }
 
