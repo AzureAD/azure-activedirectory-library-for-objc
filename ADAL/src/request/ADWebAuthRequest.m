@@ -23,7 +23,6 @@
 
 #import "ADWebAuthRequest.h"
 #import "ADWebAuthResponse.h"
-#import "ADClientMetrics.h"
 #import "ADWebResponse.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 
@@ -69,7 +68,6 @@
     }
     
     _startTime = [NSDate new];
-    [[ADClientMetrics getInstance] addClientMetrics:_requestHeaders endpoint:[_requestURL absoluteString]];
     
     [self send:^( NSError *error, ADWebResponse *webResponse )
     {

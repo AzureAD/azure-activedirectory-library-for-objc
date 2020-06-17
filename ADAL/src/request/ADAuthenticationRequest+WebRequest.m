@@ -23,7 +23,6 @@
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADWebRequest.h"
-#import "ADClientMetrics.h"
 #import "ADWebResponse.h"
 #import "ADAuthenticationSettings.h"
 #import "ADWebAuthController.h"
