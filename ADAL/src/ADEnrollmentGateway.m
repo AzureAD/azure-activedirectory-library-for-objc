@@ -64,7 +64,7 @@ static NSString *s_intuneResourceJSON = nil;
 {
     NSString *enrollIdJSON = [ADEnrollmentGateway allEnrollmentIdsJSON];
 
-    if (!enrollIdJSON)
+    if ([NSString msidIsStringNilOrBlank:enrollIdJSON])
     {
         MSID_LOG_VERBOSE(nil, @"No Intune Enrollment ID JSON found.");
         return nil;
