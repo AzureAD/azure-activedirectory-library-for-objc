@@ -1,3 +1,13 @@
+Version 4.0.9 (06.16.2020)
+------
+* Stop sending x-client-last-* headers.
+* Improve logging.
+
+Version 4.0.8 (05.16.2020)
+------
+* Fixed NTLM crash when app has no keywindow (#1531)
+* Fixed validation for custom AAD authorities (#1530)
+
 Version 4.0.7 (04.17.2020)
 ------
 * Remove ADTokenCache.h dependency from iOS library since that header only exists on macOS (#1526)
