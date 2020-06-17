@@ -4032,6 +4032,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MARKETING_VERSION = 4.0.9;
 			};
 			name = Debug;
 		};
@@ -4043,6 +4044,7 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MARKETING_VERSION = 4.0.9;
 			};
 			name = Release;
 		};
@@ -4054,6 +4056,7 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MARKETING_VERSION = 4.0.9;
 			};
 			name = Debug;
 		};
@@ -4064,6 +4067,7 @@
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MARKETING_VERSION = 4.0.9;
 			};
 			name = Release;
 		};
@@ -4851,6 +4855,7 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MARKETING_VERSION = 4.0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 			};
 			name = Debug;
@@ -4863,6 +4868,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MARKETING_VERSION = 4.0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 			};
 			name = Release;
