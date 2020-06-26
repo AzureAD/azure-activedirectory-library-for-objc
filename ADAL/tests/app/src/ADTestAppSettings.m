@@ -75,7 +75,7 @@ static NSUInteger s_currentProfileIdx = 0;
        @"OneDrive"    : @{ @"authority" : @"https://login.microsoftonline.com/common",
                            @"resource" : @"https://api.office.com/discovery",
                            @"clientId" : @"af124e86-4e96-495a-b70a-90f90ab96707",
-                           @"redirectUri" : @"ms-onedrive://com.microsoft.skydrive",
+                           @"redirectUri" : @"ms-onedrive-auth://com.microsoft.skydrive",
                            },
        };
     
