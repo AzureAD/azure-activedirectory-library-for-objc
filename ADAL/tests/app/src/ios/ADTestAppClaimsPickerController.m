@@ -38,7 +38,6 @@
     self.claimsPickerView = [[UIPickerView alloc]initWithFrame:CGRectZero];
     self.claimsPickerView.dataSource = self;
     self.claimsPickerView.delegate = self;
-    self.claimsPickerView.showsSelectionIndicator = YES;
     [self.claimsPickerView selectRow:1 inComponent:0 animated:YES];
     [self.view addSubview:self.claimsPickerView];
     self.claimsPickerView.translatesAutoresizingMaskIntoConstraints = NO;
