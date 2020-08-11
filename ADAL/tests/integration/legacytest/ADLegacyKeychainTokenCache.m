@@ -189,7 +189,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
                                 @"wipeTime" : [NSDate date]
                                 };
 
-    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo requiringSecureCoding:YES error:nil];
 
     OSStatus status = SecItemUpdate((CFDictionaryRef)[self wipeQuery], (CFDictionaryRef)@{ (id)kSecValueData:wipeData  } );
     if (status == errSecItemNotFound)
@@ -341,7 +341,10 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     }
     @try
     {
-        ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        NSError *error = nil;
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&error];
+        [unarchiver setRequiresSecureCoding:NO];
+        ADTokenCacheItem* item = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
         if (!item)
         {
             MSID_LOG_WARN(nil, @"Unable to decode item from data stored in keychain.");
@@ -671,7 +674,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
                                                           userId:userId
                                                       additional:nil];
         
-        NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
+        NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item requiringSecureCoding:NO error:error];
         if (!itemData)
         {
             ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT protocolCode:nil errorDetails:@"Failed to archive keychain item" correlationId:correlationId];
@@ -753,7 +756,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     
     if (status == errSecSuccess && data)
     {
-        NSDictionary *wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
+        NSDictionary *wipeData = [NSKeyedUnarchiver unarchivedObjectOfClass:NSDictionary.class fromData:(__bridge NSData * _Nonnull)(data) error:nil];
         CFRelease(data);
         return wipeData;
     }
