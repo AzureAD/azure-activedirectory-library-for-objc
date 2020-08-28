@@ -3970,7 +3970,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB71FC370C000CD70C5 /* adal__testhostapp__ios.xcconfig */;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -3978,7 +3978,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB71FC370C000CD70C5 /* adal__testhostapp__ios.xcconfig */;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
 		};
@@ -3989,6 +3989,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks @executable_path/Frameworks $(inherited)";
 				MACH_O_TYPE = mh_bundle;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -4003,6 +4004,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks @executable_path/Frameworks $(inherited)";
 				MACH_O_TYPE = mh_bundle;
 				ONLY_ACTIVE_ARCH = NO;
@@ -4034,7 +4036,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				GCC_OPTIMIZATION_LEVEL = 3;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = ADALiOS;
 			};
 			name = Debug;
@@ -4044,7 +4046,7 @@
 			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = ADALiOS;
 			};
 			name = Release;
@@ -4054,7 +4056,7 @@
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Debug;
@@ -4063,7 +4065,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA81FC370BE00CD70C5 /* adal__unittest__ios.xcconfig */;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Release;
@@ -4076,7 +4078,7 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 4.0.9;
 			};
 			name = Debug;
@@ -4088,7 +4090,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 4.0.9;
 			};
 			name = Release;
@@ -4100,6 +4102,7 @@
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MARKETING_VERSION = 4.0.9;
 			};
@@ -4111,6 +4114,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MARKETING_VERSION = 4.0.9;
 			};
@@ -4119,6 +4123,7 @@
 		9453C4591C5866D0006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = "Build All";
 			};
 			name = Debug;
@@ -4126,6 +4131,7 @@
 		9453C45B1C5866D0006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = "Build All";
 			};
 			name = Release;
@@ -4135,6 +4141,7 @@
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Debug;
@@ -4143,6 +4150,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Release;
@@ -4204,6 +4212,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/interactive/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @rpath";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -4269,6 +4278,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/interactive/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @rpath";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -4338,6 +4348,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/stress/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -4400,6 +4411,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/stress/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -4416,7 +4428,7 @@
 			baseConfigurationReference = D6CF4EBD1FC370C100CD70C5 /* adal__integrationtest__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
 			name = Debug;
@@ -4425,7 +4437,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EB91FC370C100CD70C5 /* adal__unittest__mac.xcconfig */;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHost.app/appUnitTestHost";
 			};
@@ -4436,6 +4448,7 @@
 			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Debug;
@@ -4444,6 +4457,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA91FC370BF00CD70C5 /* adal__integrationtest__mac.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Release;
@@ -4504,7 +4518,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/multiapp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -4567,7 +4581,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/multiapp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSMultiAppTests;
@@ -4636,7 +4650,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/stress/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -4699,7 +4713,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = automation/tests/stress/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADALiOSStressTests;
@@ -4770,6 +4784,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/automation/macos/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -4833,6 +4848,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/automation/macos/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -4851,7 +4867,7 @@
 				CODE_SIGN_ENTITLEMENTS = automation/ios/ADALAutomation.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = UBF8T346G9;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
@@ -4868,7 +4884,7 @@
 				CODE_SIGN_ENTITLEMENTS = automation/ios/ADALAutomation.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = UBF8T346G9;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
@@ -4882,6 +4898,7 @@
 			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = "ADAL-core";
 			};
 			name = Debug;
@@ -4890,6 +4907,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAD1FC370BF00CD70C5 /* adal__staticlib__ios.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = "ADAL-core";
 			};
 			name = Release;
@@ -4902,7 +4920,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 4.0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 			};
@@ -4915,7 +4933,7 @@
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 4.0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 			};
@@ -4925,6 +4943,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
@@ -4934,6 +4953,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EAF1FC370BF00CD70C5 /* adal__testapp__mac.xcconfig */;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
