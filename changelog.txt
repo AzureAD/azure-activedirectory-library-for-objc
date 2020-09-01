@@ -2,6 +2,7 @@ Version 4.0.9 (06.16.2020)
 ------
 * Stop sending x-client-last-* headers.
 * Improve logging.
+* Disabled WPJChallenge on iOS and also added "PKeyAuth/1.0" keyword to the User Agent string in the HTTP Header on iOS as an alternate way to enable PKeyAuth Challenge on iOS.
 
 Version 4.0.8 (05.16.2020)
 ------
