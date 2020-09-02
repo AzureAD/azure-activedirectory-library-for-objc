@@ -58,7 +58,7 @@
         return NO; \
     } \
 }
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @implementation ADLegacyMacTokenCache
 
 + (ADLegacyMacTokenCache *)defaultCache
@@ -140,12 +140,7 @@
     NSData *result = nil;
     @try
     {
-        if (@available(macOS 10.13, iOS 12.0, *)) {
-            result = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
-        } else {
-            // Fallback on earlier versions
-            result = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
-        }
+        result = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
     }
     @catch (id exception)
     {
@@ -163,15 +158,7 @@
 {
     @try
     {
-        NSKeyedUnarchiver *unarchiver = nil;
-        if (@available(macOS 10.13, iOS 12.0, *)) {
-            unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
-        } else {
-            // Fallback on earlier versions
-            unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-        }
-        [unarchiver setRequiresSecureCoding:NO];
-        return [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+        return [NSKeyedUnarchiver unarchiveObjectWithData:data];
     }
     @catch (id exception)
     {
@@ -244,13 +231,7 @@
     }
     
     // Unarchive the data first
-    NSDictionary* dict = nil;
-    if (@available(macOS 10.13, iOS 12.0, *)) {
-        dict = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSData class] fromData:data error:error];
-    } else {
-        // Fallback on earlier versions
-        dict = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    }
+    NSDictionary* dict = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     CHECK_ERROR(dict, AD_ERROR_CACHE_BAD_FORMAT, @"Unable to unarchive data provided by cache storage!");
 
     if (![self validateCache:dict error:error])

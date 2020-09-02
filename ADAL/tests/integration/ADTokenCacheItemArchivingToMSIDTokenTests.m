@@ -47,7 +47,6 @@
 }
 
 #pragma mark - ADTokenCacheItem -> MSIDCredentialCacheItem
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testDeserialize_whenAccessTokenIsValidRefreshTokenNil_shouldReturnAccessToken
 {
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
@@ -174,7 +173,6 @@
 }
 
 #pragma mark - MSIDTokenCacheItem -> ADTokenCacheItem
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testSerialize_whenAccessMSIDToken_shouldUnarchiveAsAccessADTokenCacheItem
 {
     MSIDLegacyTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
