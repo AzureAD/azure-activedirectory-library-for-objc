@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADApplicationTestUtil.h"
+#import <objC/Message.h>
 
 BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
 static NSArray *s_allowedURLSchemes = nil;
@@ -60,7 +61,23 @@ static NSArray *s_allowedURLSchemes = nil;
 #pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 @implementation UIApplication (TestOverride)
 
-- (BOOL)openURL:(NSURL *)url
++ (void)load
+{
+    
+    Method openUrlStr = class_getInstanceMethod(UIApplication.class, @selector(openURL:));
+    Method msidOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(testOpenURL:));
+    method_exchangeImplementations(openUrlStr, msidOpenUrlStr);
+    
+    Method openUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(openURL:options:completionHandler:));
+    Method msidOpenUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(testOpenURL:options:completionHandler:));
+    method_exchangeImplementations(openUrlOptionsCompletionHandlerStr, msidOpenUrlOptionsCompletionHandlerStr);
+    
+    Method canOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(canOpenURL:));
+    Method msidCanOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(testCanOpenURL:));
+    method_exchangeImplementations(canOpenUrlStr, msidCanOpenUrlStr);
+}
+
+- (BOOL)testOpenURL:(NSURL *)url
 {
     if (!s_onOpenUrl)
     {
@@ -70,7 +87,7 @@ static NSArray *s_allowedURLSchemes = nil;
     return s_onOpenUrl(url, nil);
 }
 
-- (BOOL)canOpenURL:(NSURL *)url
+- (BOOL)testCanOpenURL:(NSURL *)url
 {
     if (s_allowedURLSchemes)
     {
@@ -80,7 +97,7 @@ static NSArray *s_allowedURLSchemes = nil;
     return YES;
 }
 
-- (void)openURL:(NSURL*)url
+- (void)testOpenURL:(NSURL*)url
         options:(NSDictionary<NSString *, id> *)options
 completionHandler:(void (^ __nullable)(BOOL success))completionHandler
 {

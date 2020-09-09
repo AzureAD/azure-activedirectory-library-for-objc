@@ -74,8 +74,7 @@
     
     [self setEdgesForExtendedLayout:UIRectEdgeNone];
     [self setExtendedLayoutIncludesOpaqueBars:NO];
-    [self setAutomaticallyAdjustsScrollViewInsets:NO];
-    
+    [[UIScrollView appearance] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAutomatic];
     return self;
 }
 
