@@ -204,4 +204,19 @@
     return enrollId;
 }
 
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
+
++ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent
+{
+    WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    
+    if (@available(iOS 13.0, *))
+    {
+        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+    }
+    return webConfig;
+}
+
+#endif
 @end
