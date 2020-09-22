@@ -23,8 +23,7 @@
 
 #import "ADTokenCacheDataSource.h"
 #import "MSIDRequestContext.h"
-#import "MSIDWorkPlaceJoinConstants.h"
-#import <WebKit/WebKit.h>
+#import "MSIDWebviewUIController.h"
 
 @class MSIDConfiguration;
 @class MSIDAccountIdentifier;
@@ -60,7 +59,7 @@
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
 
-+ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent;
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
 
 #endif
 
