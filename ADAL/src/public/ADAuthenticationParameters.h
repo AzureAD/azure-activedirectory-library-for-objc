@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewUIController.h"
+#import <WebKit/WebKit.h>
 
 @class ADAuthenticationError;
 
