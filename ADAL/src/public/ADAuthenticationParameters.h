@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebviewUIController.h"
 
 @class ADAuthenticationError;
 
@@ -85,5 +86,16 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters * _Nullable pa
  */
 + (void)parametersFromResourceUrl:(nonnull NSURL *)resourceUrl
                   completionBlock:(nonnull ADParametersCompletion)completionBlock;
+
+
+/*!
+    Generates default WKWebviewConfiguration with "PkeyAuth/1.0" keyword appended to the UserAgent String.
+    The user can initialize an embedded webview with the default configuration returned from this API to enable PKeyAuth challenge.
+ */
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
+
++ (nonnull WKWebViewConfiguration *)defaultWKWebviewConfiguration;
+
+#endif
 
 @end

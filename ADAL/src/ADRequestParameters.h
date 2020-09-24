@@ -23,7 +23,6 @@
 
 #import "ADTokenCacheDataSource.h"
 #import "MSIDRequestContext.h"
-#import "MSIDWebviewUIController.h"
 
 @class MSIDConfiguration;
 @class MSIDAccountIdentifier;
@@ -56,12 +55,5 @@
 
 - (NSString *)enrollmentIDForHomeAccountID:(NSString *)homeAccountId
                               legacyUserID:(NSString *)legacyUserID;
-
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
-
-+ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
-
-#endif
-
 
 @end

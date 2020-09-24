@@ -150,5 +150,14 @@
     return parameters;
 }
 
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
+
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration
+{
+    return [MSIDWebviewUIController defaultWKWebviewConfiguration];
+}
+
+#endif
+
 
 @end
