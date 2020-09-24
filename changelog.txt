@@ -2,6 +2,7 @@ Hotfix 4.0.9 (09.03.2020)
 ------
 * Disabled WPJChallenge on iOS as there's a known issue with WKWebview handling NSURLAuthenticationMethodClientCertificate; It swallows the challenge response rather than sending it to server. (09.03.2020)
 * Append 'PkeyAuth/1.0' keyword to the User Agent String to reliably advertise PkeyAuth capability to ADFS (09.03.2020)
+* testing
 
 Version 4.0.9 (06.16.2020)
 ------
