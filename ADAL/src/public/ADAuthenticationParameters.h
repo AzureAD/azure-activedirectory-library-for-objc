@@ -89,13 +89,9 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters * _Nullable pa
 
 
 /*!
-    Generates default WKWebviewConfiguration with "PkeyAuth/1.0" keyword appended to the UserAgent String.
-    The user can initialize an embedded webview with the default configuration returned from this API to enable PKeyAuth challenge.
+    Generates default WKWebviewConfiguration with recommended settings for the developers. 
  */
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
 
 + (nonnull WKWebViewConfiguration *)defaultWKWebviewConfiguration;
-
-#endif
 
 @end
