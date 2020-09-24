@@ -280,9 +280,9 @@ typedef enum
     when needed, leveraging the parentController property.
  
  Note that on iOS and iPadOS devices it is recommended to configure WKWebView to use mobile content mode to guarantee consistent experience across all mobile apps.
- Likewise, on MacOS, it is recommended to configure WKWebView to use destkop content mode.
+ Likewise, on MacOS, it is recommended to configure WKWebView to use desktop content mode.
  
- New ADAL release has a new API "defaultWKWebviewConfiguration" that will return a default configuration object with recommended settings enabled for both iOS and MacOS.
+ [ADAuthenticationParameters defaultWKWebviewConfiguration] can be used to return a default configuration object with recommended settings enabled for both iOS and MacOS.
  When creating your WKWebView, please configure it in the following way:
  
  WKWebViewConfiguration *config = [ADAuthenticationParameters defaultWKWebviewConfiguration];     
