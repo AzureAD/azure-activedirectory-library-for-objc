@@ -31,6 +31,7 @@
 #import "ADUserIdentifier.h"
 #import "ADWebAuthController.h"
 #import "ADEnrollmentGateway.h"
+#import "ADAuthenticationParameters.h"
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAM/IntuneMAM.h>
@@ -351,7 +352,8 @@
     
     UIView* contentView = blurView.contentView;
     
-    _webView = [[WKWebView alloc] init];
+    WKWebViewConfiguration *defaultConfig = [ADAuthenticationParameters defaultWKWebviewConfiguration];
+    _webView = [[WKWebView alloc] initWithFrame:contentView.frame configuration:defaultConfig];
     _webView.translatesAutoresizingMaskIntoConstraints = NO;
     [contentView addSubview:_webView];
     

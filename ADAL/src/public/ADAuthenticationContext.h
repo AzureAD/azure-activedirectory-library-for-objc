@@ -280,12 +280,12 @@ typedef enum
     when needed, leveraging the parentController property.
  
  Note that on iOS and iPadOS devices it is recommended to configure WKWebView to use mobile content mode to guarantee consistent experience across all mobile apps.
+ Likewise, on MacOS, it is recommended to configure WKWebView to use desktop content mode.
  
+ [ADAuthenticationParameters defaultWKWebviewConfiguration] can be used to return a default configuration object with recommended settings enabled for both iOS and MacOS.
  When creating your WKWebView, please configure it in the following way:
  
- WKWebViewConfiguration *config = [WKWebViewConfiguration new];
- config.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile; // This sets up WKWebView to display UI as mobile
-     
+ WKWebViewConfiguration *config = [ADAuthenticationParameters defaultWKWebviewConfiguration];     
  WKWebView *webView = [[WKWebView alloc] initWithFrame:your_frame configuration:config];
  */
 @property (weak, nullable) WKWebView* webView;
