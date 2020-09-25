@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import <WebKit/WebKit.h>
 
 @class ADAuthenticationError;
 
@@ -85,5 +86,12 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters * _Nullable pa
  */
 + (void)parametersFromResourceUrl:(nonnull NSURL *)resourceUrl
                   completionBlock:(nonnull ADParametersCompletion)completionBlock;
+
+
+/*!
+    Generates default WKWebviewConfiguration with recommended settings for the developers. 
+ */
+
++ (nonnull WKWebViewConfiguration *)defaultWKWebviewConfiguration;
 
 @end

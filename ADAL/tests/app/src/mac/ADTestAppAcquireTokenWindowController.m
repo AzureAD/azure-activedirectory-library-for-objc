@@ -29,6 +29,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADWebAuthController.h"
 #import "ADTestAppCache.h"
+#import "ADAuthenticationParameters.h"
 
 @interface ADTestAppAcquireTokenWindowController ()
 
@@ -110,8 +111,10 @@
     [self populateCurrentProfile];
     
     
-    _webview = [[WKWebView alloc] initWithFrame:_contentWebView.bounds];
+    WKWebViewConfiguration *defaultConfig = [ADAuthenticationParameters defaultWKWebviewConfiguration];
+    _webview = [[WKWebView alloc] initWithFrame:_contentWebView.bounds configuration:defaultConfig];
     _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    
     [_contentWebView addSubview:_webview];
 }
 

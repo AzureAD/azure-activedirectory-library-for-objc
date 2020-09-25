@@ -26,6 +26,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
+#import "MSIDWebviewUIController.h"
 
 @implementation ADAuthenticationParameters
 
@@ -150,5 +151,9 @@
     return parameters;
 }
 
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration
+{
+    return [MSIDWebviewUIController defaultWKWebviewConfiguration];
+}
 
 @end
