@@ -28,7 +28,7 @@
 
 #define ADAL_VER_HIGH       4
 #define ADAL_VER_LOW        0
-#define ADAL_VER_PATCH      9
+#define ADAL_VER_PATCH      10
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
