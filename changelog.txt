@@ -1,4 +1,4 @@
-Version 4.0.11 (11.30.2020)
+Version 4.0.11 (12.01.2020)
 ------
 * Updated Embedded webview to allow opening links that open in a new window to open with system browser. Used in MFA setup when using ADAL. (#1561)
 * Fixed test cases and method deprecations for iOS 14, macOS 11. Updated deployment target to macOS 10.12 & iOS 11. Updated travis CI to use xcode 12 (#1546)
