@@ -47,7 +47,6 @@
 }
 
 #pragma mark - ADTokenCacheItem -> MSIDCredentialCacheItem
-
 - (void)testDeserialize_whenAccessTokenIsValidRefreshTokenNil_shouldReturnAccessToken
 {
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
@@ -63,7 +62,13 @@
     item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
     [item setValue:additionalServerInfo forKey:@"additionalServer"];
     [item setValue:sessionKey forKey:@"sessionKey"];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    NSData *data = nil;
+    if (@available(macOS 10.13, iOS 12.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:item requiringSecureCoding:YES error:nil];
+    } else {
+        // Fallback on earlier versions
+        data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    }
     
     MSIDLegacyTokenCacheItem *tokenCacheItem = (MSIDLegacyTokenCacheItem *) [serializer deserializeCredentialCacheItem:data];
     
@@ -99,7 +104,13 @@
     item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
     [item setValue:additionalServerInfo forKey:@"additionalServer"];
     [item setValue:sessionKey forKey:@"sessionKey"];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    NSData *data = nil;
+    if (@available(macOS 10.13, iOS 12.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:item requiringSecureCoding:NO error:nil];
+    } else {
+        // Fallback on earlier versions
+        data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    }
     
     MSIDLegacyTokenCacheItem *tokenCacheItem = (MSIDLegacyTokenCacheItem *) [serializer deserializeCredentialCacheItem:data];
     
@@ -135,7 +146,13 @@
     item.userInformation = [self adCreateUserInformation:TEST_USER_ID];
     [item setValue:additionalServerInfo forKey:@"additionalServer"];
     [item setValue:sessionKey forKey:@"sessionKey"];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    NSData *data = nil;
+    if (@available(macOS 10.13, iOS 12.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:item requiringSecureCoding:YES error:nil];
+    } else {
+        // Fallback on earlier versions
+        data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    }
     
     MSIDLegacyTokenCacheItem *tokenCacheItem = (MSIDLegacyTokenCacheItem *) [serializer deserializeCredentialCacheItem:data];
     
@@ -156,15 +173,20 @@
 }
 
 #pragma mark - MSIDTokenCacheItem -> ADTokenCacheItem
-
 - (void)testSerialize_whenAccessMSIDToken_shouldUnarchiveAsAccessADTokenCacheItem
 {
     MSIDLegacyTokenCacheItem *tokenCacheItem = [self adCreateAccessMSIDTokenCacheItem];
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeCredentialCacheItem:tokenCacheItem];
     ADUserInformation *expectedUserInfo = [ADUserInformation userInformationWithIdToken:tokenCacheItem.idToken error:nil];
-    
-    ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    NSError *error = nil;
+    ADTokenCacheItem *adToken = nil;
+    if (@available(macOS 10.13, iOS 12.0, *)) {
+        adToken = [NSKeyedUnarchiver unarchivedObjectOfClass:[ADTokenCacheItem class] fromData:data error:&error];
+    } else {
+        // Fallback on earlier versions
+        adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
@@ -185,8 +207,14 @@
     MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
     NSData *data = [serializer serializeCredentialCacheItem:tokenCacheItem];
     ADUserInformation *expectedUserInfo = [ADUserInformation userInformationWithIdToken:tokenCacheItem.idToken error:nil];
-    
-    ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    NSError *error = nil;
+    ADTokenCacheItem *adToken = nil;
+    if (@available(macOS 10.13, iOS 12.0, *)) {
+        adToken = [NSKeyedUnarchiver unarchivedObjectOfClass:ADTokenCacheItem.class fromData:data error:&error];
+    } else {
+        // Fallback on earlier versions
+        adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);
@@ -208,7 +236,13 @@
     NSData *data = [serializer serializeCredentialCacheItem:tokenCacheItem];
     ADUserInformation *expectedUserInfo = [ADUserInformation userInformationWithIdToken:tokenCacheItem.idToken error:nil];
     
-    ADTokenCacheItem *adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    ADTokenCacheItem *adToken = nil;
+    if (@available(macOS 10.13, iOS 12.0, *)) {
+        adToken = [NSKeyedUnarchiver unarchivedObjectOfClass:ADTokenCacheItem.class fromData:data error:nil];
+    } else {
+        // Fallback on earlier versions
+        adToken = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
     
     XCTAssertNotNil(adToken);
     XCTAssertTrue([adToken isKindOfClass:ADTokenCacheItem.class]);

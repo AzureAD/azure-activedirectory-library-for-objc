@@ -8,27 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		B2708C6D1EA04FDB003E83D0 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2708C6C1EA04FDB003E83D0 /* ADAL.framework */; };
-		B2708C6E1EA04FDB003E83D0 /* ADAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B2708C6C1EA04FDB003E83D0 /* ADAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D664F1571D3014F70017B799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D664F1561D3014F70017B799 /* AppDelegate.swift */; };
 		D664F1591D3014F70017B799 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D664F1581D3014F70017B799 /* ViewController.swift */; };
 		D664F15C1D3014F70017B799 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D664F15A1D3014F70017B799 /* Main.storyboard */; };
 		D664F15E1D3014F70017B799 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D664F15D1D3014F70017B799 /* Assets.xcassets */; };
 		D664F1611D3014F70017B799 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D664F15F1D3014F70017B799 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		D63948921D6CCB05002D53D6 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				B2708C6E1EA04FDB003E83D0 /* ADAL.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B2708C6C1EA04FDB003E83D0 /* ADAL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ADAL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,7 +78,6 @@
 				D664F14F1D3014F60017B799 /* Sources */,
 				D664F1501D3014F60017B799 /* Frameworks */,
 				D664F1511D3014F60017B799 /* Resources */,
-				D63948921D6CCB05002D53D6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -222,7 +206,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -264,7 +248,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_INCLUDE_PATHS = "$(BUILT_PRODUCTS_DIR)/**";
@@ -338,7 +322,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;

@@ -257,7 +257,6 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
-    appPasteBoard.persistent = YES;
     url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication",[[NSBundle mainBundle] bundleIdentifier]]];
     [appPasteBoard setURL:url];
 }

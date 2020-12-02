@@ -403,13 +403,9 @@
     // Set up constraints to make the settings scroll view take up the whole screen
     [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[settings]|" options:0 metrics:nil views:views]];
     [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[settings(>=200)]" options:0 metrics:nil views:views]];
-    _bottomConstraint2 = [NSLayoutConstraint constraintWithItem:settingsView
-                                                      attribute:NSLayoutAttributeBottom
-                                                      relatedBy:NSLayoutRelationEqual
-                                                         toItem:self.bottomLayoutGuide
-                                                      attribute:NSLayoutAttributeTop
-                                                     multiplier:1.0
-                                                       constant:0];
+    UILayoutGuide *guide = mainView.safeAreaLayoutGuide;
+    _bottomConstraint2 = [settingsView.bottomAnchor constraintEqualToSystemSpacingBelowAnchor:guide.bottomAnchor multiplier:1.0];
+    _bottomConstraint2.active = YES;
     [mainView addConstraint:_bottomConstraint2];
     
     
@@ -418,13 +414,8 @@
     
     // This constraint is the one that gets adjusted when the keyboard hides or shows. It moves the acquire buttons to make sure
     // they remain in view above the keyboard
-    _bottomConstraint = [NSLayoutConstraint constraintWithItem:acquireBlurView
-                                                     attribute:NSLayoutAttributeBottom
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.bottomLayoutGuide
-                                                     attribute:NSLayoutAttributeTop
-                                                    multiplier:1.0
-                                                      constant:0];
+    _bottomConstraint = [acquireBlurView.bottomAnchor constraintEqualToSystemSpacingBelowAnchor:guide.bottomAnchor multiplier:1.0];
+    _bottomConstraint.active = YES;
     [mainView addConstraint:_bottomConstraint];
     [self updateSettings];
     

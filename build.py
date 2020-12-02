@@ -177,7 +177,7 @@ class BuildTarget:
 			command += " -enableCodeCoverage YES"
 
 		if (self.platform == "iOS") :
-			command += " " + ios_sim_flags + " " + ios_sim_dest + " SUPPORTED_PLATFORMS=iOS"
+			command += " " + ios_sim_flags + " " + ios_sim_dest + " SUPPORTED_PLATFORMS.DEBUG=iOS"
 		
 		if (xcpretty) :
 			command += " | xcpretty"
