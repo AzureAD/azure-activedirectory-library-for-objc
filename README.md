@@ -16,8 +16,8 @@ This library, ADAL for iOS and macOS, will no longer receive new feature improve
 # Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and macOS
 =====================================
 
-| [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
-| --- | --- | --- |
+| [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev) | [Feedback](https://forms.office.com/r/x693ipGeXW)
+| --- | --- | --- | --- |
 
 ## Release Versions
 
@@ -52,6 +52,9 @@ Azure Identity samples for iOS is here: [https://github.com/AzureADSamples/Nativ
 We leverage [Stack Overflow](http://stackoverflow.com/) to work with the community on supporting Azure Active Directory and its SDKs, including this one! We highly recommend you ask your questions on Stack Overflow (we're all on there!) Also browser existing issues to see if someone has had your question before. 
 
 We recommend you use the "adal" tag so we can see it! Here is the latest Q&A on Stack Overflow for ADAL: [http://stackoverflow.com/questions/tagged/adal](http://stackoverflow.com/questions/tagged/adal)
+
+## Got Feedback?
+We'd like your thoughts on this library. Please complete [this short survey.](https://forms.office.com/r/x693ipGeXW).
 
 ## SSO and Conditional Access Support
 
