@@ -1,3 +1,6 @@
+Version 4.0.12
+Fix warnings found by static analyzer.
+
 Version 4.0.11 (12.01.2020)
 ------
 * Updated Embedded webview to allow opening links that open in a new window to open with system browser. Used in MFA setup when using ADAL. (#1561)
