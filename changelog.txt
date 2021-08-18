@@ -1,4 +1,4 @@
-Version 4.0.12
+Version 4.0.12 
 * Fixed warnings found by static analyzer.
 * Fixed a bug causing FRT deletion failure
 * Fixed showing smart card's cert on macOS.
