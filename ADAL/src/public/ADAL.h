@@ -44,7 +44,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* _Nonnull result)
 #import <ADAL/ADAuthenticationResult.h>
 #import <ADAL/ADAuthenticationSettings.h>
 #import <ADAL/ADErrorCodes.h>
-#import <ADAL/ADLogger.h>
+#import <ADAL/ADALLogger.h>
 #import <ADAL/ADTokenCacheItem.h>
 #import <ADAL/ADUserIdentifier.h>
 #import <ADAL/ADUserInformation.h>

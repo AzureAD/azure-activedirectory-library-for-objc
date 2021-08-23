@@ -29,7 +29,7 @@
 #import "ADTestCase.h"
 #import "ADAuthorityValidation+TestUtil.h"
 #import "ADTestWebAuthController.h"
-#import "ADLogger.h"
+#import "ADALLogger.h"
 
 #if TARGET_OS_IPHONE
 #import "ADApplicationTestUtil.h"
@@ -40,7 +40,7 @@
 - (void)setUp
 {
     [super setUp];
-    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
+    [ADALLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
 }
 
 - (void)tearDown

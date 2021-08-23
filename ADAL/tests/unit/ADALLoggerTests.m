@@ -22,54 +22,54 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "ADLogger.h"
+#import "ADALLogger.h"
 
-@interface ADLoggerTests : ADTestCase
+@interface ADALLoggerTests : ADTestCase
 
 @property (nonatomic) BOOL enableNSLogging;
 
 @end
 
-@implementation ADLoggerTests
+@implementation ADALLoggerTests
 
 - (void)setUp
 {
     [super setUp];
     
-    self.enableNSLogging = [ADLogger getNSLogging];
-    [ADLogger setNSLogging:YES];
-    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];
+    self.enableNSLogging = [ADALLogger getNSLogging];
+    [ADALLogger setNSLogging:YES];
+    [ADALLogger setLevel:ADAL_LOG_LEVEL_ERROR];
 }
 
 - (void)tearDown
 {
     [super tearDown];
     
-    [ADLogger setNSLogging:self.enableNSLogging];
+    [ADALLogger setNSLogging:self.enableNSLogging];
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [ADLogger setLogCallBack:nil];
+    [ADALLogger setLogCallBack:nil];
 #pragma clang diagnostic pop
     
-    [ADLogger setLoggerCallback:nil];
-    [ADLogger setPiiEnabled:NO];
+    [ADALLogger setLoggerCallback:nil];
+    [ADALLogger setPiiEnabled:NO];
 }
 
 #pragma mark - setNSLogging
 
 - (void)testSetNSLogging_whenValueTrue_shouldReturnTrueInGetNSLogging
 {
-    [ADLogger setNSLogging:YES];
+    [ADALLogger setNSLogging:YES];
     
-    XCTAssertTrue([ADLogger getNSLogging]);
+    XCTAssertTrue([ADALLogger getNSLogging]);
 }
 
 - (void)testSetNSLogging_whenValueFalse_shouldReturnfalseInGetNSLogging
 {
-    [ADLogger setNSLogging:NO];
+    [ADALLogger setNSLogging:NO];
     
-    XCTAssertFalse([ADLogger getNSLogging]);
+    XCTAssertFalse([ADALLogger getNSLogging]);
 }
 
 #pragma mark - log:context:message:errorCode:info:correlationId:userInfo
@@ -78,7 +78,7 @@
 {
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
-    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+    [ADALLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
@@ -94,11 +94,11 @@
 
 - (void)testLog_whenPiiEnabled_andLogPii_shouldReturnMessageInCallback
 {
-    [ADLogger setPiiEnabled:YES];
+    [ADALLogger setPiiEnabled:YES];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
-    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+    [ADALLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
@@ -117,7 +117,7 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     expectation.inverted = YES;
     
-    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii)
+    [ADALLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString __unused *message, BOOL __unused containsPii)
      {
          [expectation fulfill];
      }];
@@ -134,7 +134,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
+    [ADALLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
     {
          XCTAssertNotNil(message);
          XCTAssertEqual(logLevel, ADAL_LOG_LEVEL_ERROR);
@@ -152,14 +152,14 @@
 
 - (void)testLog_whenPiiEnabled_andOldCallback_andLogPii_shouldReturnAdditionalMessageInCallback
 {
-    [ADLogger setPiiEnabled:YES];
+    [ADALLogger setPiiEnabled:YES];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Validate logger callback."];
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, NSInteger errorCode, NSDictionary *userInfo)
+    [ADALLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, NSInteger errorCode, NSDictionary *userInfo)
      {
          XCTAssertNil(userInfo);
          XCTAssertEqual(errorCode, 0);
@@ -186,7 +186,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     
-    [ADLogger setLogCallBack:^(__unused ADAL_LOG_LEVEL logLevel, __unused NSString *message, __unused NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
+    [ADALLogger setLogCallBack:^(__unused ADAL_LOG_LEVEL logLevel, __unused NSString *message, __unused NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
     {
          [expectation fulfill];
      }];
@@ -206,7 +206,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     
-    [ADLogger setLogCallBack:^(__unused ADAL_LOG_LEVEL logLevel, __unused NSString *message, __unused NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
+    [ADALLogger setLogCallBack:^(__unused ADAL_LOG_LEVEL logLevel, __unused NSString *message, __unused NSString *additionalInfo, __unused NSInteger errorCode, __unused NSDictionary *userInfo)
      {
          [oldExpectation fulfill];
      }];
@@ -215,7 +215,7 @@
     
     XCTestExpectation *newExpectation = [self expectationWithDescription:@"Validate new logger callback."];
     
-    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+    [ADALLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
          XCTAssertNotNil(message);
          XCTAssertTrue([message containsString:@"message"]);

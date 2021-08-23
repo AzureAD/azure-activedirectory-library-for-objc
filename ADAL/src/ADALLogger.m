@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADLogger.h"
+#import "ADALLogger.h"
 #import "MSIDLogger+Internal.h"
 
 static LogCallback s_OldCallback = nil;
@@ -29,7 +29,7 @@ static ADLoggerCallback s_LoggerCallback = nil;
 
 static NSMutableDictionary* s_adalFullMetadata = nil;
 
-@implementation ADLogger
+@implementation ADALLogger
 
 #pragma mark - Log callback
 
