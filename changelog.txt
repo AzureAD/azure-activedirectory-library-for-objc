@@ -3,7 +3,6 @@ Version 4.0.12
 * Fixed a bug causing FRT deletion failure
 * Fixed showing smart card's cert on macOS.
 
-
 Version 4.0.11 (12.01.2020)
 ------
 * Updated Embedded webview to allow opening links that open in a new window to open with system browser. Used in MFA setup when using ADAL. (#1561)
