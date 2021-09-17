@@ -58,6 +58,11 @@
 		236BF403205B49EF006E3897 /* ADWipeTokensTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B200BC4320180A57000A81FD /* ADWipeTokensTelemetryTests.m */; };
 		236BF407205B4E1A006E3897 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
 		236BF40B205B4E1C006E3897 /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B20DC60C1F0D99A300957806 /* ADAcquireTokenTests.m */; };
+		236D398F26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h in Headers */ = {isa = PBXBuildFile; fileRef = 236D398D26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h */; };
+		236D399026F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h in Headers */ = {isa = PBXBuildFile; fileRef = 236D398D26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h */; };
+		236D399126F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 236D398E26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m */; };
+		236D399226F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 236D398E26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m */; };
+		236D399326F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 236D398E26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m */; };
 		23766BB32013D91E00449D47 /* NSDictionary+ADALiOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */; };
 		23B7919D20118B9F008D4BD2 /* ADAutoPassedInWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B7919820118B9E008D4BD2 /* ADAutoPassedInWebViewController.m */; };
 		23B791A220119030008D4BD2 /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B791A120119030008D4BD2 /* ADAutoRequestViewController.m */; };
@@ -920,6 +925,8 @@
 		236BF3C820521382006E3897 /* ADUserInformation+Internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ADUserInformation+Internal.m"; sourceTree = "<group>"; };
 		236BF3DF2059C1C4006E3897 /* ADAuthenticationContext+TestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+TestUtil.h"; sourceTree = "<group>"; };
 		236BF3E02059C1C4006E3897 /* ADAuthenticationContext+TestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+TestUtil.m"; sourceTree = "<group>"; };
+		236D398D26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+RemoteDeviceIdentity.h"; sourceTree = "<group>"; };
+		236D398E26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+RemoteDeviceIdentity.m"; sourceTree = "<group>"; };
 		23766BB12013D91E00449D47 /* NSDictionary+ADALiOSUITests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ADALiOSUITests.h"; sourceTree = "<group>"; };
 		23766BB22013D91E00449D47 /* NSDictionary+ADALiOSUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ADALiOSUITests.m"; sourceTree = "<group>"; };
 		237A6D4B202D0B490084E15F /* adal__uitest__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__uitest__ios.xcconfig; sourceTree = "<group>"; };
@@ -1616,6 +1623,7 @@
 			children = (
 				9453C3A41C583AA8006B9E79 /* public */,
 				60C351B91DA0D588006C8435 /* ADAL.m */,
+				236D398E26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m */,
 				D67D3D401F38542700660F32 /* ADAL.pch */,
 				9453C3A31C583A9C006B9E79 /* ADAL_Internal.h */,
 				D61AFAAB1FD8A06D00DABBE5 /* ADALConstants.h */,
@@ -1860,6 +1868,7 @@
 				9453C3C01C583AE6006B9E79 /* ADUserIdentifier.h */,
 				9453C3C11C583AE6006B9E79 /* ADUserInformation.h */,
 				9453C3C21C583AE6006B9E79 /* ADWebAuthController.h */,
+				236D398D26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h */,
 				9453C3C31C583AE6006B9E79 /* ios */,
 				9453C3C51C583AE6006B9E79 /* mac */,
 			);
@@ -2365,6 +2374,7 @@
 				9453C3DE1C583E8B006B9E79 /* ADUserIdentifier.h in Headers */,
 				9453C3D71C583E8B006B9E79 /* ADAuthenticationError.h in Headers */,
 				9453C3D91C583E8B006B9E79 /* ADAuthenticationResult.h in Headers */,
+				236D398F26F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h in Headers */,
 				9453C3E01C583E8B006B9E79 /* ADWebAuthController.h in Headers */,
 				9453C3E11C583E94006B9E79 /* ADKeychainTokenCache.h in Headers */,
 				9453C3DB1C583E8B006B9E79 /* ADErrorCodes.h in Headers */,
@@ -2422,6 +2432,7 @@
 				D6669FB21F1D4F51002492C5 /* ADDrsDiscoveryRequest.h in Headers */,
 				9453C4321C58646D006B9E79 /* ADWebRequest.h in Headers */,
 				9453C4301C58646D006B9E79 /* ADAuthenticationRequest+WebRequest.h in Headers */,
+				236D399026F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.h in Headers */,
 				9453C4241C586462006B9E79 /* ADTokenCacheItem+Internal.h in Headers */,
 				D60B653B1F355C5700A89487 /* ADAuthorityValidationRequest.h in Headers */,
 				B24D25E92059F67D00025B8B /* ADResponseCacheHandler.h in Headers */,
@@ -3308,6 +3319,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				236D399126F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m in Sources */,
 				B258E01F2155511400EC5AC2 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3360,6 +3372,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				236D399226F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m in Sources */,
 				B258E0202155511800EC5AC2 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3412,6 +3425,7 @@
 				B24D25D02058DB6400025B8B /* ADMSIDContext.m in Sources */,
 				23189A041FAAC1D10014B8EF /* ADAuthorityUtils.m in Sources */,
 				D6CF4ED51FC37A1B00CD70C5 /* ADAL.m in Sources */,
+				236D399326F429D00080BB29 /* ADAuthenticationContext+RemoteDeviceIdentity.m in Sources */,
 				60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */,
 				A521AB7920EED96A0005735B /* ADEnrollmentGateway.m in Sources */,
 				D61AFAAF1FD8A06D00DABBE5 /* ADALConstants.m in Sources */,
