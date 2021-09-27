@@ -46,6 +46,10 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAADV1Oauth2Factory.h"
 
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+#import "ADAuthenticationContext+RemoteDeviceIdentity.h"
+#endif
+
 // This variable is purposefully a global so that way we can more easily pull it out of the
 // symbols in a binary to detect what version of ADAL is being used without needing to
 // run the application.
@@ -89,11 +93,28 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     API_ENTRY;
     
     self.sharedGroup = sharedGroup;
+    id<MSIDTokenCacheDataSource> tokenCacheDataSource;
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+    if ([ADAuthenticationContext isInMemoryTokenCacheEnabled])
+    {
+        tokenCacheDataSource = [MSIDMacTokenCache defaultCache];
+    }
+    else
+    {
     MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
+        tokenCacheDataSource = keychainTokenCache;
     // In case if sharedGroup is nil, keychainTokenCache.keychainGroup will return default group.
     // Note: it is in the following format: <team id>.<sharedGroup>
-    self.sharedGroup = keychainTokenCache.keychainGroup;
-    MSIDLegacyTokenCacheAccessor *tokenCache = [self createIosCache:keychainTokenCache];
+        [self setSharedGroup:[keychainTokenCache keychainGroup]];
+    }
+#else
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    tokenCacheDataSource = keychainTokenCache;
+    // In case if sharedGroup is nil, keychainTokenCache.keychainGroup will return default group.
+    // Note: it is in the following format: <team id>.<sharedGroup>
+    [self setSharedGroup:[keychainTokenCache keychainGroup]];
+#endif
+    MSIDLegacyTokenCacheAccessor *tokenCache = [self createIosCache:tokenCacheDataSource];
     
     return [self initWithAuthority:authority
                  validateAuthority:bValidate
@@ -127,8 +148,21 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     MSIDLegacyTokenCacheAccessor *tokenCache = nil;
 
 #if TARGET_OS_IPHONE
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+    if ([ADAuthenticationContext isInMemoryTokenCacheEnabled])
+    {
+        tokenCache = [self createIosCache:[MSIDMacTokenCache defaultCache]];
+    }
+    else
+    {
+        tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
+        self.sharedGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
+    }
+#else
     tokenCache = [self createIosCache:[MSIDKeychainTokenCache defaultKeychainCache]];
-    self.sharedGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
+    [self setSharedGroup:[MSIDKeychainTokenCache defaultKeychainGroup]];
+#endif
+    
 #else
     self.legacyMacCache = [ADTokenCache defaultCache];
     tokenCache = [self createMacCache:self.legacyMacCache.macTokenCache];
