@@ -1,0 +1,28 @@
+# Pipeline will be triggered for PR & any updates on the PR on all branches
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
+  drafts: true
+
+# Trigger CI for only master/release branches
+trigger:
+  branches:
+    include:
+    - master
+    - release/*
+    exclude:
+    - '*'
+
+pool:
+  vmImage: 'macOS-11'
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
