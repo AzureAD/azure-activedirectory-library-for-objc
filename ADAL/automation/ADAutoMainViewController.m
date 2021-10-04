@@ -44,7 +44,7 @@
 {
     [super viewDidLoad];
 
-    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
+    [ADALLogger setLoggerCallback:^(ADAL_LOG_LEVEL __unused logLevel, NSString *message, BOOL __unused containsPii)
      {
          if (self.resultLogs)
          {
@@ -52,7 +52,7 @@
          }
      }];
 
-    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
+    [ADALLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
 }
 

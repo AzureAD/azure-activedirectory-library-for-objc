@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAL_Internal.h"
-#import "ADLogger.h"
+#import "ADALLogger.h"
 #import "ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationContext.h"

@@ -344,10 +344,10 @@ reliable place to retrieve them is from ADAL logging.
 + ADAL_LOG_LEVEL_Verbose (API tracing )
 
 
-To set the logging level in your application call +[ADLogger setLevel:]
+To set the logging level in your application call +[ADALLogger setLevel:]
 
 ```Objective-C
-[ADLogger setLevel:ADAL_LOG_LEVEL_INFO]
+[ADALLogger setLevel:ADAL_LOG_LEVEL_INFO]
 ```
 
 #### Network Traces

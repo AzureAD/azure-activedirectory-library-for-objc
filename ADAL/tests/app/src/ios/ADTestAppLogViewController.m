@@ -23,7 +23,7 @@
 
 #import "ADTestAppLogViewController.h"
 #import "ADTelemetry.h"
-#import "ADLogger.h"
+#import "ADALLogger.h"
 
 @interface ADTestAppLogViewController () <ADDispatcher>
 
@@ -56,12 +56,12 @@ static NSAttributedString* s_attrNewLine = nil;
     
     [self setEdgesForExtendedLayout:UIRectEdgeNone];
     
-    [ADLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
+    [ADALLogger setLoggerCallback:^(ADAL_LOG_LEVEL logLevel, NSString *message, BOOL containsPii)
      {
         [self appendNewLogLine:message];
     }];
     
-    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
+    [ADALLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     
     [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
     

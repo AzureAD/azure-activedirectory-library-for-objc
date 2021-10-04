@@ -1,3 +1,14 @@
+Version 5.0.0 (08.23.2021)
+------
+* Rename ADLogger to ADALLogger to fix a crash about naming collision (ADLogger) between ADAL and Apple's Depth (in ARKit) in iOS 15
+
+------
+Version 4.0.12
+* Fixed warnings found by static analyzer.
+* Fixed a bug causing FRT deletion failure
+* Fixed showing smart card's cert on macOS.
+
+
 Version 4.0.11 (12.01.2020)
 ------
 * Updated Embedded webview to allow opening links that open in a new window to open with system browser. Used in MFA setup when using ADAL. (#1561)

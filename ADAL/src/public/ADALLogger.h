@@ -34,7 +34,7 @@ typedef enum
     ADAL_LOG_LAST = ADAL_LOG_LEVEL_VERBOSE,
 } ADAL_LOG_LEVEL;
 
-@interface ADLogger : NSObject
+@interface ADALLogger : NSObject
 
 /*!
     Sets the logging level for the internal logging messages. Messages with 
