@@ -33,9 +33,6 @@ jobs:
     timeOutInMinutes: 30
 
 steps:
-  - task: ComponentGovernanceComponentDetection@0
-    inputs:
-      alertWarningLevel: Low
   - task: CmdLine@2
     displayName: Installing dependencies
     inputs:
@@ -53,6 +50,9 @@ steps:
       targetType: 'inline'
       script: |
         find . -name "*.gcda" -print0 | xargs -0 rm
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      alertWarningLevel: Low
   - task: Bash@3
     displayName: Run Build script & check for Errors
     inputs:
