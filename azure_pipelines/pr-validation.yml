@@ -32,7 +32,10 @@ jobs:
     vmImage: 'macOS-11'
     timeOutInMinutes: 30
 
-steps:
+  steps:
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      alertWarningLevel: Low
   - task: CmdLine@2
     displayName: Installing dependencies
     inputs:
@@ -50,9 +53,6 @@ steps:
       targetType: 'inline'
       script: |
         find . -name "*.gcda" -print0 | xargs -0 rm
-  - task: ComponentGovernanceComponentDetection@0
-    inputs:
-      alertWarningLevel: Low
   - task: Bash@3
     displayName: Run Build script & check for Errors
     inputs:
@@ -62,7 +62,7 @@ steps:
         final_status=$(<./build/status.txt)
         echo "FINAL STATUS  = ${final_status}"
         echo "POSSIBLE ERRORS: ${output}"
-        
+
         if [ $final_status != "0" ]; then
           echo "Build & Testing Failed! \n ${output}" >&2
         fi
