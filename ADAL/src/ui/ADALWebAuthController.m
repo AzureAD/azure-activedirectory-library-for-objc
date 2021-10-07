@@ -97,7 +97,7 @@ static ADALAuthenticationResult *s_result = nil;
 }
 
 + (void)startWithRequest:(ADALRequestParameters *)requestParams
-          promptBehavior:(ADPromptBehavior)promptBehavior
+          promptBehavior:(ADALPromptBehavior)promptBehavior
             refreshToken:(NSString*)refreshToken
                  context:(ADALAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler

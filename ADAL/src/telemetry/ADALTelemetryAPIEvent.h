@@ -26,7 +26,7 @@
 @interface ADALTelemetryAPIEvent : MSIDTelemetryAPIEvent
 
 - (void)setResultStatus:(ADALAuthenticationResultStatus)status;
-- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
+- (void)setPromptBehavior:(ADALPromptBehavior)promptBehavior;
 - (void)setUserInformation:(ADALUserInformation *)userInfo;
 - (void)setProtocolCode:(NSString *)protocolCode;
 - (void)setErrorCode:(NSUInteger)errorCode;

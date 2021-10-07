@@ -51,12 +51,12 @@
     ADALAuthenticationContext* _context;
     ADALRequestParameters* _requestParams;
     
-    ADPromptBehavior _promptBehavior;
+    ADALPromptBehavior _promptBehavior;
 
     NSString* _refreshTokenCredential;
     
     NSString* _samlAssertion;
-    ADAssertionType _assertionType;
+    ADALAssertionType _assertionType;
     
     BOOL _silent;
     BOOL _skipCache;
@@ -98,7 +98,7 @@
 - (BOOL)setClaims:(NSString *)claims error:(ADALAuthenticationError **)error;
 - (void)setUserIdentifier:(ADALUserIdentifier*)identifier;
 - (void)setUserId:(NSString*)userId;
-- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
+- (void)setPromptBehavior:(ADALPromptBehavior)promptBehavior;
 - (void)setSilent:(BOOL)silent;
 - (void)setSkipCache:(BOOL)skipCache;
 - (void)setForceRefresh:(BOOL)forceRefresh;
@@ -112,7 +112,7 @@
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential;
 #endif
 - (void)setSamlAssertion:(NSString*)samlAssertion;
-- (void)setAssertionType:(ADAssertionType)assertionType;
+- (void)setAssertionType:(ADALAssertionType)assertionType;
 - (void)setRefreshToken:(NSString *)refreshToken;
 
 // This can be set anyTime

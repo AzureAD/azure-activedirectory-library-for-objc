@@ -295,7 +295,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     }
 
 - (void)acquireTokenForAssertion:(NSString*)assertion
-                   assertionType:(ADAssertionType)assertionType
+                   assertionType:(ADALAssertionType)assertionType
                         resource:(NSString*)resource
                         clientId:(NSString*)clientId
                           userId:(NSString*)userId
@@ -423,7 +423,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 - (void)acquireTokenWithResource:(NSString*)resource
                         clientId:(NSString*)clientId
                      redirectUri:(NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                           userId:(NSString*)userId
             extraQueryParameters:(NSString*)queryParams
                  completionBlock:(ADAuthenticationCallback)completionBlock
@@ -441,7 +441,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 - (void)acquireTokenWithResource:(NSString*)resource
                         clientId:(NSString*)clientId
                      redirectUri:(NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                   userIdentifier:(ADALUserIdentifier*)userId
             extraQueryParameters:(NSString*)queryParams
                  completionBlock:(ADAuthenticationCallback)completionBlock
@@ -459,7 +459,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 - (void)acquireTokenWithResource:(NSString *)resource
                         clientId:(NSString *)clientId
                      redirectUri:(NSURL *)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                   userIdentifier:(ADALUserIdentifier *)userId
             extraQueryParameters:(NSString *)queryParams
                           claims:(NSString *)claims
@@ -519,7 +519,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 - (void)acquireTokenInteractiveWithResource:(NSString *)resource
                         clientId:(NSString *)clientId
                      redirectUri:(NSURL *)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                   userIdentifier:(ADALUserIdentifier *)userId
             extraQueryParameters:(NSString *)queryParams
                           claims:(NSString *)claims

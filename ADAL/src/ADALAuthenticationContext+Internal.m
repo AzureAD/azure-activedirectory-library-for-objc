@@ -112,9 +112,9 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     return NO;
 }
 
-//Translates the ADPromptBehavior into prompt query parameter. May return nil, if such
+//Translates the ADALPromptBehavior into prompt query parameter. May return nil, if such
 //parameter is not needed.
-+ (NSString*)getPromptParameter:(ADPromptBehavior)prompt
++ (NSString*)getPromptParameter:(ADALPromptBehavior)prompt
 {
     switch (prompt) {
         case AD_PROMPT_ALWAYS:
@@ -127,7 +127,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
     }
 }
 
-+ (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt
++ (BOOL)isForcedAuthorization:(ADALPromptBehavior)prompt
 {
     //If prompt parameter needs to be passed, re-authorization is needed.
     return [ADALAuthenticationContext getPromptParameter:prompt] != nil;

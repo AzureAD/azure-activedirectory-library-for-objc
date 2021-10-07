@@ -52,9 +52,9 @@ extern NSString* const ADRedirectUriInvalidError;
 
 + (BOOL)isFinalResult:(ADALAuthenticationResult *)result;
 
-+ (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
++ (NSString*)getPromptParameter:(ADALPromptBehavior)prompt;
 
-+ (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
++ (BOOL)isForcedAuthorization:(ADALPromptBehavior)prompt;
 
 
 + (ADALAuthenticationResult*)updateResult:(ADALAuthenticationResult*)result

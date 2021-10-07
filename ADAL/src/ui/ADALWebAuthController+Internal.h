@@ -34,7 +34,7 @@
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
 // the authentication process.
 + (void)startWithRequest:(ADALRequestParameters *)requestParams
-          promptBehavior:(ADPromptBehavior)promptBehavior
+          promptBehavior:(ADALPromptBehavior)promptBehavior
             refreshToken:(NSString*)refreshToken
                  context:(ADALAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler;

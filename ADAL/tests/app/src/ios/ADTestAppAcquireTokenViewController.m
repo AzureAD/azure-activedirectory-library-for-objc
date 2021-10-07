@@ -546,7 +546,7 @@
     return [ADALUserIdentifier identifierWithId:userId type:idType];
 }
 
-- (ADCredentialsType)credType
+- (ADALCredentialsType)credType
 {
     NSString* credType = [_brokerEnabled titleForSegmentAtIndex:[_brokerEnabled selectedSegmentIndex]];
     
@@ -603,7 +603,7 @@
     printf("%s", [resultText UTF8String]);
 }
 
-- (ADPromptBehavior)promptBehavior
+- (ADALPromptBehavior)promptBehavior
 {
     NSString* label = [_promptBehavior titleForSegmentAtIndex:_promptBehavior.selectedSegmentIndex];
     
@@ -628,7 +628,7 @@
     NSString* claims = _claimsField.text;
     
     ADALUserIdentifier* identifier = [self identifier];
-    ADCredentialsType credType = [self credType];
+    ADALCredentialsType credType = [self credType];
     
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
 

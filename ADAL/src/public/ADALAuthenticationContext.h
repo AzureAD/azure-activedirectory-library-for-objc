@@ -43,7 +43,7 @@ typedef enum
     
     /*! Assumes the assertion provided is of type SAML 2. */
     AD_SAML2,
-} ADAssertionType;
+} ADALAssertionType;
 
 
 typedef enum
@@ -81,7 +81,7 @@ typedef enum
         AD_PROMPT_ALWAYS.
      */
     AD_FORCE_PROMPT,
-} ADPromptBehavior;
+} ADALPromptBehavior;
 
 /*!
  Controls where would the credentials dialog reside
@@ -101,7 +101,7 @@ typedef enum
      */
     AD_CREDENTIALS_EMBEDDED,
     
-} ADCredentialsType;
+} ADALCredentialsType;
 
 @class ADALAuthenticationResult;
 @class MSIDLegacyTokenCacheAccessor;
@@ -120,7 +120,7 @@ typedef enum
     MSIDLegacyTokenCacheAccessor *_tokenCache;
     NSString* _authority;
     BOOL _validateAuthority;
-    ADCredentialsType _credentialsType;
+    ADALCredentialsType _credentialsType;
     BOOL _extendedLifetimeEnabled;
     NSString* _logComponent;
     NSUUID* _correlationId;
@@ -230,7 +230,7 @@ typedef enum
 
 /*!
  Ask ADAL to handle URL response. You MUST implement this API in following cases:
- 1. Your application is using brokered authentication (ADCredentialsType is set to AD_CREDENTIALS_AUTO and you have configured your application to use broker), AND
+ 1. Your application is using brokered authentication (ADALCredentialsType is set to AD_CREDENTIALS_AUTO and you have configured your application to use broker), AND
  2. You're using iOS 13 multiple window feature and your code implements UISceneDelegate instead of UIApplicationDelegate
  
  You should call this API from your UISceneDelegate implementation, for example:
@@ -262,9 +262,9 @@ typedef enum
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property (strong, nullable) NSUUID* correlationId;
 
-/*! The credential behavior for the authentication context. See the ADCredentialsType enumeration
+/*! The credential behavior for the authentication context. See the ADALCredentialsType enumeration
     definition for details */
-@property ADCredentialsType credentialsType;
+@property ADALCredentialsType credentialsType;
 
 /*! The name of the component using this authentication context. Used in some logging and telemetry
     for clarification purposes. */
@@ -314,7 +314,7 @@ typedef enum
  @param completionBlock The block to execute upon completion. You can use embedded block, e.g. "^(ADALAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenForAssertion:(nonnull NSString*)assertion
-                   assertionType:(ADAssertionType)assertionType
+                   assertionType:(ADALAssertionType)assertionType
                         resource:(nonnull NSString*)resource
                         clientId:(nonnull NSString*)clientId
                           userId:(nullable NSString*)userId
@@ -391,7 +391,7 @@ typedef enum
 - (void)acquireTokenWithResource:(nonnull NSString*)resource
                         clientId:(nonnull NSString*)clientId
                      redirectUri:(nonnull NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                           userId:(nullable NSString*)userId
             extraQueryParameters:(nullable NSString*)queryParams
                  completionBlock:(nonnull ADAuthenticationCallback)completionBlock;
@@ -409,7 +409,7 @@ typedef enum
 - (void)acquireTokenWithResource:(nonnull NSString*)resource
                         clientId:(nonnull NSString*)clientId
                      redirectUri:(nonnull NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                   userIdentifier:(nullable ADALUserIdentifier*)userId
             extraQueryParameters:(nullable NSString*)queryParams
                  completionBlock:(nonnull ADAuthenticationCallback)completionBlock;
@@ -427,7 +427,7 @@ typedef enum
 - (void)acquireTokenWithResource:(nonnull NSString *)resource
                         clientId:(nonnull NSString *)clientId
                      redirectUri:(nonnull NSURL *)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                   userIdentifier:(nullable ADALUserIdentifier *)userId
             extraQueryParameters:(nullable NSString *)queryParams
                           claims:(nullable NSString *)claims
@@ -547,7 +547,7 @@ typedef enum
 - (void)acquireTokenInteractiveWithResource:(nonnull NSString *)resource
                         clientId:(nonnull NSString *)clientId
                      redirectUri:(nonnull NSURL *)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  promptBehavior:(ADALPromptBehavior)promptBehavior
                   userIdentifier:(nullable ADALUserIdentifier *)userId
             extraQueryParameters:(nullable NSString *)queryParams
                           claims:(nullable NSString *)claims

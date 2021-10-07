@@ -51,7 +51,7 @@
     WKWebView* _webview;
     
     ADALUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
+    ADALPromptBehavior _promptBehavior;
     
     BOOL _userIdEdited;
 }

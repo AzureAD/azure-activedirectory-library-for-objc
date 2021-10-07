@@ -87,7 +87,7 @@
     [self setAuthorityType:authorityType];
 }
 
-- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
+- (void)setPromptBehavior:(ADALPromptBehavior)promptBehavior
 {
     NSString* promptBehaviorString = nil;
     switch (promptBehavior) {

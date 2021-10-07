@@ -203,7 +203,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     [self setUserIdentifier:[ADALUserIdentifier identifierWithId:userId]];
 }
 
-- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
+- (void)setPromptBehavior:(ADALPromptBehavior)promptBehavior
 {
     CHECK_REQUEST_STARTED;
     _promptBehavior = promptBehavior;
@@ -286,7 +286,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _samlAssertion = [samlAssertion copy];
 }
 
-- (void)setAssertionType:(ADAssertionType)assertionType
+- (void)setAssertionType:(ADALAssertionType)assertionType
 {
     CHECK_REQUEST_STARTED;
     

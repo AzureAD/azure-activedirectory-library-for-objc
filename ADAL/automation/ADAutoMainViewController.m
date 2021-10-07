@@ -125,7 +125,7 @@
 
         ADALAuthenticationContext *context = [self contextFromParameters:parameters];
 
-        ADPromptBehavior promptBehavior = AD_PROMPT_AUTO;
+        ADALPromptBehavior promptBehavior = AD_PROMPT_AUTO;
         NSString *promptValue = parameters[@"prompt_behavior"];
         if (promptValue)
         {
