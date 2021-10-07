@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTestAppCache.h"
-#import "ADAuthenticationSettings.h"
+#import "ADALAuthenticationSettings.h"
 #import "ADAL_Internal.h"
 
 #define DEFAULT_KEYCHAIN_ATTRS \
@@ -49,7 +49,7 @@
 #else
         [cache readFromKeychain];
 #endif
-        [[ADAuthenticationSettings sharedInstance] setDefaultStorageDelegate:cache];
+        [[ADALAuthenticationSettings sharedInstance] setDefaultStorageDelegate:cache];
     });
     
     return cache;
@@ -75,7 +75,7 @@
     return cache;
 }
 
-- (void)willAccessCache:(nonnull ADTokenCache *)cache
+- (void)willAccessCache:(nonnull ADALTokenCache *)cache
 {
     @synchronized(self)
     {
@@ -92,14 +92,14 @@
     }
 }
 
-- (void)didAccessCache:(nonnull ADTokenCache *)cache
+- (void)didAccessCache:(nonnull ADALTokenCache *)cache
 {
     // Nothing changed in the cache so no need to do anything. If you're implementing
     // this with proper locking this is where you would let go of the lock.
     (void)cache;
 }
 
-- (void)willWriteCache:(nonnull ADTokenCache *)cache
+- (void)willWriteCache:(nonnull ADALTokenCache *)cache
 {
     @synchronized(self)
     {
@@ -112,7 +112,7 @@
     }
 }
 
-- (void)didWriteCache:(nonnull ADTokenCache *)cache
+- (void)didWriteCache:(nonnull ADALTokenCache *)cache
 {
     @synchronized(self)
     {
@@ -202,7 +202,7 @@
 {
     @synchronized (self)
     {
-        if (![[ADTokenCache defaultCache] deserialize:nil error:nil])
+        if (![[ADALTokenCache defaultCache] deserialize:nil error:nil])
         {
             return NO;
         }

@@ -24,11 +24,11 @@
 #import "ADAutoMainViewController.h"
 #import "ADAL_Internal.h"
 #import "ADAL.h"
-#import "ADTokenCacheKey.h"
-#import "ADTokenCacheItem+Internal.h"
+#import "ADALTokenCacheKey.h"
+#import "ADALTokenCacheItem+Internal.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDLegacyTokenCacheKey.h"
-#import <ADAL/ADTelemetry.h>
+#import <ADAL/ADALTelemetry.h>
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthorityFactory.h"
 
@@ -53,10 +53,10 @@
      }];
 
     [ADALLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
-    [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
+    [[ADALTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
 }
 
-- (ADAuthenticationContext *)contextFromParameters:(NSDictionary *)parameters
+- (ADALAuthenticationContext *)contextFromParameters:(NSDictionary *)parameters
 {
     BOOL validateAuthority = YES;
 
@@ -65,7 +65,7 @@
         validateAuthority = parameters[@"validate_authority"] ? [parameters[@"validate_authority"] boolValue] : YES;
     }
 
-    ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+    ADALAuthenticationContext *context = [[ADALAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                                                         validateAuthority:validateAuthority
                                                                                     error:nil];
 
@@ -123,7 +123,7 @@
             return;
         }
 
-        ADAuthenticationContext *context = [self contextFromParameters:parameters];
+        ADALAuthenticationContext *context = [self contextFromParameters:parameters];
 
         ADPromptBehavior promptBehavior = AD_PROMPT_AUTO;
         NSString *promptValue = parameters[@"prompt_behavior"];
@@ -144,27 +144,27 @@
         }
 
         NSString *userId = parameters[@"user_identifier"];
-        ADUserIdentifier *userIdentifier = nil;
+        ADALUserIdentifier *userIdentifier = nil;
         if (userId)
         {
             //default identifier type is RequiredDisplayableId
-            userIdentifier = [ADUserIdentifier identifierWithId:userId];
+            userIdentifier = [ADALUserIdentifier identifierWithId:userId];
             NSString *userIdType = parameters[@"user_identifier_type"];
             if(userIdType)
             {
                 if ([[userIdType lowercaseString] isEqualToString:@"unique_id"])
                 {
-                    userIdentifier = [ADUserIdentifier identifierWithId:userId
+                    userIdentifier = [ADALUserIdentifier identifierWithId:userId
                                                          typeFromString:@"UniqueId"];
                 }
                 else if ([[userIdType lowercaseString] isEqualToString:@"optional_displayable"])
                 {
-                    userIdentifier = [ADUserIdentifier identifierWithId:userId
+                    userIdentifier = [ADALUserIdentifier identifierWithId:userId
                                                          typeFromString:@"OptionalDisplayableId"];
                 }
                 else if ([[userIdType lowercaseString] isEqualToString:@"required_displayable"])
                 {
-                    userIdentifier = [ADUserIdentifier identifierWithId:userId
+                    userIdentifier = [ADALUserIdentifier identifierWithId:userId
                                                          typeFromString:@"RequiredDisplayableId"];
                 }
             }
@@ -189,7 +189,7 @@
                            userIdentifier:userIdentifier
                      extraQueryParameters:parameters[@"extra_qp"]
                                    claims:parameters[@"claims"]
-                          completionBlock:^(ADAuthenticationResult *result)
+                          completionBlock:^(ADALAuthenticationResult *result)
          {
              dispatch_async(dispatch_get_main_queue(), ^{
                  [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
@@ -217,14 +217,14 @@
             return;
         }
 
-        ADAuthenticationContext *context = [self contextFromParameters:parameters];
+        ADALAuthenticationContext *context = [self contextFromParameters:parameters];
 
         [context acquireTokenSilentWithResource:parameters[@"resource"]
                                        clientId:parameters[@"client_id"]
                                     redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                                          userId:parameters[@"user_identifier"]
                                          claims:parameters[@"claims"]
-                                completionBlock:^(ADAuthenticationResult *result) {
+                                completionBlock:^(ADALAuthenticationResult *result) {
 
                                     dispatch_async(dispatch_get_main_queue(), ^{
                                         [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
@@ -238,13 +238,13 @@
 
 - (IBAction)readCache:(__unused id)sender
 {
-    id<ADTokenCacheDataSource> dataSource = [self cacheDatasource];
+    id<ADALTokenCacheDataSource> dataSource = [self cacheDatasource];
     NSArray *allItems = [dataSource allItems:nil];
     NSMutableDictionary *cacheDictionary = [NSMutableDictionary new];
     [cacheDictionary setValue:[NSString stringWithFormat:@"%lu", (unsigned long)allItems.count] forKey:@"item_count"];
 
     NSMutableArray *arr = [[NSMutableArray alloc] init];
-    for (ADTokenCacheItem *item in allItems)
+    for (ADALTokenCacheItem *item in allItems)
     {
         [arr addObject:[self createDictionaryFromTokenCacheItem:item]];
     }
@@ -255,7 +255,7 @@
 
 - (IBAction)clearCache:(__unused id)sender
 {
-    id<ADTokenCacheDataSource> dataSource = [self cacheDatasource];
+    id<ADALTokenCacheDataSource> dataSource = [self cacheDatasource];
     NSUInteger allItemsCount = [[dataSource allItems:nil] count];
     [self clearCache];
     [self showResultViewWithResult:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItemsCount] logs:_resultLogs];
@@ -305,9 +305,9 @@
             return;
         }
 
-        id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+        id<ADALTokenCacheDataSource> cache = [self cacheDatasource];
 
-        NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
+        NSMutableArray<ADALTokenCacheItem *> *allItems = [NSMutableArray new];
         
         __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]]  context:nil error:nil];
 
@@ -324,12 +324,12 @@
 
         for (NSURL *alias in aliases)
         {
-            ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:alias.absoluteString
+            ADALTokenCacheKey *key = [ADALTokenCacheKey keyWithAuthority:alias.absoluteString
                                                             resource:parameters[@"resource"]
                                                             clientId:parameters[@"client_id"]
                                                                error:nil];
 
-            NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
+            NSArray<ADALTokenCacheItem *> *items = [cache getItemsWithKey:key
                                                                  userId:parameters[@"user_identifier"]
                                                           correlationId:nil
                                                                   error:nil];
@@ -339,7 +339,7 @@
 
         int refreshTokenCount = 0;
 
-        for (ADTokenCacheItem *item in allItems)
+        for (ADALTokenCacheItem *item in allItems)
         {
             if (item.refreshToken)
             {
@@ -387,9 +387,9 @@
             return;
         }
 
-        id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+        id<ADALTokenCacheDataSource> cache = [self cacheDatasource];
 
-        NSMutableArray<ADTokenCacheItem *> *allItems = [NSMutableArray new];
+        NSMutableArray<ADALTokenCacheItem *> *allItems = [NSMutableArray new];
 
         MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:parameters[@"authority"]] context:nil error:nil];
 
@@ -406,7 +406,7 @@
 
         for (NSURL *alias in aliases)
         {
-            ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:alias.absoluteString
+            ADALTokenCacheKey *key = [ADALTokenCacheKey keyWithAuthority:alias.absoluteString
                                                             resource:parameters[@"resource"]
                                                             clientId:parameters[@"client_id"]
                                                                error:nil];
@@ -419,7 +419,7 @@
 
         int accessTokenCount = 0;
 
-        for (ADTokenCacheItem *item in allItems)
+        for (ADALTokenCacheItem *item in allItems)
         {
             if (item.accessToken)
             {
@@ -455,7 +455,7 @@
         NSString *userIdentifier = parameters[@"user_identifier"];
         NSString *clientId = parameters[@"client_id"];
 
-        id<ADTokenCacheDataSource> cache = [self cacheDatasource];
+        id<ADALTokenCacheDataSource> cache = [self cacheDatasource];
 
         NSError *error = nil;
 
@@ -500,8 +500,8 @@
 
         NSString *refreshToken = parameters[@"refresh_token"];
 
-        ADAuthenticationContext* context =
-        [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+        ADALAuthenticationContext* context =
+        [[ADALAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                          validateAuthority:NO
                                                      error:nil];
 
@@ -509,7 +509,7 @@
                                      resource:parameters[@"resource"]
                                      clientId:parameters[@"client_id"]
                                   redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
-                              completionBlock:^(ADAuthenticationResult *result) {
+                              completionBlock:^(ADALAuthenticationResult *result) {
                                   
                                   dispatch_async(dispatch_get_main_queue(), ^{
                                       [weakSelf displayAuthenticationResult:result logs:weakSelf.resultLogs];
@@ -567,8 +567,8 @@
 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 
-                    ADAuthenticationError *error = nil;
-                    ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+                    ADALAuthenticationError *error = nil;
+                    ADALAuthenticationContext *context = [[ADALAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                                                                         validateAuthority:YES
                                                                                                     error:&error];
 
@@ -576,7 +576,7 @@
                                                    clientId:parameters[@"client_id"]
                                                 redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                                                      userId:parameters[@"user_identifier"]
-                                            completionBlock:^(ADAuthenticationResult *result) {
+                                            completionBlock:^(ADALAuthenticationResult *result) {
 
                                                 if (result.status == AD_SUCCEEDED)
                                                 {
@@ -586,7 +586,7 @@
                                                     }
                                                     else if (removeToken)
                                                     {
-                                                        id<ADTokenCacheDataSource> cache = [weakSelf cacheDatasource];
+                                                        id<ADALTokenCacheDataSource> cache = [weakSelf cacheDatasource];
                                                         [cache removeItem:result.tokenCacheItem error:nil];
                                                     }
                                                 }
@@ -606,13 +606,13 @@
 
         if (stopOnSuccess)
         {
-            ADAuthenticationContext *context = [self contextFromParameters:parameters];
+            ADALAuthenticationContext *context = [self contextFromParameters:parameters];
 
             [context acquireTokenWithResource:parameters[@"resource"]
                                      clientId:parameters[@"client_id"]
                                   redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                                        userId:parameters[@"user_identifier"]
-                              completionBlock:^(ADAuthenticationResult *result) {
+                              completionBlock:^(ADALAuthenticationResult *result) {
                                   (void) result;
                               }];
         }
@@ -621,19 +621,19 @@
     [self showRequestDataViewWithCompletionHandler:completionBlock];
 }
 
-- (void)displayAuthenticationResult:(ADAuthenticationResult *)result logs:(NSString *)resultLogs
+- (void)displayAuthenticationResult:(ADALAuthenticationResult *)result logs:(NSString *)resultLogs
 {
     [self showResultViewWithResult:[self createJsonFromResult:result] logs:resultLogs];
 }
 
-- (NSString *)createJsonFromResult:(ADAuthenticationResult *)result
+- (NSString *)createJsonFromResult:(ADALAuthenticationResult *)result
 {
     NSMutableDictionary *resultDict = [NSMutableDictionary new];
 
     if(result.error){
         [resultDict setValue:result.error.errorDetails forKey:@"error"];
         [resultDict setValue:result.error.description forKey:@"error_description"];
-        [resultDict setValue:[ADAuthenticationError stringForADErrorCode:result.error.code] forKey:@"error_code"];
+        [resultDict setValue:[ADALAuthenticationError stringForADErrorCode:result.error.code] forKey:@"error_code"];
     }
     else {
         NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";
@@ -644,7 +644,7 @@
     return [self createJsonStringFromDictionary:resultDict];
 }
 
-- (NSDictionary *)createDictionaryFromTokenCacheItem:(ADTokenCacheItem *)item
+- (NSDictionary *)createDictionaryFromTokenCacheItem:(ADALTokenCacheItem *)item
 {
     NSMutableDictionary* resultDict = [NSMutableDictionary new];
     [resultDict setValue:item.accessToken forKey:@"access_token"];

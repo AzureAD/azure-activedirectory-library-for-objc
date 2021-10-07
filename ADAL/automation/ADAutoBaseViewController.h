@@ -25,8 +25,8 @@
 
 @class ADAutoRequestViewController;
 @class ADAutoPassedInWebViewController;
-@class ADAuthenticationContext;
-@protocol ADTokenCacheDataSource;
+@class ADALAuthenticationContext;
+@protocol ADALTokenCacheDataSource;
 
 @interface ADAutoBaseViewController: ADAutoViewController
 
@@ -35,8 +35,8 @@
 
 - (void)showRequestDataViewWithCompletionHandler:(ADAutoParamBlock)completionHandler;
 - (void)showResultViewWithResult:(NSString *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context;
-- (id<ADTokenCacheDataSource>)cacheDatasource;
+- (void)showPassedInWebViewControllerWithContext:(ADALAuthenticationContext *)context;
+- (id<ADALTokenCacheDataSource>)cacheDatasource;
 - (void)clearCache;
 - (void)clearKeychain;
 - (void)openURL:(NSURL *)url;

@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 //
-//  This class provides a ADTokenCacheAccessor interface around the provided ADCacheStorage interface.
+//  This class provides a ADALTokenCacheAccessor interface around the provided ADCacheStorage interface.
 //
 //  This class deserializes the token cache from the data blob provided by the developer on a -deserialize
 //  call and validates cache format.
 //
 //  Note, this class is only used on Mac OS X. On iOS the only suppport caching interface is
-//  ADKeychainTokenCache.
+//  ADALKeychainTokenCache.
 //
 //  The cache itself is a serialized collection of object and dictionaries in the following schema:
 //
@@ -37,23 +37,23 @@
 //    |- tokenCache - an NSDictionary
 //          |- tokens   - a NSDictionary containing all the tokens
 //          |     |- [<user_id> - an NSDictionary, keyed off of an NSString of the userId
-//          |            |- <ADTokenCacheStoreKey> - An ADTokenCacheItem, keyed with an ADTokenCacheStoreKey
+//          |            |- <ADALTokenCacheStoreKey> - An ADALTokenCacheItem, keyed with an ADALTokenCacheStoreKey
 
 #import "ADLegacyMacTokenCache.h"
-#import "ADAuthenticationError.h"
-#import "ADErrorCodes.h"
-#import "ADTokenCacheKey.h"
-#import "ADTokenCacheItem+Internal.h"
-#import "ADUserInformation.h"
-#import "ADTokenCache+Internal.h"
-#import "ADTokenCacheKey.h"
-#import "ADAuthenticationSettings.h"
+#import "ADALAuthenticationError.h"
+#import "ADALErrorCodes.h"
+#import "ADALTokenCacheKey.h"
+#import "ADALTokenCacheItem+Internal.h"
+#import "ADALUserInformation.h"
+#import "ADALTokenCache+Internal.h"
+#import "ADALTokenCacheKey.h"
+#import "ADALAuthenticationSettings.h"
 
 #include <pthread.h>
 
 #define CHECK_ERROR(_cond, _code, _details) { \
     if (!(_cond)) { \
-        ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details correlationId:nil]; \
+        ADALAuthenticationError* _AD_ERROR = [ADALAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details correlationId:nil]; \
         if (error) { *error = _AD_ERROR; } \
         return NO; \
     } \
@@ -90,7 +90,7 @@
     pthread_rwlock_destroy(&_lock);
 }
 
-- (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
+- (void)setDelegate:(nullable id<ADALTokenCacheDelegate>)delegate
 {
     if (_delegate == delegate)
     {
@@ -154,7 +154,7 @@
 }
 
 - (id)unarchive:(NSData*)data
-          error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+          error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     @try
     {
@@ -162,8 +162,8 @@
     }
     @catch (id exception)
     {
-        ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT
+        ADALAuthenticationError* adError =
+        [ADALAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT
                                                protocolCode:nil
                                                errorDetails:@"Failed to unarchive data blob from -deserialize!"
                                               correlationId:nil];
@@ -179,7 +179,7 @@
 
 
 - (BOOL)deserialize:(nullable NSData*)data
-              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+              error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     pthread_rwlock_wrlock(&_lock);
     BOOL ret = [self deserializeImpl:data error:error];
@@ -188,7 +188,7 @@
 }
 
 - (BOOL)deserializeImpl:(nullable NSData*)data
-              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+              error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
@@ -214,7 +214,7 @@
 
 
 - (BOOL)updateCache:(NSData*)data
-              error:(ADAuthenticationError * __autoreleasing *)error
+              error:(ADALAuthenticationError * __autoreleasing *)error
 {
     if (!data)
     {
@@ -248,9 +248,9 @@
 
 - (void)addToItems:(nonnull NSMutableArray *)items
     fromDictionary:(nonnull NSDictionary *)dictionary
-               key:(nonnull ADTokenCacheKey *)key
+               key:(nonnull ADALTokenCacheKey *)key
 {
-    ADTokenCacheItem* item = [dictionary objectForKey:key];
+    ADALTokenCacheItem* item = [dictionary objectForKey:key];
     if (item)
     {
         item = [item copy];
@@ -262,7 +262,7 @@
 - (void)addToItems:(nonnull NSMutableArray *)items
          forUserId:(nonnull NSString *)userId
             tokens:(nonnull NSDictionary *)tokens
-               key:(ADTokenCacheKey *)key
+               key:(ADALTokenCacheKey *)key
 {
     NSDictionary* userTokens = [tokens objectForKey:userId];
     if (!userTokens)
@@ -284,7 +284,7 @@
     }
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsImplKey:(nullable ADTokenCacheKey *)key
+- (NSArray<ADALTokenCacheItem *> *)getItemsImplKey:(nullable ADALTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
 {
     if (!_cache)
@@ -321,8 +321,8 @@
 /*! Clears token cache details for specific keys.
     @param item The item to remove from the array.
  */
-- (BOOL)removeItem:(ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __autoreleasing *)error
+- (BOOL)removeItem:(ADALTokenCacheItem *)item
+             error:(ADALAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
     int err = pthread_rwlock_wrlock(&_lock);
@@ -337,10 +337,10 @@
     return result;
 }
 
-- (BOOL)removeImpl:(ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __autoreleasing *)error
+- (BOOL)removeImpl:(ADALTokenCacheItem *)item
+             error:(ADALAuthenticationError * __autoreleasing *)error
 {
-    ADTokenCacheKey* key = [item extractKey:error];
+    ADALTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;
@@ -380,21 +380,21 @@
     return YES;
 }
 
-/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
+/*! Return a copy of all items. The array will contain ADALTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+- (NSArray<ADALTokenCacheItem *> *)allItems:(ADALAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
 }
 
-- (id<ADTokenCacheDelegate>)delegate
+- (id<ADALTokenCacheDelegate>)delegate
 {
     return _delegate;
 }
 
 - (BOOL)validateCache:(NSDictionary*)dict
-                error:(ADAuthenticationError * __autoreleasing *)error
+                error:(ADALAuthenticationError * __autoreleasing *)error
 {
     CHECK_ERROR([dict isKindOfClass:[NSDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Root level object of cache is not a NSDictionary!");
     
@@ -420,10 +420,10 @@
             
             for (id adkey in userDict)
             {
-                // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
-                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheKey class]], AD_ERROR_CACHE_BAD_FORMAT, @"Key is not of the expected class type");
+                // On the first level we're expecting NSDictionaries keyed off of ADALTokenCacheStoreKey
+                CHECK_ERROR([adkey isKindOfClass:[ADALTokenCacheKey class]], AD_ERROR_CACHE_BAD_FORMAT, @"Key is not of the expected class type");
                 id token = [userDict objectForKey:adkey];
-                CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_CACHE_BAD_FORMAT, @"Token is not of the expected class type!");
+                CHECK_ERROR([token isKindOfClass:[ADALTokenCacheItem class]], AD_ERROR_CACHE_BAD_FORMAT, @"Token is not of the expected class type!");
             }
         }
     }
@@ -432,7 +432,7 @@
 }
 
 #pragma mark -
-#pragma mark ADTokenCacheAccessor Protocol Implementation
+#pragma mark ADALTokenCacheAccessor Protocol Implementation
 
 /*! May return nil, if no cache item corresponds to the requested key
  @param key The key of the item.
@@ -441,19 +441,19 @@
  @param error Will be set only in case of ambiguity. E.g. if userId is nil
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
-- (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheKey *)key
+- (ADALTokenCacheItem *)getItemWithKey:(ADALTokenCacheKey *)key
                               userId:(NSString *)userId
                        correlationId:(NSUUID *)correlationId
-                               error:(ADAuthenticationError * __autoreleasing *)error
+                               error:(ADALAuthenticationError * __autoreleasing *)error
 {
-    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
+    NSArray<ADALTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     
     if (items.count == 0)
     {
         return nil;
     }
     
-    for (ADTokenCacheItem* item in items)
+    for (ADALTokenCacheItem* item in items)
     {
         [item logMessage:@"Found"
                    level:MSIDLogLevelWarning
@@ -466,8 +466,8 @@
     }
 
     
-    ADAuthenticationError* adError =
-    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
+    ADALAuthenticationError* adError =
+    [ADALAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                            protocolCode:nil
                                            errorDetails:@"The token cache store for this resource contains more than one user. Please set the 'userId' parameter to the one that will be used."
                                           correlationId:correlationId];
@@ -485,9 +485,9 @@
  if an item already exists for the same key.
  @param error in case of an error, if this parameter is not nil, it will be filled with
  the error details. */
-- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
+- (BOOL)addOrUpdateItem:(ADALTokenCacheItem *)item
           correlationId:(NSUUID *)correlationId
-                  error:(ADAuthenticationError * __autoreleasing *)error
+                  error:(ADALAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
     int err = pthread_rwlock_wrlock(&_lock);
@@ -503,13 +503,13 @@
     return result;
 }
 
-- (BOOL)addOrUpdateImpl:(ADTokenCacheItem *)item
+- (BOOL)addOrUpdateImpl:(ADALTokenCacheItem *)item
           correlationId:(NSUUID *)correlationId
-                  error:(ADAuthenticationError * __autoreleasing *)error
+                  error:(ADALAuthenticationError * __autoreleasing *)error
 {
     if (!item)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:item argumentName:@"item" correlationId:correlationId];
+        ADALAuthenticationError* adError = [ADALAuthenticationError errorFromArgument:item argumentName:@"item" correlationId:correlationId];
         if (error)
         {
             *error = adError;
@@ -520,7 +520,7 @@
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
     
-    ADTokenCacheKey* key = [item extractKey:error];
+    ADALTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;
@@ -560,10 +560,10 @@
     return YES;
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
+- (NSArray<ADALTokenCacheItem *> *)getItemsWithKey:(nullable ADALTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
                                    correlationId:(nullable NSUUID *)correlationId
-                                           error:(ADAuthenticationError *__autoreleasing *)error
+                                           error:(ADALAuthenticationError *__autoreleasing *)error
 {
     (void)error;
     (void)correlationId;
@@ -575,7 +575,7 @@
         MSID_LOG_ERROR_CORR(correlationId, @"pthread_rwlock_rdlock failed in getItemsWithKey");
         return nil;
     }
-    NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
+    NSArray<ADALTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
     pthread_rwlock_unlock(&_lock);
     
     [_delegate didAccessCache:self];
@@ -591,7 +591,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"ADTokenCache: %@", _cache];
+    return [NSString stringWithFormat:@"ADALTokenCache: %@", _cache];
 }
 
 @end

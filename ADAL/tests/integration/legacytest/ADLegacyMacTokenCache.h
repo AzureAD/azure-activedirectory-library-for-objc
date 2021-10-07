@@ -23,36 +23,36 @@
 
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCache.h"
+#import "ADALTokenCache.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
-@class ADAuthenticationError;
-@class ADTokenCacheItem;
+@class ADALAuthenticationError;
+@class ADALTokenCacheItem;
 
-@interface ADLegacyMacTokenCache : ADTokenCache <ADTokenCacheDataSource>
+@interface ADLegacyMacTokenCache : ADALTokenCache <ADALTokenCacheDataSource>
 {
     NSMutableDictionary* _cache;
     pthread_rwlock_t _lock;
 }
 
-/*! Returns the default cache object using the ADTokenCacheDelegate set in
-    ADAuthenticationSettings */
+/*! Returns the default cache object using the ADALTokenCacheDelegate set in
+    ADALAuthenticationSettings */
 + (nonnull ADLegacyMacTokenCache *)defaultCache;
 
-- (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
+- (void)setDelegate:(nullable id<ADALTokenCacheDelegate>)delegate;
 
 - (nullable NSData *)serialize;
 - (BOOL)deserialize:(nullable NSData*)data
-              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+              error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (nullable NSArray<ADALTokenCacheItem *> *)allItems:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (BOOL)removeItem:(nonnull ADALTokenCacheItem *)item
+             error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 - (BOOL)validateCache:(nullable NSDictionary *)dict
-                error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
+                error:(ADALAuthenticationError * __nullable  __autoreleasing * __nullable)error;
 
-- (nullable id<ADTokenCacheDelegate>)delegate;
+- (nullable id<ADALTokenCacheDelegate>)delegate;
 
 @end
