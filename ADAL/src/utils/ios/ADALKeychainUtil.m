@@ -78,9 +78,6 @@
 
     OSStatus status = readStatus;
     
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    
     if (readStatus == errSecItemNotFound
         || readStatus == errSecInteractionNotAllowed)
     {
@@ -89,8 +86,6 @@
         status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
     }
     
-#pragma clang diagnostic pop
-
     if (status != errSecSuccess)
     {
         MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
