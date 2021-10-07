@@ -65,7 +65,7 @@
 
 - (void)setErrorCode:(NSUInteger)errorCode
 {
-    NSString *errorString = [ADALAuthenticationError stringForADErrorCode:(ADErrorCode)errorCode];
+    NSString *errorString = [ADALAuthenticationError stringForADALErrorCode:(ADALErrorCode)errorCode];
     [self setProperty:MSID_TELEMETRY_KEY_API_ERROR_CODE value:errorString];
 }
 

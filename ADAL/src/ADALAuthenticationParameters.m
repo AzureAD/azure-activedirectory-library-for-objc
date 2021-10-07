@@ -41,7 +41,7 @@
     return nil;
 }
 
-+ (void)raiseErrorWithCode:(ADErrorCode)code
++ (void)raiseErrorWithCode:(ADALErrorCode)code
                    details:(NSString *)details
                      error:(ADALAuthenticationError * __autoreleasing *)error
 {

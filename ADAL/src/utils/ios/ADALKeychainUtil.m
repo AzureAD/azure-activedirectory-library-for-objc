@@ -78,6 +78,9 @@
 
     OSStatus status = readStatus;
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    
     if (readStatus == errSecItemNotFound
         || readStatus == errSecInteractionNotAllowed)
     {
@@ -85,6 +88,8 @@
         [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
         status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
     }
+    
+#pragma clang diagnostic pop
 
     if (status != errSecSuccess)
     {

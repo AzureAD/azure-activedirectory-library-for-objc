@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 /*! The class contains an incrementally expanding list of errors */
-typedef NS_ENUM(NSInteger, ADErrorCode)
+typedef NS_ENUM(NSInteger, ADALErrorCode)
 {
     /*! No error occurred. The value is added to make easier usage of functions that take error code,
      but no error condition occurred.*/

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "ADAL"
   s.module_name  = "ADAL"
-  s.version      = "5.0.0"
+  s.version      = "6.0.0"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -15,8 +15,8 @@ Pod::Spec.new do |s|
   s.authors      = { "Microsoft" => "nugetaad@microsoft.com" }
   s.social_media_url   = "https://twitter.com/azuread"
   s.platform     = :ios, :osx
-  s.ios.deployment_target = "11.0"
-  s.osx.deployment_target = "10.12"
+  s.ios.deployment_target = "13.0"
+  s.osx.deployment_target = "10.14"
   s.source       = { 
     :git => "https://github.com/AzureAD/azure-activedirectory-library-for-objc.git", 
     :tag => s.version.to_s,
@@ -49,10 +49,10 @@ Pod::Spec.new do |s|
   # This is a hack because one of the headers is public on mac but private on ios
   s.subspec 'tokencacheheader' do |ph|
   	ph.platform = :ios
-  	ph.ios.source_files = "ADAL/src/public/mac/ADTokenCache.h"
-  	# This extra nonsense is so that it doesn't make ADTokenCache.h a public header on iOS
+  	ph.ios.source_files = "ADAL/src/public/mac/ADALTokenCache.h"
+  	# This extra nonsense is so that it doesn't make ADALTokenCache.h a public header on iOS
   	# And also doesn't generate a podspec warning
-  	ph.ios.private_header_files = "ADAL/src/public/mac/ADTokenCache.h"
+  	ph.ios.private_header_files = "ADAL/src/public/mac/ADALTokenCache.h"
   end
   
   # Note, ADAL has limited support for running in app extensions.

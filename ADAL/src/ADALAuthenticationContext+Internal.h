@@ -48,7 +48,7 @@ extern NSString* const ADRedirectUriInvalidError;
             authenticationResult:(ADALAuthenticationResult **)authenticationResult;
 
 + (ADALAuthenticationError*)errorFromDictionary:(NSDictionary *)dictionary
-                                    errorCode:(ADErrorCode)errorCode;
+                                    errorCode:(ADALErrorCode)errorCode;
 
 + (BOOL)isFinalResult:(ADALAuthenticationResult *)result;
 

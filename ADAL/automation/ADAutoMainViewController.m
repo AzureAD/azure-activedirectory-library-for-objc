@@ -633,7 +633,7 @@
     if(result.error){
         [resultDict setValue:result.error.errorDetails forKey:@"error"];
         [resultDict setValue:result.error.description forKey:@"error_description"];
-        [resultDict setValue:[ADALAuthenticationError stringForADErrorCode:result.error.code] forKey:@"error_code"];
+        [resultDict setValue:[ADALAuthenticationError stringForADALErrorCode:result.error.code] forKey:@"error_code"];
     }
     else {
         NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";

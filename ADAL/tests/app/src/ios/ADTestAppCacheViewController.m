@@ -144,6 +144,9 @@
     [self loadCache];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -222,6 +225,8 @@
         });
     }];
 }
+
+#pragma clang diagnostic pop
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -405,6 +410,9 @@
     return cell;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 - (nullable NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView
                            editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -425,6 +433,8 @@
         }
     }
 }
+
+#pragma clang diagnostic pop
 
 - (void)tableView:(UITableView*)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath*)indexPath
 {

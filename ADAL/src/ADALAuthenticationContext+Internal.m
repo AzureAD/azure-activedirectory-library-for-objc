@@ -54,7 +54,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 }
 //Obtains a protocol error from the response:
 + (ADALAuthenticationError*)errorFromDictionary:(NSDictionary*)dictionary
-                                    errorCode:(ADErrorCode)errorCode
+                                    errorCode:(ADALErrorCode)errorCode
 {
     //First check for explicit OAuth2 protocol error:
     NSString *serverOAuth2Error = [dictionary msidStringObjectForKey:MSID_OAUTH2_ERROR];
@@ -63,7 +63,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         NSString *responseCorrelationId = [dictionary msidStringObjectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
         NSUUID *correlationId = responseCorrelationId ? [[NSUUID alloc] initWithUUIDString:responseCorrelationId] : nil;
 
-        ADErrorCode code = errorCode;
+        ADALErrorCode code = errorCode;
         NSString *suberror = [dictionary msidStringObjectForKey:ADAL_AUTH_SUBERROR];
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
         userInfo[ADSuberrorKey] = suberror;

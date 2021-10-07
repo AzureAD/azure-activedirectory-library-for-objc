@@ -17,6 +17,7 @@
 
 /* Begin PBXFileReference section */
 		B2708C6C1EA04FDB003E83D0 /* ADAL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ADAL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2F9F9E1270F9DE6009B0C8F /* SampleSwiftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SampleSwiftApp.entitlements; sourceTree = "<group>"; };
 		D664F1531D3014F60017B799 /* SampleSwiftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleSwiftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D664F1561D3014F70017B799 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D664F1581D3014F70017B799 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +59,7 @@
 		D664F1551D3014F70017B799 /* SampleSwiftApp */ = {
 			isa = PBXGroup;
 			children = (
+				B2F9F9E1270F9DE6009B0C8F /* SampleSwiftApp.entitlements */,
 				D664F1561D3014F70017B799 /* AppDelegate.swift */,
 				D664F1581D3014F70017B799 /* ViewController.swift */,
 				D664F15A1D3014F70017B799 /* Main.storyboard */,
@@ -261,6 +263,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SampleSwiftApp/SampleSwiftApp.entitlements;
 				INFOPLIST_FILE = SampleSwiftApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.SampleSwiftApp;
@@ -274,6 +277,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SampleSwiftApp/SampleSwiftApp.entitlements;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = SampleSwiftApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -336,6 +340,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SampleSwiftApp/SampleSwiftApp.entitlements;
 				INFOPLIST_FILE = SampleSwiftApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.SampleSwiftApp;

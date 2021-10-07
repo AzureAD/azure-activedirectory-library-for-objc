@@ -54,7 +54,7 @@ class ViewController: UIViewController {
     
     @IBAction func acquireToken(_ sender:UIButton) {
         
-        guard let authContext = ADAuthenticationContext(authority: "https://login.microsoftonline.com/common", error: nil) else {
+        guard let authContext = ADALAuthenticationContext(authority: "https://login.microsoftonline.com/common", error: nil) else {
             
             print("Failed to create auth context")
             return
@@ -71,7 +71,7 @@ class ViewController: UIViewController {
             guard result.status == AD_SUCCEEDED else {
                 
                 if result.error!.domain == ADAuthenticationErrorDomain
-                    && result.error!.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
+                    && result.error!.code == ADALErrorCode.AD_ERROR_UNEXPECTED.rawValue {
                     
                     weakself.updateStatusField("Unexpected internal error occured")
                 }

@@ -145,9 +145,9 @@
 #endif
 
 /*
-    Returns string representation of ADErrorCode or error code number as string, if mapping for that error is missing
+    Returns string representation of ADALErrorCode or error code number as string, if mapping for that error is missing
  */
-+ (NSString*)stringForADErrorCode:(ADErrorCode)code;
++ (NSString*)stringForADALErrorCode:(ADALErrorCode)code;
 
 @end
 
