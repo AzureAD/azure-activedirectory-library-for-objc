@@ -33,27 +33,27 @@ FOUNDATION_EXPORT double ADALFrameworkVersionNumber;
 //! Project version string for ADALFramework.
 FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
 
-@class ADAuthenticationResult;
+@class ADALAuthenticationResult;
 
 /*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* _Nonnull result);
+typedef void(^ADAuthenticationCallback)(ADALAuthenticationResult* _Nonnull result);
 
-#import <ADAL/ADAuthenticationContext.h>
-#import <ADAL/ADAuthenticationError.h>
-#import <ADAL/ADAuthenticationParameters.h>
-#import <ADAL/ADAuthenticationResult.h>
-#import <ADAL/ADAuthenticationSettings.h>
-#import <ADAL/ADErrorCodes.h>
+#import <ADAL/ADALAuthenticationContext.h>
+#import <ADAL/ADALAuthenticationError.h>
+#import <ADAL/ADALAuthenticationParameters.h>
+#import <ADAL/ADALAuthenticationResult.h>
+#import <ADAL/ADALAuthenticationSettings.h>
+#import <ADAL/ADALErrorCodes.h>
 #import <ADAL/ADALLogger.h>
-#import <ADAL/ADTokenCacheItem.h>
-#import <ADAL/ADUserIdentifier.h>
-#import <ADAL/ADUserInformation.h>
-#import <ADAL/ADWebAuthController.h>
-#import <ADAL/ADTelemetry.h>
+#import <ADAL/ADALTokenCacheItem.h>
+#import <ADAL/ADALUserIdentifier.h>
+#import <ADAL/ADALUserInformation.h>
+#import <ADAL/ADALWebAuthController.h>
+#import <ADAL/ADALTelemetry.h>
 
 #if TARGET_OS_IPHONE
-#import <ADAL/ADKeychainTokenCache.h>
+#import <ADAL/ADALKeychainTokenCache.h>
 #else
-#import <ADAL/ADTokenCache.h>
+#import <ADAL/ADALTokenCache.h>
 #endif
 

@@ -24,7 +24,7 @@
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
 #import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import "ADALUserIdentifier.h"
 
 @interface ADTestAppAcquireTokenWindowController : NSWindowController
 {
@@ -50,8 +50,8 @@
     
     WKWebView* _webview;
     
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
+    ADALUserIdentifierType _idType;
+    ADALPromptBehavior _promptBehavior;
     
     BOOL _userIdEdited;
 }

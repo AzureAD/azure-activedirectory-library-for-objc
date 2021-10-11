@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "NSString+ADURLExtensions.h"
+#import "NSString+ADALURLExtensions.h"
 
-@interface ADURLExtensionsTest : XCTestCase
+@interface ADALURLExtensionsTest : XCTestCase
 
 @end
 
-@implementation ADURLExtensionsTest
+@implementation ADALURLExtensionsTest
 
 - (void)testAdAuthorityWithCloudInstanceName_whenNil_shouldReturnSame
 {

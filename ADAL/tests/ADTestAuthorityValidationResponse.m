@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTestAuthorityValidationResponse.h"
-#import "ADAuthorityValidationRequest.h"
+#import "ADALAuthorityValidationRequest.h"
 
 #import "NSDictionary+MSIDTestUtil.h"
 

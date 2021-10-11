@@ -24,18 +24,18 @@
 #import "ADTestAppCacheViewController.h"
 #import "ADTestAppSettings.h"
 
-#import "ADTokenCacheItem.h"
-#import "ADUserIdentifier.h"
-#import "ADUserInformation.h"
+#import "ADALTokenCacheItem.h"
+#import "ADALUserIdentifier.h"
+#import "ADALUserInformation.h"
 
 // NOTE: Internal headers should not be consumed in production code
-#import "ADKeychainTokenCache+Internal.h"
+#import "ADALKeychainTokenCache+Internal.h"
 
 
 @interface ADTestAppCacheRowItem : NSObject
 
 @property BOOL clientId;
-@property ADTokenCacheItem* item;
+@property ADALTokenCacheItem* item;
 @property NSString* title;
 
 @end
@@ -82,7 +82,7 @@
 {
     ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    ADALKeychainTokenCache* cache = [ADALKeychainTokenCache new];
     [cache removeItem:rowItem.item error:nil];
     
     [self loadCache];
@@ -93,7 +93,7 @@
 {
     ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    ADALKeychainTokenCache* cache = [ADALKeychainTokenCache new];
     rowItem.item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:-1.0];
     
     [cache addOrUpdateItem:rowItem.item correlationId:nil error:nil];
@@ -112,7 +112,7 @@
     
     NSString* userId = [_users objectAtIndex:indexPath.section];
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    ADALKeychainTokenCache* cache = [ADALKeychainTokenCache new];
     [cache removeAllForUserId:userId clientId:rowItem.title error:nil];
     
     [self loadCache];
@@ -127,7 +127,7 @@
         return;
     }
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    ADALKeychainTokenCache* cache = [ADALKeychainTokenCache new];
     [cache removeAllForClientId:rowItem.title error:nil];
     
     [self loadCache];
@@ -138,7 +138,7 @@
     ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
     rowItem.item.refreshToken = @"bad-refresh-token";
     
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    ADALKeychainTokenCache* cache = [ADALKeychainTokenCache new];
     [cache addOrUpdateItem:rowItem.item correlationId:nil error:nil];
     
     [self loadCache];
@@ -228,7 +228,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)addTokenToCacheMap:(ADTokenCacheItem*)item
+- (void)addTokenToCacheMap:(ADALTokenCacheItem*)item
 {
     NSString* userId = item.userInformation.userId;
     if (!userId)
@@ -261,10 +261,10 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         // First create a map heirarchy of userId -> clientId -> tokens to sort
         // through all the itmes we get back
-        ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+        ADALKeychainTokenCache* cache = [ADALKeychainTokenCache new];
         NSArray* allItems = [cache allItems:nil];
         _cacheMap = [NSMutableDictionary new];
-        for (ADTokenCacheItem* item in allItems)
+        for (ADALTokenCacheItem* item in allItems)
         {
             [self addTokenToCacheMap:item];
         }
@@ -295,7 +295,7 @@
                 [arrUserTokens addObject:clientIdItem];
                 
                 NSArray* clientIdTokens = [userTokens objectForKey:clientId];
-                for (ADTokenCacheItem* item in clientIdTokens)
+                for (ADALTokenCacheItem* item in clientIdTokens)
                 {
                     ADTestAppCacheRowItem* tokenItem = [ADTestAppCacheRowItem new];
                     NSString* resource = item.resource;

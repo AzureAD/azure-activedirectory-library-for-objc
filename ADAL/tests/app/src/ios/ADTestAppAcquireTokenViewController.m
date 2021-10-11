@@ -23,15 +23,15 @@
 
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppSettings.h"
-#import "ADKeychainTokenCache+Internal.h"
+#import "ADALKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
 #import "ADTestAppProfileViewController.h"
 #import "ADTestAppClaimsPickerController.h"
-#import "ADEnrollmentGateway.h"
-#import "ADUserIdentifier.h"
-#import "ADWebAuthController.h"
-#import "ADEnrollmentGateway.h"
-#import "ADAuthenticationParameters.h"
+#import "ADALEnrollmentGateway.h"
+#import "ADALUserIdentifier.h"
+#import "ADALWebAuthController.h"
+#import "ADALEnrollmentGateway.h"
+#import "ADALAuthenticationParameters.h"
 
 #ifdef AD_MAM_SDK_TESTING
 #import <IntuneMAM/IntuneMAM.h>
@@ -352,7 +352,7 @@
     
     UIView* contentView = blurView.contentView;
     
-    WKWebViewConfiguration *defaultConfig = [ADAuthenticationParameters defaultWKWebviewConfiguration];
+    WKWebViewConfiguration *defaultConfig = [ADALAuthenticationParameters defaultWKWebviewConfiguration];
     _webView = [[WKWebView alloc] initWithFrame:contentView.frame configuration:defaultConfig];
     _webView.translatesAutoresizingMaskIntoConstraints = NO;
     [contentView addSubview:_webView];
@@ -513,7 +513,7 @@
 
 }
 
-- (ADUserIdentifier*)identifier
+- (ADALUserIdentifier*)identifier
 {
     NSString* userId = [_userIdField text];
     
@@ -524,7 +524,7 @@
     
     NSString* userIdType = [_userIdType titleForSegmentAtIndex:[_userIdType selectedSegmentIndex]];
     
-    ADUserIdentifierType idType = OptionalDisplayableId;
+    ADALUserIdentifierType idType = OptionalDisplayableId;
     
     if ([userIdType isEqualToString:@"Optional"])
     {
@@ -543,10 +543,10 @@
         @throw @"Unexpected idtype";
     }
     
-    return [ADUserIdentifier identifierWithId:userId type:idType];
+    return [ADALUserIdentifier identifierWithId:userId type:idType];
 }
 
-- (ADCredentialsType)credType
+- (ADALCredentialsType)credType
 {
     NSString* credType = [_brokerEnabled titleForSegmentAtIndex:[_brokerEnabled selectedSegmentIndex]];
     
@@ -582,7 +582,7 @@
     }
 }
 
-- (void)updateResultView:(ADAuthenticationResult*)result
+- (void)updateResultView:(ADALAuthenticationResult*)result
 {
     NSString* resultStatus = nil;
     
@@ -603,7 +603,7 @@
     printf("%s", [resultText UTF8String]);
 }
 
-- (ADPromptBehavior)promptBehavior
+- (ADALPromptBehavior)promptBehavior
 {
     NSString* label = [_promptBehavior titleForSegmentAtIndex:_promptBehavior.selectedSegmentIndex];
     
@@ -627,8 +627,8 @@
     NSString* extraQueryParameters = _extraQueryParamsField.text;
     NSString* claims = _claimsField.text;
     
-    ADUserIdentifier* identifier = [self identifier];
-    ADCredentialsType credType = [self credType];
+    ADALUserIdentifier* identifier = [self identifier];
+    ADALCredentialsType credType = [self credType];
     
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
 
@@ -639,8 +639,8 @@
         capabilities = @[@"cp1"];
     }
     
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
+    ADALAuthenticationError* error = nil;
+    ADALAuthenticationContext* context = [[ADALAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:validateAuthority
                                                                                     error:&error];
     context.clientCapabilities = capabilities;
@@ -675,7 +675,7 @@
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
                                claims:claims
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
     {
         if (fBlockHit)
         {
@@ -715,7 +715,7 @@
 
 - (IBAction)cancelAuth:(id)sender
 {
-    [ADWebAuthController cancelCurrentWebAuthSession];
+    [ADALWebAuthController cancelCurrentWebAuthSession];
 }
 
 - (IBAction)acquireTokenSilent:(id)sender
@@ -725,7 +725,7 @@
     NSString* resource = [settings resource];
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
-    ADUserIdentifier* identifier = [self identifier];
+    ADALUserIdentifier* identifier = [self identifier];
     BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
 
     NSArray *capabilities = nil;
@@ -735,8 +735,8 @@
         capabilities = @[@"cp1"];
     }
     
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
+    ADALAuthenticationError* error = nil;
+    ADALAuthenticationContext* context = [[ADALAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
     context.clientCapabilities = capabilities;
 
     if (!context)
@@ -753,7 +753,7 @@
                                 redirectUri:redirectUri
                                      userId:identifier.userId
                                      claims:_claimsField.text
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
     {
         if (fBlockHit)
         {
@@ -779,7 +779,7 @@
 - (IBAction)clearCache:(id)sender
 {
     NSError *error = nil;
-    [[ADKeychainTokenCache defaultKeychainCache] testRemoveAll:&error];
+    [[ADALKeychainTokenCache defaultKeychainCache] testRemoveAll:&error];
     
     if (!error)
     {
@@ -824,8 +824,8 @@
         return;
     }
     
-    ADAuthenticationError *error = nil;
-    if (![[ADKeychainTokenCache defaultKeychainCache] wipeAllItemsForUserId:userId error:&error])
+    ADALAuthenticationError *error = nil;
+    if (![[ADALKeychainTokenCache defaultKeychainCache] wipeAllItemsForUserId:userId error:&error])
     {
         UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
                                                                        message:error.localizedDescription
@@ -882,7 +882,7 @@
 - (IBAction)mamEnrollIds:(id)sender
 {
 #ifdef AD_MAM_SDK_TESTING
-    _resultView.text = [ADEnrollmentGateway allEnrollmentIdsJSON];
+    _resultView.text = [ADALEnrollmentGateway allEnrollmentIdsJSON];
 #endif
 }
 
@@ -890,7 +890,7 @@
 {
 #ifdef AD_MAM_SDK_TESTING
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"intune_app_protection_enrollment_id_V1"];
-    _resultView.text = [ADEnrollmentGateway allEnrollmentIdsJSON];
+    _resultView.text = [ADALEnrollmentGateway allEnrollmentIdsJSON];
 #endif
 }
 

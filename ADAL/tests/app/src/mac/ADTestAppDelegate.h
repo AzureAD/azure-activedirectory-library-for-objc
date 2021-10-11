@@ -24,7 +24,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class ADTestMemoryCache;
-@class ADTokenCache;
+@class ADALTokenCache;
 
 @interface ADTestAppDelegate : NSObject <NSApplicationDelegate>
 {

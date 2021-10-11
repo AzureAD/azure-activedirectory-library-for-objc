@@ -23,19 +23,19 @@
 
 #import "ADAL_Internal.h"
 #import "ADALLogger.h"
-#import "ADErrorCodes.h"
+#import "ADALErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
-#import "ADAuthenticationContext.h"
-#import "ADAuthenticationSettings.h"
+#import "ADALAuthenticationContext.h"
+#import "ADALAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <objc/runtime.h>
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADTokenCacheKey.h"
-#import "ADTokenCacheItem+Internal.h"
-#import "ADUserInformation.h"
-#import "ADUserInformation+Internal.h"
+#import "ADALTokenCacheKey.h"
+#import "ADALTokenCacheItem+Internal.h"
+#import "ADALUserInformation.h"
+#import "ADALUserInformation+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDLegacyAccessToken.h"
@@ -60,7 +60,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /* See header for details. */
 - (void)adValidateForInvalidArgument:(NSString *)argument
-                               error:(ADAuthenticationError *)error
+                               error:(ADALAuthenticationError *)error
 {
     XCTAssertNotNil(argument, "Internal test error: please specify the expected parameter.");
     
@@ -103,16 +103,16 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
 }
 
-- (ADTokenCacheItem *)adCreateCacheItem
+- (ADALTokenCacheItem *)adCreateCacheItem
 {
     return [self adCreateCacheItem:TEST_USER_ID];
 }
 
 //Creates an new item with all of the properties having correct
 //values
-- (ADTokenCacheItem *)adCreateCacheItem:(NSString *)userId
+- (ADALTokenCacheItem *)adCreateCacheItem:(NSString *)userId
 {
-    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    ADALTokenCacheItem* item = [[ADALTokenCacheItem alloc] init];
     item.resource = TEST_RESOURCE;
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
@@ -129,16 +129,16 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-- (ADTokenCacheItem *)adCreateATCacheItem
+- (ADALTokenCacheItem *)adCreateATCacheItem
 {
     return [self adCreateATCacheItem:TEST_RESOURCE userId:TEST_USER_ID];
 }
 
-- (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
+- (ADALTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
                                    userId:(NSString *)userId
 {
     
-    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    ADALTokenCacheItem* item = [[ADALTokenCacheItem alloc] init];
     item.resource = resource;
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
@@ -155,22 +155,22 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem
+- (ADALTokenCacheItem *)adCreateMRRTCacheItem
 {
     return [self adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
 }
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADALTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
 {
     return [self adCreateMRRTCacheItem:userId familyId:nil];
 }
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADALTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
                                    familyId:(NSString *)foci
 {
     // A MRRT item is just a refresh token, it doesn't have a specified resource
     // an expiration time (that we know about) and covers multiple ATs.
-    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    ADALTokenCacheItem* item = [[ADALTokenCacheItem alloc] init];
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
     item.refreshToken = TEST_REFRESH_TOKEN;
@@ -183,17 +183,17 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-- (ADTokenCacheItem *)adCreateFRTCacheItem
+- (ADALTokenCacheItem *)adCreateFRTCacheItem
 {
     return [self adCreateFRTCacheItem:@"1" userId:TEST_USER_ID];
 }
 
-- (ADTokenCacheItem *)adCreateFRTCacheItem:(NSString *)foci
+- (ADALTokenCacheItem *)adCreateFRTCacheItem:(NSString *)foci
                                     userId:(NSString *)userId
 {
-    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    ADALTokenCacheItem* item = [[ADALTokenCacheItem alloc] init];
     item.authority = TEST_AUTHORITY;
-    // This should match the implementation in +[ADAuthenticationRequest fociClientId:]
+    // This should match the implementation in +[ADALAuthenticationRequest fociClientId:]
     // think long and hard before changing this.
     item.clientId = [NSString stringWithFormat:@"foci-%@", foci];
     item.familyId = foci;
@@ -206,9 +206,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-- (ADTokenCacheKey *)adCreateCacheKey
+- (ADALTokenCacheKey *)adCreateCacheKey
 {
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+    ADALTokenCacheKey* key = [ADALTokenCacheKey keyWithAuthority:TEST_AUTHORITY
                                                               resource:TEST_RESOURCE
                                                               clientId:TEST_CLIENT_ID
                                                                  error:nil];
@@ -216,21 +216,21 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return key;
 }
 
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+- (ADALUserInformation *)adCreateUserInformation:(NSString *)userId
 {
     return [self adCreateUserInformation:userId
                                 tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
                            homeAccountId:nil];
 }
 
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId
+- (ADALUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId
 {
     return [self adCreateUserInformation:userId
                                 tenantId:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"
                            homeAccountId:homeAccountId];
 }
 
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId
+- (ADALUserInformation *)adCreateUserInformation:(NSString *)userId
                                       tenantId:(NSString *)tid
                                  homeAccountId:(NSString *)homeAccountId
 {
@@ -257,7 +257,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                          [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
                          [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken
+    ADALUserInformation* userInfo = [ADALUserInformation userInformationWithIdToken:idtoken
                                                                   homeAccountId:homeAccountId
                                                                           error:nil];
     

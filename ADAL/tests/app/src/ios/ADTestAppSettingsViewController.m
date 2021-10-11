@@ -28,7 +28,7 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 
 // Internal ADAL headers
-#import "ADKeychainUtil.h"
+#import "ADALKeychainUtil.h"
 
 static NSArray* s_profileRows = nil;
 static NSArray* s_deviceRows = nil;
@@ -93,7 +93,7 @@ static NSArray* s_deviceRows = nil;
                                                       tag:0];
     
     
-    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+    NSString* teamId = [ADALKeychainUtil keychainTeamId:nil];
     _keychainId = teamId ? teamId : @"<No Team ID>";
     
     ADTestAppSettingsRow* profileRow = [ADTestAppSettingsRow rowWithTitle:@"profile"];
