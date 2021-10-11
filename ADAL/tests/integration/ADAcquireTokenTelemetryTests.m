@@ -79,8 +79,8 @@
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
     self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #else
-    ADALTokenCache *ADALTokenCache = [ADALTokenCache new];
-    self.cacheDataSource = ADALTokenCache;
+    ADALTokenCache *adalTokenCache = [ADALTokenCache new];
+    self.cacheDataSource = adalTokenCache;
     self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:ADALTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
