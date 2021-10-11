@@ -71,6 +71,9 @@
     [super setUp];
     
     [MSIDKeychainTokenCache reset];
+    [ADApplicationTestUtil reset];
+    [ADALEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
+    [ADALEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
     NSArray *urlSchemes = @[@"msauth", @"msauthv3"];
     [ADTestBundle overrideObject:urlSchemes forKey:@"LSApplicationQueriesSchemes"];
 }
