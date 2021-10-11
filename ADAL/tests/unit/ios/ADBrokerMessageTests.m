@@ -26,13 +26,13 @@
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
-#import "ADBrokerNotificationManager.h"
-#import "ADBrokerKeyHelper.h"
+#import "ADALBrokerNotificationManager.h"
+#import "ADALBrokerKeyHelper.h"
 #import "MSIDPkeyAuthHelper.h"
 #import "XCTestCase+TestHelperMethods.h"
-#import "ADUserInformation.h"
-#import "ADTokenCacheItem.h"
-#import "ADAuthenticationContext+Internal.h"
+#import "ADALUserInformation.h"
+#import "ADALTokenCacheItem.h"
+#import "ADALAuthenticationContext+Internal.h"
 
 @interface ADBrokerMessageTests : ADTestCase
 
@@ -47,7 +47,7 @@
 
 - (void)tearDown
 {
-    [ADBrokerKeyHelper setSymmetricKey:nil];
+    [ADALBrokerKeyHelper setSymmetricKey:nil];
     
     [super tearDown];
 }
@@ -59,7 +59,7 @@
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Non broker response."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
     {
         XCTAssertNotNil(result);
         XCTAssertNotNil(result.error);
@@ -69,7 +69,7 @@
     }];
     
     // This should not crash and return NO
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:nil]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:nil]);
     
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
@@ -81,7 +81,7 @@
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Non broker response."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertNotNil(result.error);
@@ -91,7 +91,7 @@
      }];
     
     // This should not crash and return NO
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
@@ -103,7 +103,7 @@
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Non broker response with mismatched redirect uri."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertNotNil(result.error);
@@ -113,7 +113,7 @@
      }];
     
     // This should not crash and return NO
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
@@ -125,7 +125,7 @@
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Non broker response."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertNotNil(result.error);
@@ -135,14 +135,14 @@
      }];
     
     // This should not crash and return NO
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:[NSURL URLWithString:@"ms-outlook://settings/help/intunediagnostics?source=authenticator"] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 - (void)testBrokerv2Message_whenSourceApplicationNonNil_andNonceMatches_shouldSucceed
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
+    [ADALBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     
     NSString* v2Base64UrlEncryptedPayload = @"UzLzGP78R7Ju4-5-YS23X-vNtZjkK4t2H7wULLZAZTzthtxGE5gHI95IZOIY7j_iUNG3fv57RSY8S8AQqT7KxXsIZ0k9XPKwXBqiOJG3-wUDLFMipvrFHUL5jg4MotNSdVNxEVl1H8kIWqJeGItEgRjPuTzVJir_Imog8aVImhq-pOPcN36kfNV_Cv9k8cBuqWDbHa5w8H8iUXBnIrI4cgfvqaxuO-lRcitf4xT3iaOMGzDMU2F2KpCTL3Rkt_tyYmUv_tqIamFnawXcVLcVfMVu3Zk8JuRZ0wUQn_zzUUu8VOfstQ9cSqhYHX1EnAhgX788b79FjcMzoY9C6VQoepB_uz9PEqOvR88Wnzkd9y5ubGJ7vCN03vSMxqDymowBzPTTCgz_rhNsWehnylzcz-W7Sx2UAGvXxhPvK7ny7IwlkroBjPm-gine4157_NMT";
     
@@ -161,7 +161,7 @@
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertNil(result.error);
@@ -175,7 +175,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -183,7 +183,7 @@
 
 - (void)testBrokerv2Message_whenSourceApplicationNonNil_andNonceMissingInResponse_shouldSucceed
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
+    [ADALBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     
     NSString* v2Base64UrlEncryptedPayload = @"TKQ6mTbSf_FgBnb5mvtnSQXQ4_LajVjSNPjymF1wI2ZQWzGSvut3mWziWV0Xvti_ULCFD39BwuFJykXxrtsHZeuynfHRdpUXnhm4qZoAiRfjgY37HBbYbXW3FLzQWvUTCBFz3S9MWpPQE1bJmgke8NisoZ7jlj_gJh-nkfL_Kqg_q7f-AGHvF_TKZoZajosKjbSXzSrW5jLVEA8evIezJS_mIAIUTxxtyoDr1XnQmL2obbi2xLsdbfUDQYpRM2fVLQchO3P_J0TlJrTlR7NAuGnjRUckQHXRsR0-qSK0zF_4rxlClrQgJOudWKpZCVVeUhHMNYzhehLNfABphLeAc_Vxbo7yf0pgKo482ThT86Zb438eSqHivrB8f3VGSx8jRd6MusubxG6VAE5iaHC3xzDumwxAC95QNzv4CspKl5Q";
     
@@ -202,7 +202,7 @@
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertNil(result.error);
@@ -216,7 +216,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -224,7 +224,7 @@
 
 - (void)testBrokerv2Message_whenSourceApplicationNil_andNonceMatches_shouldSucceed
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
+    [ADALBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     
     NSString* v2Base64UrlEncryptedPayload = @"UzLzGP78R7Ju4-5-YS23X-vNtZjkK4t2H7wULLZAZTzthtxGE5gHI95IZOIY7j_iUNG3fv57RSY8S8AQqT7KxXsIZ0k9XPKwXBqiOJG3-wUDLFMipvrFHUL5jg4MotNSdVNxEVl1H8kIWqJeGItEgRjPuTzVJir_Imog8aVImhq-pOPcN36kfNV_Cv9k8cBuqWDbHa5w8H8iUXBnIrI4cgfvqaxuO-lRcitf4xT3iaOMGzDMU2F2KpCTL3Rkt_tyYmUv_tqIamFnawXcVLcVfMVu3Zk8JuRZ0wUQn_zzUUu8VOfstQ9cSqhYHX1EnAhgX788b79FjcMzoY9C6VQoepB_uz9PEqOvR88Wnzkd9y5ubGJ7vCN03vSMxqDymowBzPTTCgz_rhNsWehnylzcz-W7Sx2UAGvXxhPvK7ny7IwlkroBjPm-gine4157_NMT";
     
@@ -243,7 +243,7 @@
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertNil(result.error);
@@ -257,7 +257,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -265,7 +265,7 @@
 
 - (void)testBrokerv2Message_whenSourceApplicationNil_andNonceMissingInResponse_shouleFailWithError
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
+    [ADALBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     
     NSString* v2Base64UrlEncryptedPayload = @"TKQ6mTbSf_FgBnb5mvtnSQXQ4_LajVjSNPjymF1wI2ZQWzGSvut3mWziWV0Xvti_ULCFD39BwuFJykXxrtsHZeuynfHRdpUXnhm4qZoAiRfjgY37HBbYbXW3FLzQWvUTCBFz3S9MWpPQE1bJmgke8NisoZ7jlj_gJh-nkfL_Kqg_q7f-AGHvF_TKZoZajosKjbSXzSrW5jLVEA8evIezJS_mIAIUTxxtyoDr1XnQmL2obbi2xLsdbfUDQYpRM2fVLQchO3P_J0TlJrTlR7NAuGnjRUckQHXRsR0-qSK0zF_4rxlClrQgJOudWKpZCVVeUhHMNYzhehLNfABphLeAc_Vxbo7yf0pgKo482ThT86Zb438eSqHivrB8f3VGSx8jRd6MusubxG6VAE5iaHC3xzDumwxAC95QNzv4CspKl5Q";
     
@@ -284,7 +284,7 @@
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
@@ -294,7 +294,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -302,7 +302,7 @@
 
 - (void)testBrokerv2Message_whenSourceApplicationNil_andNonceMismatch_shouleFailWithError
 {
-    [ADBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
+    [ADALBrokerKeyHelper setSymmetricKey:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     
     NSString* v2Base64UrlEncryptedPayload = @"UzLzGP78R7Ju4-5-YS23X-vNtZjkK4t2H7wULLZAZTzthtxGE5gHI95IZOIY7j_iUNG3fv57RSY8S8AQqT7KxXsIZ0k9XPKwXBqiOJG3-wUDLFMipvrFHUL5jg4MotNSdVNxEVl1H8kIWqJeGItEgRjPuTzVJir_Imog8aVImhq-pOPcN36kfNV_Cv9k8cBuqWDbHa5w8H8iUXBnIrI4cgfvqaxuO-lRcitf4xT3iaOMGzDMU2F2KpCTL3Rkt_tyYmUv_tqIamFnawXcVLcVfMVu3Zk8JuRZ0wUQn_zzUUu8VOfstQ9cSqhYHX1EnAhg0izUKghsfrHTkVksJ04bCU7ZZT-X0Ie6Fbbm3hDVF0WhjnY4DXyqOWbCb2RLmwaloHDT74PSDTEb0bIN_Vu2ALBvUvNJxr5VHjfilO_mxxNF6NY_rkuXDQciv3TZ2pqg";
     
@@ -321,7 +321,7 @@
     NSURL* brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"Broker v2 message."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
@@ -331,7 +331,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -356,7 +356,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker no error domain."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
@@ -367,7 +367,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -393,7 +393,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADKeychainErrorDomain);
@@ -404,7 +404,7 @@
          [expectation fulfill];
      }];
 
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -431,7 +431,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker http error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADHTTPErrorCodeDomain);
@@ -443,7 +443,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -469,7 +469,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
@@ -480,7 +480,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -505,7 +505,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
@@ -516,7 +516,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:ADAL_BROKER_APP_BUNDLE_ID]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -542,7 +542,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result.error);
          XCTAssertEqualObjects(result.error.domain, ADOAuthServerErrorDomain);
@@ -553,7 +553,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertTrue([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
+    XCTAssertTrue([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -578,7 +578,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
@@ -588,7 +588,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);
@@ -614,7 +614,7 @@
     NSURL *brokerUrl = [NSURL URLWithString:brokerUrlStr];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Broker keychain error."];
-    [ADBrokerNotificationManager.sharedInstance enableNotifications:^(ADAuthenticationResult *result)
+    [ADALBrokerNotificationManager.sharedInstance enableNotifications:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqualObjects(result.error.domain, ADAuthenticationErrorDomain);
@@ -624,7 +624,7 @@
          [expectation fulfill];
      }];
     
-    XCTAssertFalse([ADAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
+    XCTAssertFalse([ADALAuthenticationContext handleBrokerResponse:brokerUrl sourceApplication:nil]);
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey]);

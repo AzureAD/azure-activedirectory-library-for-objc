@@ -26,8 +26,8 @@
 #import "ADAutoResultViewController.h"
 #import "ADAutoPassedInWebViewController.h"
 #import "ADAL.h"
-#import "ADTokenCacheDataSource.h"
-#import "ADKeychainTokenCache+Internal.h"
+#import "ADALTokenCacheDataSource.h"
+#import "ADALKeychainTokenCache+Internal.h"
 #import "MSIDKeychainTokenCache.h"
 #import <WebKit/WebKit.h>
 
@@ -88,7 +88,7 @@
                                                             @"resultLogs":resultLogs ? resultLogs : @""}];
 }
 
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context
+- (void)showPassedInWebViewControllerWithContext:(ADALAuthenticationContext *)context
 {
     context.webView = self.webView;
     
@@ -107,9 +107,9 @@
     
 }
 
-- (id<ADTokenCacheDataSource>)cacheDatasource
+- (id<ADALTokenCacheDataSource>)cacheDatasource
 {
-    return [ADKeychainTokenCache new];
+    return [ADALKeychainTokenCache new];
 }
 
 - (void)clearCache

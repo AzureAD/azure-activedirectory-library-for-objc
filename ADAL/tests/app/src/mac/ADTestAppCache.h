@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCache.h"
+#import "ADALTokenCache.h"
 
-@interface ADTestAppCache : NSObject <ADTokenCacheDelegate>
+@interface ADTestAppCache : NSObject <ADALTokenCacheDelegate>
 {
     NSData* _data;
     NSDate* _lastUpdated;

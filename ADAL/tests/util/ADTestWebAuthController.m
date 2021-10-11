@@ -26,12 +26,12 @@
 
 #pragma mark -
 #pragma mark Overriding ADAuthenticationViewController for the test mock
-@implementation ADWebAuthController (TestWebviewOverride)
+@implementation ADALWebAuthController (TestWebviewOverride)
 
-+ (void)startWithRequest:(ADRequestParameters *)requestParams
-          promptBehavior:(ADPromptBehavior)promptBehavior
++ (void)startWithRequest:(ADALRequestParameters *)requestParams
+          promptBehavior:(ADALPromptBehavior)promptBehavior
             refreshToken:(NSString*)refreshToken
-                 context:(ADAuthenticationContext *)context
+                 context:(ADALAuthenticationContext *)context
               completion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
     if (ADTestWebAuthController.response)

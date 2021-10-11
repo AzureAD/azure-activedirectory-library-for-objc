@@ -23,13 +23,13 @@
 
 #import "ADTestAppAcquireTokenWindowController.h"
 #import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import "ADALUserIdentifier.h"
 #import "ADTestAppSettings.h"
-#import "ADTokenCache.h"
-#import "ADAuthenticationSettings.h"
-#import "ADWebAuthController.h"
+#import "ADALTokenCache.h"
+#import "ADALAuthenticationSettings.h"
+#import "ADALWebAuthController.h"
 #import "ADTestAppCache.h"
-#import "ADAuthenticationParameters.h"
+#import "ADALAuthenticationParameters.h"
 
 @interface ADTestAppAcquireTokenWindowController ()
 
@@ -111,7 +111,7 @@
     [self populateCurrentProfile];
     
     
-    WKWebViewConfiguration *defaultConfig = [ADAuthenticationParameters defaultWKWebviewConfiguration];
+    WKWebViewConfiguration *defaultConfig = [ADALAuthenticationParameters defaultWKWebviewConfiguration];
     _webview = [[WKWebView alloc] initWithFrame:_contentWebView.bounds configuration:defaultConfig];
     _webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     
@@ -174,7 +174,7 @@
     }
 }
 
-- (ADUserIdentifier*)identifier
+- (ADALUserIdentifier*)identifier
 {
     NSString* userId = [_userIdField stringValue];
     
@@ -183,7 +183,7 @@
         return nil;
     }
     
-    return [ADUserIdentifier identifierWithId:userId type:_idType];
+    return [ADALUserIdentifier identifierWithId:userId type:_idType];
 }
 
 - (BOOL)embeddedWebView
@@ -204,7 +204,7 @@
     }
 }
 
-- (void)updateResultView:(ADAuthenticationResult*)result
+- (void)updateResultView:(ADALAuthenticationResult*)result
 {
     NSString* resultStatus = nil;
     
@@ -248,7 +248,7 @@
     NSString* extraQueryParameters = _extraQueryParamsField.stringValue;
     NSString* claims = _claimsField.stringValue;
     
-    ADUserIdentifier* identifier = [self identifier];
+    ADALUserIdentifier* identifier = [self identifier];
     
     BOOL validateAuthority = _validateAuthority.selectedSegment == 0;
 
@@ -259,8 +259,8 @@
         capabilities = @[@"cp1"];
     }
     
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
+    ADALAuthenticationError* error = nil;
+    ADALAuthenticationContext* context = [[ADALAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:validateAuthority
                                                                                     error:&error];
     context.clientCapabilities = capabilities;
@@ -291,7 +291,7 @@
                        userIdentifier:identifier
                  extraQueryParameters:extraQueryParameters
                                claims:claims
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          if (fBlockHit)
          {
@@ -318,7 +318,7 @@
 
 - (IBAction)cancelAuth:(id)sender
 {
-    [ADWebAuthController cancelCurrentWebAuthSession];
+    [ADALWebAuthController cancelCurrentWebAuthSession];
 }
 
 - (IBAction)clearCache:(id)sender
@@ -355,7 +355,7 @@
     NSString* resource = [settings resource];
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
-    ADUserIdentifier* identifier = [self identifier];
+    ADALUserIdentifier* identifier = [self identifier];
     BOOL validateAuthority = _validateAuthority.selectedSegment == 0;
 
     NSArray *capabilities = nil;
@@ -365,8 +365,8 @@
         capabilities = @[@"cp1"];
     }
     
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
+    ADALAuthenticationError* error = nil;
+    ADALAuthenticationContext* context = [[ADALAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
     context.clientCapabilities = capabilities;
 
     if (!context)
@@ -378,7 +378,7 @@
     
     __block BOOL fBlockHit = NO;
     
-    [context acquireTokenSilentWithResource:resource clientId:clientId redirectUri:redirectUri userId:identifier.userId completionBlock:^(ADAuthenticationResult *result)
+    [context acquireTokenSilentWithResource:resource clientId:clientId redirectUri:redirectUri userId:identifier.userId completionBlock:^(ADALAuthenticationResult *result)
      {
          if (fBlockHit)
          {

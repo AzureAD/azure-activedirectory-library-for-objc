@@ -22,16 +22,16 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "ADAuthenticationError.h"
+#import "ADALAuthenticationError.h"
 #import "ADAL_Internal.h"
-#import "ADTelemetry.h"
+#import "ADALTelemetry.h"
 #import "ADTestConstants.h"
 
 #define ADTAssertContains(_str, _contains) XCTAssertTrue([_str containsString:_contains], "%@ does not contain \"%@\"", _str, _contains)
 
-@class ADTokenCacheItem;
-@class ADUserInformation;
-@class ADTokenCacheKey;
+@class ADALTokenCacheItem;
+@class ADALUserInformation;
+@class ADALTokenCacheKey;
 @class ADTestURLResponse;
 @class MSIDLegacyTokenCacheItem;
 @class MSIDClientInfo;
@@ -156,25 +156,25 @@
                                       responseJson:(NSDictionary *)responseJson;
 
 //Creates a new item with all of the properties having correct values
-- (ADTokenCacheItem *)adCreateCacheItem;
-- (ADTokenCacheItem *)adCreateCacheItem:(NSString*)userId;
-- (ADTokenCacheItem *)adCreateATCacheItem;
-- (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
+- (ADALTokenCacheItem *)adCreateCacheItem;
+- (ADALTokenCacheItem *)adCreateCacheItem:(NSString*)userId;
+- (ADALTokenCacheItem *)adCreateATCacheItem;
+- (ADALTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
                                    userId:(NSString *)userId;
 
-- (ADTokenCacheItem *)adCreateMRRTCacheItem;
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
-- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+- (ADALTokenCacheItem *)adCreateMRRTCacheItem;
+- (ADALTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
+- (ADALTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
                                    familyId:(NSString *)familyId;
-- (ADTokenCacheItem *)adCreateFRTCacheItem;
-- (ADTokenCacheItem *)adCreateFRTCacheItem:(NSString *)familyId
+- (ADALTokenCacheItem *)adCreateFRTCacheItem;
+- (ADALTokenCacheItem *)adCreateFRTCacheItem:(NSString *)familyId
                                     userId:(NSString *)userId;
-- (ADTokenCacheKey *)adCreateCacheKey;
+- (ADALTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId;
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId;
-- (ADUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeAccountId:(NSString *)homeAccountId;
+- (ADALUserInformation *)adCreateUserInformation:(NSString *)userId;
+- (ADALUserInformation *)adCreateUserInformation:(NSString *)userId homeAccountId:(NSString *)homeAccountId;
+- (ADALUserInformation *)adCreateUserInformation:(NSString *)userId tenantId:(NSString *)tid homeAccountId:(NSString *)homeAccountId;
 
 - (MSIDLegacyTokenCacheItem *)adCreateAccessMSIDTokenCacheItem;
 - (MSIDLegacyTokenCacheItem *)adCreateRefreshMSIDTokenCacheItem;

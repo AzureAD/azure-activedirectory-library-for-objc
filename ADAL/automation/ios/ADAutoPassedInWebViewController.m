@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAutoPassedInWebViewController.h"
-#import "ADWebAuthController.h"
+#import "ADALWebAuthController.h"
 #import <WebKit/WebKit.h>
 
 @interface ADAutoPassedInWebViewController ()
@@ -47,7 +47,7 @@
 - (IBAction)cancelTapped:(id)sender {
     
     [self dismissViewControllerAnimated:YES completion:^{
-        [ADWebAuthController cancelCurrentWebAuthSession];
+        [ADALWebAuthController cancelCurrentWebAuthSession];
     }];
 }
 

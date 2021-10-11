@@ -24,13 +24,13 @@
 #import <Security/Security.h>
 #import "ADLegacyKeychainTokenCache.h"
 #import "ADAL_Internal.h"
-#import "ADKeychainUtil.h"
-#import "ADTokenCacheItem.h"
-#import "ADTokenCacheKey.h"
-#import "ADUserInformation.h"
-#import "ADAuthenticationSettings.h"
-#import "ADTokenCacheItem+Internal.h"
-#import "ADHelpers.h"
+#import "ADALKeychainUtil.h"
+#import "ADALTokenCacheItem.h"
+#import "ADALTokenCacheKey.h"
+#import "ADALUserInformation.h"
+#import "ADALAuthenticationSettings.h"
+#import "ADALTokenCacheItem+Internal.h"
+#import "ADALHelpers.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetry.h"
@@ -127,7 +127,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+    NSString* teamId = [ADALKeychainUtil keychainTeamId:nil];
 #if !TARGET_OS_SIMULATOR
     // If we didn't find a team ID and we're on device then the rest of ADAL not only will not work
     // particularly well, we'll probably induce other issues by continuing.
@@ -183,7 +183,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     return sWipeQuery;
 }
 
-- (BOOL)saveWipeTokenData:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+- (BOOL)saveWipeTokenData:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
                                 @"wipeTime" : [NSDate date]
@@ -210,7 +210,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
                                            userInfo:nil];
         if (error)
         {
-            *error = [ADAuthenticationError errorFromNSError:nserror
+            *error = [ADALAuthenticationError errorFromNSError:nserror
                                                 errorDetails:details
                                                correlationId:nil];
         }
@@ -227,7 +227,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     if (wipeData)
     {
         NSString *bundleId = wipeData[@"bundleId"];
-        NSString *wipeTime = [ADHelpers stringFromDate:wipeData[@"wipeTime"]];
+        NSString *wipeTime = [ADALHelpers stringFromDate:wipeData[@"wipeTime"]];
         
         MSID_LOG_INFO_CORR(correlationId, @"Last wiped by %@ at %@", bundleId, wipeTime);
         MSID_LOG_INFO_CORR_PII(correlationId, @"Last wiped by %@ at %@", bundleId, wipeTime);
@@ -243,7 +243,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 #pragma mark Keychain Logging
 
 //Log operations that result in storing or reading cache item:
-- (void)logItem:(ADTokenCacheItem *)item
+- (void)logItem:(ADALTokenCacheItem *)item
         message:(NSString *)additionalMessage
   correlationId:(NSUUID *)correlationId
 {
@@ -251,7 +251,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 - (void)logItemRetrievalStatus:(NSArray *)items
-                           key:(ADTokenCacheKey *)key
+                           key:(ADALTokenCacheKey *)key
                         userId:(NSString *)userId
                  correlationId:(NSUUID *)correlationId
 {
@@ -270,7 +270,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 
-- (NSString*)getTokenNameForLog:(ADTokenCacheItem *)item
+- (NSString*)getTokenNameForLog:(ADALTokenCacheItem *)item
 {
     NSString* tokenName = @"unknown token";
     if (![NSString msidIsStringNilOrBlank:item.accessToken])
@@ -306,9 +306,9 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 // keychain attributes as extracted by SecItemCopyMatching. The attributes
 // (represented as dictionaries) can be used to obtain the actual token cache item.
 // May return nil in case of error.
-- (NSArray *)keychainItemsWithKey:(ADTokenCacheKey*)key
+- (NSArray *)keychainItemsWithKey:(ADALTokenCacheKey*)key
                            userId:(NSString*)userId
-                            error:(ADAuthenticationError* __autoreleasing*)error
+                            error:(ADALAuthenticationError* __autoreleasing*)error
 {
     NSMutableDictionary* query = [self queryDictionaryForKey:key
                                                   userId:userId
@@ -331,7 +331,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 
-- (ADTokenCacheItem*)itemFromKeychainAttributes:(NSDictionary*)attrs
+- (ADALTokenCacheItem*)itemFromKeychainAttributes:(NSDictionary*)attrs
 {
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
@@ -341,13 +341,13 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     }
     @try
     {
-        ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        ADALTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
         if (!item)
         {
             MSID_LOG_WARN(nil, @"Unable to decode item from data stored in keychain.");
             return nil;
         }
-        if (![item isKindOfClass:[ADTokenCacheItem class]])
+        if (![item isKindOfClass:[ADALTokenCacheItem class]])
         {
             MSID_LOG_WARN(nil, @"Unarchived Item was not of expected class.");
             return nil;
@@ -363,12 +363,12 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 #pragma mark -
-#pragma mark ADTokenCacheAccessor implementation
+#pragma mark ADALTokenCacheAccessor implementation
 
-/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
+/*! Return a copy of all items. The array will contain ADALTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+- (NSArray<ADALTokenCacheItem *> *)allItems:(ADALAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
 }
@@ -381,8 +381,8 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     @return YES if the item was successfully deleted or not in the cache, and the wipe data
                    is stored successfully.
  */
-- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+- (BOOL)removeItem:(nonnull ADALTokenCacheItem *)item
+             error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     
@@ -400,11 +400,11 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 //Interal function: delete an item from keychain;
-- (OSStatus)deleteItem:(nonnull ADTokenCacheItem *)item
-                 error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+- (OSStatus)deleteItem:(nonnull ADALTokenCacheItem *)item
+                 error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
-    ADTokenCacheKey* key = [item extractKey:error];
+    ADALTokenCacheKey* key = [item extractKey:error];
 
     if (!key)
     {
@@ -417,7 +417,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
-                       error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                       error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     MSID_LOG_WARN(nil, @"Removing all items for client");
     MSID_LOG_WARN_PII(nil, @"Removing all items for client %@", clientId);
@@ -428,7 +428,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
         return NO;
     }
     
-    for (ADTokenCacheItem * item in items)
+    for (ADALTokenCacheItem * item in items)
     {
         if ([clientId isEqualToString:[item clientId]]
             && ![self removeItem:item error:error])
@@ -441,7 +441,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                   clientId:(NSString * __nonnull)clientId
-                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                     error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     MSID_LOG_WARN(nil, @"Removing all items for user");
     MSID_LOG_WARN_PII(nil, @"Removing all items for user + client <%@> userid <%@>", clientId, userId);
@@ -452,7 +452,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
         return NO;
     }
     
-    for (ADTokenCacheItem * item in items)
+    for (ADALTokenCacheItem * item in items)
     {
         if ([userId isEqualToString:[[item userInformation] userId]]
             && [clientId isEqualToString:[item clientId]]
@@ -464,13 +464,13 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId error:(ADAuthenticationError *__autoreleasing  _Nullable *)error
+- (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId error:(ADALAuthenticationError *__autoreleasing  _Nullable *)error
 {
     MSID_LOG_WARN(nil, @"Removing all items for user.");
     MSID_LOG_WARN_PII(nil, @"Removing all items for userId <%@>", userId);
 
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                             (id)kSecAttrAccount: [ADHelpers normalizeUserId:userId].msidBase64UrlEncode,
+                             (id)kSecAttrAccount: [ADALHelpers normalizeUserId:userId].msidBase64UrlEncode,
                              (id)kSecAttrAccessGroup: _sharedGroup };
     
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
@@ -493,7 +493,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 }
 
 // Given an item key, generates the string key used in the keychain:
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey
+- (NSString*)keychainKeyFromCacheKey:(ADALTokenCacheKey *)itemKey
 {
     //The key contains all of the ADAL cache key elements plus the version of the
     //library. The latter is required to ensure that SecItemAdd won't break on collisions
@@ -516,14 +516,14 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
 + (BOOL)checkStatus:(OSStatus)status
           operation:(NSString *)operation
       correlationId:(NSUUID *)correlationId
-              error:(ADAuthenticationError* __autoreleasing *)error
+              error:(ADALAuthenticationError* __autoreleasing *)error
 {
     if (status == errSecSuccess || status == errSecItemNotFound)
     {
         return NO;
     }
     
-    ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:operation status:status correlationId:correlationId];
+    ADALAuthenticationError* adError = [ADALAuthenticationError keychainErrorFromOperation:operation status:status correlationId:correlationId];
     if (error)
     {
         *error = adError;
@@ -532,7 +532,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (NSMutableDictionary*)queryDictionaryForKey:(ADTokenCacheKey *)key
+- (NSMutableDictionary*)queryDictionaryForKey:(ADALTokenCacheKey *)key
                                        userId:(NSString *)userId
                                    additional:(NSDictionary*)additional
 {
@@ -556,10 +556,10 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     return query;
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
+- (NSArray<ADALTokenCacheItem *> *)getItemsWithKey:(ADALTokenCacheKey *)key
                                           userId:(NSString *)userId
                                    correlationId:(NSUUID *)correlationId
-                                           error:(ADAuthenticationError * __autoreleasing* )error
+                                           error:(ADALAuthenticationError * __autoreleasing* )error
 {
     NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
     
@@ -574,10 +574,10 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
         return nil;
     }
     
-    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
+    NSMutableArray* tokenItems = [[NSMutableArray<ADALTokenCacheItem *> alloc] initWithCapacity:items.count];
     for (NSDictionary* attrs in items)
     {
-        ADTokenCacheItem* item = [self itemFromKeychainAttributes:attrs];
+        ADALTokenCacheItem* item = [self itemFromKeychainAttributes:attrs];
         if (!item)
         {
             continue;
@@ -606,10 +606,10 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
                     and we have tokens from multiple users. If the cache item is not
                     present, the error will not be set.
  */
-- (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheKey *)key
+- (ADALTokenCacheItem*)getItemWithKey:(ADALTokenCacheKey *)key
                              userId:(NSString *)userId
                       correlationId:(NSUUID *)correlationId
-                              error:(ADAuthenticationError * __autoreleasing *)error
+                              error:(ADALAuthenticationError * __autoreleasing *)error
 {
     NSArray* items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     
@@ -620,8 +620,8 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     
     if (items.count > 1)
     {
-        ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
+        ADALAuthenticationError* adError =
+        [ADALAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                                protocolCode:nil
                                                errorDetails:@"The token cache store for this resource contains more than one user. Please set the 'userId' parameter to the one that will be used."
                                               correlationId:correlationId];
@@ -645,13 +645,13 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     @param  error   (Optional) In the case of an error this will be filled with the
                     error details.
  */
-- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
+- (BOOL)addOrUpdateItem:(ADALTokenCacheItem *)item
           correlationId:(nullable NSUUID *)correlationId
-                  error:(ADAuthenticationError * __autoreleasing*)error
+                  error:(ADALAuthenticationError * __autoreleasing*)error
 {
     @synchronized(self)
     {
-        ADTokenCacheKey* key = [item extractKey:error];
+        ADALTokenCacheKey* key = [item extractKey:error];
         if (!key)
         {
             return NO;
@@ -674,7 +674,7 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
         NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
         if (!itemData)
         {
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT protocolCode:nil errorDetails:@"Failed to archive keychain item" correlationId:correlationId];
+            ADALAuthenticationError* adError = [ADALAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT protocolCode:nil errorDetails:@"Failed to archive keychain item" correlationId:correlationId];
             if (error)
             {
                 *error = adError;
@@ -709,9 +709,9 @@ static ADLegacyKeychainTokenCache* s_defaultCache = nil;
     return YES;
 }
 
-- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error
+- (void)testRemoveAll:(ADALAuthenticationError * __autoreleasing *)error
 {
-    MSID_LOG_ERROR(nil, @"******** -testRemoveAll: being called in ADKeychainTokenCache. This method should NEVER be called in production code. ********");
+    MSID_LOG_ERROR(nil, @"******** -testRemoveAll: being called in ADALKeychainTokenCache. This method should NEVER be called in production code. ********");
     @synchronized(self)
     {
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];

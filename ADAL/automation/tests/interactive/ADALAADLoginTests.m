@@ -440,7 +440,7 @@
     [self assertAccessTokenNotNil];
 }
 
-// #296758: Different ADUserIdentifierType settings
+// #296758: Different ADALUserIdentifierType settings
 - (void)testAADLogin_withPromptAlways_LoginHint_differentUserTypeSettings
 {
     MSIDTestAutomationConfigurationRequest *configurationRequest = [MSIDTestAutomationConfigurationRequest new];

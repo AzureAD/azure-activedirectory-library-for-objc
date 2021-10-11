@@ -25,8 +25,12 @@ We recommend remaining up-to-date with the latest version of ADAL. The best plac
 The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
 NOTE:
+- To work with iOS 15, you must have at least version 5.0.0. However, we recommend switching to version 6.0.0 since 5.0.0 won't be maintained. 
+
 - To work with iOS 10-11.3 you must have at least version 2.2.5.
+
 - To work with iOS 11.3-12.4 you must have at least version 2.6.3.
+
 - To work with iOS 13+ (when built with Xcode 11) you must have at least version 2.7.14 or 4.0.2
 
 - ADAL supports iOS 10+ and macOS 10.11+. iOS 9 and macOS 10.10 support was dropped in ADAL 4.0.0 release.
@@ -99,7 +103,7 @@ We recommend only syncing to specific release tags to make sure you're at a know
 
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
-    pod 'ADAL', '~> 2.7'
+    pod 'ADAL', '~> 6.0'
 
 You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
 
@@ -133,7 +137,7 @@ then the "Capabilities" tab. Scroll down to "Keychain Sharing" and flip the swit
 Alternatively you can disable keychain sharing by setting the keychain sharing group to nil or your application's bundle id.
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
+    [[ADALAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
 ```
 
 ##### Inspecting the Cache
@@ -142,15 +146,15 @@ If you need to inspect the cache in your app, you can do it through the ADKeycha
 
 #### macOS
 
-Keychain is not directly supported by ADAL on macOS. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persist tokens you must implement the ADTokenCacheDelegate and provide it on AuthenticationContext creation
+Keychain is not directly supported by ADAL on macOS. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persist tokens you must implement the ADALTokenCacheDelegate and provide it on AuthenticationContext creation
 
 ```Objective-C
-@protocol ADTokenCacheDelegate <NSObject>
+@protocol ADALTokenCacheDelegate <NSObject>
 
-- (void)willAccessCache:(nonnull ADTokenCache *)cache;
-- (void)didAccessCache:(nonnull ADTokenCache *)cache;
-- (void)willWriteCache:(nonnull ADTokenCache *)cache;
-- (void)didWriteCache:(nonnull ADTokenCache *)cache;
+- (void)willAccessCache:(nonnull ADALTokenCache *)cache;
+- (void)didAccessCache:(nonnull ADALTokenCache *)cache;
+- (void)willWriteCache:(nonnull ADALTokenCache *)cache;
+- (void)didWriteCache:(nonnull ADALTokenCache *)cache;
 
 @end
 ```
@@ -160,7 +164,7 @@ In this delegate you can call -serialize and -deserialize on the cache object to
 
 ### Quick Start
 
-The starting point for the API is in ADAuthenticationContext.h header. ADAuthenticationContext is the main class used for obtaining, caching and supplying access tokens.
+The starting point for the API is in ADALAuthenticationContext.h header. ADALAuthenticationContext is the main class used for obtaining, caching and supplying access tokens.
 
 #### How to quickly get a token from the SDK:
 
@@ -168,14 +172,14 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 
 + (void)getToken:(void (^)(NSString*))completionBlock;
 {
-    ADAuthenticationError *error = nil;
-    authContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://login.microsoftonline.com/common"
+    ADALAuthenticationError *error = nil;
+    authContext = [ADALAuthenticationContext authenticationContextWithAuthority:@"https://login.microsoftonline.com/common"
                                                                         error:&error];
         
     [authContext acquireTokenWithResource:@"https://graph.windows.net"                 
                                  clientId:@"<Your Client ID>"                          // Comes from App Portal
                               redirectUri:[NSURL URLWithString:@"<Your Redirect URI>"] // Comes from App Portal
-                          completionBlock:^(ADAuthenticationResult *result)
+                          completionBlock:^(ADALAuthenticationResult *result)
     {
         if (AD_SUCCEEDED != result.status){
             // display error on the screen
@@ -216,7 +220,7 @@ Broker is enabled on a per-authentication-context basis. You must set your crede
 
 ```Objective-C
 /*! See the ADCredentialsType enumeration definition for details */
-@property ADCredentialsType credentialsType;
+@property ADALCredentialsType credentialsType;
 ```
 
 The AD_CREDENTIALS_AUTO setting will allow ADAL to try to call out to the broker, AD_CREDENTIALS_EMBEDDED will prevent ADAL from calling to the broker.
@@ -281,7 +285,7 @@ For example:
      NSURL *url = context.URL;
      NSString *sourceApplication = context.options.sourceApplication;
      
-     [ADAuthenticationContext handleADALResponse:url sourceApplication:sourceApplication];
+     [ADALAuthenticationContext handleADALResponse:url sourceApplication:sourceApplication];
  }
 ```
 
@@ -366,9 +370,9 @@ a temporary account with usernames and passwords that you don't mind sharing.
 
 + [Setting Up SSL For iOS Simulator or Devices](http://www.charlesproxy.com/documentation/faqs/ssl-connections-from-within-iphone-applications/)
 
-#### ADAuthenticationError
+#### ADALAuthenticationError
 
-ADAuthenticationErrors are provided in all callbacks in the ADAuthenticationResult's error
+ADALAuthenticationErrors are provided in all callbacks in the ADALAuthenticationResult's error
 property when an error occurs. They can be used to have the application display more
 more informative errors to the user, however ADAL Error messages are not localized. All
 ADAuthenticationErrors are logged with the ADAL logger as well.
@@ -389,7 +393,7 @@ your application, or disable keychain sharing by passing in your application's b
 in ADAuthenticationSettings:
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
+    [[ADALAuthenticationSettings sharedInstance] setDefaultKeychainGroup:nil];
 ```
 
 **ADAL keeps returning SSL errors in iOS 9 and later**
