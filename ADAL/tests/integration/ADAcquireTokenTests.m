@@ -93,7 +93,7 @@ const int sAsyncContextTimeout = 10;
 #else
     ADALTokenCache *adalTokenCache = [ADALTokenCache new];
     self.cacheDataSource = adalTokenCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:ADALTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adalTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
 
