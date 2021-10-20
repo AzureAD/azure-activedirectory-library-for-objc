@@ -25,13 +25,13 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADTelemetryTestDispatcher.h"
-#import "ADAuthorityValidation.h"
+#import "ADALTelemetryTestDispatcher.h"
+#import "ADALAuthorityValidation.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
-#import "ADAuthenticationContext+TestUtil.h"
+#import "ADALAuthenticationContext+TestUtil.h"
 #import "MSIDDeviceId.h"
-#import "ADTokenCacheKey.h"
+#import "ADALTokenCacheKey.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAADV1Oauth2Factory.h"
@@ -42,13 +42,13 @@
 #import "MSIDKeychainTokenCache.h"
 #import "ADLegacyKeychainTokenCache.h"
 #else
-#import "ADTokenCache+Internal.h"
+#import "ADALTokenCache+Internal.h"
 #endif
 
 @interface ADAcquireTokenTelemetryTests : ADTestCase
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *tokenCache;
-@property (nonatomic) id<ADTokenCacheDataSource> cacheDataSource;
+@property (nonatomic) id<ADALTokenCacheDataSource> cacheDataSource;
 @property (nonatomic) NSMutableArray *receivedEvents;
 
 @end
@@ -67,8 +67,8 @@
 {
     [super tearDown];
     
-    [[ADTelemetry sharedInstance] removeAllDispatchers];
-    [ADTelemetry sharedInstance].piiEnabled = NO;
+    [[ADALTelemetry sharedInstance] removeAllDispatchers];
+    [ADALTelemetry sharedInstance].piiEnabled = NO;
 }
 
 - (void)resetCache
@@ -79,16 +79,16 @@
     self.cacheDataSource = ADLegacyKeychainTokenCache.defaultKeychainCache;
     self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #else
-    ADTokenCache *adTokenCache = [ADTokenCache new];
-    self.cacheDataSource = adTokenCache;
-    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
+    ADALTokenCache *adalTokenCache = [ADALTokenCache new];
+    self.cacheDataSource = adalTokenCache;
+    self.tokenCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:adalTokenCache.macTokenCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
 #endif
 }
 
 - (void)setupForAcquireTokenWithNetworkResponse
 {
     // A simple FRT case, the only RT available is the FRT so that would should be the one used
-    ADAuthenticationError *error = nil;
+    ADALAuthenticationError *error = nil;
     XCTAssertTrue([self.cacheDataSource addOrUpdateItem:[self adCreateFRTCacheItem] correlationId:nil error:&error]);
     XCTAssertNil(error);
     
@@ -105,20 +105,20 @@
                                                responseHeaders:@{@"x-ms-clitelem" : @"1,0,0,2550.0643,I"}];
     
     [ADTestURLSession addResponse:response];
-    [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
+    [[ADALAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
 }
 
 - (void)setupForAcquireTokenWithoutNetworkResponse
 {
     // Add a token item to return in the cache
-    ADAuthenticationError *error = nil;
-    ADTokenCacheItem *item = [self adCreateCacheItem];
+    ADALAuthenticationError *error = nil;
+    ADALTokenCacheItem *item = [self adCreateCacheItem];
     [self.cacheDataSource addOrUpdateItem:item correlationId:nil error:&error];
 }
 
-- (void)setupADTelemetryDispatcherWithAggregationRequired:(BOOL)aggregationRequired
+- (void)setupADALTelemetryDispatcherWithAggregationRequired:(BOOL)aggregationRequired
 {
-    ADTelemetryTestDispatcher *dispatcher = [ADTelemetryTestDispatcher new];
+    ADALTelemetryTestDispatcher *dispatcher = [ADALTelemetryTestDispatcher new];
     
     // the dispatcher will store the telemetry events it receives
     [dispatcher setTestCallback:^(NSDictionary *event)
@@ -127,12 +127,12 @@
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:aggregationRequired];
+    [[ADALTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:aggregationRequired];
 }
 
-- (ADAuthenticationContext *)getTestAuthenticationContext
+- (ADALAuthenticationContext *)getTestAuthenticationContext
 {
-    ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
+    ADALAuthenticationContext *context = [[ADALAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
                                                                         validateAuthority:NO
                                                                                     error:nil];
     context.tokenCache = self.tokenCache;
@@ -145,17 +145,17 @@
 - (void)testAcquireTokenTelemetry_whenPiiEnabledAndAggregrationOn_shouldReturnOneEventWithPii
 {
     [self setupForAcquireTokenWithNetworkResponse];
-    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
-    [ADTelemetry sharedInstance].piiEnabled = YES;
+    [self setupADALTelemetryDispatcherWithAggregationRequired:YES];
+    [ADALTelemetry sharedInstance].piiEnabled = YES;
     
-    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADALAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
                                      userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
      {
          [expectation fulfill];
      }];
@@ -210,17 +210,17 @@
 - (void)testAcquireTokenTelemetry_whenPiiDisabledAndAggregrationOn_shouldReturnOneEventWithoutPii
 {
     [self setupForAcquireTokenWithNetworkResponse];
-    [self setupADTelemetryDispatcherWithAggregationRequired:YES];
-    [ADTelemetry sharedInstance].piiEnabled = NO;
+    [self setupADALTelemetryDispatcherWithAggregationRequired:YES];
+    [ADALTelemetry sharedInstance].piiEnabled = NO;
     
-    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADALAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
                                      userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
      {
          [expectation fulfill];
      }];
@@ -273,17 +273,17 @@
 - (void)testAcquireTokenTelemetry_whenPiiEnabledAndAggregrationOff_shouldReturnEventsWithPii
 {
     [self setupForAcquireTokenWithNetworkResponse];
-    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
-    [ADTelemetry sharedInstance].piiEnabled = YES;
+    [self setupADALTelemetryDispatcherWithAggregationRequired:NO];
+    [ADALTelemetry sharedInstance].piiEnabled = YES;
     
-    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADALAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
                                      userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
      {
          [expectation fulfill];
      }];
@@ -340,17 +340,17 @@
 - (void)testAcquireTokenTelemetry_whenPiiDisabledAndAggregrationOff_shouldReturnEventsWithoutPii
 {
     [self setupForAcquireTokenWithNetworkResponse];
-    [self setupADTelemetryDispatcherWithAggregationRequired:NO];
-    [ADTelemetry sharedInstance].piiEnabled = NO;
+    [self setupADALTelemetryDispatcherWithAggregationRequired:NO];
+    [ADALTelemetry sharedInstance].piiEnabled = NO;
     
-    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADALAuthenticationContext *context = [self getTestAuthenticationContext];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
                                      userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
      {
          [expectation fulfill];
      }];

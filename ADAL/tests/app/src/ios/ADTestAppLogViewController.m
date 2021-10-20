@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTestAppLogViewController.h"
-#import "ADTelemetry.h"
+#import "ADALTelemetry.h"
 #import "ADALLogger.h"
 
 @interface ADTestAppLogViewController () <ADDispatcher>
@@ -63,7 +63,7 @@ static NSAttributedString* s_attrNewLine = nil;
     
     [ADALLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     
-    [[ADTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
+    [[ADALTelemetry sharedInstance] addDispatcher:self aggregationRequired:YES];
     
     return self;
 }
@@ -93,7 +93,7 @@ static NSAttributedString* s_attrNewLine = nil;
 
 - (void)dispatchEvent:(nonnull NSDictionary<NSString*, NSString*> *)event
 {
-    NSString *log = [NSString stringWithFormat:@"ADTelemetry event dispatched: %@", event];
+    NSString *log = [NSString stringWithFormat:@"ADALTelemetry event dispatched: %@", event];
     [self appendNewLogLine:log];
 }
 

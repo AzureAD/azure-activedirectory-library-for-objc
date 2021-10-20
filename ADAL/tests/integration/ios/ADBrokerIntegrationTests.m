@@ -29,14 +29,14 @@
 #import "NSURL+MSIDTestUtil.h"
 
 #import "ADApplicationTestUtil.h"
-#import "ADAuthenticationContext+Internal.h"
-#import "ADBrokerHelper.h"
-#import "ADBrokerKeyHelper.h"
-#import "ADKeychainTokenCache+Internal.h"
-#import "ADTokenCache+Internal.h"
-#import "ADTokenCacheItem.h"
-#import "ADTokenCacheTestUtil.h"
-#import "ADUserInformation.h"
+#import "ADALAuthenticationContext+Internal.h"
+#import "ADALBrokerHelper.h"
+#import "ADALBrokerKeyHelper.h"
+#import "ADALKeychainTokenCache+Internal.h"
+#import "ADALTokenCache+Internal.h"
+#import "ADALTokenCacheItem.h"
+#import "ADALTokenCacheTestUtil.h"
+#import "ADALUserInformation.h"
 #import "ADRefreshResponseBuilder.h"
 #import "MSIDClientInfo.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
@@ -44,16 +44,16 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDAADV1Oauth2Factory.h"
-#import "ADEnrollmentGateway.h"
-#import "ADEnrollmentGateway+TestUtil.h"
+#import "ADALEnrollmentGateway.h"
+#import "ADALEnrollmentGateway+TestUtil.h"
 #import "NSData+MSIDExtensions.h"
-#import "ADTokenCacheKey.h"
-#import "ADTokenCacheItem+Internal.h"
+#import "ADALTokenCacheKey.h"
+#import "ADALTokenCacheItem+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "ADBrokerApplicationTokenHelper.h"
+#import "ADALBrokerApplicationTokenHelper.h"
 #import "ADTestBundle.h"
 
-@interface ADEnrollmentGateway ()
+@interface ADALEnrollmentGateway ()
 
 + (void)setEnrollmentIdsWithJsonBlob:(NSString *)enrollmentIds;
 + (void)setIntuneMAMResourceWithJsonBlob:(NSString *)resources;
@@ -71,6 +71,9 @@
     [super setUp];
     
     [MSIDKeychainTokenCache reset];
+    [ADApplicationTestUtil reset];
+    [ADALEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
+    [ADALEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
     NSArray *urlSchemes = @[@"msauth", @"msauthv3"];
     [ADTestBundle overrideObject:urlSchemes forKey:@"LSApplicationQueriesSchemes"];
 }
@@ -97,13 +100,13 @@
     
     NSString *authority = @"https://login.windows.net/common";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
     {
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_FAILED);
@@ -121,7 +124,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -168,7 +171,7 @@
           @"client_info" : [self adCreateClientInfo].rawClientInfo
           };
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
     
@@ -181,12 +184,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
     {
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -211,7 +214,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -258,7 +261,7 @@
           @"client_info" : [self adCreateClientInfo].rawClientInfo
           };
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:nil];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:nil];
         return YES;
     }];
     
@@ -271,12 +274,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
@@ -296,7 +299,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -347,7 +350,7 @@
           @"broker_nonce" : brokerNonce
           };
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:nil];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:nil];
         return YES;
     }];
     
@@ -360,12 +363,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -397,7 +400,7 @@
     NSString *updatedAT = @"updated-access-token";
     NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
     
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     // Parameters for launching broker
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
@@ -445,7 +448,7 @@
           @"expires_in" : @"3600"
           };
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
     
@@ -468,12 +471,12 @@
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -500,7 +503,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -544,7 +547,7 @@
                                                           ADAL_BROKER_APP_VERSION : @"2"
                                                           }];
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
 
@@ -557,12 +560,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
 
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
@@ -581,7 +584,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -627,7 +630,7 @@
           @"expires_in" : @"3600"
           };
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
 
@@ -640,7 +643,7 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
 
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
@@ -649,7 +652,7 @@
                        userIdentifier:nil
                  extraQueryParameters:nil
                                claims:@"%7B%22access_token%22%3A%7B%22deviceid%22%3A%7B%22essential%22%3Atrue%7D%7D%7D"
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -675,7 +678,7 @@
     NSString *updatedAT = @"updated-access-token";
     NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
     
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     // Parameters for launching broker
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
@@ -723,7 +726,7 @@
           @"expires_in" : @"3600"
           };
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
     
@@ -746,12 +749,12 @@
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -777,7 +780,7 @@
 - (void)testBroker_whenTenantSpecifiedWithRequestUsingScope_shouldGetNewAT
 {
     // This test is near identical to testBroker_whenTenantSpecified_shouldGetNewAT except the
-    // acquireToken call is initiated using ADAuthenticationRequest directly
+    // acquireToken call is initiated using ADALAuthenticationRequest directly
     NSString *authority = @"https://login.microsoftonline.com/contoso.net";
     NSString *cacheAuthority = @"https://login.windows.net/contoso.net";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
@@ -788,7 +791,7 @@
     NSString *updatedAT = @"updated-access-token";
     NSString *correctTid = @"4b93453c-1131-4828-9715-a2e83336f2f2";
     
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     // Parameters for launching broker
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
@@ -836,7 +839,7 @@
           @"expires_in" : @"3600"
           };
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
     
@@ -859,10 +862,10 @@
     ADTestURLResponse *tokenResponse = builder.response;
     [ADTestURLSession addResponses:@[validationResponse, tokenResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     
-    ADRequestParameters *params = [ADRequestParameters new];
+    ADALRequestParameters *params = [ADALRequestParameters new];
     params.authority = context.authority;
     params.resource = TEST_RESOURCE;
     params.clientId = TEST_CLIENT_ID;
@@ -871,7 +874,7 @@
     
     MSIDLegacyTokenCacheAccessor *sharedCache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache otherCacheAccessors:nil factory:[MSIDAADV1Oauth2Factory new]];
     
-    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context
+    ADALAuthenticationRequest *req = [ADALAuthenticationRequest requestWithContext:context
                                                                  requestParams:params
                                                                     tokenCache:sharedCache
                                                                          error:nil];
@@ -879,7 +882,7 @@
     req.requestParams.scopesString = @"aza bzb";
     
     [req acquireToken:@"1234567890"
-      completionBlock:^(ADAuthenticationResult *result)
+      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -902,14 +905,14 @@
 
 - (void)testBroker_whenEnrollmentIDandMAMResourceIDArePresent_shouldSucceed
 {
-    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADEnrollmentGateway getTestResourceJSON]];
-    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADEnrollmentGateway getTestEnrollmentIDJSON]];
+    [ADALEnrollmentGateway setIntuneMAMResourceWithJsonBlob:[ADALEnrollmentGateway getTestResourceJSON]];
+    [ADALEnrollmentGateway setEnrollmentIdsWithJsonBlob:[ADALEnrollmentGateway getTestEnrollmentIDJSON]];
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    NSString *enrollmentIDs = [ADEnrollmentGateway getTestEnrollmentIDJSON];
-    NSString *intuneResource = [ADEnrollmentGateway getTestResourceJSON];
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    NSString *enrollmentIDs = [ADALEnrollmentGateway getTestEnrollmentIDJSON];
+    NSString *intuneResource = [ADALEnrollmentGateway getTestResourceJSON];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -956,7 +959,7 @@
           @"client_info" : [self adCreateClientInfo].rawClientInfo
           };
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
 
@@ -969,12 +972,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
 
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -989,14 +992,14 @@
 
     ADLegacyKeychainTokenCache *tokenCache = ADLegacyKeychainTokenCache.defaultKeychainCache;
 
-    ADTokenCacheKey *accessTokenCacheKey = [ADTokenCacheKey keyWithAuthority:authority resource:TEST_RESOURCE clientId:TEST_CLIENT_ID appIdentifier:@"com.microsoft.unittesthost" error:nil];
-    ADTokenCacheItem *accessTokenCacheItem = [tokenCache getItemWithKey:accessTokenCacheKey userId:TEST_USER_ID correlationId:nil error:nil];
+    ADALTokenCacheKey *accessTokenCacheKey = [ADALTokenCacheKey keyWithAuthority:authority resource:TEST_RESOURCE clientId:TEST_CLIENT_ID appIdentifier:@"com.microsoft.unittesthost" error:nil];
+    ADALTokenCacheItem *accessTokenCacheItem = [tokenCache getItemWithKey:accessTokenCacheKey userId:TEST_USER_ID correlationId:nil error:nil];
     XCTAssertEqualObjects(accessTokenCacheItem.enrollmentId, @"adf79e3f-mike-454d-9f0f-2299e76dbfd5");
     XCTAssertEqualObjects(accessTokenCacheItem.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects([tokenCache getMRRT:authority], @"i-am-a-refresh-token");
     XCTAssertEqualObjects([tokenCache getFRT:authority], @"i-am-a-refresh-token");
-    [ADEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
-    [ADEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
+    [ADALEnrollmentGateway setIntuneMAMResourceWithJsonBlob:@""];
+    [ADALEnrollmentGateway setEnrollmentIdsWithJsonBlob:@""];
 }
 
 - (void)testBroker_whenFailWithProtectionRequiredError_shouldStoreMamTokenAndReturnError
@@ -1004,7 +1007,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -1064,7 +1067,7 @@
         [responseParams setValue:encrypted_token[ADAL_BROKER_HASH_KEY] forKey:ADAL_BROKER_INTUNE_HASH_KEY];
         [responseParams setValue:encrypted_token[@"msg_protocol_ver"] forKey:@"msg_protocol_ver"];
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
 
@@ -1077,12 +1080,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
 
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
@@ -1109,7 +1112,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -1153,7 +1156,7 @@
                                                           @"user_id" : @"user@microsoft.com",
                                                           }];
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerErrorResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
 
@@ -1166,12 +1169,12 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
 
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:[NSURL URLWithString:redirectUri]
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
@@ -1212,7 +1215,7 @@
 + (NSDictionary *) createV2BrokerResponseDicitonary:(NSDictionary *) parameters
 {
     NSData *payload = [[NSString msidWWWFormURLEncodedStringFromDictionary:parameters] dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *brokerKey = [ADBrokerKeyHelper symmetricKey];
+    NSData *brokerKey = [ADALBrokerKeyHelper symmetricKey];
 
     size_t bufferSize = [payload length] + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
@@ -1247,10 +1250,10 @@
     return message;
 }
 
-- (ADAuthenticationContext *)getBrokerTestContext:(NSString *)authority
+- (ADALAuthenticationContext *)getBrokerTestContext:(NSString *)authority
 {
-    ADAuthenticationContext *context =
-    [[ADAuthenticationContext alloc] initWithAuthority:authority
+    ADALAuthenticationContext *context =
+    [[ADALAuthenticationContext alloc] initWithAuthority:authority
                                      validateAuthority:YES
                                                  error:nil];
     
@@ -1266,7 +1269,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
     
     NSDictionary *expectedRequestParams = @{
                                             @"authority" : authority,
@@ -1313,7 +1316,7 @@
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
     
@@ -1326,7 +1329,7 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
     
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -1335,7 +1338,7 @@
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:nil
                  extraQueryParameters:nil
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -1360,7 +1363,7 @@
         NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
         XCTAssertTrue([expectedURL matchesURL:url]);
         
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
     
@@ -1371,7 +1374,7 @@
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:nil
                  extraQueryParameters:nil
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -1386,7 +1389,7 @@
     NSString *authority = @"https://login.windows.net/common";
     NSString *brokerKey = @"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U";
     NSString *redirectUri = @"x-msauth-unittest://com.microsoft.unittesthost";
-    [ADBrokerKeyHelper setSymmetricKey:brokerKey];
+    [ADALBrokerKeyHelper setSymmetricKey:brokerKey];
 
     [ADApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
         (void)options;
@@ -1432,7 +1435,7 @@
           @"expires_in" : @"3600"
           };
 
-        [ADAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
+        [ADALAuthenticationContext handleBrokerResponse:[ADBrokerIntegrationTests createV2BrokerResponse:responseParams redirectUri:redirectUri] sourceApplication:ADAL_BROKER_APP_BUNDLE_ID];
         return YES;
     }];
 
@@ -1445,7 +1448,7 @@
                                          withMetadata:metadata];
     [ADTestURLSession addResponses:@[validationResponse]];
 
-    ADAuthenticationContext *context = [self getBrokerTestContext:authority];
+    ADALAuthenticationContext *context = [self getBrokerTestContext:authority];
     context.clientCapabilities = @[@"llt"];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquire token callback"];
@@ -1455,7 +1458,7 @@
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:nil
                  extraQueryParameters:nil
-                      completionBlock:^(ADAuthenticationResult *result)
+                      completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);

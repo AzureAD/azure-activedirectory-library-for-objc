@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADWebAuthController.h"
+#import "ADALWebAuthController.h"
 
 @interface ADTestWebAuthController : NSObject
 

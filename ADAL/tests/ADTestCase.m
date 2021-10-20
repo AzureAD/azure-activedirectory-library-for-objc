@@ -27,7 +27,7 @@
 
 
 #import "ADTestCase.h"
-#import "ADAuthorityValidation+TestUtil.h"
+#import "ADALAuthorityValidation+TestUtil.h"
 #import "ADTestWebAuthController.h"
 #import "ADALLogger.h"
 
@@ -47,7 +47,7 @@
 {
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
-    [ADAuthorityValidation clearAadCache];
+    [ADALAuthorityValidation clearAadCache];
     
 #if TARGET_OS_IPHONE
     [ADApplicationTestUtil reset];

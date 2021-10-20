@@ -25,9 +25,9 @@
 #import "ADAutoRequestViewController.h"
 #import "ADAutoResultViewController.h"
 #import "ADAL.h"
-#import "ADTokenCacheDataSource.h"
-#import "ADTokenCache.h"
-#import "ADTokenCache+Internal.h"
+#import "ADALTokenCacheDataSource.h"
+#import "ADALTokenCache.h"
+#import "ADALTokenCache+Internal.h"
 #import "ADTestAppCache.h"
 #import "ADAutoPassedInWebViewController.h"
 
@@ -70,7 +70,7 @@
     return tabViewController.tabViewItems[index].viewController;
 }
 
-- (void)showPassedInWebViewControllerWithContext:(ADAuthenticationContext *)context
+- (void)showPassedInWebViewControllerWithContext:(ADALAuthenticationContext *)context
 {
     [self selectTabViewAtIndex:3];
     ADAutoPassedInWebViewController *webViewController = (ADAutoPassedInWebViewController *) [self viewControllerAtIndex:3];
@@ -78,20 +78,20 @@
 }
 
 
-- (id<ADTokenCacheDataSource>)cacheDatasource
+- (id<ADALTokenCacheDataSource>)cacheDatasource
 {
-    return [ADTokenCache defaultCache];
+    return [ADALTokenCache defaultCache];
 }
 
 - (void)clearCache
 {
-    [[ADTokenCache defaultCache].macTokenCache clear];
+    [[ADALTokenCache defaultCache].macTokenCache clear];
     [[ADTestAppCache sharedCache] clearCacheWithError:nil];
 }
 
 - (void)clearKeychain
 {
-    [[ADTokenCache defaultCache].macTokenCache clear];
+    [[ADALTokenCache defaultCache].macTokenCache clear];
     [[ADTestAppCache sharedCache] clearCacheWithError:nil];
 }
 

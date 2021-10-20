@@ -24,17 +24,17 @@
 #import "ADTestAppDelegate.h"
 #import "ADTestAppSettings.h"
 #import "ADAL_Internal.h"
-#import "ADTokenCache.h"
+#import "ADALTokenCache.h"
 #import "ADTestAppAcquireTokenWindowController.h"
 #import "ADTestAppCacheWindowController.h"
-#import "ADWebAuthController.h"
+#import "ADALWebAuthController.h"
 
 // These are not public APIs, however the test app is pulling
 // in things that can't be done with public APIs and shouldn't
 // be done in a normal app.
-@interface ADTokenCache (Internal)
-- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
-                  error:(ADAuthenticationError * __autoreleasing *)error;
+@interface ADALTokenCache (Internal)
+- (BOOL)addOrUpdateItem:(ADALTokenCacheItem *)item
+                  error:(ADALAuthenticationError * __autoreleasing *)error;
 @end
 
 
@@ -72,7 +72,7 @@
 
 - (IBAction)cancelCurrentSession:(id)sender
 {
-    [ADWebAuthController cancelCurrentWebAuthSession];
+    [ADALWebAuthController cancelCurrentWebAuthSession];
 }
 
 @end

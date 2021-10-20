@@ -23,13 +23,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "ADAuthorityValidation.h"
-#import "ADAuthorityValidationRequest.h"
-#import "ADDrsDiscoveryRequest.h"
+#import "ADALAuthorityValidation.h"
+#import "ADALAuthorityValidationRequest.h"
+#import "ADALDrsDiscoveryRequest.h"
 #import "ADTestURLSession.h"
 #import "ADTestURLResponse.h"
-#import "ADUserIdentifier.h"
-#import "ADWebFingerRequest.h"
+#import "ADALUserIdentifier.h"
+#import "ADALWebFingerRequest.h"
 
 @interface ADFSAuthorityValidationTests : ADTestCase
 
@@ -54,9 +54,9 @@
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
-    ADRequestParameters* requestParams = [ADRequestParameters new];
+    ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
+    ADALUserIdentifier* user = [ADALUserIdentifier identifierWithId:upn];
+    ADALRequestParameters* requestParams = [ADALRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
@@ -71,7 +71,7 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation checkAuthority:requestParams
                       validateAuthority:YES
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, ADALAuthenticationError *error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -91,9 +91,9 @@
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
-    ADRequestParameters* requestParams = [ADRequestParameters new];
+    ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
+    ADALUserIdentifier* user = [ADALUserIdentifier identifierWithId:upn];
+    ADALRequestParameters* requestParams = [ADALRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
@@ -111,7 +111,7 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation checkAuthority:requestParams
                       validateAuthority:YES
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, ADALAuthenticationError *error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -130,9 +130,9 @@
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
     
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
-    ADRequestParameters* requestParams = [ADRequestParameters new];
+    ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
+    ADALUserIdentifier* user = [ADALUserIdentifier identifierWithId:upn];
+    ADALRequestParameters* requestParams = [ADALRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
@@ -146,7 +146,7 @@
     
     [authorityValidation checkAuthority:requestParams
                       validateAuthority:YES
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, ADALAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -167,9 +167,9 @@
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
-    ADRequestParameters* requestParams = [ADRequestParameters new];
+    ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
+    ADALUserIdentifier* user = [ADALUserIdentifier identifierWithId:upn];
+    ADALRequestParameters* requestParams = [ADALRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
@@ -183,7 +183,7 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation checkAuthority:requestParams
                       validateAuthority:YES
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, ADALAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -204,9 +204,9 @@
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
-    ADRequestParameters* requestParams = [ADRequestParameters new];
+    ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
+    ADALUserIdentifier* user = [ADALUserIdentifier identifierWithId:upn];
+    ADALRequestParameters* requestParams = [ADALRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
@@ -220,7 +220,7 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation checkAuthority:requestParams
                       validateAuthority:YES
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, ADALAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -241,9 +241,9 @@
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
-    ADRequestParameters* requestParams = [ADRequestParameters new];
+    ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
+    ADALUserIdentifier* user = [ADALUserIdentifier identifierWithId:upn];
+    ADALRequestParameters* requestParams = [ADALRequestParameters new];
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
@@ -257,7 +257,7 @@
     XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation checkAuthority:requestParams
                       validateAuthority:YES
-                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                        completionBlock:^(BOOL validated, ADALAuthenticationError *error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -275,16 +275,16 @@
     {
         NSString* authority = @"https://login.windows.com/adfs";
         
-        ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
+        ADALAuthorityValidation* authorityValidation = [[ADALAuthorityValidation alloc] init];
         
-        ADRequestParameters* requestParams = [ADRequestParameters new];
+        ADALRequestParameters* requestParams = [ADALRequestParameters new];
         requestParams.authority = authority;
         requestParams.correlationId = [NSUUID UUID];
         
         XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
         [authorityValidation checkAuthority:requestParams
                           validateAuthority:NO
-                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                            completionBlock:^(BOOL validated, ADALAuthenticationError *error)
          {
              XCTAssertFalse(validated);
              XCTAssertNil(error);

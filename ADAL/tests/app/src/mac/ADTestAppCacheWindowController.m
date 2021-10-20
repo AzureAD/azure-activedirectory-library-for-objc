@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import "ADTestAppCacheWindowController.h"
-#import "ADTokenCache+Internal.h"
-#import "ADTokenCacheItem.h"
-#import "ADUserInformation.h"
+#import "ADALTokenCache+Internal.h"
+#import "ADALTokenCacheItem.h"
+#import "ADALUserInformation.h"
 #import "ADTestAppCache.h"
 
 @interface ADTestAppCacheWindowController () <NSTableViewDelegate, NSTableViewDataSource>
@@ -71,7 +71,7 @@
 
 - (void)reloadCache
 {
-    _allItems = [[ADTokenCache defaultCache] allItems:nil];
+    _allItems = [[ADALTokenCache defaultCache] allItems:nil];
     [_tableView reloadData];
 }
 
@@ -91,7 +91,7 @@
 
 - (NSString *)dataForTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    ADTokenCacheItem* item = [_allItems objectAtIndex:row];
+    ADALTokenCacheItem* item = [_allItems objectAtIndex:row];
     
     NSString* identifier = tableColumn.identifier;
     if ([identifier isEqualToString:@"upn"])
@@ -178,7 +178,7 @@ static NSLineBreakMode linebreakForColumn(NSTableColumn* tableColumn)
     __block NSMutableString * descr = [NSMutableString new];
     [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop)
      {
-         ADTokenCacheItem* item = _allItems[idx];
+         ADALTokenCacheItem* item = _allItems[idx];
          [descr appendFormat:@"{\n\taccess_token: %@\n\trefresh_token: %@\n}\n", item.accessToken, item.refreshToken];
      }];
     
@@ -194,13 +194,13 @@ static NSLineBreakMode linebreakForColumn(NSTableColumn* tableColumn)
         
         [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop)
          {
-             ADTokenCacheItem* item = _allItems[idx];
+             ADALTokenCacheItem* item = _allItems[idx];
              if (item.expiresOn)
              {
                  item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:-1.0];
              }
              
-             [[ADTokenCache defaultCache] addOrUpdateItem:item correlationId:nil error:nil];
+             [[ADALTokenCache defaultCache] addOrUpdateItem:item correlationId:nil error:nil];
          }];
         
         [self reloadCache];
@@ -215,8 +215,8 @@ static NSLineBreakMode linebreakForColumn(NSTableColumn* tableColumn)
         
         [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop)
          {
-             ADTokenCacheItem* item = _allItems[idx];
-             [[ADTokenCache defaultCache] removeItem:item error:nil];
+             ADALTokenCacheItem* item = _allItems[idx];
+             [[ADALTokenCache defaultCache] removeItem:item error:nil];
          }];
         
         [self reloadCache];
@@ -231,13 +231,13 @@ static NSLineBreakMode linebreakForColumn(NSTableColumn* tableColumn)
         
         [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop)
          {
-             ADTokenCacheItem* item = _allItems[idx];
+             ADALTokenCacheItem* item = _allItems[idx];
              if (item.refreshToken)
              {
                  item.refreshToken = @"bad-refresh-token";
              }
              
-             [[ADTokenCache defaultCache] addOrUpdateItem:item correlationId:nil error:nil];
+             [[ADALTokenCache defaultCache] addOrUpdateItem:item correlationId:nil error:nil];
          }];
         
         [self reloadCache];

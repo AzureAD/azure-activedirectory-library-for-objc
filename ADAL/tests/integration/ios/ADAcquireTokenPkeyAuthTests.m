@@ -23,10 +23,10 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import "ADTokenCache+Internal.h"
-#import "ADAuthenticationContext+Internal.h"
+#import "ADALTokenCache+Internal.h"
+#import "ADALAuthenticationContext+Internal.h"
 #import "ADTestURLSession.h"
-#import "ADTokenCacheItem+Internal.h"
+#import "ADALTokenCacheItem+Internal.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "ADLegacyKeychainTokenCache.h"
@@ -55,8 +55,8 @@
 
 - (void)testTokenEndpointPkeyAuthNoWPJ
 {
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    ADALAuthenticationError* error = nil;
+    ADALAuthenticationContext* context = [self getTestAuthenticationContext];
     
     // Add an MRRT to the cache
     [ADLegacyKeychainTokenCache.defaultKeychainCache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
@@ -72,7 +72,7 @@
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
                                      userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
@@ -90,11 +90,11 @@
     XCTAssertNotNil(allItems);
     XCTAssertEqual(allItems.count, 2);
     
-    ADTokenCacheItem* mrrtItem = nil;
-    ADTokenCacheItem* atItem = nil;
+    ADALTokenCacheItem* mrrtItem = nil;
+    ADALTokenCacheItem* atItem = nil;
     
     // Pull the MRRT and AT items out of the cache
-    for (ADTokenCacheItem * item in allItems)
+    for (ADALTokenCacheItem * item in allItems)
     {
         if (item.refreshToken)
         {
@@ -119,10 +119,10 @@
 
 #pragma mark - Private
 
-- (ADAuthenticationContext *)getTestAuthenticationContext
+- (ADALAuthenticationContext *)getTestAuthenticationContext
 {
-    ADAuthenticationContext* context =
-    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
+    ADALAuthenticationContext* context =
+    [[ADALAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
                                      validateAuthority:NO
                                                  error:nil];
     

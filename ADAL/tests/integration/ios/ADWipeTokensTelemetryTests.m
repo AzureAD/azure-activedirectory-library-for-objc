@@ -22,16 +22,16 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "ADTelemetryTestDispatcher.h"
-#import "ADTelemetry.h"
-#import "ADKeychainTokenCache.h"
+#import "ADALTelemetryTestDispatcher.h"
+#import "ADALTelemetry.h"
+#import "ADALKeychainTokenCache.h"
 #import "XCTestCase+TestHelperMethods.h"
-#import "ADTokenCacheItem.h"
-#import "ADKeychainTokenCache+Internal.h"
-#import "ADAuthenticationContext+Internal.h"
-#import "ADTokenCache.h"
-#import "ADAuthorityValidation.h"
-#import "ADAuthenticationContext+TestUtil.h"
+#import "ADALTokenCacheItem.h"
+#import "ADALKeychainTokenCache+Internal.h"
+#import "ADALAuthenticationContext+Internal.h"
+#import "ADALTokenCache.h"
+#import "ADALAuthorityValidation.h"
+#import "ADALAuthenticationContext+TestUtil.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 
@@ -58,7 +58,7 @@
 - (void)testWipeAllItemsForUserId_withOneItem_shouldGenerateTelemetry
 {
     // Setup telemetry callback
-    ADTelemetryTestDispatcher *dispatcher = [ADTelemetryTestDispatcher new];
+    ADALTelemetryTestDispatcher *dispatcher = [ADALTelemetryTestDispatcher new];
     
     NSMutableArray *receivedEvents = [NSMutableArray array];
     
@@ -69,14 +69,14 @@
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
+    [[ADALTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // Add test tokens to cache
     NSError *error = nil;
     
-    ADKeychainTokenCache *store = [[ADKeychainTokenCache alloc] init];
+    ADALKeychainTokenCache *store = [[ADALKeychainTokenCache alloc] init];
     
-    ADTokenCacheItem *item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    ADALTokenCacheItem *item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item1 setClientId:@"client 1"];
     [store addOrUpdateItem:item1 correlationId:nil error:&error];
     
@@ -86,14 +86,14 @@
     XCTAssertTrue([store wipeAllItemsForUserId:@"eric@contoso.com" error:&error]);
     XCTAssertNil(error);
     
-    ADAuthenticationContext *context = [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
+    ADALAuthenticationContext *context = [[ADALAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
                                                                         validateAuthority:NO
                                                                                     error:nil];
     
 //    context.tokenCache = [MSIDSharedTokenCache new];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
-    [[ADAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
+    [[ADALAuthorityValidation sharedInstance] addInvalidAuthority:TEST_AUTHORITY];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
     
@@ -102,7 +102,7 @@
                                    clientId:TEST_CLIENT_ID
                                 redirectUri:TEST_REDIRECT_URL
                                      userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
+                            completionBlock:^(ADALAuthenticationResult *result)
      {
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);

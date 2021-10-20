@@ -21,19 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADKeychainTokenCache.h"
-#import "ADTokenCacheDataSource.h"
+#import "ADALKeychainTokenCache.h"
+#import "ADALTokenCacheDataSource.h"
 
 @class ADKeyChainHelper;
-@class ADTokenCacheItem;
-@class ADAuthenticationError;
+@class ADALTokenCacheItem;
+@class ADALAuthenticationError;
 
-@interface ADLegacyKeychainTokenCache : ADKeychainTokenCache <ADTokenCacheDataSource>
+@interface ADLegacyKeychainTokenCache : ADALKeychainTokenCache <ADALTokenCacheDataSource>
 
 @property (readonly) NSString* __nonnull sharedGroup;
 
 /*!
-     The name of the keychain group to be used by default when creating an ADAuthenticationContext,
+     The name of the keychain group to be used by default when creating an ADALAuthenticationContext,
      the default value is com.microsoft.adalcache.
  */
 + (nullable NSString*)defaultKeychainGroup;
@@ -51,18 +51,18 @@
 
  
      NOTE: Once an authentication context has been created with the default keychain
-     group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
+     group, or +[ADALKeychainTokenCache defaultKeychainCache] has been called then
      this value cannot be changed. Doing so will throw an exception.
  */
 + (void)setDefaultKeychainGroup:(nullable NSString*)keychainGroup;
 
 /*!
-    @return A singleton instance of the ADKeychainTokenCache for the default keychain group.
+    @return A singleton instance of the ADALKeychainTokenCache for the default keychain group.
  */
 + (nonnull ADLegacyKeychainTokenCache*)defaultKeychainCache;
 
 /*!
-    @return An instance of ADKeychainTokenCache for the given group, or the defaultKeychainCache
+    @return An instance of ADALKeychainTokenCache for the given group, or the defaultKeychainCache
             singleton if the default keychain group is passed in.
  */
 + (nonnull ADLegacyKeychainTokenCache*)keychainCacheForGroup:(nullable NSString*)group;
@@ -78,25 +78,25 @@
  See Apple's keychain services documentation for details. */
 - (nullable instancetype)initWithGroup:(nullable NSString *)sharedGroup;
 
-/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
+/*! Return a copy of all items. The array will contain ADALTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (nullable NSArray<ADALTokenCacheItem *> *)allItems:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /* Removes a token cache item from the keychain */
-- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (BOOL)removeItem:(nonnull ADALTokenCacheItem *)item
+             error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /* Removes all token cache items for a specific client from the keychain.
  */
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
-                       error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                       error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /* Removes all token cache items for a specific user and a specific clientId from the keychain
  */
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                   clientId:(NSString * __nonnull)clientId
-                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                     error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*
    Removes all token cache items for a specific user from the keychain with
@@ -107,23 +107,23 @@
    It's not indended to be used as a way to reset or fix token cache.
  */
 - (BOOL)wipeAllItemsForUserId:(NSString * __nonnull)userId
-                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+                        error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 // Internal methods
 + (BOOL)checkStatus:(OSStatus)status
           operation:(nullable NSString *)operation
       correlationId:(nullable NSUUID *)correlationId
-              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+              error:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-- (nullable NSMutableDictionary *)queryDictionaryForKey:(nullable ADTokenCacheKey *)key
+- (nullable NSMutableDictionary *)queryDictionaryForKey:(nullable ADALTokenCacheKey *)key
                                                  userId:(nullable NSString *)userId
                                              additional:(nullable NSDictionary*)additional;
 
-- (nullable NSString*)keychainKeyFromCacheKey:(nullable ADTokenCacheKey *)itemKey;
+- (nullable NSString*)keychainKeyFromCacheKey:(nullable ADALTokenCacheKey *)itemKey;
 
 /*! This method should *only* be called in test code, it should never be called
  in production code */
-- (void)testRemoveAll:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (void)testRemoveAll:(ADALAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 - (nullable NSDictionary*)defaultKeychainQuery;
 

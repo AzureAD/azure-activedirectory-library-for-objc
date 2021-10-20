@@ -26,7 +26,7 @@
 // (Note: All Info.plist files read version numbers from the following three lines
 // through build script. Don't change its format unless changing build script as well.)
 
-#define ADAL_VER_HIGH       5
+#define ADAL_VER_HIGH       6
 #define ADAL_VER_LOW        0
 #define ADAL_VER_PATCH      0
 
@@ -47,9 +47,9 @@
 // This is specially crafted so the name of the variable matches the full ADAL version
 #define ADAL_VERSION_VAR ADAL_VERSION_(ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH)
 
-#import "ADAuthenticationError+Internal.h"
+#import "ADALAuthenticationError+Internal.h"
 #import "MSIDLogger+Internal.h"
-#import "ADAuthenticationResult+Internal.h"
+#import "ADALAuthenticationResult+Internal.h"
 
 #import "NSString+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
@@ -58,16 +58,16 @@
 #import "MSIDOAuth2Constants.h"
 #import "ADALConstants.h"
 
-@class ADAuthenticationResult;
+@class ADALAuthenticationResult;
 @class MSIDTokenResponse;
 @class MSIDWebviewResponse;
 
 /*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-typedef void(^MSIDAuthorizationCodeCallback)(MSIDWebviewResponse *response, ADAuthenticationError *error);
-typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADAuthenticationError *error);
+typedef void(^ADAuthenticationCallback)(ADALAuthenticationResult* result);
+typedef void(^MSIDAuthorizationCodeCallback)(MSIDWebviewResponse *response, ADALAuthenticationError *error);
+typedef void(^MSIDTokenResponseCallback)(MSIDTokenResponse *response, ADALAuthenticationError *error);
 
-#import "ADAuthenticationRequest.h"
+#import "ADALAuthenticationRequest.h"
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
@@ -101,7 +101,7 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
 #define FILL_PARAMETER_ERROR(ARG) \
 if (error) \
 { \
-*error = [ADAuthenticationError errorFromArgument:ARG \
+*error = [ADALAuthenticationError errorFromArgument:ARG \
 argumentName:@#ARG correlationId:nil]; \
 }
 
@@ -119,11 +119,11 @@ argumentName:@#ARG correlationId:nil]; \
     } \
 }
 
-//Used for methods that have (ADAuthenticationError * __autoreleasing *) error parameter to be
+//Used for methods that have (ADALAuthenticationError * __autoreleasing *) error parameter to be
 //used for error conditions. The macro checks if ARG is nil or an empty string, sets the error and returns nil.
 #define RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(STRING_NIL_OR_EMPTY_CONDITION(ARG), ARG, nil)
 
-//Used for methods that have (ADAuthenticationError * __autoreleasing *) error parameter to be
+//Used for methods that have (ADALAuthenticationError * __autoreleasing *) error parameter to be
 //used for error conditions, but return no value (void). The macro checks if ARG is nil or an empty string,
 //sets the error and returns.
 #define RETURN_ON_NIL_EMPTY_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(STRING_NIL_OR_EMPTY_CONDITION(ARG), ARG, )
