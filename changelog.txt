@@ -1,4 +1,4 @@
-Version 5.0.0 (08.23.2021)
+[5.0.0] (08.23.2021)
 ------
 * Rename ADLogger to ADALLogger to fix a crash about naming collision (ADLogger) between ADAL and Apple's Depth (in ARKit) in iOS 15
 
