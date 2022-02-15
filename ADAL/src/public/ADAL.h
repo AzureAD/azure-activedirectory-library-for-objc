@@ -39,6 +39,7 @@ FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
 typedef void(^ADAuthenticationCallback)(ADALAuthenticationResult* _Nonnull result);
 
 #import <ADAL/ADALAuthenticationContext.h>
+#import <ADAL/ADALAuthenticationContext+RemoteDeviceIdentity.h>
 #import <ADAL/ADALAuthenticationError.h>
 #import <ADAL/ADALAuthenticationParameters.h>
 #import <ADAL/ADALAuthenticationResult.h>
