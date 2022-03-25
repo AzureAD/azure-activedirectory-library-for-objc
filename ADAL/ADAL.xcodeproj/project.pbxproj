@@ -4079,7 +4079,7 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				MARKETING_VERSION = 6.0.0;
+				MARKETING_VERSION = 6.0.2;
 			};
 			name = Debug;
 		};
@@ -4090,7 +4090,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
-				MARKETING_VERSION = 6.0.0;
+				MARKETING_VERSION = 6.0.2;
 			};
 			name = Release;
 		};
@@ -4101,7 +4101,7 @@
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
-				MARKETING_VERSION = 6.0.0;
+				MARKETING_VERSION = 6.0.2;
 			};
 			name = Debug;
 		};
@@ -4111,7 +4111,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
-				MARKETING_VERSION = 6.0.0;
+				MARKETING_VERSION = 6.0.2;
 			};
 			name = Release;
 		};
