@@ -3183,7 +3183,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${SRCROOT}/${INFOPLIST_FILE}\"\n";
+			shellScript = "/usr/bin/python3 \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${SRCROOT}/${INFOPLIST_FILE}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		6079EB5D1D79559500E95AB1 /* ShellScript */ = {
