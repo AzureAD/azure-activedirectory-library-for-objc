@@ -1,3 +1,9 @@
+Version 6.0.3
+------
+* Update build script as Apple retires instruments tool.
+* Add more logs in account query from keychain.
+------
+
 Version 6.0.2
 ------
 * Update python version in order to support macOS 12.3 
