@@ -109,7 +109,7 @@
     NSURL *resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem"
                                                     responseURLString:@"http://contoso.com"
-                                                         responseCode:HTTP_UNAUTHORIZED
+                                                         responseCode:ADAL_HTTP_UNAUTHORIZED
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                                      dictionaryAsJSON:@{}];
     [ADTestURLSession addResponse:response];
@@ -133,7 +133,7 @@
     NSURL *resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
     ADTestURLResponse *response = [ADTestURLResponse requestURLString:@"https://testapi007.azurewebsites.net/api/WorkItem"
                                  responseURLString:@"https://contoso.com"
-                                      responseCode:HTTP_UNAUTHORIZED
+                                      responseCode:ADAL_HTTP_UNAUTHORIZED
                                   httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                   dictionaryAsJSON:@{}];
     [ADTestURLSession addResponse:response];

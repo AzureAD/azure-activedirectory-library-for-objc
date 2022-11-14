@@ -191,5 +191,5 @@ typedef NS_ENUM(NSInteger, ADALErrorCode)
 /* HTTP status codes used by the library */
 typedef enum
 {
-    HTTP_UNAUTHORIZED = 401,
+    ADAL_HTTP_UNAUTHORIZED = 401,
 } HTTPStatusCodes;
