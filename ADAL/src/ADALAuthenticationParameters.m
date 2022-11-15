@@ -91,7 +91,7 @@
                                                  errorDetails:[NSString stringWithFormat:ConnectionError, error.description]
                                                 correlationId:nil];
         }
-        else if (ADAL_HTTP_UNAUTHORIZED != response.statusCode)
+        else if (HTTP_UNAUTHORIZED != response.statusCode)
         {
             adError = [ADALAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED
                                                              protocolCode:nil
