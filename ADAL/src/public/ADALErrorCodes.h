@@ -187,3 +187,11 @@ typedef NS_ENUM(NSInteger, ADALErrorCode)
 
     
 };
+
+#ifndef HTTP_UNAUTHORIZED
+/* HTTP status codes used by the library */
+typedef enum
+{
+    HTTP_UNAUTHORIZED = 401,
+} HTTPStatusCodes;
+#endif
