@@ -1,3 +1,8 @@
+Version 6.0.4
+------
+* Fixes to support XCode 14+
+------
+
 Version 6.0.2
 ------
 * Update python version in order to support macOS 12.3 
