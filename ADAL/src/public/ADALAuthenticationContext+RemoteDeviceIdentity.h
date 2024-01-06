@@ -21,40 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADALAuthenticationContext.h"
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+
+/// This block for the ADAL gets device identity (device has to be enrolled and compliant)
+/// @param challengeUrl device CA challenge recieved from AAD
+typedef NSString * _Nullable (^ADALRemotePkeyAuthResponseCallback)(NSString * _Nonnull challengeUrl);
+
+@interface ADALAuthenticationContext (RemoteDeviceIdentity)
+/// Enables In memory token cache
+@property (class, nonatomic) BOOL isInMemoryTokenCacheEnabled;
+
+/// Sets a block for the ADAL, which will be called once device CA request from AAD recieved to get device identity (device has to be enrolled and compliant)
+/// @param callback The block autjentication challenge is sent.
++(void)setRemotePkeyAuthCallback:(nullable ADALRemotePkeyAuthResponseCallback)callback;
+
+@end
 #endif
-
-//! Project version number for ADALFramework.
-FOUNDATION_EXPORT double ADALFrameworkVersionNumber;
-
-//! Project version string for ADALFramework.
-FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
-
-@class ADALAuthenticationResult;
-
-/*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADALAuthenticationResult* _Nonnull result);
-
-#import <ADAL/ADALAuthenticationContext.h>
-#import <ADAL/ADALAuthenticationContext+RemoteDeviceIdentity.h>
-#import <ADAL/ADALAuthenticationError.h>
-#import <ADAL/ADALAuthenticationParameters.h>
-#import <ADAL/ADALAuthenticationResult.h>
-#import <ADAL/ADALAuthenticationSettings.h>
-#import <ADAL/ADALErrorCodes.h>
-#import <ADAL/ADALLogger.h>
-#import <ADAL/ADALTokenCacheItem.h>
-#import <ADAL/ADALUserIdentifier.h>
-#import <ADAL/ADALUserInformation.h>
-#import <ADAL/ADALWebAuthController.h>
-#import <ADAL/ADALTelemetry.h>
-
-#if TARGET_OS_IPHONE
-#import <ADAL/ADALKeychainTokenCache.h>
-#else
-#import <ADAL/ADALTokenCache.h>
-#endif
-
