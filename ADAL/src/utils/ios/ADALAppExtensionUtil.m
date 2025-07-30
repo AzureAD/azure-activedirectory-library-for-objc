@@ -62,7 +62,11 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
+    SEL openURLSelector = @selector(openURL:options:completionHandler:);
+    UIApplication *application = [self sharedApplication];
+    id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
+    
+    safeOpenURL(application, openURLSelector, url, @{}, nil);
 #pragma clang diagnostic pop
 }
 
